@@ -6,8 +6,6 @@ import static org.junit.Assert.assertNotNull;
 
 /**
  * Tests {@link FileLink FileLink} class.
- *
- * @author Shawn Aten (shawn@filestack.com)
  */
 public class TestFileLink {
     private static final String API_KEY = "XXXXXXXXXXXXXXXXXXXXXXX";
