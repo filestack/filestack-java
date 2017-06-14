@@ -7,5 +7,11 @@ repositories {
 }
 
 dependencies {
+    // Unit testing
     testImplementation 'junit:junit:4.12'
+
+    // High-level HTTP client
+    compile 'com.squareup.retrofit2:retrofit:2.3.0'
+    // Low-level HTTP client, used by Retrofit
+    compile 'com.squareup.okhttp3:okhttp:3.8.0'
 }
