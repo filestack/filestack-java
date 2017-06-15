@@ -1,6 +1,5 @@
 package util;
 
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 
@@ -17,6 +16,7 @@ public class Networking {
     public static OkHttpClient getHttpClient() {
         if (httpClient == null) {
             OkHttpClient.Builder builder = new OkHttpClient.Builder();
+            builder.addInterceptor(new HeaderInterceptor());
             if (mockMode) {
                 builder.addInterceptor(new MockInterceptor());
             }
