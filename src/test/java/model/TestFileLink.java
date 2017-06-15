@@ -29,10 +29,7 @@ public class TestFileLink {
      */
     @BeforeClass
     public static void setup() {
-        OkHttpClient httpClient = new OkHttpClient.Builder()
-                .addInterceptor(new MockInterceptor())
-                .build();
-        Networking.setHttpClient(httpClient);
+        Networking.setMockMode(true);
     }
 
     @Test
