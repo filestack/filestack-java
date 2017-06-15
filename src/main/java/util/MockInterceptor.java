@@ -33,6 +33,8 @@ public class MockInterceptor implements Interceptor {
                 String handle = path.get(0);
                 builder = genGetResponse(handle);
             }
+        } else {
+            builder = genDefaultResponse();
         }
 
         if (builder == null)
@@ -56,6 +58,15 @@ public class MockInterceptor implements Interceptor {
         return new Response.Builder()
                 .addHeader(HEADER_FILENAME, TEST_FILENAME)
                 .body(body)
+                .code(200)
+                .message(MESSAGE_OK);
+    }
+
+    /**
+     * Generates a test response for requests that don't match a host.
+     */
+    private Response.Builder genDefaultResponse() {
+        return new Response.Builder()
                 .code(200)
                 .message(MESSAGE_OK);
     }
