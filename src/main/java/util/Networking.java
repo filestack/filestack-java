@@ -8,12 +8,19 @@ import retrofit2.Retrofit;
  * We only want to instantiate these classes once per app.
  */
 public class Networking {
+    private static boolean mockMode = false;
+
     private static OkHttpClient httpClient;
     private static CdnService cdnService;
 
     public static OkHttpClient getHttpClient() {
         if (httpClient == null) {
-            httpClient = new OkHttpClient.Builder().build();
+            OkHttpClient.Builder builder = new OkHttpClient.Builder();
+            builder.addInterceptor(new HeaderInterceptor());
+            if (mockMode) {
+                builder.addInterceptor(new MockInterceptor());
+            }
+            httpClient = builder.build();
         }
         return httpClient;
     }
@@ -31,23 +38,20 @@ public class Networking {
     }
 
     /**
-     * The retrofit services will be recreated to use this client after calling.
-     *
-     * @param httpClient Customized OkHttpClient
+     * Sets the httpClient to intercept requests and return mock responses for testing.
      */
-    public static void setHttpClient(OkHttpClient httpClient) {
-        Networking.httpClient = httpClient;
-        Networking.cdnService = null;
+    public static void setMockMode(boolean mockMode) {
+        if (Networking.mockMode != mockMode) {
+            Networking.mockMode = mockMode;
+            invalidate();
+        }
     }
 
     /**
-     * The client your customized service uses should be the same one stored in this class.
-     * You should call setHttpClient before calling this method if you're also using a custom httpClient or
-     * you should use the client returned from {@link #getHttpClient() getHttpClient()} when building your service.
-     *
-     * @param CdnService Customized cdnService
+     * Sets the client and services to null so they'll be recreated with updated settings.
      */
-    public static void setCdnService(CdnService CdnService) {
-        Networking.cdnService = CdnService;
+    private static void invalidate() {
+        httpClient = null;
+        cdnService = null;
     }
 }
