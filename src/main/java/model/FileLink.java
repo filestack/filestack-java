@@ -14,7 +14,7 @@ import java.io.*;
  * References a file in Filestack.
  */
 public class FileLink {
-    private CdnService CdnService;
+    private CdnService cdnService;
     private String apiKey;
     private String handle;
 
@@ -26,11 +26,11 @@ public class FileLink {
         this.apiKey = apiKey;
         this.handle = handle;
 
-        this.CdnService = Networking.getCdnService();
+        this.cdnService = Networking.getCdnService();
     }
 
     public ResponseBody getContent() throws IOException {
-        return CdnService.get(this.handle).execute().body();
+        return cdnService.get(this.handle).execute().body();
     }
 
     public File download(String directory) throws IOException {
@@ -38,7 +38,7 @@ public class FileLink {
     }
 
     public File download(String directory, String filename) throws IOException {
-        Response<ResponseBody> response = CdnService.get(this.handle).execute();
+        Response<ResponseBody> response = cdnService.get(this.handle).execute();
 
         if (filename == null)
             filename = response.headers().get("x-file-name");
