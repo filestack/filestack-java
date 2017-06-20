@@ -1,6 +1,7 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Convenience class to make creating policies easier.
@@ -79,6 +80,29 @@ public class Policy {
 
         public Builder container(String container) {
             this.container = container;
+            return this;
+        }
+
+        /**
+         * Convenience method to create a policy with full access and one year expiry.
+         */
+        public Builder giveFullAccess() {
+            // Set expiry to one year from now
+            Date date = new Date();
+            expiry = date.getTime() / 1000 + 60 * 60 * 24 * 365;
+
+            // Add all calls
+            calls = new ArrayList<>();
+            calls.add(CALL_PICK);
+            calls.add(CALL_READ);
+            calls.add(CALL_STAT);
+            calls.add(CALL_WRITE);
+            calls.add(CALL_WRITE_URL);
+            calls.add(CALL_STORE);
+            calls.add(CALL_CONVERT);
+            calls.add(CALL_REMOVE);
+            calls.add(CALL_EXIF);
+            
             return this;
         }
         
