@@ -36,4 +36,7 @@ dependencies {
 
     // JSON serialization / deserialization
     compile 'com.google.code.gson:gson:2.8.1'
+
+    // Useful core libraries for Java
+    compile 'com.google.guava:guava:22.0-android'
 }
