@@ -14,14 +14,12 @@ import java.io.*;
  * References a file in Filestack.
  */
 public class FileLink {
-    private CdnService cdnService;
     private String apiKey;
     private String handle;
+    private Security security;
 
-    /**
-     * @param apiKey Get from the Developer Portal.
-     * @param handle A handle is returned after a file upload.
-     */
+    private CdnService cdnService;
+
     public FileLink(String apiKey, String handle) {
         this.apiKey = apiKey;
         this.handle = handle;
@@ -29,8 +27,19 @@ public class FileLink {
         this.cdnService = Networking.getCdnService();
     }
 
+    public FileLink(String apiKey, String handle, Security security) {
+        this.apiKey = apiKey;
+        this.handle = handle;
+        this.security = security;
+
+        this.cdnService = Networking.getCdnService();
+    }
+
     public ResponseBody getContent() throws IOException {
-        return cdnService.get(this.handle).execute().body();
+        if (security == null)
+            return cdnService.get(this.handle, null, null).execute().body();
+        else
+            return cdnService.get(this.handle, security.getEncodedPolicy(), security.getSignature()).execute().body();
     }
 
     public File download(String directory) throws IOException {
@@ -38,7 +47,12 @@ public class FileLink {
     }
 
     public File download(String directory, String filename) throws IOException {
-        Response<ResponseBody> response = cdnService.get(this.handle).execute();
+        Response<ResponseBody> response;
+
+        if (security == null)
+             response = cdnService.get(this.handle, null, null).execute();
+        else
+            response = cdnService.get(this.handle, security.getEncodedPolicy(), security.getSignature()).execute();
 
         if (filename == null)
             filename = response.headers().get("x-file-name");
