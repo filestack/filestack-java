@@ -39,7 +39,7 @@ public class FileLink {
         if (security == null)
             return cdnService.get(this.handle, null, null).execute().body();
         else
-            return cdnService.get(this.handle, security.getEncodedPolicy(), security.getSignature()).execute().body();
+            return cdnService.get(this.handle, security.getPolicy(), security.getSignature()).execute().body();
     }
 
     public File download(String directory) throws IOException {
@@ -52,7 +52,7 @@ public class FileLink {
         if (security == null)
              response = cdnService.get(this.handle, null, null).execute();
         else
-            response = cdnService.get(this.handle, security.getEncodedPolicy(), security.getSignature()).execute();
+            response = cdnService.get(this.handle, security.getPolicy(), security.getSignature()).execute();
 
         if (filename == null)
             filename = response.headers().get("x-file-name");

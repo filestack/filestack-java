@@ -17,7 +17,7 @@ public class TestSecurity {
     public void TestEncoding() {
         Security security = Security.createNew(POLICY, APP_SECRET);
 
-        assertTrue("Incorrect encoded policy ", CORRECT_ENCODED_POLICY.equals(security.getEncodedPolicy()));
+        assertTrue("Incorrect encoded policy ", CORRECT_ENCODED_POLICY.equals(security.getPolicy()));
     }
 
     @Test
