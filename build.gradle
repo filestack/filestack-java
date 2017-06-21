@@ -33,4 +33,10 @@ dependencies {
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
     // Low-level HTTP client, used by Retrofit
     compile 'com.squareup.okhttp3:okhttp:3.8.0'
+
+    // JSON serialization / deserialization
+    compile 'com.google.code.gson:gson:2.8.1'
+
+    // Useful core libraries for Java
+    compile 'com.google.guava:guava:22.0-android'
 }
