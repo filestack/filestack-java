@@ -28,7 +28,7 @@ public class MockInterceptor implements Interceptor {
         List<String> path = url.pathSegments();
         String query = url.query();
 
-        if (CdnService.URL.contains(host)) {
+        if (FilestackService.Cdn.URL.contains(host)) {
             if (path.size() == 1) {
                 String handle = path.get(0);
                 builder = genGetResponse(handle);

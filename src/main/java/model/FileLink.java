@@ -5,7 +5,7 @@ import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.Okio;
 import retrofit2.Response;
-import util.CdnService;
+import util.FilestackService;
 import util.Networking;
 
 import java.io.*;
@@ -18,13 +18,15 @@ public class FileLink {
     private String handle;
     private Security security;
 
-    private CdnService cdnService;
+    private FilestackService.Cdn cdnService;
+    private FilestackService.Api apiService;
 
     public FileLink(String apiKey, String handle) {
         this.apiKey = apiKey;
         this.handle = handle;
 
         this.cdnService = Networking.getCdnService();
+        this.apiService = Networking.getApiService();
     }
 
     public FileLink(String apiKey, String handle, Security security) {
@@ -33,6 +35,7 @@ public class FileLink {
         this.security = security;
 
         this.cdnService = Networking.getCdnService();
+        this.apiService = Networking.getApiService();
     }
 
     public ResponseBody getContent() throws IOException {

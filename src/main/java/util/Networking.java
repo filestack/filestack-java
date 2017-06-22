@@ -11,7 +11,8 @@ public class Networking {
     private static boolean mockMode = false;
 
     private static OkHttpClient httpClient;
-    private static CdnService cdnService;
+    private static FilestackService.Cdn cdnService;
+    private static FilestackService.Api apiService;
 
     public static OkHttpClient getHttpClient() {
         if (httpClient == null) {
@@ -25,16 +26,28 @@ public class Networking {
         return httpClient;
     }
 
-    public static CdnService getCdnService() {
+    public static FilestackService.Cdn getCdnService() {
         if (cdnService == null) {
             OkHttpClient client = getHttpClient();
             Retrofit retrofit = new Retrofit.Builder()
                     .client(client)
-                    .baseUrl(CdnService.URL)
+                    .baseUrl(FilestackService.Cdn.URL)
                     .build();
-            cdnService = retrofit.create(CdnService.class);
+            cdnService = retrofit.create(FilestackService.Cdn.class);
         }
         return cdnService;
+    }
+
+    public static FilestackService.Api getApiService() {
+        if (apiService == null) {
+            OkHttpClient client = getHttpClient();
+            Retrofit retrofit = new Retrofit.Builder()
+                    .client(client)
+                    .baseUrl(FilestackService.Api.URL)
+                    .build();
+            apiService = retrofit.create(FilestackService.Api.class);
+        }
+        return apiService;
     }
 
     /**
@@ -53,5 +66,6 @@ public class Networking {
     private static void invalidate() {
         httpClient = null;
         cdnService = null;
+        apiService = null;
     }
 }
