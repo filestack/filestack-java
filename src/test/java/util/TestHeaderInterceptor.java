@@ -3,11 +3,7 @@ package util;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import util.HeaderInterceptor;
-import util.Networking;
-import util.Util;
 
 import java.io.IOException;
 
@@ -18,25 +14,16 @@ import static org.junit.Assert.assertTrue;
  * Tests {@link util.HeaderInterceptor HeaderInterceptor} class to check if headers are added.
  */
 public class TestHeaderInterceptor {
-    private static final String API_KEY = "TEST_API_KEY";
-    private static final String HANDLE = "TEST_FILE_HANDLE";
-
-    private static final String TEST_URL = "https://filestack.com";
-
-    /**
-     * Set a custom httpClient for our testing.
-     * This custom client has an added interceptor to create mock responses.
-     */
-    @BeforeClass
-    public static void setup() {
-        Networking.setMockMode(true);
-    }
 
     @Test
     public void testHeadersAdded() throws IOException {
-        OkHttpClient client = Networking.getHttpClient();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(new HeaderInterceptor())
+                .addInterceptor(new MockInterceptor())
+                .build();
+
         Request original = new Request.Builder()
-                .url(TEST_URL)
+                .url(MockInterceptor.TEST_HEADER_URL)
                 .build();
 
         Response response = client.newCall(original).execute();
