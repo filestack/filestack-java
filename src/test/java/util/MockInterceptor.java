@@ -21,7 +21,6 @@ public class MockInterceptor implements Interceptor {
 
     private static final String CDN_MOCK_FILENAME = "filestack_test.txt";
     private static final String CDN_MOCK_CONTENT = "Test content for handle: %s\n%s\n";
-    private static final String CDN_MOCK_MIME = "text/plain; charset=utf-8";
 
     private static final String HEADER_FILENAME = "x-file-name";
 
@@ -35,6 +34,9 @@ public class MockInterceptor implements Interceptor {
     private static final String MESSAGE_FORBIDDEN = "FORBIDDEN";
     private static final String MESSAGE_NOT_FOUND = "NOT FOUND";
 
+    private static final String MIME_TEXT = "text/plain; charset=utf-8";
+    private static final String MIME_JSON = "application/json";
+
     public static final String TEST_HEADER_URL = MOCK_BASE_URL + TEST_HEADER_PATH;
     public static final String TEST_BAD_REQUEST_URL = MOCK_BASE_URL + TEST_BAD_REQUEST_PATH;
     public static final String TEST_FORBIDDEN_URL = MOCK_BASE_URL + TEST_FORBIDDEN_PATH;
@@ -43,7 +45,8 @@ public class MockInterceptor implements Interceptor {
 
     @Override
     public Response intercept(Chain chain) throws IOException {
-        HttpUrl url = chain.request().url();
+        Request request = chain.request();
+        HttpUrl url = request.url();
         Response.Builder builder;
 
         String host = url.host();
@@ -51,6 +54,8 @@ public class MockInterceptor implements Interceptor {
 
         if (FilestackService.Cdn.URL.contains(host))
             builder = genCdnResponse(path.get(0));
+        else if (FilestackService.Api.URL.contains(host))
+            builder = genApiResponse(request);
         else if (MOCK_BASE_URL.contains(host))
             builder = genSimpleResponse(path.get(0));
         else
@@ -70,12 +75,37 @@ public class MockInterceptor implements Interceptor {
      */
     private Response.Builder genCdnResponse(String handle) {
         String bodyText = String.format(CDN_MOCK_CONTENT, handle, new Date());
-        ResponseBody body = ResponseBody.create(MediaType.parse(CDN_MOCK_MIME), bodyText);
+        ResponseBody body = ResponseBody.create(MediaType.parse(MIME_TEXT), bodyText);
         return new Response.Builder()
                 .addHeader(HEADER_FILENAME, CDN_MOCK_FILENAME)
                 .body(body)
                 .code(CODE_OK)
                 .message(MESSAGE_OK);
+    }
+
+    /**
+     * Checks if an API call is well formed and sends an appropriate response.
+     */
+    private Response.Builder genApiResponse(Request request) throws IOException {
+        String method = request.method();
+        RequestBody requestBody = request.body();
+
+        switch (method) {
+            // Overwrite endpoint: Just sanity checking the request
+            case "POST":
+                // We don't currently parse this response so we're not actually mocking it
+                ResponseBody responseBody = ResponseBody.create(MediaType.parse(MIME_JSON), "");
+
+                if (request.body() == null)
+                    return new Response.Builder()
+                            .code(CODE_BAD_REQUEST)
+                            .message(MESSAGE_BAD_REQUEST)
+                            .body(responseBody);
+
+                return new Response.Builder().code(CODE_OK).message(MESSAGE_OK).body(responseBody);
+            default:
+                throw new FilestackIOException("API method not mocked");
+        }
     }
 
     /**

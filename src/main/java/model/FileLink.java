@@ -1,14 +1,20 @@
 package model;
 
+import exception.PolicySignatureException;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.Okio;
+import org.apache.tika.Tika;
 import retrofit2.Response;
 import util.FilestackService;
 import util.Networking;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * References a file in Filestack.
@@ -70,6 +76,21 @@ public class FileLink {
         sink.close();
 
         return file;
+    }
+
+    public void overwrite(String pathname) throws IOException {
+        if (security == null)
+            throw new PolicySignatureException("Overwrite requires security to be set");
+
+        File file = new File(pathname);
+        if (!file.isFile())
+            throw new FileNotFoundException(pathname);
+
+        Tika tika = new Tika();
+        String mimeType = tika.detect(file);
+        RequestBody body = RequestBody.create(MediaType.parse(mimeType), file);
+
+        apiService.overwrite(handle, security.getPolicy(), security.getSignature(), body).execute();
     }
 
     public String getHandle() {

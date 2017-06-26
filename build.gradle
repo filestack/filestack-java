@@ -39,4 +39,7 @@ dependencies {
 
     // Useful core libraries for Java
     compile 'com.google.guava:guava:22.0-android'
+    
+    // MIME type detection for files, needed for uploading
+    compile 'org.apache.tika:tika-core:1.15'
 }
