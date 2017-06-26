@@ -61,13 +61,17 @@ public class MockInterceptor implements Interceptor {
     private Response.Builder genApiResponse(Request request) throws IOException {
         String method = request.method();
         RequestBody requestBody = request.body();
+        ResponseBody responseBody;
 
         switch (method) {
+
             // Overwrite endpoint: Just sanity checking the request
             case "POST":
                 // We don't currently parse this response so we're not actually mocking it
-                ResponseBody responseBody = ResponseBody.create(MediaType.parse(MIME_JSON), "");
+                responseBody = ResponseBody.create(MediaType.parse(MIME_JSON), "");
 
+                // This is the only checking we're doing for the overwrite request
+                // Make sure we didn't send an empty body, shouldn't be possible
                 if (request.body() == null)
                     return new Response.Builder()
                             .code(CODE_BAD_REQUEST)
@@ -75,6 +79,14 @@ public class MockInterceptor implements Interceptor {
                             .body(responseBody);
 
                 return new Response.Builder().code(CODE_OK).message(MESSAGE_OK).body(responseBody);
+
+            // Delete endpoint: No checking, just send response
+            case "DELETE":
+                // We don't currently parse this response so we're not actually mocking it
+                responseBody = ResponseBody.create(MediaType.parse(MIME_JSON), "");
+
+                return new Response.Builder().code(CODE_OK).message(MESSAGE_OK).body(responseBody);
+
             default:
                 throw new FilestackIOException("API method not mocked");
         }

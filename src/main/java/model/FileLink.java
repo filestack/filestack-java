@@ -93,6 +93,13 @@ public class FileLink {
         apiService.overwrite(handle, security.getPolicy(), security.getSignature(), body).execute();
     }
 
+    public void delete() throws IOException {
+        if (security == null)
+            throw new PolicySignatureException("Delete requires security to be set");
+
+        apiService.delete(handle, apiKey, security.getPolicy(), security.getSignature()).execute();
+    }
+
     public String getHandle() {
         return handle;
     }

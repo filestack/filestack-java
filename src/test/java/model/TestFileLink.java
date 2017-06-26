@@ -118,4 +118,18 @@ public class TestFileLink {
 
         fileLink.overwrite(OVERWRITE_PATHNAME);
     }
+
+    @Test
+    public void testDelete() throws IOException {
+        FileLink fileLink = new FileLink(API_KEY, HANDLE, SECURITY);
+
+        fileLink.delete();
+    }
+
+    @Test(expected = PolicySignatureException.class)
+    public void testDeleteWithoutSecurity() throws IOException {
+        FileLink fileLink = new FileLink(API_KEY, HANDLE);
+
+        fileLink.delete();
+    }
 }

@@ -16,6 +16,10 @@ public class FilestackService {
         @POST("{handle}")
         Call<ResponseBody> overwrite(@Path("handle") String handle, @Query("policy") String policy,
                                      @Query("signature") String signature, @Body RequestBody body);
+
+        @DELETE("{handle}")
+        Call<ResponseBody> delete(@Path("handle") String handle, @Query("key") String key,
+                                  @Query("policy") String policy, @Query("signature") String signature);
     }
 
     public interface Cdn {
