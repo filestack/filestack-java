@@ -1,5 +1,6 @@
 package util;
 
+import exception.BadRequestException;
 import exception.FilestackIOException;
 import exception.HandleNotFoundException;
 import exception.PolicySignatureException;
@@ -30,6 +31,8 @@ public class FailedResponseInterceptor implements Interceptor {
 
         // Throw a descriptive subclass of FilestackIOException
         switch (response.code()) {
+            case 400:
+                throw new BadRequestException();
             case 403:
                 throw new PolicySignatureException();
             case 404:

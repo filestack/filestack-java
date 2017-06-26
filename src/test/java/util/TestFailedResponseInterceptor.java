@@ -1,5 +1,6 @@
 package util;
 
+import exception.BadRequestException;
 import exception.FilestackIOException;
 import exception.HandleNotFoundException;
 import exception.PolicySignatureException;
@@ -22,6 +23,15 @@ public class TestFailedResponseInterceptor {
                 .addInterceptor(new FailedResponseInterceptor())
                 .addInterceptor(new MockInterceptor())
                 .build();
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void testBadRequestResponse() throws IOException {
+        Request request = new Request.Builder()
+                .url(MockInterceptor.TEST_BAD_REQUEST_URL)
+                .build();
+
+        client.newCall(request).execute();
     }
 
     @Test(expected = PolicySignatureException.class)
