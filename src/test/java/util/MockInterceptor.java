@@ -8,40 +8,12 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
+import static util.MockConstants.*;
+
 /**
  * Intercepts HTTP requests and returns mock responses for unit testing.
  */
 public class MockInterceptor implements Interceptor {
-    private static final String MOCK_BASE_URL = "https://mock.filestackapi.com/";
-    private static final String TEST_HEADER_PATH = "test-header";
-    private static final String TEST_BAD_REQUEST_PATH = "test-bad-request";
-    private static final String TEST_FORBIDDEN_PATH = "test-forbidden";
-    private static final String TEST_NOT_FOUND_PATH = "test-not-found";
-    private static final String TEST_UNMATCHED_PATH = "test-unmatched";
-
-    private static final String CDN_MOCK_FILENAME = "filestack_test.txt";
-    private static final String CDN_MOCK_CONTENT = "Test content for handle: %s\n%s\n";
-
-    private static final String HEADER_FILENAME = "x-file-name";
-
-    private static final int CODE_OK = 200;
-    private static final int CODE_BAD_REQUEST = 400;
-    private static final int CODE_FORBIDDEN = 403;
-    private static final int CODE_NOT_FOUND = 404;
-
-    private static final String MESSAGE_OK = "OK";
-    private static final String MESSAGE_BAD_REQUEST = "BAD REQUEST";
-    private static final String MESSAGE_FORBIDDEN = "FORBIDDEN";
-    private static final String MESSAGE_NOT_FOUND = "NOT FOUND";
-
-    private static final String MIME_TEXT = "text/plain; charset=utf-8";
-    private static final String MIME_JSON = "application/json";
-
-    public static final String TEST_HEADER_URL = MOCK_BASE_URL + TEST_HEADER_PATH;
-    public static final String TEST_BAD_REQUEST_URL = MOCK_BASE_URL + TEST_BAD_REQUEST_PATH;
-    public static final String TEST_FORBIDDEN_URL = MOCK_BASE_URL + TEST_FORBIDDEN_PATH;
-    public static final String TEST_NOT_FOUND_URL = MOCK_BASE_URL + TEST_NOT_FOUND_PATH;
-    public static final String TEST_UNMATCHED_URL = MOCK_BASE_URL + TEST_UNMATCHED_PATH;
 
     @Override
     public Response intercept(Chain chain) throws IOException {

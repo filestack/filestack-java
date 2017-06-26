@@ -11,6 +11,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static util.MockConstants.*;
+
 /**
  * Tests {@link FailedResponseInterceptor FailedResponseInterceptor} class to ensure correct exceptions are thrown.
  */
@@ -28,7 +30,7 @@ public class TestFailedResponseInterceptor {
     @Test(expected = BadRequestException.class)
     public void testBadRequestResponse() throws IOException {
         Request request = new Request.Builder()
-                .url(MockInterceptor.TEST_BAD_REQUEST_URL)
+                .url(TEST_BAD_REQUEST_URL)
                 .build();
 
         client.newCall(request).execute();
@@ -37,7 +39,7 @@ public class TestFailedResponseInterceptor {
     @Test(expected = PolicySignatureException.class)
     public void testForbiddenResponse() throws IOException {
         Request request = new Request.Builder()
-                .url(MockInterceptor.TEST_FORBIDDEN_URL)
+                .url(TEST_FORBIDDEN_URL)
                 .build();
 
         client.newCall(request).execute();
@@ -46,7 +48,7 @@ public class TestFailedResponseInterceptor {
     @Test(expected = HandleNotFoundException.class)
     public void testNotFoundResponse() throws IOException {
         Request request = new Request.Builder()
-                .url(MockInterceptor.TEST_NOT_FOUND_URL)
+                .url(TEST_NOT_FOUND_URL)
                 .build();
 
         client.newCall(request).execute();
@@ -55,7 +57,7 @@ public class TestFailedResponseInterceptor {
     @Test(expected = FilestackIOException.class)
     public void testUnmatchedResponse() throws IOException {
         Request request = new Request.Builder()
-                .url(MockInterceptor.TEST_UNMATCHED_URL)
+                .url(TEST_UNMATCHED_URL)
                 .build();
 
         client.newCall(request).execute();

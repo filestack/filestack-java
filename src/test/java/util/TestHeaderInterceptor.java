@@ -9,6 +9,7 @@ import java.io.IOException;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static util.MockConstants.TEST_HEADER_URL;
 
 /**
  * Tests {@link util.HeaderInterceptor HeaderInterceptor} class to check if headers are added.
@@ -23,7 +24,7 @@ public class TestHeaderInterceptor {
                 .build();
 
         Request original = new Request.Builder()
-                .url(MockInterceptor.TEST_HEADER_URL)
+                .url(TEST_HEADER_URL)
                 .build();
 
         Response response = client.newCall(original).execute();
