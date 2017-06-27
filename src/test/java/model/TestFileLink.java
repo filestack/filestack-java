@@ -15,17 +15,12 @@ import java.io.IOException;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static util.MockConstants.*;
 
 /**
  * Tests {@link FileLink FileLink} class.
  */
 public class TestFileLink {
-    private static final String API_KEY = "TEST_API_KEY";
-    private static final String HANDLE = "TEST_FILE_HANDLE";
-    private static final Policy POLICY = new Policy.Builder().expiry(4653651600L).build();
-    private static final String APP_SECRET = "N3XOC2GP2NFTDCM43DZ6F2L6N4";
-    private static final Security SECURITY = Security.createNew(POLICY, APP_SECRET);
-
     private static final String DIRECTORY = "/tmp/";
     private static final String CUSTOM_FILENAME = "filestack_test_custom_filename.txt";
     private static final String OVERWRITE_PATHNAME = "/tmp/filestack_overwrite.txt";

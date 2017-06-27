@@ -3,12 +3,12 @@ package model;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
+import static util.MockConstants.*;
 
 /**
  * Tests {@link Client Client} class.
  */
 public class TestClient {
-    private static final String API_KEY = "XXXXXXXXXXXXXXXXXXXXXXX";
 
     @Test
     public void testInstantiation() {
