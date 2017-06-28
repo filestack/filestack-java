@@ -30,6 +30,14 @@ public class Transform {
         this.source = source;
         this.fileLink = fileLink;
         this.tasks = new ArrayList<>();
+
+        Security security = client != null ? client.getSecurity() : fileLink.getSecurity();
+        if (security != null) {
+            Task securityTask = new Task("security");
+            securityTask.addOption("policy", security.getPolicy());
+            securityTask.addOption("signature", security.getSignature());
+            this.tasks.add(securityTask);
+        }
     }
 
     /**
