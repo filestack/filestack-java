@@ -1,8 +1,10 @@
 package model;
 
 import org.junit.Test;
+import util.FilestackService;
 
 import static org.junit.Assert.assertTrue;
+import static util.MockConstants.*;
 
 public class TestTransform {
     private static final Transform.Task TASK = new Transform.Task("TASK");
@@ -20,5 +22,16 @@ public class TestTransform {
 
         String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s", TASK_STRING, output);
         assertTrue(message, output.equals(TASK_STRING));
+    }
+
+    @Test
+    public void testUrl() {
+        String correct = FilestackService.Process.URL + TASK_STRING + "/" + HANDLE;
+        Transform transform = new Transform(FILE_LINK);
+        transform.tasks.add(TASK);
+        String output = transform.url();
+
+        String message = String.format("URL malformed\nCorrect: %s\nOutput: %s", correct, output);
+        assertTrue(message, output.equals(correct));
     }
 }
