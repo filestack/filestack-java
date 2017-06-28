@@ -1,6 +1,7 @@
 package model;
 
 import util.FilestackService;
+import util.Networking;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +31,7 @@ public class Transform {
         this.source = source;
         this.fileLink = fileLink;
         this.tasks = new ArrayList<>();
+        this.processService = Networking.getProcessService();
 
         Security security = client != null ? client.getSecurity() : fileLink.getSecurity();
         if (security != null) {
@@ -90,6 +92,28 @@ public class Transform {
         Option(String key, String value) {
             this.key = key;
             this.value = value;
+        }
+    }
+
+    /**
+     * Build tasks into single string to insert into request.
+     */
+    protected String getTasksString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Task task : tasks)
+            stringBuilder.append(task.toString()).append('/');
+        stringBuilder.deleteCharAt(stringBuilder.length()-1);
+        return stringBuilder.toString();
+    }
+
+    public String url() {
+        String tasksString = getTasksString();
+
+        if (client != null) {
+            // TODO Implement when we add external transforms
+            return null;
+        } else {
+            return processService.get(tasksString, fileLink.getHandle()).request().url().toString();
         }
     }
 }
