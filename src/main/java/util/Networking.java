@@ -11,6 +11,7 @@ public class Networking {
     private static OkHttpClient httpClient;
     private static FilestackService.Cdn cdnService;
     private static FilestackService.Api apiService;
+    private static FilestackService.Process processService;
 
     public static OkHttpClient getHttpClient() {
         if (httpClient == null) {
@@ -45,6 +46,18 @@ public class Networking {
         return apiService;
     }
 
+    public static FilestackService.Process getProcessService() {
+        if (processService == null) {
+            OkHttpClient client = getHttpClient();
+            Retrofit retrofit = new Retrofit.Builder()
+                    .client(client)
+                    .baseUrl(FilestackService.Process.URL)
+                    .build();
+            processService = retrofit.create(FilestackService.Process.class);
+        }
+        return processService;
+    }
+
     public static void setCustomClient(OkHttpClient client) {
         httpClient = client;
         invalidate();
@@ -56,5 +69,6 @@ public class Networking {
     private static void invalidate() {
         cdnService = null;
         apiService = null;
+        processService = null;
     }
 }

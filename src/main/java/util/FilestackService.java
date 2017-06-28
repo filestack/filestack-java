@@ -30,4 +30,12 @@ public class FilestackService {
         Call<ResponseBody> get(@Path("handle") String handle, @Query("policy") String policy,
                                @Query("signature") String signature);
     }
+
+    public interface Process {
+        String URL = "https://process.filestackapi.com/";
+
+        @Streaming
+        @GET("{tasks}/{handle}")
+        Call<ResponseBody> get(@Path("tasks") String tasks, @Path("handle") String handle);
+    }
 }
