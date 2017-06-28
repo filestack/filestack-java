@@ -1,5 +1,7 @@
 package model;
 
+import util.FilestackService;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -13,13 +15,19 @@ public class Transform {
 
     ArrayList<Task> tasks;
 
+    private FilestackService.Process processService;
+
     Transform(Client client, String source) {
-        this.client = client;
-        this.source = source;
-        this.tasks = new ArrayList<>();
+        this(client, source, null);
     }
 
     Transform(FileLink fileLink) {
+        this(null, null, fileLink);
+    }
+
+    Transform(Client client, String source, FileLink fileLink) {
+        this.client = client;
+        this.source = source;
         this.fileLink = fileLink;
         this.tasks = new ArrayList<>();
     }
