@@ -7,20 +7,20 @@ import java.util.Arrays;
  * Base class for file transformations and conversions.
  */
 public class Transform {
-    private String apiKey;
+    private Client client;
     private String source;
-    private String handle;
+    private FileLink fileLink;
 
     ArrayList<Task> tasks;
 
-    Transform(String apiKey, String source) {
-        this.apiKey = apiKey;
+    Transform(Client client, String source) {
+        this.client = client;
         this.source = source;
         this.tasks = new ArrayList<>();
     }
 
-    Transform(String handle) {
-        this.handle = handle;
+    Transform(FileLink fileLink) {
+        this.fileLink = fileLink;
         this.tasks = new ArrayList<>();
     }
 

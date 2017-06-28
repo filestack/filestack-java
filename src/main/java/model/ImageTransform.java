@@ -5,12 +5,12 @@ package model;
  */
 public class ImageTransform extends Transform {
 
-    ImageTransform(String apiKey, String source) {
-        super(apiKey, source);
+    public ImageTransform(Client client, String source) {
+        super(client, source);
     }
 
-    ImageTransform(String handle) {
-        super(handle);
+    public ImageTransform(FileLink fileLink) {
+        super(fileLink);
     }
 
     // TODO This is just for demonstration, it should be confirmed when real transforms are added

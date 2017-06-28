@@ -101,7 +101,7 @@ public class FileLink {
     }
 
     public ImageTransform imageTransform() {
-        return new ImageTransform(handle);
+        return new ImageTransform(this);
     }
 
     public String getHandle() {
