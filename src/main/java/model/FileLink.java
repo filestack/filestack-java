@@ -100,6 +100,10 @@ public class FileLink {
         apiService.delete(handle, apiKey, security.getPolicy(), security.getSignature()).execute();
     }
 
+    public ImageTransform imageTransform() {
+        return new ImageTransform(this);
+    }
+
     public String getHandle() {
         return handle;
     }

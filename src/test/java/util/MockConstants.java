@@ -1,9 +1,12 @@
 package util;
 
+import model.Policy;
+import model.Security;
+
 /**
  * Constants for {@link MockInterceptor MockInterceptor} and unit tests.
  */
-class MockConstants {
+public class MockConstants {
     static final String MOCK_BASE_URL = "https://mock.filestackapi.com/";
     static final String TEST_HEADER_PATH = "test-header";
     static final String TEST_BAD_REQUEST_PATH = "test-bad-request";
@@ -34,4 +37,10 @@ class MockConstants {
     static final String TEST_FORBIDDEN_URL = MOCK_BASE_URL + TEST_FORBIDDEN_PATH;
     static final String TEST_NOT_FOUND_URL = MOCK_BASE_URL + TEST_NOT_FOUND_PATH;
     static final String TEST_UNMATCHED_URL = MOCK_BASE_URL + TEST_UNMATCHED_PATH;
+
+    public static final String API_KEY = "API_KEY";
+    public static final String HANDLE = "HANDLE";
+    public static final Policy POLICY = new Policy.Builder().expiry(4653651600L).build();
+    public static final String APP_SECRET = "N3XOC2GP2NFTDCM43DZ6F2L6N4";
+    public static final Security SECURITY = Security.createNew(POLICY, APP_SECRET);
 }
