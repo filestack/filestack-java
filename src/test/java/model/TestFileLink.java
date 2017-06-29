@@ -1,13 +1,16 @@
 package model;
 
+import com.google.common.io.Files;
+import exception.PolicySignatureException;
 import okhttp3.OkHttpClient;
 import okhttp3.ResponseBody;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import util.Networking;
 import util.MockInterceptor;
+import util.Networking;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import static org.junit.Assert.assertNotNull;
@@ -25,6 +28,8 @@ public class TestFileLink {
 
     private static final String DIRECTORY = "/tmp/";
     private static final String CUSTOM_FILENAME = "filestack_test_custom_filename.txt";
+    private static final String OVERWRITE_PATHNAME = "/tmp/filestack_overwrite.txt";
+    private static final String OVERWRITE_CONTENT = "Test overwrite content.";
 
     /**
      * Set a custom httpClient for our testing.
@@ -32,7 +37,10 @@ public class TestFileLink {
      */
     @BeforeClass
     public static void setup() {
-        Networking.setMockMode(true);
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(new MockInterceptor())
+                .build();
+        Networking.setCustomClient(client);
     }
 
     @Test
@@ -82,4 +90,46 @@ public class TestFileLink {
         assertTrue(file.isFile());
     }
 
+    @Test
+    public void testOverwrite() throws IOException {
+        FileLink fileLink = new FileLink(API_KEY, HANDLE, SECURITY);
+
+        // Setup test file to read from
+        File file = new File(OVERWRITE_PATHNAME);
+        file.createNewFile();
+        Files.write(OVERWRITE_CONTENT.getBytes(), file);
+
+        fileLink.overwrite(OVERWRITE_PATHNAME);
+    }
+
+    @Test(expected = PolicySignatureException.class)
+    public void testOverwriteWithoutSecurity() throws IOException {
+        FileLink fileLink = new FileLink(API_KEY, HANDLE);
+
+        fileLink.overwrite(OVERWRITE_PATHNAME);
+    }
+
+    @Test(expected = FileNotFoundException.class)
+    public void testOverwriteNoFile() throws IOException {
+        FileLink fileLink = new FileLink(API_KEY, HANDLE, SECURITY);
+
+        File file = new File(OVERWRITE_PATHNAME);
+        file.delete();
+
+        fileLink.overwrite(OVERWRITE_PATHNAME);
+    }
+
+    @Test
+    public void testDelete() throws IOException {
+        FileLink fileLink = new FileLink(API_KEY, HANDLE, SECURITY);
+
+        fileLink.delete();
+    }
+
+    @Test(expected = PolicySignatureException.class)
+    public void testDeleteWithoutSecurity() throws IOException {
+        FileLink fileLink = new FileLink(API_KEY, HANDLE);
+
+        fileLink.delete();
+    }
 }

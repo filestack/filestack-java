@@ -1,14 +1,20 @@
 package model;
 
+import exception.PolicySignatureException;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.Okio;
+import org.apache.tika.Tika;
 import retrofit2.Response;
-import util.CdnService;
+import util.FilestackService;
 import util.Networking;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * References a file in Filestack.
@@ -18,13 +24,15 @@ public class FileLink {
     private String handle;
     private Security security;
 
-    private CdnService cdnService;
+    private FilestackService.Cdn cdnService;
+    private FilestackService.Api apiService;
 
     public FileLink(String apiKey, String handle) {
         this.apiKey = apiKey;
         this.handle = handle;
 
         this.cdnService = Networking.getCdnService();
+        this.apiService = Networking.getApiService();
     }
 
     public FileLink(String apiKey, String handle, Security security) {
@@ -33,13 +41,14 @@ public class FileLink {
         this.security = security;
 
         this.cdnService = Networking.getCdnService();
+        this.apiService = Networking.getApiService();
     }
 
     public ResponseBody getContent() throws IOException {
         if (security == null)
             return cdnService.get(this.handle, null, null).execute().body();
         else
-            return cdnService.get(this.handle, security.getEncodedPolicy(), security.getSignature()).execute().body();
+            return cdnService.get(this.handle, security.getPolicy(), security.getSignature()).execute().body();
     }
 
     public File download(String directory) throws IOException {
@@ -52,7 +61,7 @@ public class FileLink {
         if (security == null)
              response = cdnService.get(this.handle, null, null).execute();
         else
-            response = cdnService.get(this.handle, security.getEncodedPolicy(), security.getSignature()).execute();
+            response = cdnService.get(this.handle, security.getPolicy(), security.getSignature()).execute();
 
         if (filename == null)
             filename = response.headers().get("x-file-name");
@@ -67,6 +76,28 @@ public class FileLink {
         sink.close();
 
         return file;
+    }
+
+    public void overwrite(String pathname) throws IOException {
+        if (security == null)
+            throw new PolicySignatureException("Overwrite requires security to be set");
+
+        File file = new File(pathname);
+        if (!file.isFile())
+            throw new FileNotFoundException(pathname);
+
+        Tika tika = new Tika();
+        String mimeType = tika.detect(file);
+        RequestBody body = RequestBody.create(MediaType.parse(mimeType), file);
+
+        apiService.overwrite(handle, security.getPolicy(), security.getSignature(), body).execute();
+    }
+
+    public void delete() throws IOException {
+        if (security == null)
+            throw new PolicySignatureException("Delete requires security to be set");
+
+        apiService.delete(handle, apiKey, security.getPolicy(), security.getSignature()).execute();
     }
 
     public String getHandle() {

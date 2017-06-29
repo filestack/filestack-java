@@ -11,7 +11,7 @@ import com.google.gson.*;
  * See https://www.filestack.com/docs/security for more information on how this should be used.
  */
 public class Security {
-    private String encodedPolicy;
+    private String policy;
     private String signature;
 
     /**
@@ -45,13 +45,13 @@ public class Security {
         return new Security(encodedPolicy, signature);
     }
 
-    private Security(String encodedPolicy, String signature) {
-        this.encodedPolicy = encodedPolicy;
+    private Security(String policy, String signature) {
+        this.policy = policy;
         this.signature = signature;
     }
 
-    public String getEncodedPolicy() {
-        return encodedPolicy;
+    public String getPolicy() {
+        return policy;
     }
 
     public String getSignature() {
