@@ -10,9 +10,8 @@ import java.util.Arrays;
  * Base class for file transformations and conversions.
  */
 public class Transform {
-    private Client client;
+    private String apiKey;
     private String source;
-    private FileLink fileLink;
 
     ArrayList<Task> tasks;
 
@@ -27,9 +26,13 @@ public class Transform {
     }
 
     Transform(Client client, String source, FileLink fileLink) {
-        this.client = client;
-        this.source = source;
-        this.fileLink = fileLink;
+        if (client != null) {
+            this.apiKey = client.getApiKey();
+            this.source = source;
+        } else {
+            this.source = fileLink.getHandle();
+        }
+
         this.tasks = new ArrayList<>();
         this.processService = Networking.getProcessService();
 
@@ -109,11 +112,11 @@ public class Transform {
     public String url() {
         String tasksString = getTasksString();
 
-        if (client != null) {
+        if (apiKey != null) {
             // TODO Implement when we add external transforms
             return null;
         } else {
-            return processService.get(tasksString, fileLink.getHandle()).request().url().toString();
+            return processService.get(tasksString, source).request().url().toString();
         }
     }
 }
