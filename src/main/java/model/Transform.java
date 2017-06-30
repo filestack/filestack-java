@@ -11,12 +11,12 @@ import java.util.Arrays;
  * Base class for file transformations and conversions.
  */
 public class Transform {
-    private String apiKey;
-    private String source;
+    String apiKey;
+    String source;
 
     ArrayList<Task> tasks;
 
-    private FilestackService.Process processService;
+    FilestackService.Process processService;
 
     Transform(Client client, String source) {
         this(client, source, null);
