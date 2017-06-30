@@ -1,5 +1,6 @@
 package model;
 
+import okhttp3.HttpUrl;
 import org.junit.Test;
 import util.FilestackService;
 
@@ -7,14 +8,14 @@ import static org.junit.Assert.assertTrue;
 import static util.MockConstants.*;
 
 public class TestTransform {
-    private static final Transform.Task TASK = new Transform.Task("TASK");
+    private static final Transform.Task TASK = new Transform.Task("task");
     static {
         TASK.addOption("option1", 1);
         TASK.addOption("option2", 1.0);
         TASK.addOption("option3", "value");
         TASK.addOption("option4", new Integer[]{1,1,1,1});
     }
-    private static final String TASK_STRING = "TASK=option1:1,option2:1.0,option3:value,option4:[1,1,1,1],";
+    private static final String TASK_STRING = "task=option1:1,option2:1.0,option3:value,option4:[1,1,1,1]";
 
     @Test
     public void testTaskToString() {
@@ -31,7 +32,7 @@ public class TestTransform {
         transform.tasks.add(TASK);
         String output = transform.url();
 
-        String message = String.format("URL malformed\nCorrect: %s\nOutput: %s", correct, output);
+        String message = String.format("URL malformed\nCorrect: %s\nOutput:  %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
 }
