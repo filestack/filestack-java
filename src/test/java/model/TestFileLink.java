@@ -4,6 +4,7 @@ import com.google.common.io.Files;
 import exception.PolicySignatureException;
 import okhttp3.OkHttpClient;
 import okhttp3.ResponseBody;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import util.MockInterceptor;
@@ -126,5 +127,13 @@ public class TestFileLink {
         FileLink fileLink = new FileLink(API_KEY, HANDLE);
 
         fileLink.delete();
+    }
+
+    /**
+     * Clear changes to {@link Networking Networking} class since it's a shared resource.
+     */
+    @AfterClass
+    public static void teardown() {
+        Networking.removeCustomClient();
     }
 }
