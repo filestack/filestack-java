@@ -1,6 +1,6 @@
 package util;
 
-
+import com.google.gson.JsonObject;
 import exception.FilestackIOException;
 import okhttp3.*;
 
@@ -28,6 +28,8 @@ public class MockInterceptor implements Interceptor {
             builder = genCdnResponse(path.get(0));
         else if (FilestackService.Api.URL.contains(host))
             builder = genApiResponse(request);
+        else if (FilestackService.Process.URL.contains(host))
+            builder = genProcessResponse(request);
         else if (MOCK_BASE_URL.contains(host))
             builder = genSimpleResponse(path.get(0));
         else
@@ -89,6 +91,31 @@ public class MockInterceptor implements Interceptor {
 
             default:
                 throw new FilestackIOException("API method not mocked");
+        }
+    }
+
+    private Response.Builder genProcessResponse(Request request) throws IOException {
+        String path = request.url().pathSegments().get(0);
+        ResponseBody responseBody;
+
+        switch (path) {
+
+            // Debug mode
+            case "debug":
+                // Generate a tiny subset of an actual response, just need something to convert
+                JsonObject status = new JsonObject();
+                status.addProperty("message", "OK");
+                status.addProperty("http_code", 200);
+                JsonObject content = new JsonObject();
+                content.add("status", status);
+
+                responseBody = ResponseBody.create(MediaType.parse(MIME_JSON), content.toString());
+
+                // Always return a successful response to this endpoint
+                return new Response.Builder().code(CODE_OK).message(MESSAGE_OK).body(responseBody);
+
+            default:
+                throw new FilestackIOException("Transform method not mocked");
         }
     }
 
