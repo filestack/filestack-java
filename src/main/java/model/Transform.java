@@ -1,5 +1,6 @@
 package model;
 
+import okhttp3.HttpUrl;
 import util.FilestackService;
 import util.Networking;
 
@@ -79,6 +80,7 @@ public class Transform {
             stringBuilder.append("=");
             for (Option option : options)
                 stringBuilder.append(option.key).append(":").append(option.value).append(",");
+            stringBuilder.deleteCharAt(stringBuilder.length()-1);
             return stringBuilder.toString();
         }
     }
@@ -116,7 +118,12 @@ public class Transform {
             // TODO Implement when we add external transforms
             return null;
         } else {
-            return processService.get(tasksString, source).request().url().toString();
+            HttpUrl httpUrl = processService.get(tasksString, source).request().url();
+            String urlString = httpUrl.toString();
+            // When forming the request we add a / between tasks, then add that entire string as a path variable
+            // Because it's added as a single path variable, the / is URL encoded
+            // That's a little confusing so we're replacing "%2F" with "/" for a more expected URL
+            return urlString.replace("%2F", "/");
         }
     }
 }
