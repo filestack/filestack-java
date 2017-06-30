@@ -1,5 +1,9 @@
 package model;
 
+import com.google.gson.JsonObject;
+
+import java.io.IOException;
+
 /**
  * {@link Transform Transform} subclass for image transformations.
  */
@@ -11,6 +15,17 @@ public class ImageTransform extends Transform {
 
     public ImageTransform(FileLink fileLink) {
         super(fileLink);
+    }
+
+    public JsonObject debug() throws IOException {
+        String tasksString = getTasksString();
+
+        if (apiKey != null) {
+            // TODO Implement when we add external transforms
+            return null;
+        } else {
+            return processService.debug(tasksString, source).execute().body();
+        }
     }
 
     // TODO This is just for demonstration, it should be confirmed when real transforms are added
