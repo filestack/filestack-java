@@ -1,5 +1,6 @@
 package util;
 
+import model.FileLink;
 import model.Policy;
 import model.Security;
 
@@ -43,4 +44,6 @@ public class MockConstants {
     public static final Policy POLICY = new Policy.Builder().expiry(4653651600L).build();
     public static final String APP_SECRET = "N3XOC2GP2NFTDCM43DZ6F2L6N4";
     public static final Security SECURITY = Security.createNew(POLICY, APP_SECRET);
+    public static final FileLink FILE_LINK = new FileLink(API_KEY, HANDLE);
+    public static final FileLink FILE_LINK_SECURITY = new FileLink(API_KEY, HANDLE, SECURITY);
 }

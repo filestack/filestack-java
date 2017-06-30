@@ -16,4 +16,12 @@ public class Client {
         this.apiKey = apiKey;
         this.security = security;
     }
+
+    public String getApiKey() {
+        return apiKey;
+    }
+
+    public Security getSecurity() {
+        return security;
+    }
 }

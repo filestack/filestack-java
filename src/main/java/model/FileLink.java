@@ -107,4 +107,8 @@ public class FileLink {
     public String getHandle() {
         return handle;
     }
+
+    public Security getSecurity() {
+        return security;
+    }
 }
