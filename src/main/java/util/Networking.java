@@ -2,6 +2,7 @@ package util;
 
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Serves as singleton holder for the OkHttp client and Retrofit services.
@@ -24,11 +25,7 @@ public class Networking {
 
     public static FilestackService.Cdn getCdnService() {
         if (cdnService == null) {
-            OkHttpClient client = getHttpClient();
-            Retrofit retrofit = new Retrofit.Builder()
-                    .client(client)
-                    .baseUrl(FilestackService.Cdn.URL)
-                    .build();
+            Retrofit retrofit = getRetrofitBuilder().baseUrl(FilestackService.Cdn.URL).build();
             cdnService = retrofit.create(FilestackService.Cdn.class);
         }
         return cdnService;
@@ -36,11 +33,7 @@ public class Networking {
 
     public static FilestackService.Api getApiService() {
         if (apiService == null) {
-            OkHttpClient client = getHttpClient();
-            Retrofit retrofit = new Retrofit.Builder()
-                    .client(client)
-                    .baseUrl(FilestackService.Api.URL)
-                    .build();
+            Retrofit retrofit = getRetrofitBuilder().baseUrl(FilestackService.Api.URL).build();
             apiService = retrofit.create(FilestackService.Api.class);
         }
         return apiService;
@@ -48,11 +41,7 @@ public class Networking {
 
     public static FilestackService.Process getProcessService() {
         if (processService == null) {
-            OkHttpClient client = getHttpClient();
-            Retrofit retrofit = new Retrofit.Builder()
-                    .client(client)
-                    .baseUrl(FilestackService.Process.URL)
-                    .build();
+            Retrofit retrofit = getRetrofitBuilder().baseUrl(FilestackService.Process.URL).build();
             processService = retrofit.create(FilestackService.Process.class);
         }
         return processService;
@@ -61,6 +50,12 @@ public class Networking {
     public static void setCustomClient(OkHttpClient client) {
         httpClient = client;
         invalidate();
+    }
+
+    private static Retrofit.Builder getRetrofitBuilder() {
+        return new Retrofit.Builder()
+                .client(getHttpClient())
+                .addConverterFactory(GsonConverterFactory.create());
     }
 
     /**
