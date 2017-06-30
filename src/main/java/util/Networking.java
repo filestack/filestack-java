@@ -48,7 +48,14 @@ public class Networking {
     }
 
     public static void setCustomClient(OkHttpClient client) {
+        if (client == null)
+            return;
         httpClient = client;
+        invalidate();
+    }
+
+    public static void removeCustomClient() {
+        httpClient = null;
         invalidate();
     }
 
