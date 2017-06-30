@@ -79,7 +79,8 @@ public class Transform {
             StringBuilder stringBuilder = new StringBuilder(name);
             stringBuilder.append("=");
             for (Option option : options)
-                stringBuilder.append(option.key).append(":").append(option.value).append(",");
+                if (option.value != null)
+                    stringBuilder.append(option.key).append(":").append(option.value).append(",");
             stringBuilder.deleteCharAt(stringBuilder.length()-1);
             return stringBuilder.toString();
         }
