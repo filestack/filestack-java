@@ -4,6 +4,7 @@ import okhttp3.HttpUrl;
 import util.FilestackService;
 import util.Networking;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -60,18 +61,22 @@ public class Transform {
         }
 
         void addOption(String key, Object value) {
-            addOption(key, value.toString());
-        }
+            // Passing an empty key is a mistake, shouldn't happen
+            if (key == null || key.length() == 0)
+                throw new InvalidParameterException("Task option key cannot be empty");
+            // Allowing the passing of a null value however, is for convenience
+            // If we're leaving out an option for a transform task, we only need to check for that here
+            if (value == null)
+                return;
 
-        void addOption(String key, Object value[]) {
-            String valueString = Arrays.toString(value);
-            // Remove spaces between array items
-            valueString = valueString.replace(" ", "");
-            addOption(key, valueString);
-        }
-
-        void addOption(String key, String value) {
-            options.add(new Option(key, value));
+            if (value.getClass().isArray()) {
+                String valueString = Arrays.toString((Object[])value);
+                // Remove spaces between array items
+                valueString = valueString.replace(" ", "");
+                options.add(new Option(key, valueString));
+            } else {
+                options.add(new Option(key, value.toString()));
+            }
         }
 
         @Override
