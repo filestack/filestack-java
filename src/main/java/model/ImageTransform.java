@@ -20,12 +20,10 @@ public class ImageTransform extends Transform {
     public JsonObject debug() throws IOException {
         String tasksString = getTasksString();
 
-        if (apiKey != null) {
-            // TODO Implement when we add external transforms
-            return null;
-        } else {
+        if (apiKey != null)
+            return processService.debugExternal(apiKey, tasksString, source).execute().body();
+        else
             return processService.debug(tasksString, source).execute().body();
-        }
     }
 
     // TODO This is just for demonstration, it should be confirmed when real transforms are added
