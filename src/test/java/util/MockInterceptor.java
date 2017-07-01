@@ -95,27 +95,23 @@ public class MockInterceptor implements Interceptor {
     }
 
     private Response.Builder genProcessResponse(Request request) throws IOException {
-        String path = request.url().pathSegments().get(0);
+        List<String> pathSegments = request.url().pathSegments();
         ResponseBody responseBody;
 
-        switch (path) {
+        if (pathSegments.contains("debug")) {
+            // Generate a tiny subset of an actual response, just need something to convert
+            JsonObject status = new JsonObject();
+            status.addProperty("message", "OK");
+            status.addProperty("http_code", 200);
+            JsonObject content = new JsonObject();
+            content.add("status", status);
 
-            // Debug mode
-            case "debug":
-                // Generate a tiny subset of an actual response, just need something to convert
-                JsonObject status = new JsonObject();
-                status.addProperty("message", "OK");
-                status.addProperty("http_code", 200);
-                JsonObject content = new JsonObject();
-                content.add("status", status);
+            responseBody = ResponseBody.create(MediaType.parse(MIME_JSON), content.toString());
 
-                responseBody = ResponseBody.create(MediaType.parse(MIME_JSON), content.toString());
-
-                // Always return a successful response to this endpoint
-                return new Response.Builder().code(CODE_OK).message(MESSAGE_OK).body(responseBody);
-
-            default:
-                throw new FilestackIOException("Transform method not mocked");
+            // Always return a successful response to this endpoint
+            return new Response.Builder().code(CODE_OK).message(MESSAGE_OK).body(responseBody);
+        } else {
+            throw new FilestackIOException("Process method not mocked");
         }
     }
 
