@@ -117,17 +117,16 @@ public class Transform {
 
     public String url() {
         String tasksString = getTasksString();
+        HttpUrl httpUrl;
 
-        if (apiKey != null) {
-            // TODO Implement when we add external transforms
-            return null;
-        } else {
-            HttpUrl httpUrl = processService.get(tasksString, source).request().url();
-            String urlString = httpUrl.toString();
-            // When forming the request we add a / between tasks, then add that entire string as a path variable
-            // Because it's added as a single path variable, the / is URL encoded
-            // That's a little confusing so we're replacing "%2F" with "/" for a more expected URL
-            return urlString.replace("%2F", "/");
-        }
+        if (apiKey != null)
+            httpUrl = processService.getExternal(apiKey, tasksString, source).request().url();
+        else
+            httpUrl = processService.get(tasksString, source).request().url();
+
+        // When forming the request we add a / between tasks, then add that entire string as a path variable
+        // Because it's added as a single path variable, the / is URL encoded
+        // That's a little confusing so we're replacing "%2F" with "/" for a more expected URL
+        return httpUrl.toString().replace("%2F", "/");
     }
 }
