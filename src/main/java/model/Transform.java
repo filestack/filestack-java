@@ -105,6 +105,9 @@ public class Transform {
      * Build tasks into single string to insert into request.
      */
     protected String getTasksString() {
+        if (tasks.size() == 0)
+            return "";
+
         StringBuilder stringBuilder = new StringBuilder();
         for (Task task : tasks)
             stringBuilder.append(task.toString()).append('/');
