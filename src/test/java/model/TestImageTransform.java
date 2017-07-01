@@ -14,6 +14,7 @@ import static org.junit.Assert.assertTrue;
 import static util.MockConstants.*;
 
 public class TestImageTransform {
+    private static final String SOURCE = "https://example.com/image.jpg";
 
     /**
      * Set a custom httpClient for our testing.
@@ -33,6 +34,15 @@ public class TestImageTransform {
         transform = transform.resize(100, 100, null, null);
         JsonObject debugResponse = transform.debug();
         String message = "Debug response was null";
+        assertTrue(message, debugResponse != null);
+    }
+
+    @Test
+    public void testDebugExternal() throws IOException {
+        ImageTransform transform = new ImageTransform(CLIENT, SOURCE);
+        transform = transform.resize(100, 100, null, null);
+        JsonObject debugResponse = transform.debug();
+        String message = "External debug response was null";
         assertTrue(message, debugResponse != null);
     }
 
