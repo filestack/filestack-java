@@ -1,5 +1,6 @@
 package util;
 
+import com.google.gson.JsonObject;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -37,5 +38,8 @@ public class FilestackService {
         @Streaming
         @GET("{tasks}/{handle}")
         Call<ResponseBody> get(@Path("tasks") String tasks, @Path("handle") String handle);
+
+        @GET("debug/{tasks}/{handle}")
+        Call<JsonObject> debug(@Path("tasks") String tasks, @Path("handle") String handle);
     }
 }

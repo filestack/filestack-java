@@ -11,12 +11,12 @@ import java.util.Arrays;
  * Base class for file transformations and conversions.
  */
 public class Transform {
-    private String apiKey;
-    private String source;
+    String apiKey;
+    String source;
 
     ArrayList<Task> tasks;
 
-    private FilestackService.Process processService;
+    FilestackService.Process processService;
 
     Transform(Client client, String source) {
         this(client, source, null);
@@ -79,7 +79,8 @@ public class Transform {
             StringBuilder stringBuilder = new StringBuilder(name);
             stringBuilder.append("=");
             for (Option option : options)
-                stringBuilder.append(option.key).append(":").append(option.value).append(",");
+                if (option.value != null)
+                    stringBuilder.append(option.key).append(":").append(option.value).append(",");
             stringBuilder.deleteCharAt(stringBuilder.length()-1);
             return stringBuilder.toString();
         }
