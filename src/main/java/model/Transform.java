@@ -60,6 +60,20 @@ public class Transform {
             this.options = new ArrayList<>();
         }
 
+        /**
+         * These represent task parameters.
+         * For example the resize task would have options for width and height.
+         */
+        protected class Option {
+            String key;
+            String value;
+
+            Option(String key, String value) {
+                this.key = key;
+                this.value = value;
+            }
+        }
+
         void addOption(String key, Object value) {
             // Passing an empty key is a mistake, shouldn't happen
             if (key == null || key.length() == 0)
@@ -88,21 +102,6 @@ public class Transform {
                     stringBuilder.append(option.key).append(":").append(option.value).append(",");
             stringBuilder.deleteCharAt(stringBuilder.length()-1);
             return stringBuilder.toString();
-        }
-    }
-
-    /**
-     * Each {@link Task Task} object has options.
-     * These are the settings for that task.
-     * For example the resize task would have options for width and height.
-     */
-    protected static class Option {
-        String key;
-        String value;
-
-        Option(String key, String value) {
-            this.key = key;
-            this.value = value;
         }
     }
 
