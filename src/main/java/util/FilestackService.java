@@ -41,5 +41,14 @@ public class FilestackService {
 
         @GET("debug/{tasks}/{handle}")
         Call<JsonObject> debug(@Path("tasks") String tasks, @Path("handle") String handle);
+
+        @Streaming
+        @GET("{key}/{tasks}/{url}")
+        Call<ResponseBody> getExternal(@Path("key") String key, @Path("tasks") String tasks,
+                                       @Path("url") String url);
+
+        @GET("{key}/debug/{tasks}/{url}")
+        Call<JsonObject> debugExternal(@Path("key") String key, @Path("tasks") String tasks,
+                                       @Path("url") String url);
     }
 }

@@ -17,6 +17,10 @@ public class Client {
         this.security = security;
     }
 
+    public ImageTransform imageTransform(String url) {
+        return new ImageTransform(this, url);
+    }
+
     public String getApiKey() {
         return apiKey;
     }

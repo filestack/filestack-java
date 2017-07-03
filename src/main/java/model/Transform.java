@@ -4,6 +4,7 @@ import okhttp3.HttpUrl;
 import util.FilestackService;
 import util.Networking;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -60,18 +61,22 @@ public class Transform {
         }
 
         void addOption(String key, Object value) {
-            addOption(key, value.toString());
-        }
+            // Passing an empty key is a mistake, shouldn't happen
+            if (key == null || key.length() == 0)
+                throw new InvalidParameterException("Task option key cannot be empty");
+            // Allowing the passing of a null value however, is for convenience
+            // If we're leaving out an option for a transform task, we only need to check for that here
+            if (value == null)
+                return;
 
-        void addOption(String key, Object value[]) {
-            String valueString = Arrays.toString(value);
-            // Remove spaces between array items
-            valueString = valueString.replace(" ", "");
-            addOption(key, valueString);
-        }
-
-        void addOption(String key, String value) {
-            options.add(new Option(key, value));
+            if (value.getClass().isArray()) {
+                String valueString = Arrays.toString((Object[])value);
+                // Remove spaces between array items
+                valueString = valueString.replace(" ", "");
+                options.add(new Option(key, valueString));
+            } else {
+                options.add(new Option(key, value.toString()));
+            }
         }
 
         @Override
@@ -105,6 +110,9 @@ public class Transform {
      * Build tasks into single string to insert into request.
      */
     protected String getTasksString() {
+        if (tasks.size() == 0)
+            return "";
+
         StringBuilder stringBuilder = new StringBuilder();
         for (Task task : tasks)
             stringBuilder.append(task.toString()).append('/');
@@ -114,17 +122,16 @@ public class Transform {
 
     public String url() {
         String tasksString = getTasksString();
+        HttpUrl httpUrl;
 
-        if (apiKey != null) {
-            // TODO Implement when we add external transforms
-            return null;
-        } else {
-            HttpUrl httpUrl = processService.get(tasksString, source).request().url();
-            String urlString = httpUrl.toString();
-            // When forming the request we add a / between tasks, then add that entire string as a path variable
-            // Because it's added as a single path variable, the / is URL encoded
-            // That's a little confusing so we're replacing "%2F" with "/" for a more expected URL
-            return urlString.replace("%2F", "/");
-        }
+        if (apiKey != null)
+            httpUrl = processService.getExternal(apiKey, tasksString, source).request().url();
+        else
+            httpUrl = processService.get(tasksString, source).request().url();
+
+        // When forming the request we add a / between tasks, then add that entire string as a path variable
+        // Because it's added as a single path variable, the / is URL encoded
+        // That's a little confusing so we're replacing "%2F" with "/" for a more expected URL
+        return httpUrl.toString().replace("%2F", "/");
     }
 }

@@ -1,5 +1,6 @@
 package util;
 
+import model.Client;
 import model.FileLink;
 import model.Policy;
 import model.Security;
@@ -46,4 +47,6 @@ public class MockConstants {
     public static final Security SECURITY = Security.createNew(POLICY, APP_SECRET);
     public static final FileLink FILE_LINK = new FileLink(API_KEY, HANDLE);
     public static final FileLink FILE_LINK_SECURITY = new FileLink(API_KEY, HANDLE, SECURITY);
+    public static final Client CLIENT = new Client(API_KEY);
+    public static final Client CLIENT_SECURITY = new Client(API_KEY, SECURITY);
 }
