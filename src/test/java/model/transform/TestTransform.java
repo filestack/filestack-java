@@ -7,7 +7,7 @@ import static org.junit.Assert.assertTrue;
 import static util.MockConstants.*;
 
 public class TestTransform {
-    private static final Transform.Task TASK = new Transform.Task("task");
+    private static final TransformTask TASK = new TransformTask("task");
     static {
         TASK.addOption("option1", 1);
         TASK.addOption("option2", 1.0);

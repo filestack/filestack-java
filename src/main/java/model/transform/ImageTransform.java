@@ -30,7 +30,7 @@ public class ImageTransform extends Transform {
 
     // TODO This is just for demonstration, it should be confirmed when real transforms are added
     public ImageTransform resize(Integer width, Integer height, String fit, String align) {
-        Task task = new Task("resize");
+        TransformTask task = new TransformTask("resize");
         task.addOption("width", width);
         task.addOption("height", height);
         task.addOption("fit", fit);
