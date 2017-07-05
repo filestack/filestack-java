@@ -1,6 +1,8 @@
-package model;
+package model.transform;
 
 import com.google.gson.JsonObject;
+import model.Client;
+import model.FileLink;
 
 import java.io.IOException;
 

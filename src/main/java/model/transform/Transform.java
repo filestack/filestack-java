@@ -1,5 +1,8 @@
-package model;
+package model.transform;
 
+import model.Client;
+import model.FileLink;
+import model.Security;
 import okhttp3.HttpUrl;
 import util.FilestackService;
 import util.Networking;

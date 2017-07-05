@@ -1,6 +1,5 @@
-package model;
+package model.transform;
 
-import okhttp3.HttpUrl;
 import org.junit.Test;
 import util.FilestackService;
 

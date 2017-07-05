@@ -1,5 +1,7 @@
 package model;
 
+import model.transform.ImageTransform;
+
 /**
  * Wrapper for communicating with the Filestack REST API.
  * Instantiate with an API Key from the Developer Portal.

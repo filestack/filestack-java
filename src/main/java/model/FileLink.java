@@ -1,6 +1,7 @@
 package model;
 
 import exception.PolicySignatureException;
+import model.transform.ImageTransform;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
