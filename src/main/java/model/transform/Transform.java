@@ -15,6 +15,7 @@ import java.util.ArrayList;
 public class Transform {
     String apiKey;
     String source;
+    Security security;
 
     ArrayList<TransformTask> tasks;
 
@@ -40,6 +41,7 @@ public class Transform {
         this.processService = Networking.getProcessService();
 
         Security security = client != null ? client.getSecurity() : fileLink.getSecurity();
+        this.security = security;
         if (security != null) {
             TransformTask securityTask = new TransformTask("security");
             securityTask.addOption("policy", security.getPolicy());

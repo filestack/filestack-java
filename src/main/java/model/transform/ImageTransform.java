@@ -47,7 +47,7 @@ public class ImageTransform extends Transform {
             response = processService.store(tasksString, source).execute().body();
 
         String handle = response.getUrl().split("/")[3];
-        return new FileLink(apiKey, handle);
+        return new FileLink(apiKey, handle, security);
     }
 
     public ImageTransform addTask(ImageTransformTask task) {
