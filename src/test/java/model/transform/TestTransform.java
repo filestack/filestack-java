@@ -39,4 +39,16 @@ public class TestTransform {
         String message = String.format("URL malformed\nCorrect: %s\nOutput:  %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
+
+    @Test
+    public void testUrlTaskWithoutOptions() {
+        String correct = FilestackService.Process.URL + "task/" + HANDLE;
+
+        Transform transform = new Transform(FILE_LINK);
+        transform.tasks.add(new TransformTask("task"));
+        String output = transform.url();
+
+        String message = String.format("URL malformed\nCorrect: %s\nOutput:  %s", correct, output);
+        assertTrue(message, output.equals(correct));
+    }
 }
