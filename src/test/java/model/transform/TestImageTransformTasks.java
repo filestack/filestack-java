@@ -194,4 +194,58 @@ public class TestImageTransformTasks {
         String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
+
+    @Test
+    public void testCropFacesTaskToString() {
+        String correct = "crop_faces=mode:thumb,width:100,height:100,faces:1,buffer:200";
+
+        TransformTask cropFacesTask = new CropFacesTask.Builder()
+                .mode("thumb")
+                .width(100)
+                .height(100)
+                .faces(1)
+                .buffer(200)
+                .build();
+
+        String output = cropFacesTask.toString();
+
+        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s", correct, output);
+        assertTrue(message, output.equals(correct));
+    }
+
+    @Test
+    public void testCropFacesTaskArrayToString() {
+        String correct = "crop_faces=mode:thumb,width:100,height:100,faces:[1,2,3,4],buffer:200";
+
+        TransformTask cropFacesTask = new CropFacesTask.Builder()
+                .mode("thumb")
+                .width(100)
+                .height(100)
+                .faces(1, 2, 3, 4)
+                .buffer(200)
+                .build();
+
+        String output = cropFacesTask.toString();
+
+        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s", correct, output);
+        assertTrue(message, output.equals(correct));
+    }
+
+    @Test
+    public void testCropFacesTaskStringToString() {
+        String correct = "crop_faces=mode:thumb,width:100,height:100,faces:all,buffer:200";
+
+        TransformTask cropFacesTask = new CropFacesTask.Builder()
+                .mode("thumb")
+                .width(100)
+                .height(100)
+                .faces("all")
+                .buffer(200)
+                .build();
+
+        String output = cropFacesTask.toString();
+
+        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s", correct, output);
+        assertTrue(message, output.equals(correct));
+    }
 }
