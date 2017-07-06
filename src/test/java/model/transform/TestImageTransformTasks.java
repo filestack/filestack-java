@@ -23,7 +23,7 @@ public class TestImageTransformTasks {
 
         String output = storeOptions.toString();
 
-        String message = String.format("Store task string malformed\nCorrect: %s\nOutput: %s", correct, output);
+        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
 
@@ -40,7 +40,7 @@ public class TestImageTransformTasks {
 
         String output = resizeTask.toString();
 
-        String message = String.format("Resize task string malformed\nCorrect: %s\nOutput: %s", correct, output);
+        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
 
@@ -57,7 +57,7 @@ public class TestImageTransformTasks {
 
         String output = resizeTask.toString();
 
-        String message = String.format("Resize task string malformed\nCorrect: %s\nOutput: %s", correct, output);
+        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
 
@@ -69,7 +69,7 @@ public class TestImageTransformTasks {
 
         String output = cropTask.toString();
 
-        String message = String.format("Resize task string malformed\nCorrect: %s\nOutput: %s", correct, output);
+        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
 
@@ -85,7 +85,7 @@ public class TestImageTransformTasks {
 
         String output = rotateTask.toString();
 
-        String message = String.format("Resize task string malformed\nCorrect: %s\nOutput: %s", correct, output);
+        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
 
@@ -101,7 +101,7 @@ public class TestImageTransformTasks {
 
         String output = rotateTask.toString();
 
-        String message = String.format("Resize task string malformed\nCorrect: %s\nOutput: %s", correct, output);
+        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
 
@@ -113,7 +113,7 @@ public class TestImageTransformTasks {
 
         String output = flipTask.toString();
 
-        String message = String.format("Resize task string malformed\nCorrect: %s\nOutput: %s", correct, output);
+        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
 
@@ -125,7 +125,7 @@ public class TestImageTransformTasks {
 
         String output = flopTask.toString();
 
-        String message = String.format("Resize task string malformed\nCorrect: %s\nOutput: %s", correct, output);
+        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
 
@@ -141,7 +141,7 @@ public class TestImageTransformTasks {
 
         String output = watermarkTask.toString();
 
-        String message = String.format("Resize task string malformed\nCorrect: %s\nOutput: %s", correct, output);
+        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
 
@@ -157,7 +157,7 @@ public class TestImageTransformTasks {
 
         String output = watermarkTask.toString();
 
-        String message = String.format("Resize task string malformed\nCorrect: %s\nOutput: %s", correct, output);
+        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
 
