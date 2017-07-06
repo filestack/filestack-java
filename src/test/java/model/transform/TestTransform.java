@@ -27,6 +27,21 @@ public class TestTransform {
         String message = String.format("URL malformed\nCorrect: %s\nOutput:  %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
+
+    @Test
+    public void testUrlSecurity() {
+        String correct = FilestackService.Process.URL
+                + "security=policy:" + SECURITY.getPolicy() + ","
+                + "signature:" + SECURITY.getSignature() + "/"
+                + TASK_STRING + "/" + HANDLE;
+
+        Transform transform = new Transform(FILE_LINK_SECURITY);
+        transform.tasks.add(TASK);
+        String output = transform.url();
+
+        String message = String.format("URL malformed\nCorrect: %s\nOutput:  %s", correct, output);
+        assertTrue(message, output.equals(correct));
+    }
     
     @Test
     public void testUrlExternal() {
