@@ -43,4 +43,16 @@ public class TestImageTransformTasks {
         String message = String.format("Resize task string malformed\nCorrect: %s\nOutput: %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
+
+    @Test
+    public void testCropTaskToString() {
+        String correct = "crop=dim:[0,0,100,100]";
+
+        TransformTask cropTask = new CropTask(0,0,100,100);
+
+        String output = cropTask.toString();
+
+        String message = String.format("Resize task string malformed\nCorrect: %s\nOutput: %s", correct, output);
+        assertTrue(message, output.equals(correct));
+    }
 }
