@@ -24,7 +24,7 @@ public class TestTransform {
         transform.tasks.add(TASK);
         String output = transform.url();
 
-        String message = String.format("URL malformed\nCorrect: %s\nOutput:  %s", correct, output);
+        String message = String.format("Bad transform URL (basic)\nCorrect: %s\nOutput:  %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
 
@@ -39,7 +39,7 @@ public class TestTransform {
         transform.tasks.add(TASK);
         String output = transform.url();
 
-        String message = String.format("URL malformed\nCorrect: %s\nOutput:  %s", correct, output);
+        String message = String.format("Bad transform URL (security)\nCorrect: %s\nOutput:  %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
     
@@ -50,7 +50,7 @@ public class TestTransform {
         transform.tasks.add(TASK);
         String output = transform.url();
 
-        String message = String.format("URL malformed\nCorrect: %s\nOutput:  %s", correct, output);
+        String message = String.format("Bad transform URL (external)\nCorrect: %s\nOutput:  %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
 
@@ -63,7 +63,7 @@ public class TestTransform {
         transform.tasks.add(TASK);
         String output = transform.url();
 
-        String message = String.format("URL malformed\nCorrect: %s\nOutput:  %s", correct, output);
+        String message = String.format("Bad transform URL (multiple tasks)\nCorrect: %s\nOutput:  %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
 
@@ -75,7 +75,7 @@ public class TestTransform {
         transform.tasks.add(new TransformTask("task"));
         String output = transform.url();
 
-        String message = String.format("URL malformed\nCorrect: %s\nOutput:  %s", correct, output);
+        String message = String.format("Bad transform URL (no options)\nCorrect: %s\nOutput:  %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
 }
