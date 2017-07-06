@@ -160,4 +160,38 @@ public class TestImageTransformTasks {
         String message = String.format("Resize task string malformed\nCorrect: %s\nOutput: %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
+
+    @Test
+    public void testDetectFacesTaskIntsToString() {
+        String correct = "detect_faces=minsize:100,maxsize:100,color:white,export:false";
+
+        TransformTask detectFacesTask = new DetectFacesTask.Builder()
+                .minSize(100)
+                .maxSize(100)
+                .color("white")
+                .export(false)
+                .build();
+
+        String output = detectFacesTask.toString();
+
+        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s", correct, output);
+        assertTrue(message, output.equals(correct));
+    }
+
+    @Test
+    public void testDetectFacesTaskFloatsToString() {
+        String correct = "detect_faces=minsize:0.25,maxsize:0.75,color:white,export:false";
+
+        TransformTask detectFacesTask = new DetectFacesTask.Builder()
+                .minSize(.25)
+                .maxSize(.75)
+                .color("white")
+                .export(false)
+                .build();
+
+        String output = detectFacesTask.toString();
+
+        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s", correct, output);
+        assertTrue(message, output.equals(correct));
+    }
 }
