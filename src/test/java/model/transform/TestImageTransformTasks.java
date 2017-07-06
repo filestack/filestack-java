@@ -26,4 +26,21 @@ public class TestImageTransformTasks {
         String message = String.format("Store task string malformed\nCorrect: %s\nOutput: %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
+
+    @Test
+    public void testResizeTaskToString() {
+        String correct = "resize=width:100,height:100,fit:clip,align:center";
+
+        TransformTask resizeTask = new ResizeTask.Builder()
+                .width(100)
+                .height(100)
+                .fit("clip")
+                .align("center")
+                .build();
+
+        String output = resizeTask.toString();
+
+        String message = String.format("Resize task string malformed\nCorrect: %s\nOutput: %s", correct, output);
+        assertTrue(message, output.equals(correct));
+    }
 }
