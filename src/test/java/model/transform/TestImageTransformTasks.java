@@ -45,6 +45,23 @@ public class TestImageTransformTasks {
     }
 
     @Test
+    public void testResizeTaskAlignPairToString() {
+        String correct = "resize=width:100,height:100,fit:clip,align:[top,left]";
+
+        TransformTask resizeTask = new ResizeTask.Builder()
+                .width(100)
+                .height(100)
+                .fit("clip")
+                .align("top", "left")
+                .build();
+
+        String output = resizeTask.toString();
+
+        String message = String.format("Resize task string malformed\nCorrect: %s\nOutput: %s", correct, output);
+        assertTrue(message, output.equals(correct));
+    }
+
+    @Test
     public void testCropTaskToString() {
         String correct = "crop=dim:[0,0,100,100]";
 

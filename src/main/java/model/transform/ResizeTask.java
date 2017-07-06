@@ -33,6 +33,11 @@ public class ResizeTask extends ImageTransformTask {
             return this;
         }
 
+        public Builder align(String align1, String align2) {
+            resizeTask.addOption("align", new String[]{align1, align2});
+            return this;
+        }
+
         public ResizeTask build() {
             return resizeTask;
         }
