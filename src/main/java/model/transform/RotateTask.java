@@ -30,7 +30,7 @@ public class RotateTask extends ImageTransformTask {
         }
 
         /**
-         * Can be a name string like "white" or hex string like "FFFFFFFF"
+         * This can be a name string like "white" or a hex string like "FFFFFFFF".
          */
         public Builder background(String background) {
             rotateTask.addOption("background", background);
