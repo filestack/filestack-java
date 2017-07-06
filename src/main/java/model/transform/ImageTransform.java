@@ -33,9 +33,9 @@ public class ImageTransform extends Transform {
         return store(null);
     }
 
-    public FileLink store(StoreTask storeOptions) throws IOException {
+    public FileLink store(StoreOptions storeOptions) throws IOException {
         if (storeOptions == null)
-            storeOptions = new StoreTask();
+            storeOptions = new StoreOptions();
         addTask(storeOptions);
 
         FilestackService.Process.StoreResponse response;

@@ -1,55 +1,55 @@
 package model.transform;
 
-public class StoreTask extends ImageTransformTask {
+public class StoreOptions extends ImageTransformTask {
 
-    StoreTask() {
+    StoreOptions() {
         super("store");
     }
     
     public static class Builder {
-        private StoreTask storeTask;
+        private StoreOptions storeOptions;
         
         public Builder() {
-            this.storeTask = new StoreTask();
+            this.storeOptions = new StoreOptions();
         }
 
         public Builder filename(String filename) {
-            storeTask.addOption("filename", filename);
+            storeOptions.addOption("filename", filename);
             return this;
         }
 
         public Builder location(String location) {
-            storeTask.addOption("location", location);
+            storeOptions.addOption("location", location);
             return this;
         }
 
         public Builder path(String path) {
-            storeTask.addOption("path", path);
+            storeOptions.addOption("path", path);
             return this;
         }
 
         public Builder container(String container) {
-            storeTask.addOption("container", container);
+            storeOptions.addOption("container", container);
             return this;
         }
 
         public Builder region(String region) {
-            storeTask.addOption("region", region);
+            storeOptions.addOption("region", region);
             return this;
         }
 
         public Builder access(String access) {
-            storeTask.addOption("access", access);
+            storeOptions.addOption("access", access);
             return this;
         }
 
         public Builder base64Decode(boolean base64Decode) {
-            storeTask.addOption("base64decode", base64Decode);
+            storeOptions.addOption("base64decode", base64Decode);
             return this;
         }
 
-        public StoreTask build() {
-            return storeTask;
+        public StoreOptions build() {
+            return storeOptions;
         }
     }
 }
