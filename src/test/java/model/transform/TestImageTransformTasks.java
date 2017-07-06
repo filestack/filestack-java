@@ -72,4 +72,36 @@ public class TestImageTransformTasks {
         String message = String.format("Resize task string malformed\nCorrect: %s\nOutput: %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
+
+    @Test
+    public void testRotateTaskToString() {
+        String correct = "rotate=deg:90,exif:false,background:white";
+
+        TransformTask rotateTask = new RotateTask.Builder()
+                .deg(90)
+                .exif(false)
+                .background("white")
+                .build();
+
+        String output = rotateTask.toString();
+
+        String message = String.format("Resize task string malformed\nCorrect: %s\nOutput: %s", correct, output);
+        assertTrue(message, output.equals(correct));
+    }
+
+    @Test
+    public void testRotateTaskDegExifToString() {
+        String correct = "rotate=deg:exif,exif:false,background:white";
+
+        TransformTask rotateTask = new RotateTask.Builder()
+                .deg("exif")
+                .exif(false)
+                .background("white")
+                .build();
+
+        String output = rotateTask.toString();
+
+        String message = String.format("Resize task string malformed\nCorrect: %s\nOutput: %s", correct, output);
+        assertTrue(message, output.equals(correct));
+    }
 }
