@@ -104,4 +104,16 @@ public class TestImageTransformTasks {
         String message = String.format("Resize task string malformed\nCorrect: %s\nOutput: %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
+
+    @Test
+    public void testFlipTaskToString() {
+        String correct = "flip";
+
+        TransformTask flipTask = new FlipTask();
+
+        String output = flipTask.toString();
+
+        String message = String.format("Resize task string malformed\nCorrect: %s\nOutput: %s", correct, output);
+        assertTrue(message, output.equals(correct));
+    }
 }
