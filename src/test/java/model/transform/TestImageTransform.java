@@ -97,6 +97,12 @@ public class TestImageTransform {
         assertTrue(filelink.getHandle().equals("NEW_HANDLE"));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testAddNullTask() throws IOException {
+        ImageTransform transform = FILE_LINK.imageTransform();
+        transform.addTask(null);
+    }
+
     /**
      * Clear changes to {@link Networking Networking} class since it's a shared resource.
      */

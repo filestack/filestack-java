@@ -51,8 +51,9 @@ public class ImageTransform extends Transform {
     }
 
     public ImageTransform addTask(ImageTransformTask task) {
-        if (task != null)
-            tasks.add(task);
+        if (task == null)
+            throw new IllegalArgumentException("Cannot add null task to image transform");
+        tasks.add(task);
         return this;
     }
 
