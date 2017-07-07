@@ -28,8 +28,8 @@ public class WatermarkTask extends ImageTransformTask {
             return this;
         }
 
-        public Builder position(String position1, String position2) {
-            watermarkTask.addOption("position", new String[]{position1, position2});
+        public Builder position(String val1, String val2) {
+            watermarkTask.addOption("position", new String[]{val1, val2});
             return this;
         }
 
