@@ -2,7 +2,7 @@ package model.transform;
 
 public class ShadowTask extends ImageTransformTask {
 
-    ShadowTask() {
+    public ShadowTask() {
         super("shadow");
     }
     

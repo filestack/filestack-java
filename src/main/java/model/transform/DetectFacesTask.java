@@ -2,7 +2,7 @@ package model.transform;
 
 public class DetectFacesTask extends ImageTransformTask {
 
-    DetectFacesTask() {
+    public DetectFacesTask() {
         super("detect_faces");
     }
     

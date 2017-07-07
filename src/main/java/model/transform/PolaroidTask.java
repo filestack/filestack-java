@@ -2,7 +2,7 @@ package model.transform;
 
 public class PolaroidTask extends ImageTransformTask {
 
-    PolaroidTask() {
+    public PolaroidTask() {
         super("polaroid");
     }
     

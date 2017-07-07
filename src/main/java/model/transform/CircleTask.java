@@ -2,7 +2,7 @@ package model.transform;
 
 public class CircleTask extends ImageTransformTask {
 
-    CircleTask() {
+    public CircleTask() {
         super("circle");
     }
     

@@ -2,7 +2,7 @@ package model.transform;
 
 public class FlipTask extends ImageTransformTask {
 
-    FlipTask() {
+    public FlipTask() {
         super("flip");
     }
 }

@@ -2,7 +2,7 @@ package model.transform;
 
 public class TornEdgesTask extends ImageTransformTask {
 
-    TornEdgesTask() {
+    public TornEdgesTask() {
         super("torn_edges");
     }
     

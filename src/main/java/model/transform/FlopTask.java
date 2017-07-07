@@ -2,7 +2,7 @@ package model.transform;
 
 public class FlopTask extends ImageTransformTask {
 
-    FlopTask() {
+    public FlopTask() {
         super("flop");
     }
 }
