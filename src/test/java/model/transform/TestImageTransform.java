@@ -34,8 +34,7 @@ public class TestImageTransform {
 
     @Test
     public void testDebug() throws IOException {
-        ImageTransform transform = new ImageTransform(FILE_LINK);
-        transform = transform.resize(100, 100, null, null);
+        ImageTransform transform = FILE_LINK.imageTransform();
         JsonObject debugResponse = transform.debug();
         String message = "Debug response was null";
         assertTrue(message, debugResponse != null);
@@ -54,8 +53,7 @@ public class TestImageTransform {
 
     @Test
     public void testDebugExternal() throws IOException {
-        ImageTransform transform = new ImageTransform(CLIENT, SOURCE);
-        transform = transform.resize(100, 100, null, null);
+        ImageTransform transform = CLIENT.imageTransform(SOURCE);
         JsonObject debugResponse = transform.debug();
         String message = "External debug response was null";
         assertTrue(message, debugResponse != null);
@@ -95,6 +93,12 @@ public class TestImageTransform {
         ImageTransform transform = FILE_LINK.imageTransform();
         FileLink filelink = transform.store();
         assertTrue(filelink.getHandle().equals("NEW_HANDLE"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testAddNullTask() throws IOException {
+        ImageTransform transform = FILE_LINK.imageTransform();
+        transform.addTask(null);
     }
 
     /**
