@@ -35,6 +35,7 @@ public class FilestackService {
     public interface Process {
         String URL = "https://process.filestackapi.com/";
 
+        // Requests that use a handle
         @Streaming
         @GET("{tasks}/{handle}")
         Call<ResponseBody> get(@Path("tasks") String tasks, @Path("handle") String handle);
@@ -42,6 +43,10 @@ public class FilestackService {
         @GET("debug/{tasks}/{handle}")
         Call<JsonObject> debug(@Path("tasks") String tasks, @Path("handle") String handle);
 
+        @POST("{tasks}/{handle}")
+        Call<StoreResponse> store(@Path("tasks") String tasks, @Path("handle") String handle);
+
+        // Requests that use an API key and external URL
         @Streaming
         @GET("{key}/{tasks}/{url}")
         Call<ResponseBody> getExternal(@Path("key") String key, @Path("tasks") String tasks,
@@ -50,5 +55,54 @@ public class FilestackService {
         @GET("{key}/debug/{tasks}/{url}")
         Call<JsonObject> debugExternal(@Path("key") String key, @Path("tasks") String tasks,
                                        @Path("url") String url);
+
+        @POST("{key}/{tasks}/{url}")
+        Call<StoreResponse> storeExternal(@Path("key") String key, @Path("tasks") String tasks,
+                                          @Path("url") String url);
+
+        public static class StoreResponse {
+            String url;
+            String filename;
+            String type;
+
+            String container;
+            String key;
+
+            int width;
+            int height;
+            int size;
+
+            public String getUrl() {
+                return url;
+            }
+
+            public String getFilename() {
+                return filename;
+            }
+
+            public String getType() {
+                return type;
+            }
+
+            public String getContainer() {
+                return container;
+            }
+
+            public String getKey() {
+                return key;
+            }
+
+            public int getWidth() {
+                return width;
+            }
+
+            public int getHeight() {
+                return height;
+            }
+
+            public int getSize() {
+                return size;
+            }
+        }
     }
 }

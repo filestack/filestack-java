@@ -1,6 +1,9 @@
-package model;
+package model.transform;
 
 import com.google.gson.JsonObject;
+import model.Client;
+import model.FileLink;
+import util.FilestackService;
 
 import java.io.IOException;
 
@@ -26,9 +29,36 @@ public class ImageTransform extends Transform {
             return processService.debug(tasksString, source).execute().body();
     }
 
+    public FileLink store() throws IOException {
+        return store(null);
+    }
+
+    public FileLink store(StoreOptions storeOptions) throws IOException {
+        if (storeOptions == null)
+            storeOptions = new StoreOptions();
+        addTask(storeOptions);
+
+        FilestackService.Process.StoreResponse response;
+        String tasksString = getTasksString();
+
+        if (apiKey != null)
+            response = processService.storeExternal(apiKey, tasksString, source).execute().body();
+        else
+            response = processService.store(tasksString, source).execute().body();
+
+        String handle = response.getUrl().split("/")[3];
+        return new FileLink(apiKey, handle);
+    }
+
+    public ImageTransform addTask(ImageTransformTask task) {
+        if (task != null)
+            tasks.add(task);
+        return this;
+    }
+
     // TODO This is just for demonstration, it should be confirmed when real transforms are added
     public ImageTransform resize(Integer width, Integer height, String fit, String align) {
-        Task task = new Task("resize");
+        TransformTask task = new TransformTask("resize");
         task.addOption("width", width);
         task.addOption("height", height);
         task.addOption("fit", fit);

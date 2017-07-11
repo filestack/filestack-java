@@ -1,6 +1,7 @@
-package model;
+package model.transform;
 
 import com.google.gson.JsonObject;
+import model.FileLink;
 import okhttp3.OkHttpClient;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -11,12 +12,13 @@ import util.Networking;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static util.MockConstants.*;
 
 public class TestImageTransform {
     private static final String RESIZE_TASK_STRING = "resize=width:100,height:100";
     private static final String SOURCE = "https://example.com/image.jpg";
+    private static final String ENCODED_SOURCE = "https:%2F%2Fexample.com%2Fimage.jpg";
 
     /**
      * Set a custom httpClient for our testing.
@@ -39,6 +41,7 @@ public class TestImageTransform {
         assertTrue(message, debugResponse != null);
     }
 
+    @Test
     public void testDebugUrl() throws IOException {
         FilestackService.Process processService = Networking.getProcessService();
 
@@ -58,14 +61,40 @@ public class TestImageTransform {
         assertTrue(message, debugResponse != null);
     }
 
+    @Test
     public void testDebugExternalUrl() throws IOException {
         FilestackService.Process processService = Networking.getProcessService();
 
-        String correct = FilestackService.Process.URL + API_KEY + "/debug/" + RESIZE_TASK_STRING + "/" + SOURCE;
+        // Retrofit will return the URL with some characters escaped, so we build a different test string
+        String correct = FilestackService.Process.URL + API_KEY + "/debug/" + RESIZE_TASK_STRING + "/" + ENCODED_SOURCE;
         String output = processService.debugExternal(API_KEY, RESIZE_TASK_STRING, SOURCE).request().url().toString();
 
         String message = String.format("External debug URL malformed\nCorrect: %s\nOutput:  %s", correct, output);
         assertTrue(message, output.equals(correct));
+    }
+
+    /**
+     * Tests conversion of JSON response into POJO and creation of a new {@link FileLink FileLink} object.
+     */
+    @Test
+    public void testStore() throws IOException {
+        StoreOptions storeOptions = new StoreOptions();
+        FilestackService.Process processService = Networking.getProcessService();
+        FilestackService.Process.StoreResponse storeResponse;
+        storeResponse = processService.store(storeOptions.toString(), FILE_LINK.getHandle()).execute().body();
+
+        assertNotNull(storeResponse);
+        assertTrue(storeResponse.getContainer().equals("my_bucket"));
+        assertTrue(storeResponse.getKey().equals("NEW_HANDLE_some_file.jpg"));
+        assertTrue(storeResponse.getFilename().equals("some_file.jpg"));
+        assertTrue(storeResponse.getType().equals("image/jpeg"));
+        assertEquals(storeResponse.getWidth(), 1000);
+        assertEquals(storeResponse.getHeight(), 1000);
+        assertEquals(storeResponse.getSize(), 200000);
+
+        ImageTransform transform = FILE_LINK.imageTransform();
+        FileLink filelink = transform.store();
+        assertTrue(filelink.getHandle().equals("NEW_HANDLE"));
     }
 
     /**

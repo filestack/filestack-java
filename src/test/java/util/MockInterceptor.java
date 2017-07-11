@@ -110,6 +110,22 @@ public class MockInterceptor implements Interceptor {
 
             // Always return a successful response to this endpoint
             return new Response.Builder().code(CODE_OK).message(MESSAGE_OK).body(responseBody);
+
+        } else if (pathSegments.contains("store")) {
+            JsonObject storeResponse = new JsonObject();
+            storeResponse.addProperty("container", "my_bucket");
+            storeResponse.addProperty("key", "NEW_HANDLE_some_file.jpg");
+            storeResponse.addProperty("filename", "some_file.jpg");
+            storeResponse.addProperty("type", "image/jpeg");
+            storeResponse.addProperty("height", "1000");
+            storeResponse.addProperty("width", "1000");
+            storeResponse.addProperty("size", "200000");
+            storeResponse.addProperty("url", "https://cdn.filestackcontent.com/NEW_HANDLE");
+            responseBody = ResponseBody.create(MediaType.parse(MIME_JSON), storeResponse.toString());
+
+            // Always return a successful response to this endpoint
+            return new Response.Builder().code(CODE_OK).message(MESSAGE_OK).body(responseBody);
+
         } else {
             throw new FilestackIOException("Process method not mocked");
         }
