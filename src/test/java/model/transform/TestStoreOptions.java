@@ -4,10 +4,10 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class TestImageTransformTasks {
+public class TestStoreOptions {
 
     @Test
-    public void testStoreOptionsToString() {
+    public void testToString() {
         String correct = "store=filename:some_file.txt,location:S3,path:/some/path/,container:some_bucket,"
                 + "region:us-east-1,access:private,base64decode:false";
 
@@ -23,7 +23,7 @@ public class TestImageTransformTasks {
 
         String output = storeOptions.toString();
 
-        String message = String.format("Store task string malformed\nCorrect: %s\nOutput: %s", correct, output);
+        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s", correct, output);
         assertTrue(message, output.equals(correct));
     }
 }
