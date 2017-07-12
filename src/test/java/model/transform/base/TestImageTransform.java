@@ -1,7 +1,8 @@
-package model.transform;
+package model.transform.base;
 
 import com.google.gson.JsonObject;
 import model.FileLink;
+import model.transform.tasks.StoreOptions;
 import okhttp3.OkHttpClient;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

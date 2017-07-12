@@ -1,8 +1,10 @@
-package model.transform;
+package model.transform.tasks;
+
+import model.transform.base.ImageTransformTask;
 
 public class StoreOptions extends ImageTransformTask {
 
-    StoreOptions() {
+    public StoreOptions() {
         super("store");
     }
     

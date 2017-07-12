@@ -1,6 +1,6 @@
 package model;
 
-import model.transform.ImageTransform;
+import model.transform.base.ImageTransform;
 
 /**
  * Wrapper for communicating with the Filestack REST API.

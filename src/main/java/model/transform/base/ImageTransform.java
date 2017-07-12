@@ -1,8 +1,9 @@
-package model.transform;
+package model.transform.base;
 
 import com.google.gson.JsonObject;
 import model.Client;
 import model.FileLink;
+import model.transform.tasks.StoreOptions;
 import util.FilestackService;
 
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package model.transform;
+package model.transform.base;
 
 /**
  * Base class for image transformation tasks.
@@ -8,7 +8,7 @@ public class ImageTransformTask extends TransformTask {
     ImageTransformTask() {
     }
 
-    ImageTransformTask(String name) {
+    public ImageTransformTask(String name) {
         super(name);
     }
 }

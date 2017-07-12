@@ -1,5 +1,6 @@
-package model.transform;
+package model.transform.tasks;
 
+import model.transform.base.TransformTask;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
