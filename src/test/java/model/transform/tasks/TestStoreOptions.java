@@ -9,8 +9,14 @@ public class TestStoreOptions {
 
     @Test
     public void testToString() {
-        String correct = "store=filename:some_file.txt,location:S3,path:/some/path/,container:some_bucket,"
-                + "region:us-east-1,access:private,base64decode:false";
+        String correct = "store="
+                + "filename:some_file.txt,"
+                + "location:S3,"
+                + "path:/some/path/,"
+                + "container:some_bucket,"
+                + "region:us-east-1,"
+                + "access:private,"
+                + "base64decode:false";
 
         TransformTask task = new StoreOptions.Builder()
                 .filename("some_file.txt")
