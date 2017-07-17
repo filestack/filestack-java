@@ -1,4 +1,4 @@
-package model.transform.tasks;
+package model.transform.tasks.rotate;
 
 import model.transform.base.TransformTask;
 import org.junit.Test;

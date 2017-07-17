@@ -1,17 +1,17 @@
-package model.transform.tasks;
+package model.transform.tasks.rotate;
 
 import model.transform.base.TransformTask;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class TestFlipTask {
+public class TestFlopTask {
 
     @Test
     public void testToString() {
-        String correct = "flip";
+        String correct = "flop";
 
-        TransformTask task = new FlipTask();
+        TransformTask task = new FlopTask();
 
         String output = task.toString();
 
