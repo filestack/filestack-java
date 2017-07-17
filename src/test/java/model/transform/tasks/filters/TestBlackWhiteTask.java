@@ -1,17 +1,18 @@
-package model.transform.tasks;
+package model.transform.tasks.filters;
 
 import model.transform.base.TransformTask;
+import model.transform.tasks.filters.BlackWhiteTask;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class TestSharpenTask {
+public class TestBlackWhiteTask {
 
     @Test
     public void testToString() {
-        String correct = "sharpen";
+        String correct = "blackwhite";
 
-        TransformTask task = new SharpenTask();
+        TransformTask task = new BlackWhiteTask();
 
         String output = task.toString();
 
@@ -20,11 +21,11 @@ public class TestSharpenTask {
     }
 
     @Test
-    public void testToStringAmount() {
-        String correct = "sharpen="
-                + "amount:5";
+    public void testToStringThreshold() {
+        String correct = "blackwhite="
+                + "threshold:50";
 
-        TransformTask task = new SharpenTask(5);
+        TransformTask task = new BlackWhiteTask(50);
 
         String output = task.toString();
 

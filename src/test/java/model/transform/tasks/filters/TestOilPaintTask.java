@@ -1,17 +1,17 @@
-package model.transform.tasks;
+package model.transform.tasks.filters;
 
 import model.transform.base.TransformTask;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class TestBlurTask {
+public class TestOilPaintTask {
 
     @Test
     public void testToString() {
-        String correct = "blur";
+        String correct = "oil_paint";
 
-        TransformTask task = new BlurTask();
+        TransformTask task = new OilPaintTask();
 
         String output = task.toString();
 
@@ -21,12 +21,12 @@ public class TestBlurTask {
 
     @Test
     public void testToStringAmount() {
-        String correct = "blur="
+        String correct = "oil_paint="
                 + "amount:5";
 
-        TransformTask task = new BlurTask(5);
+        TransformTask oilPaintTask = new OilPaintTask(5);
 
-        String output = task.toString();
+        String output = oilPaintTask.toString();
 
         String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s", correct, output);
         assertTrue(message, output.equals(correct));

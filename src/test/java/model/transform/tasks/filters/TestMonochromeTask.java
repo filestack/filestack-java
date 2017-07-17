@@ -1,17 +1,17 @@
-package model.transform.tasks;
+package model.transform.tasks.filters;
 
 import model.transform.base.TransformTask;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class TestNegativeTask {
+public class TestMonochromeTask {
 
     @Test
     public void testToString() {
-        String correct = "negative";
+        String correct = "monochrome";
 
-        TransformTask task = new NegativeTask();
+        TransformTask task = new MonochromeTask();
 
         String output = task.toString();
 

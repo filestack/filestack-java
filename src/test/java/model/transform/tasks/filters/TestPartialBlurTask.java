@@ -1,21 +1,21 @@
-package model.transform.tasks;
+package model.transform.tasks.filters;
 
 import model.transform.base.TransformTask;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class TestPartialPixelateTask {
+public class TestPartialBlurTask {
 
     @Test
     public void testToString() {
         String correct = "partial_pixelate="
-                + "amount:10,"
+                + "amount:10.0,"
                 + "blur:10.0,"
                 + "type:rect,"
                 + "objects:[[10,20,200,250]]";
 
-        TransformTask task = new PartialPixelateTask.Builder()
+        TransformTask task = new PartialBlurTask.Builder()
                 .amount(10)
                 .blur(10)
                 .type("rect")
@@ -31,12 +31,12 @@ public class TestPartialPixelateTask {
     @Test
     public void testToStringMultipleAreas() {
         String correct = "partial_pixelate="
-                + "amount:10,"
+                + "amount:10.0,"
                 + "blur:10.0,"
                 + "type:rect,"
                 + "objects:[[10,20,200,250],[275,91,500,557]]";
 
-        TransformTask task = new PartialPixelateTask.Builder()
+        TransformTask task = new PartialBlurTask.Builder()
                 .amount(10)
                 .blur(10)
                 .type("rect")

@@ -1,17 +1,17 @@
-package model.transform.tasks;
+package model.transform.tasks.filters;
 
 import model.transform.base.TransformTask;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class TestSepiaTask {
+public class TestBlurTask {
 
     @Test
     public void testToString() {
-        String correct = "sepia";
+        String correct = "blur";
 
-        TransformTask task = new SepiaTask();
+        TransformTask task = new BlurTask();
 
         String output = task.toString();
 
@@ -20,11 +20,11 @@ public class TestSepiaTask {
     }
 
     @Test
-    public void testToStringTone() {
-        String correct = "sepia="
-                + "tone:80";
+    public void testToStringAmount() {
+        String correct = "blur="
+                + "amount:5";
 
-        TransformTask task = new SepiaTask(80);
+        TransformTask task = new BlurTask(5);
 
         String output = task.toString();
 

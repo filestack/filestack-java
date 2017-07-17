@@ -1,17 +1,17 @@
-package model.transform.tasks;
+package model.transform.tasks.filters;
 
 import model.transform.base.ImageTransformTask;
 
-public class OilPaintTask extends ImageTransformTask {
+public class PixelateTask extends ImageTransformTask {
 
     // Constructor left public because this task can be used with default options
-    public OilPaintTask() {
-        super("oil_paint");
+    public PixelateTask() {
+        super("pixelate");
     }
 
     // Builder doesn't make sense for this task, there's only 1 option
-    public OilPaintTask(int amount) {
-        super("oil_paint");
+    public PixelateTask(int amount) {
+        super("pixelate");
         addOption("amount", amount);
     }
 }

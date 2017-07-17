@@ -1,37 +1,37 @@
-package model.transform.tasks;
+package model.transform.tasks.filters;
 
 import model.transform.base.ImageTransformTask;
 
 import java.util.ArrayList;
 
-public class PartialBlurTask extends ImageTransformTask {
+public class PartialPixelateTask extends ImageTransformTask {
 
     // Constructor made private because this task cannot be used with default options
-    private PartialBlurTask() {
+    private PartialPixelateTask() {
         super("partial_pixelate");
     }
 
     public static class Builder {
-        private PartialBlurTask partialBlurTask;
+        private PartialPixelateTask partialPixelateTask;
         private ArrayList<Area> objects;
         
         public Builder() {
-            this.partialBlurTask = new PartialBlurTask();
+            this.partialPixelateTask = new PartialPixelateTask();
             objects = new ArrayList<>();
         }
 
-        public Builder amount(double amount) {
-            partialBlurTask.addOption("amount", amount);
+        public Builder amount(int amount) {
+            partialPixelateTask.addOption("amount", amount);
             return this;
         }
 
         public Builder blur(double blur) {
-            partialBlurTask.addOption("blur", blur);
+            partialPixelateTask.addOption("blur", blur);
             return this;
         }
 
         public Builder type(String type) {
-            partialBlurTask.addOption("type", type);
+            partialPixelateTask.addOption("type", type);
             return this;
         }
 
@@ -40,9 +40,9 @@ public class PartialBlurTask extends ImageTransformTask {
             return this;
         }
 
-        public PartialBlurTask build() {
-            partialBlurTask.addOption("objects", objects);
-            return partialBlurTask;
+        public PartialPixelateTask build() {
+            partialPixelateTask.addOption("objects", objects);
+            return partialPixelateTask;
         }
     }
 

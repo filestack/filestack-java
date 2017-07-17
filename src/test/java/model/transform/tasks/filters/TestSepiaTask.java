@@ -1,17 +1,17 @@
-package model.transform.tasks;
+package model.transform.tasks.filters;
 
 import model.transform.base.TransformTask;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class TestBlackWhiteTask {
+public class TestSepiaTask {
 
     @Test
     public void testToString() {
-        String correct = "blackwhite";
+        String correct = "sepia";
 
-        TransformTask task = new BlackWhiteTask();
+        TransformTask task = new SepiaTask();
 
         String output = task.toString();
 
@@ -20,11 +20,11 @@ public class TestBlackWhiteTask {
     }
 
     @Test
-    public void testToStringThreshold() {
-        String correct = "blackwhite="
-                + "threshold:50";
+    public void testToStringTone() {
+        String correct = "sepia="
+                + "tone:80";
 
-        TransformTask task = new BlackWhiteTask(50);
+        TransformTask task = new SepiaTask(80);
 
         String output = task.toString();
 
