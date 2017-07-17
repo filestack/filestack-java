@@ -1,21 +1,17 @@
-package model.transform.tasks;
+package model.transform.tasks.effects;
 
 import model.transform.base.TransformTask;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class TestRoundedCornersTask {
+public class TestCircleTask {
 
     @Test
     public void testToString() {
-        String correct = "rounded_corners=radius:100,blur:5.0,background:white";
+        String correct = "circle";
 
-        TransformTask task = new RoundedCornersTask.Builder()
-                .radius(100)
-                .blur(5)
-                .background("white")
-                .build();
+        TransformTask task = new CircleTask();
 
         String output = task.toString();
 
@@ -24,12 +20,11 @@ public class TestRoundedCornersTask {
     }
 
     @Test
-    public void testToStringRadiusMax() {
-        String correct = "rounded_corners=radius:max";
+    public void testToStringBackground() {
+        String correct = "circle="
+                + "background:white";
 
-        TransformTask task = new RoundedCornersTask.Builder()
-                .radius("max")
-                .build();
+        TransformTask task = new CircleTask("white");
 
         String output = task.toString();
 

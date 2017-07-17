@@ -1,4 +1,4 @@
-package model.transform.tasks;
+package model.transform.tasks.effects;
 
 import model.transform.base.ImageTransformTask;
 

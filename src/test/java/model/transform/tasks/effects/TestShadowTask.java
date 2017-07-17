@@ -1,22 +1,26 @@
-package model.transform.tasks;
+package model.transform.tasks.effects;
 
 import model.transform.base.TransformTask;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class TestPolaroidTask {
+public class TestShadowTask {
 
     @Test
     public void testToString() {
-        String correct = "polaroid="
+        String correct = "shadow="
+                + "blur:10,"
+                + "opacity:35,"
+                + "vector:[25,25],"
                 + "color:white,"
-                + "rotate:90,"
                 + "background:black";
 
-        TransformTask task = new PolaroidTask.Builder()
+        TransformTask task = new ShadowTask.Builder()
+                .blur(10)
+                .opacity(35)
+                .vector(25, 25)
                 .color("white")
-                .rotate(90)
                 .background("black")
                 .build();
 

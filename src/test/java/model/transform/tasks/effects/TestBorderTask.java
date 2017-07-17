@@ -1,23 +1,23 @@
-package model.transform.tasks;
+package model.transform.tasks.effects;
 
 import model.transform.base.TransformTask;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class TestVignetteTask {
+public class TestBorderTask {
 
     @Test
     public void testToString() {
-        String correct = "vignette="
-                + "amount:50,"
-                + "blurmode:linear,"
-                + "background:white";
+        String correct = "border="
+                + "width:5,"
+                + "color:white,"
+                + "background:black";
 
-        TransformTask task = new VignetteTask.Builder()
-                .amount(50)
-                .blurMode("linear")
-                .background("white")
+        TransformTask task = new BorderTask.Builder()
+                .width(5)
+                .color("white")
+                .background("black")
                 .build();
 
         String output = task.toString();
