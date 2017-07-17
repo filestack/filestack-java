@@ -1,11 +1,11 @@
-package model.transform.tasks;
+package model.transform.tasks.faces;
 
 import model.transform.base.TransformTask;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class TestBlurFacesTask {
+public class TestPixelateFacesTask {
 
     @Test
     public void testToString() {
@@ -14,11 +14,11 @@ public class TestBlurFacesTask {
                 + "minsize:200," 
                 + "maxsize:300," 
                 + "buffer:50," 
-                + "amount:5.0," 
+                + "amount:5," 
                 + "blur:10.0," 
                 + "type:oval";
 
-        TransformTask task = new BlurFacesTask.Builder()
+        TransformTask task = new PixelateFacesTask.Builder()
                 .faces(1)
                 .minSize(200)
                 .maxSize(300)
@@ -41,11 +41,11 @@ public class TestBlurFacesTask {
                 + "minsize:200,"
                 + "maxsize:300,"
                 + "buffer:50,"
-                + "amount:5.0,"
+                + "amount:5,"
                 + "blur:10.0,"
                 + "type:oval";
 
-        TransformTask task = new BlurFacesTask.Builder()
+        TransformTask task = new PixelateFacesTask.Builder()
                 .faces(1, 2, 3, 4)
                 .minSize(200)
                 .maxSize(300)
@@ -68,11 +68,11 @@ public class TestBlurFacesTask {
                 + "minsize:200,"
                 + "maxsize:300,"
                 + "buffer:50,"
-                + "amount:5.0,"
+                + "amount:5,"
                 + "blur:10.0,"
                 + "type:oval";
 
-        TransformTask task = new BlurFacesTask.Builder()
+        TransformTask task = new PixelateFacesTask.Builder()
                 .faces("all")
                 .minSize(200)
                 .maxSize(300)
@@ -95,11 +95,11 @@ public class TestBlurFacesTask {
                 + "minsize:0.35,"
                 + "maxsize:0.55,"
                 + "buffer:50,"
-                + "amount:5.0,"
+                + "amount:5,"
                 + "blur:10.0,"
                 + "type:oval";
 
-        TransformTask task = new BlurFacesTask.Builder()
+        TransformTask task = new PixelateFacesTask.Builder()
                 .faces(1)
                 .minSize(.35)
                 .maxSize(.55)
