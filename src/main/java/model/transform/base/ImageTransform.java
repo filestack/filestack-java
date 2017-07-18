@@ -1,8 +1,9 @@
-package model.transform;
+package model.transform.base;
 
 import com.google.gson.JsonObject;
 import model.Client;
 import model.FileLink;
+import model.transform.tasks.StoreOptions;
 import util.FilestackService;
 
 import java.io.IOException;
@@ -47,22 +48,12 @@ public class ImageTransform extends Transform {
             response = processService.store(tasksString, source).execute().body();
 
         String handle = response.getUrl().split("/")[3];
-        return new FileLink(apiKey, handle);
+        return new FileLink(apiKey, handle, security);
     }
 
     public ImageTransform addTask(ImageTransformTask task) {
-        if (task != null)
-            tasks.add(task);
-        return this;
-    }
-
-    // TODO This is just for demonstration, it should be confirmed when real transforms are added
-    public ImageTransform resize(Integer width, Integer height, String fit, String align) {
-        TransformTask task = new TransformTask("resize");
-        task.addOption("width", width);
-        task.addOption("height", height);
-        task.addOption("fit", fit);
-        task.addOption("align", align);
+        if (task == null)
+            throw new IllegalArgumentException("Cannot add null task to image transform");
         tasks.add(task);
         return this;
     }

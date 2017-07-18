@@ -1,8 +1,11 @@
-package model.transform;
+package model.transform.tasks;
+
+import model.transform.base.ImageTransformTask;
 
 public class StoreOptions extends ImageTransformTask {
 
-    StoreOptions() {
+    // Constructor left public because this task can be used with default options
+    public StoreOptions() {
         super("store");
     }
     

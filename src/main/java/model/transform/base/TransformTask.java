@@ -1,4 +1,4 @@
-package model.transform;
+package model.transform.base;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class TransformTask {
         }
     }
 
-    void addOption(String key, Object value) {
+    public void addOption(String key, Object value) {
         // Passing an empty key is a mistake, shouldn't happen
         if (key == null || key.length() == 0)
             throw new InvalidParameterException("Task option key cannot be empty");
@@ -43,14 +43,16 @@ public class TransformTask {
         if (value == null)
             return;
 
-        if (value.getClass().isArray()) {
-            String valueString = Arrays.toString((Object[])value);
-            // Remove spaces between array items
-            valueString = valueString.replace(" ", "");
-            options.add(new Option(key, valueString));
-        } else {
-            options.add(new Option(key, value.toString()));
-        }
+        String valueString;
+
+        if (value.getClass().isArray())
+            valueString = Arrays.toString((Object[])value);
+        else
+            valueString = value.toString();
+
+        // Remove spaces between array items
+        valueString = valueString.replace(" ", "");
+        options.add(new Option(key, valueString));
     }
 
     @Override
