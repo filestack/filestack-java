@@ -1,6 +1,10 @@
 package model;
 
 import model.transform.base.ImageTransform;
+import util.Upload;
+import util.UploadOptions;
+
+import java.io.IOException;
 
 /**
  * Wrapper for communicating with the Filestack REST API.
@@ -21,6 +25,16 @@ public class Client {
 
     public ImageTransform imageTransform(String url) {
         return new ImageTransform(this, url);
+    }
+
+    public FileLink upload(String filepath) throws IOException {
+        UploadOptions defaultOptions = new UploadOptions.Builder().build();
+        return upload(filepath, defaultOptions);
+    }
+
+    public FileLink upload(String filepath, UploadOptions options) throws IOException {
+        Upload upload = new Upload(this, filepath, options);
+        return upload.run();
     }
 
     public String getApiKey() {
