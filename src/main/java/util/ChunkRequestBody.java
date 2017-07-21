@@ -1,6 +1,6 @@
 package util;
 
-import exception.UploadException;
+import exception.FilestackIOException;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okio.BufferedSink;
@@ -49,7 +49,7 @@ public class ChunkRequestBody extends RequestBody {
             sink.write(bytes, 0, chunkSize);
             sink.close();
         } catch (SocketException e){
-            throw new UploadException();
+            throw new FilestackIOException("Chunk upload failed");
         }
     }
 }
