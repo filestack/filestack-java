@@ -19,6 +19,7 @@ public class Networking {
         if (httpClient == null) {
             httpClient = new OkHttpClient.Builder()
                     .addInterceptor(new HeaderInterceptor())
+                    .addInterceptor(new FailedResponseInterceptor())
                     .build();
         }
         return httpClient;
