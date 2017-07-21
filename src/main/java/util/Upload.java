@@ -3,7 +3,6 @@ package util;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
-import exception.UploadException;
 import model.Client;
 import model.FileLink;
 import model.Security;
@@ -76,9 +75,7 @@ public class Upload {
             params.put("signature", Util.createStringPart(security.getSignature()));
         }
 
-        StartResponse response = Networking.getUploadService().start(params).execute().body();
-        if (response == null) throw new UploadException("Multipart start failed");
-        startResponse = response;
+        startResponse = Networking.getUploadService().start(params).execute().body();
     }
 
     private void multipartUpload() throws IOException {
@@ -125,9 +122,7 @@ public class Upload {
         params.put("size", Util.createStringPart(Integer.toString(chunkSize)));
         params.put("md5", Util.createStringPart(md5));
 
-        UploadResponse response = Networking.getUploadService().upload(params).execute().body();
-        if (response == null) throw new UploadException("Multipart upload Filestack call failed");
-        return response;
+        return Networking.getUploadService().upload(params).execute().body();
     }
 
     private String uploadToS3(UploadResponse params, long offset, int chunkSize) throws IOException {
@@ -140,7 +135,6 @@ public class Upload {
                 .build();
 
         Response response = Networking.getHttpClient().newCall(request).execute();
-        if (!response.isSuccessful()) throw new UploadException("Multipart upload S3 call failed");
         String etag = response.header("ETag");
         response.close();
         return etag;
@@ -155,8 +149,6 @@ public class Upload {
         params.put("mimetype", Util.createStringPart(mimeType));
         params.put("parts", Util.createStringPart(parts));
 
-        CompleteResponse response = Networking.getUploadService().complete(params).execute().body();
-        if (response == null) throw new UploadException("Multipart complete failed");
-        completeResponse = response;
+        completeResponse = Networking.getUploadService().complete(params).execute().body();
     }
 }
