@@ -1,7 +1,7 @@
 package model;
 
 import com.google.common.io.Files;
-import exception.FilestackIOException;
+import util.FilestackIOException;
 import okhttp3.OkHttpClient;
 import okhttp3.ResponseBody;
 import org.junit.AfterClass;

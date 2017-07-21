@@ -1,6 +1,5 @@
 package util;
 
-import exception.FilestackIOException;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okio.BufferedSink;

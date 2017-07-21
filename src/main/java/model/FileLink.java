@@ -1,6 +1,6 @@
 package model;
 
-import exception.FilestackIOException;
+import util.FilestackIOException;
 import model.transform.base.ImageTransform;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
