@@ -1,7 +1,7 @@
 package model;
 
 import com.google.common.io.Files;
-import exception.PolicySignatureException;
+import util.FilestackIOException;
 import okhttp3.OkHttpClient;
 import okhttp3.ResponseBody;
 import org.junit.AfterClass;
@@ -98,7 +98,7 @@ public class TestFileLink {
         fileLink.overwrite(OVERWRITE_PATHNAME);
     }
 
-    @Test(expected = PolicySignatureException.class)
+    @Test(expected = FilestackIOException.class)
     public void testOverwriteWithoutSecurity() throws IOException {
         FileLink fileLink = new FileLink(API_KEY, HANDLE);
 
@@ -122,7 +122,7 @@ public class TestFileLink {
         fileLink.delete();
     }
 
-    @Test(expected = PolicySignatureException.class)
+    @Test(expected = FilestackIOException.class)
     public void testDeleteWithoutSecurity() throws IOException {
         FileLink fileLink = new FileLink(API_KEY, HANDLE);
 

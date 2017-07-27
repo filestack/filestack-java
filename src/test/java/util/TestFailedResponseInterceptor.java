@@ -1,65 +1,68 @@
 package util;
 
-import exception.BadRequestException;
-import exception.FilestackIOException;
-import exception.HandleNotFoundException;
-import exception.PolicySignatureException;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import org.junit.BeforeClass;
+import okhttp3.*;
 import org.junit.Test;
 
 import java.io.IOException;
 
-import static util.MockConstants.*;
+import static org.junit.Assert.assertTrue;
 
 /**
- * Tests {@link FailedResponseInterceptor FailedResponseInterceptor} class to ensure correct exceptions are thrown.
+ * Tests {@link FailedResponseInterceptor FailedResponseInterceptor} class to ensure exceptions are thrown.
  */
 public class TestFailedResponseInterceptor {
-    private static OkHttpClient client;
 
-    @BeforeClass
-    public static void setupClient() {
-        client = new OkHttpClient.Builder()
-                .addInterceptor(new FailedResponseInterceptor())
-                .addInterceptor(new MockInterceptor())
-                .build();
+    @Test
+    public void testWithBody() {
+        Interceptor interceptor = new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                MediaType mediaType = MediaType.parse("text/plain");
+                ResponseBody body = ResponseBody.create(mediaType, "test error body");
+
+                return new Response.Builder()
+                        .protocol(Protocol.HTTP_1_1)
+                        .request(chain.request())
+                        .code(400)
+                        .message("Bad Request")
+                        .body(body)
+                        .build();
+            }
+        };
+
+        OkHttpClient httpClient = Networking.getHttpClient().newBuilder().addInterceptor(interceptor).build();
+
+        Request request = new Request.Builder().url("https://www.example.com").build();
+
+        try {
+            httpClient.newCall(request).execute();
+        } catch (IOException e) {
+            assertTrue(e.getMessage().equals("test error body"));
+        }
     }
 
-    @Test(expected = BadRequestException.class)
-    public void testBadRequestResponse() throws IOException {
-        Request request = new Request.Builder()
-                .url(TEST_BAD_REQUEST_URL)
-                .build();
+    @Test
+    public void testWithoutBody() {
+        Interceptor interceptor = new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                return new Response.Builder()
+                        .protocol(Protocol.HTTP_1_1)
+                        .request(chain.request())
+                        .code(400)
+                        .message("Bad Request")
+                        .build();
+            }
+        };
 
-        client.newCall(request).execute();
-    }
+        OkHttpClient httpClient = Networking.getHttpClient().newBuilder().addInterceptor(interceptor).build();
 
-    @Test(expected = PolicySignatureException.class)
-    public void testForbiddenResponse() throws IOException {
-        Request request = new Request.Builder()
-                .url(TEST_FORBIDDEN_URL)
-                .build();
+        Request request = new Request.Builder().url("https://www.example.com").build();
 
-        client.newCall(request).execute();
-    }
-
-    @Test(expected = HandleNotFoundException.class)
-    public void testNotFoundResponse() throws IOException {
-        Request request = new Request.Builder()
-                .url(TEST_NOT_FOUND_URL)
-                .build();
-
-        client.newCall(request).execute();
-    }
-
-    @Test(expected = FilestackIOException.class)
-    public void testUnmatchedResponse() throws IOException {
-        Request request = new Request.Builder()
-                .url(TEST_UNMATCHED_URL)
-                .build();
-
-        client.newCall(request).execute();
+        try {
+            httpClient.newCall(request).execute();
+        } catch (IOException e) {
+            assertTrue(e.getMessage().equals("www.example.com 400 Bad Request"));
+        }
     }
 }

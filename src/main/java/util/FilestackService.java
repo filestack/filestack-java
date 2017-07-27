@@ -1,10 +1,15 @@
 package util;
 
 import com.google.gson.JsonObject;
+import com.google.gson.annotations.SerializedName;
+import okhttp3.Headers;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Retrofit interfaces wrapping Filestack API.
@@ -102,6 +107,108 @@ public class FilestackService {
 
             public int getSize() {
                 return size;
+            }
+        }
+    }
+
+    public interface Upload {
+        String URL = "https://upload.filestackapi.com/";
+
+        @Multipart
+        @POST("/multipart/start")
+        Call<StartResponse> start(@PartMap Map<String, RequestBody> parameters);
+
+        @Multipart
+        @POST("/multipart/upload")
+        Call<UploadResponse> upload(@PartMap Map<String, RequestBody> parameters);
+
+        @Multipart
+        @POST("/multipart/complete")
+        Call<CompleteResponse> complete(@PartMap Map<String, RequestBody> parameters);
+
+        public class StartResponse {
+            private String uri;
+            private String region;
+            @SerializedName("location_url")
+            private String locationUrl;
+            @SerializedName("upload_id")
+            private String uploadId;
+
+            public Map<String, RequestBody> getUploadParams() {
+                HashMap<String, RequestBody> parameters = new HashMap<>();
+                parameters.put("uri", Util.createStringPart(uri));
+                parameters.put("region", Util.createStringPart(region));
+                parameters.put("upload_id", Util.createStringPart(uploadId));
+                return parameters;
+            }
+        }
+
+        public class UploadResponse {
+            private String url;
+            @SerializedName("location_url")
+            private String locationUrl;
+            @SerializedName("headers")
+            private S3Headers s3Headers;
+
+            public String getUrl() {
+                return url;
+            }
+
+            public String getLocationUrl() {
+                return locationUrl;
+            }
+
+            public Headers getS3Headers() {
+                Headers.Builder builder = new Headers.Builder();
+                builder.add("Authorization", s3Headers.auth);
+                if (s3Headers.acl != null)
+                    builder.add("x-amz-acl", s3Headers.acl);
+                builder.add("Content-MD5", s3Headers.md5);
+                builder.add("x-amz-content-sha256", s3Headers.sha256);
+                builder.add("x-amz-date", s3Headers.date);
+
+                return builder.build();
+            }
+
+            private class S3Headers {
+                @SerializedName("Authorization")
+                private String auth;
+                @SerializedName("x-amz-acl")
+                private String acl;
+                @SerializedName("Content-MD5")
+                private String md5;
+                @SerializedName("x-amz-content-sha256")
+                private String sha256;
+                @SerializedName("x-amz-date")
+                private String date;
+            }
+        }
+
+        public class CompleteResponse {
+            private String url;
+            private String handle;
+            private String filename;
+            private long size;
+            private String mimetype;
+
+            public String getUrl() {
+                return url;
+            }
+
+            public String getHandle() {
+                return handle;
+            }
+
+            public String getFilename() {
+                return filename;
+            }
+
+            public long getSize() {
+                return size;
+            }
+
+            public String getMimetype() {
+                return mimetype;
             }
         }
     }

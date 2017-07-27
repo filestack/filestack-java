@@ -1,7 +1,6 @@
 package util;
 
 import com.google.gson.JsonObject;
-import exception.FilestackIOException;
 import okhttp3.*;
 
 import java.io.IOException;

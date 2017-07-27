@@ -4,6 +4,8 @@ import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Serves as singleton holder for the OkHttp client and Retrofit services.
  * We only want to instantiate these classes once per app.
@@ -13,11 +15,16 @@ public class Networking {
     private static FilestackService.Cdn cdnService;
     private static FilestackService.Api apiService;
     private static FilestackService.Process processService;
+    private static FilestackService.Upload uploadService;
 
     public static OkHttpClient getHttpClient() {
         if (httpClient == null) {
             httpClient = new OkHttpClient.Builder()
                     .addInterceptor(new HeaderInterceptor())
+                    .addInterceptor(new FailedResponseInterceptor())
+                    .readTimeout(10, TimeUnit.SECONDS)
+                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .writeTimeout(10, TimeUnit.SECONDS)
                     .build();
         }
         return httpClient;
@@ -47,6 +54,14 @@ public class Networking {
         return processService;
     }
 
+    public static FilestackService.Upload getUploadService() {
+        if (uploadService == null) {
+            Retrofit retrofit = getRetrofitBuilder().baseUrl(FilestackService.Upload.URL).build();
+            uploadService = retrofit.create(FilestackService.Upload.class);
+        }
+        return uploadService;
+    }
+
     public static void setCustomClient(OkHttpClient client) {
         if (client == null)
             return;
@@ -72,5 +87,6 @@ public class Networking {
         cdnService = null;
         apiService = null;
         processService = null;
+        uploadService = null;
     }
 }

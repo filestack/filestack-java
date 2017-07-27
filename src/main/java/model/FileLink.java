@@ -1,6 +1,6 @@
 package model;
 
-import exception.PolicySignatureException;
+import util.FilestackIOException;
 import model.transform.base.ImageTransform;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -81,7 +81,7 @@ public class FileLink {
 
     public void overwrite(String pathname) throws IOException {
         if (security == null)
-            throw new PolicySignatureException("Overwrite requires security to be set");
+            throw new FilestackIOException("Overwrite requires security to be set");
 
         File file = new File(pathname);
         if (!file.isFile())
@@ -96,7 +96,7 @@ public class FileLink {
 
     public void delete() throws IOException {
         if (security == null)
-            throw new PolicySignatureException("Delete requires security to be set");
+            throw new FilestackIOException("Delete requires security to be set");
 
         apiService.delete(handle, apiKey, security.getPolicy(), security.getSignature()).execute();
     }

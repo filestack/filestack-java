@@ -1,5 +1,8 @@
 package util;
 
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -28,5 +31,13 @@ public class Util {
         
         version = prop.getProperty("version");
         return version;
+    }
+
+    /**
+     * Creates {@link RequestBody Request Body} from String.
+     * For multipart form uploads.
+     */
+    public static RequestBody createStringPart(String content) {
+        return RequestBody.create(MultipartBody.FORM, content);
     }
 }
