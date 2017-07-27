@@ -17,11 +17,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
+import java.util.concurrent.*;
 
 import static util.FilestackService.Upload.*;
 
 public class Upload {
     public static final int CHUNK_SIZE = 5 * 1024 * 1024;
+    public static final int NUM_THREADS = 4;
 
     private final Client client;
 
@@ -33,9 +35,9 @@ public class Upload {
     private final MediaType mediaType;
     private final long size;
 
-    StartResponse startResponse;
-    private String parts;
-    CompleteResponse completeResponse;
+    private StartResponse startResponse;
+    private String[] parts;
+    private CompleteResponse completeResponse;
 
     public Upload(Client client, String filepath, UploadOptions options) throws IOException {
         this.client = client;
@@ -79,59 +81,87 @@ public class Upload {
     }
 
     private void multipartUpload() throws IOException {
-        RandomAccessFile file = new RandomAccessFile(filepath, "r");
-        HashMap<Integer, String> partsMap = new HashMap<>();
+        int numParts = (int) Math.ceil(size / (double) CHUNK_SIZE);
+        int partsPerThread = (int) Math.ceil(numParts / (double) NUM_THREADS);
 
-        byte[] bytes = new byte[CHUNK_SIZE];
-        long bytesLeft = size;
-        int chunkSize;
-        long offset = 0;
-        int part = 1;
+        parts = new String[numParts];
 
-        while (bytesLeft != 0) {
-            chunkSize = (int) Math.min(bytesLeft, CHUNK_SIZE);
+        ExecutorService executor = Executors.newFixedThreadPool(NUM_THREADS);
+        CompletionService<Void> service = new ExecutorCompletionService<Void>(executor);
 
-            file.seek(offset);
-            file.read(bytes, 0, chunkSize);
-
-            UploadResponse params = getUploadParams(part, bytes, chunkSize);
-            String etag = uploadToS3(params, offset, chunkSize);
-            partsMap.put(part, etag);
-
-            part++;
-            bytesLeft -= chunkSize;
-            offset += chunkSize;
+        // Launch uploading tasks in threads
+        for (int i = 0; i < NUM_THREADS; i++) {
+            int start = i * partsPerThread;
+            int count = Math.min(partsPerThread, numParts);
+            service.submit(new UploadCallable(start, count));
+            numParts -= count;
         }
 
-        StringBuilder builder = new StringBuilder();
-        for (Integer key : partsMap.keySet())
-            builder.append(key).append(':').append(partsMap.get(key)).append(';');
-        builder.deleteCharAt(builder.length()-1);
-        parts = builder.toString();
+        // Wait for threads to finish and pass up any exceptions
+        for (int i = 0; i < NUM_THREADS; i++) {
+            try {
+                service.take().get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new FilestackIOException("Upload failed", e);
+            }
+        }
     }
 
-    private UploadResponse getUploadParams(int part, byte[] bytes, int chunkSize) throws IOException {
+    private class UploadCallable implements Callable<Void> {
+        private int start;
+        private int count;
+
+        public UploadCallable(int start, int count) {
+            this.start = start;
+            this.count = count;
+        }
+
+        @Override
+        public Void call() throws IOException {
+            if (count == 0)
+                return null;
+
+            RandomAccessFile file = new RandomAccessFile(filepath, "r");
+            file.seek(start * CHUNK_SIZE);
+
+            byte[] bytes = new byte[CHUNK_SIZE];
+            int bytesRead;
+            UploadResponse params;
+            String etag;
+
+            for (int i = 0; i < count; i++) {
+                bytesRead = file.read(bytes);
+                params = getUploadParams(start + i + 1, bytes, bytesRead);
+                etag = uploadToS3(params, bytes, bytesRead);
+                parts[start+i] = etag;
+            }
+
+            return null;
+        }
+    }
+
+    private UploadResponse getUploadParams(int part, byte[] bytes, int size) throws IOException {
         @SuppressWarnings("deprecation")
-        HashCode hc = Hashing.md5().newHasher().putBytes(bytes, 0, chunkSize).hash();
+        HashCode hc = Hashing.md5().newHasher(size).putBytes(bytes, 0, size).hash();
         String md5 = BaseEncoding.base64().encode(hc.asBytes());
 
         HashMap<String, RequestBody> params = new HashMap<>();
         params.putAll(baseParams);
         params.putAll(startResponse.getUploadParams());
         params.put("part", Util.createStringPart(Integer.toString(part)));
-        params.put("size", Util.createStringPart(Integer.toString(chunkSize)));
+        params.put("size", Util.createStringPart(Integer.toString(size)));
         params.put("md5", Util.createStringPart(md5));
 
         return Networking.getUploadService().upload(params).execute().body();
     }
 
-    private String uploadToS3(UploadResponse params, long offset, int chunkSize) throws IOException {
-        RequestBody requestBody = new ChunkRequestBody(filepath, mediaType, offset, chunkSize);
+    private String uploadToS3(UploadResponse params, byte[] bytes, int size) throws IOException {
+        RequestBody body = RequestBody.create(mediaType, bytes, 0, size);
 
         Request request = new Request.Builder()
                 .url(params.getUrl())
                 .headers(params.getS3Headers())
-                .put(requestBody)
+                .put(body)
                 .build();
 
         Response response = Networking.getHttpClient().newCall(request).execute();
@@ -141,6 +171,12 @@ public class Upload {
     }
 
     private void multipartComplete() throws IOException {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < parts.length; i++)
+            builder.append(i+1).append(':').append(parts[i]).append(';');
+        builder.deleteCharAt(builder.length()-1);
+        String parts = builder.toString();
+
         HashMap<String, RequestBody> params = new HashMap<>();
         params.putAll(baseParams);
         params.putAll(startResponse.getUploadParams());
