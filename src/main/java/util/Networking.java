@@ -4,6 +4,8 @@ import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Serves as singleton holder for the OkHttp client and Retrofit services.
  * We only want to instantiate these classes once per app.
@@ -20,6 +22,9 @@ public class Networking {
             httpClient = new OkHttpClient.Builder()
                     .addInterceptor(new HeaderInterceptor())
                     .addInterceptor(new FailedResponseInterceptor())
+                    .readTimeout(10, TimeUnit.SECONDS)
+                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .writeTimeout(10, TimeUnit.SECONDS)
                     .build();
         }
         return httpClient;
