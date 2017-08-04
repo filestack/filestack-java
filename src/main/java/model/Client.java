@@ -33,7 +33,7 @@ public class Client {
     }
 
     public FileLink upload(String filepath, UploadOptions options) throws IOException {
-        Upload upload = new Upload(this, filepath, options);
+        Upload upload = new Upload(filepath, this, options);
         return upload.run();
     }
 
