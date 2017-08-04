@@ -35,6 +35,8 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.8.0'
     // Response to POJO conversion
     compile 'com.squareup.retrofit2:converter-gson:2.3.0'
+    // Retrofit mocking tools
+    compile 'com.squareup.retrofit2:retrofit-mock:2.3.0'
 
     // JSON serialization / deserialization
     compile 'com.google.code.gson:gson:2.8.1'
