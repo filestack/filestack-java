@@ -2,13 +2,15 @@ package util;
 
 import model.Client;
 import model.FileLink;
-import model.Policy;
-import model.Security;
-import okhttp3.*;
-import org.junit.AfterClass;
+import okhttp3.OkHttpClient;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import retrofit2.Retrofit;
+import retrofit2.mock.BehaviorDelegate;
+import retrofit2.mock.MockRetrofit;
+import retrofit2.mock.NetworkBehavior;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -16,93 +18,54 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class TestUpload {
 
-    @BeforeClass
-    public static void setup() {
-        Interceptor startInterceptor = new GenericInterceptor.Builder()
-                .urlRegex(".+multipart/start$")
-                .addEmptyParam("filename", "size", "mimetype", "policy", "signature")
-                .addEmptyResponse("uri", "region", "location_url", "upload_id")
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    private static MockUploadService createMockUploadService(NetworkBehavior behavior) {
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .client(new OkHttpClient())
+                .baseUrl(FilestackService.Upload.URL)
                 .build();
 
-        Interceptor uploadInterceptor = new GenericInterceptor.Builder()
-                .urlRegex(".+multipart/upload$")
-                .addEmptyParam("uri", "region", "upload_id", "part", "size", "md5")
-                .addEmptyResponse("url", "location_url")
-                .addEmptyResponseObject("headers", "Authorization", "x-amz-acl", "Content-MD5",
-                        "x-amz-content-sha256", "x-amz-date")
-                .addResponse("url", "https://s3.amazonaws.com/test")
+        MockRetrofit mockRetrofit = new MockRetrofit.Builder(retrofit)
+                .networkBehavior(behavior)
                 .build();
 
-        Interceptor completeInterceptor = new GenericInterceptor.Builder()
-                .urlRegex(".+multipart/complete$")
-                .addEmptyParam("uri", "region", "upload_id", "filename", "size", "mimetype")
-                .addParam("parts", "1:test;2:test")
-                .addEmptyResponse("url", "handle", "filename", "mimetype")
-                .addResponse("size", 0)
-                .build();
-
-        OkHttpClient httpClient = Networking.getHttpClient().newBuilder()
-                .addInterceptor(startInterceptor)
-                .addInterceptor(uploadInterceptor)
-                .addInterceptor(completeInterceptor)
-                .addInterceptor(new S3Interceptor())
-                .build();
-
-        Networking.setCustomClient(httpClient);
+        BehaviorDelegate<FilestackService.Upload> delegate = mockRetrofit.create(FilestackService.Upload.class);
+        return new MockUploadService(delegate);
     }
 
-    @Test
-    public void testUpload() throws IOException {
-        Policy policy = new Policy.Builder().giveFullAccess().build();
-        Security security = Security.createNew(policy, "appSecret");
-        Client client = new Client("apiKey", security);
-
+    private static Path createRandomFile(long size) throws IOException{
         Path path = Paths.get("/tmp/" + UUID.randomUUID().toString() + ".txt");
         RandomAccessFile file = new RandomAccessFile(path.toString(), "rw");
         file.writeChars("test content\n");
-        file.setLength(10 * 1024 * 1024);
+        file.setLength(size);
         file.close();
+        return path;
+    }
 
-        FileLink fileLink = client.upload(path.toString());
-        Assert.assertTrue(fileLink.getHandle().equals("test"));
+    @Test
+    public void test() throws IOException {
+        Path path = createRandomFile(10 * 1024 * 1024);
+
+        NetworkBehavior behavior = NetworkBehavior.create();
+        MockUploadService mockUploadService = createMockUploadService(behavior);
+
+        Client client = new Client("apiKey");
+        UploadOptions options = new UploadOptions.Builder().build();
+        Upload upload = new Upload(path.toString(), client, options, mockUploadService, 0);
+
+        behavior.setDelay(0, TimeUnit.SECONDS);
+
+        FileLink fileLink = upload.run();
+
+        Assert.assertTrue(fileLink.getHandle().equals("handle"));
 
         Files.delete(path);
-    }
-
-    @AfterClass
-    public static void teardown() {
-        Networking.removeCustomClient();
-    }
-
-    private static class S3Interceptor implements Interceptor {
-        private static final MediaType XML_MEDIA_TYPE = MediaType.parse("application/xml");
-        private static final String[] HEADERS = new String[] {"Authorization", "x-amz-acl", "Content-MD5",
-                "x-amz-content-sha256", "x-amz-date"};
-
-        @Override
-        public Response intercept(Chain chain) throws IOException {
-            Request request = chain.request();
-            String url = request.url().toString();
-
-            if (!url.matches(".+amazonaws.+"))
-                return chain.proceed(request);
-
-            for (String header : HEADERS)
-                Assert.assertNotNull(request.header(header));
-
-            ResponseBody body =  ResponseBody.create(XML_MEDIA_TYPE, "test");
-
-            return new Response.Builder()
-                    .protocol(Protocol.HTTP_1_1)
-                    .addHeader("ETag", "test")
-                    .request(request)
-                    .code(200)
-                    .body(body)
-                    .message("Okay")
-                    .build();
-        }
     }
 }
