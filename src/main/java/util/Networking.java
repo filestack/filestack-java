@@ -21,10 +21,10 @@ public class Networking {
         if (httpClient == null) {
             httpClient = new OkHttpClient.Builder()
                     .addInterceptor(new HeaderInterceptor())
-                    .addInterceptor(new FailedResponseInterceptor())
-                    .readTimeout(10, TimeUnit.SECONDS)
-                    .connectTimeout(10, TimeUnit.SECONDS)
-                    .writeTimeout(10, TimeUnit.SECONDS)
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .writeTimeout(30, TimeUnit.SECONDS)
+                    .retryOnConnectionFailure(false)
                     .build();
         }
         return httpClient;
