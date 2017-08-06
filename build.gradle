@@ -26,24 +26,15 @@ classes {
 }
 
 dependencies {
-    // Unit testing
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.12' // Testing
 
-    // High-level HTTP client
-    compile 'com.squareup.retrofit2:retrofit:2.3.0'
-    // Low-level HTTP client, used by Retrofit
-    compile 'com.squareup.okhttp3:okhttp:3.8.0'
-    // Response to POJO conversion
-    compile 'com.squareup.retrofit2:converter-gson:2.3.0'
-    // Retrofit mocking tools
-    compile 'com.squareup.retrofit2:retrofit-mock:2.3.0'
+    compile 'com.squareup.okhttp3:okhttp:3.8.0' // Low-level HTTP client
+    compile 'com.squareup.retrofit2:retrofit:2.3.0' // High-level HTTP client
+    compile 'com.squareup.retrofit2:converter-gson:2.3.0' // GSON integration
+    compile 'com.squareup.retrofit2:retrofit-mock:2.3.0' // Testing / mocking tools
 
-    // JSON serialization / deserialization
-    compile 'com.google.code.gson:gson:2.8.1'
+    compile 'com.google.code.gson:gson:2.8.1' // JSON serialization to Java objects
+    compile 'com.google.guava:guava:22.0-android' // Useful core libraries for Java, Android / Java 7 version
 
-    // Useful core libraries for Java
-    compile 'com.google.guava:guava:22.0-android'
-    
-    // MIME type detection for files, needed for uploading
-    compile 'org.apache.tika:tika-core:1.15'
+    compile 'org.apache.tika:tika-core:1.15' // MIME type detection, used for uploads
 }
