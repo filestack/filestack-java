@@ -46,7 +46,7 @@ public class TestTransform {
     @Test
     public void testUrlExternal() {
         String correct = FilestackService.Process.URL + API_KEY + "/" + TASK_STRING + "/" + SOURCE;
-        Transform transform = new Transform(CLIENT, SOURCE);
+        Transform transform = new Transform(FS_CLIENT, SOURCE);
         transform.tasks.add(TASK);
         String output = transform.url();
 

@@ -10,15 +10,15 @@ import java.io.IOException;
  * Wrapper for communicating with the Filestack REST API.
  * Instantiate with an API Key from the Developer Portal.
  */
-public class Client {
+public class FilestackClient {
     private String apiKey;
     private Security security;
 
-    public Client(String apiKey) {
+    public FilestackClient(String apiKey) {
         this.apiKey = apiKey;
     }
 
-    public Client(String apiKey, Security security) {
+    public FilestackClient(String apiKey, Security security) {
         this.apiKey = apiKey;
         this.security = security;
     }

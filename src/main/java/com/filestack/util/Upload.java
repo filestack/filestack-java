@@ -1,9 +1,9 @@
 package com.filestack.util;
 
+import com.filestack.model.FilestackClient;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
-import com.filestack.model.Client;
 import com.filestack.model.FileLink;
 import com.filestack.model.Security;
 import okhttp3.MediaType;
@@ -25,7 +25,7 @@ import static com.filestack.util.FilestackService.Upload.*;
 public class Upload {
     private static final int MIN_CHUNK_SIZE = 32 * 1024;
 
-    private final Client fsClient;
+    private final FilestackClient fsClient;
     private final FilestackService.Upload restService;
 
     private final int delayBase;
@@ -40,12 +40,12 @@ public class Upload {
     private String[] etags;
 
     // Use global upload service
-    public Upload(String filepath, Client fsClient, UploadOptions options) throws IOException {
+    public Upload(String filepath, FilestackClient fsClient, UploadOptions options) throws IOException {
         this(filepath, fsClient, options, Networking.getUploadService(), 2);
     }
 
     // Use provided upload service, used for mocking
-    public Upload(String filepath, Client fsClient, UploadOptions options,
+    public Upload(String filepath, FilestackClient fsClient, UploadOptions options,
                   FilestackService.Upload restService, int delayBase) throws IOException {
 
         this.filepath = filepath;

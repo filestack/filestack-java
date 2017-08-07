@@ -54,7 +54,7 @@ public class TestImageTransform {
 
     @Test
     public void testDebugExternal() throws IOException {
-        ImageTransform transform = CLIENT.imageTransform(SOURCE);
+        ImageTransform transform = FS_CLIENT.imageTransform(SOURCE);
         JsonObject debugResponse = transform.debug();
         String message = "External debug response was null";
         assertTrue(message, debugResponse != null);

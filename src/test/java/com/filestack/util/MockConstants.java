@@ -1,6 +1,6 @@
 package com.filestack.util;
 
-import com.filestack.model.Client;
+import com.filestack.model.FilestackClient;
 import com.filestack.model.FileLink;
 import com.filestack.model.Policy;
 import com.filestack.model.Security;
@@ -47,6 +47,6 @@ public class MockConstants {
     public static final Security SECURITY = Security.createNew(POLICY, APP_SECRET);
     public static final FileLink FILE_LINK = new FileLink(API_KEY, HANDLE);
     public static final FileLink FILE_LINK_SECURITY = new FileLink(API_KEY, HANDLE, SECURITY);
-    public static final Client CLIENT = new Client(API_KEY);
-    public static final Client CLIENT_SECURITY = new Client(API_KEY, SECURITY);
+    public static final FilestackClient FS_CLIENT = new FilestackClient(API_KEY);
+    public static final FilestackClient FS_CLIENT_SECURITY = new FilestackClient(API_KEY, SECURITY);
 }

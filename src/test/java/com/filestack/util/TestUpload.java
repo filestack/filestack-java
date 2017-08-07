@@ -1,6 +1,6 @@
 package com.filestack.util;
 
-import com.filestack.model.Client;
+import com.filestack.model.FilestackClient;
 import com.filestack.model.FileLink;
 import okhttp3.OkHttpClient;
 import org.junit.Assert;
@@ -56,9 +56,9 @@ public class TestUpload {
         NetworkBehavior behavior = NetworkBehavior.create();
         MockUploadService mockUploadService = createMockUploadService(behavior);
 
-        Client client = new Client("apiKey");
+        FilestackClient fsClient = new FilestackClient("apiKey");
         UploadOptions options = new UploadOptions.Builder().build();
-        Upload upload = new Upload(path.toString(), client, options, mockUploadService, 0);
+        Upload upload = new Upload(path.toString(), fsClient, options, mockUploadService, 0);
 
         behavior.setDelay(0, TimeUnit.SECONDS);
 

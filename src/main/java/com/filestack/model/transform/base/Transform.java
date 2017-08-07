@@ -1,6 +1,6 @@
 package com.filestack.model.transform.base;
 
-import com.filestack.model.Client;
+import com.filestack.model.FilestackClient;
 import com.filestack.model.FileLink;
 import com.filestack.model.Security;
 import okhttp3.HttpUrl;
@@ -21,17 +21,17 @@ public class Transform {
 
     FilestackService.Process processService;
 
-    Transform(Client client, String source) {
-        this(client, source, null);
+    Transform(FilestackClient fsClient, String source) {
+        this(fsClient, source, null);
     }
 
     Transform(FileLink fileLink) {
         this(null, null, fileLink);
     }
 
-    Transform(Client client, String source, FileLink fileLink) {
-        if (client != null) {
-            this.apiKey = client.getApiKey();
+    Transform(FilestackClient fsClient, String source, FileLink fileLink) {
+        if (fsClient != null) {
+            this.apiKey = fsClient.getApiKey();
             this.source = source;
         } else {
             this.source = fileLink.getHandle();
@@ -40,7 +40,7 @@ public class Transform {
         this.tasks = new ArrayList<>();
         this.processService = Networking.getProcessService();
 
-        Security security = client != null ? client.getSecurity() : fileLink.getSecurity();
+        Security security = fsClient != null ? fsClient.getSecurity() : fileLink.getSecurity();
         this.security = security;
         if (security != null) {
             TransformTask securityTask = new TransformTask("security");

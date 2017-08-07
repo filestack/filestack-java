@@ -1,7 +1,7 @@
 package com.filestack.model.transform.base;
 
+import com.filestack.model.FilestackClient;
 import com.google.gson.JsonObject;
-import com.filestack.model.Client;
 import com.filestack.model.FileLink;
 import com.filestack.model.transform.tasks.StoreOptions;
 import com.filestack.util.FilestackService;
@@ -13,8 +13,8 @@ import java.io.IOException;
  */
 public class ImageTransform extends Transform {
 
-    public ImageTransform(Client client, String source) {
-        super(client, source);
+    public ImageTransform(FilestackClient fsClient, String source) {
+        super(fsClient, source);
     }
 
     public ImageTransform(FileLink fileLink) {
