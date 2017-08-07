@@ -2,7 +2,6 @@ package util;
 
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
-import okhttp3.Headers;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -122,17 +121,26 @@ public class FilestackService {
         @POST("/multipart/upload")
         Call<UploadResponse> upload(@PartMap Map<String, RequestBody> parameters);
 
+        @PUT
+        Call<ResponseBody> uploadS3(@HeaderMap Map<String, String> headers, @Url String url, @Body RequestBody body);
+
+        @Multipart
+        @POST("/multipart/commit")
+        Call<ResponseBody> commit(@PartMap Map<String, RequestBody> parameters);
+
         @Multipart
         @POST("/multipart/complete")
         Call<CompleteResponse> complete(@PartMap Map<String, RequestBody> parameters);
 
-        public class StartResponse {
+        class StartResponse {
             private String uri;
             private String region;
             @SerializedName("location_url")
             private String locationUrl;
             @SerializedName("upload_id")
             private String uploadId;
+            @SerializedName("upload_type")
+            private String uploadType;
 
             public Map<String, RequestBody> getUploadParams() {
                 HashMap<String, RequestBody> parameters = new HashMap<>();
@@ -140,6 +148,10 @@ public class FilestackService {
                 parameters.put("region", Util.createStringPart(region));
                 parameters.put("upload_id", Util.createStringPart(uploadId));
                 return parameters;
+            }
+
+            public boolean isIntelligent() {
+                return uploadType != null && uploadType.equals("intelligent_ingestion");
             }
         }
 
@@ -158,16 +170,16 @@ public class FilestackService {
                 return locationUrl;
             }
 
-            public Headers getS3Headers() {
-                Headers.Builder builder = new Headers.Builder();
-                builder.add("Authorization", s3Headers.auth);
+            public Map<String, String> getS3Headers() {
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("Authorization", s3Headers.auth);
                 if (s3Headers.acl != null)
-                    builder.add("x-amz-acl", s3Headers.acl);
-                builder.add("Content-MD5", s3Headers.md5);
-                builder.add("x-amz-content-sha256", s3Headers.sha256);
-                builder.add("x-amz-date", s3Headers.date);
+                    headers.put("x-amz-acl", s3Headers.acl);
+                headers.put("Content-MD5", s3Headers.md5);
+                headers.put("x-amz-content-sha256", s3Headers.sha256);
+                headers.put("x-amz-date", s3Headers.date);
 
-                return builder.build();
+                return headers;
             }
 
             private class S3Headers {
