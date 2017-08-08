@@ -14,7 +14,7 @@ repositories {
     jcenter()
 }
 
-// Tasks for creating source / javadoc jars
+// Tasks for creating artifact jars
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
@@ -25,24 +25,26 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
-// Add jars as artifacts
-artifacts {
-    archives sourcesJar, javadocJar
-}
-
+// Publications define artifacts to upload to Bintray
 publishing {
     publications {
         Maven(MavenPublication) {
             from components.java
+            artifact sourcesJar
+            artifact javadocJar
         }
     }
 }
 
 // TODO Update GitHub links when repo is made public
-// Config for publishing to Bintray
+// Bintray publishing config
 bintray {
     user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+    if (user == null)
+        throw new IllegalArgumentException("Bintray user not set")
     key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+    if (key == null)
+        throw new IllegalArgumentException("Bintray key not set")
     publications = ['Maven']
     publish = true
     pkg {
@@ -58,7 +60,7 @@ bintray {
         vcsUrl = 'https://github.com/filepicker/filestack-java.git'
         issueTrackerUrl = 'https://github.com/filepicker/filestack-java/issues'
 
-        // githubRepo = 'filepicker/filestack-java'
+        // githubRepo = 'filestack/filestack-java'
         // githubReleaseNotesFile = 'CHANGELOG.md'
 
         version {
