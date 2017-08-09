@@ -4,7 +4,7 @@ import com.google.common.base.Charsets;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
-import com.google.gson.*;
+import com.google.gson.Gson;
 
 /**
  * Generates and wraps policies and signatures.
