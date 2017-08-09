@@ -31,6 +31,12 @@ public class CropFacesTask extends ImageTransformTask {
             return this;
         }
 
+        /**
+         * Sets which faces to crop.
+         * Face numbers correspond to the order in which they appear in an image.
+         *
+         * @param faces one or more integers (faces) to crop
+         */
         public Builder faces(int... faces) {
             if (faces.length == 1) {
                 cropFacesTask.addOption("faces", faces[0]);
@@ -38,13 +44,14 @@ public class CropFacesTask extends ImageTransformTask {
             }
 
             Integer[] objectArray = new Integer[faces.length];
-            for (int i = 0; i < faces.length; i++)
+            for (int i = 0; i < faces.length; i++) {
                 objectArray[i] = faces[i];
+            }
             cropFacesTask.addOption("faces", objectArray);
             return this;
         }
 
-        // For "all" value
+        /** Allows setting "all" for face selection. */
         public Builder faces(String faces) {
             cropFacesTask.addOption("faces", faces);
             return this;
