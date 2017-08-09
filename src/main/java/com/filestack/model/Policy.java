@@ -46,9 +46,16 @@ public class Policy {
             return this;
         }
 
+        /**
+         * Permits the policy to make the given call.
+         * For example you can add a permission to "read" or "remove".
+         *
+         * @param call name of call to allow
+         */
         public Builder addCall(String call) {
-            if (calls == null)
+            if (calls == null) {
                 calls = new ArrayList<>();
+            }
             calls.add(call);
             return this;
         }
@@ -105,12 +112,14 @@ public class Policy {
             
             return this;
         }
-        
+
+        /** Construct and return the policy. */
         public Policy build() {
             Policy policy = new Policy();
             policy.expiry = expiry;
-            if (calls != null)
+            if (calls != null) {
                 policy.call = calls.toArray(new String[0]);
+            }
             policy.handle = handle;
             policy.url = url;
             policy.maxSize = maxSize;
