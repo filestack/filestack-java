@@ -2,6 +2,7 @@ plugins {
     id 'com.jfrog.bintray' version '1.7.3'
 }
 
+apply plugin: 'checkstyle'
 apply plugin: 'java-library'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
@@ -12,6 +13,10 @@ group = 'com.filestack'
 
 repositories {
     jcenter()
+}
+
+checkstyle {
+    toolVersion '8.1'
 }
 
 // Tasks for creating artifact jars
