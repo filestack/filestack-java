@@ -16,6 +16,12 @@ public class BlurFacesTask extends ImageTransformTask {
             this.pixelateFacesTask = new BlurFacesTask();
         }
 
+        /**
+         * Sets which faces to blur.
+         * Face numbers correspond to the order in which they appear in an image.
+         *
+         * @param faces one or more integers (faces) to blur
+         */
         public Builder faces(int... faces) {
             if (faces.length == 1) {
                 pixelateFacesTask.addOption("faces", faces[0]);
@@ -23,13 +29,14 @@ public class BlurFacesTask extends ImageTransformTask {
             }
 
             Integer[] objectArray = new Integer[faces.length];
-            for (int i = 0; i < faces.length; i++)
+            for (int i = 0; i < faces.length; i++) {
                 objectArray[i] = faces[i];
+            }
             pixelateFacesTask.addOption("faces", objectArray);
             return this;
         }
 
-        // For "all" value
+        /** Allows setting "all" for face selection. */
         public Builder faces(String faces) {
             pixelateFacesTask.addOption("faces", faces);
             return this;
