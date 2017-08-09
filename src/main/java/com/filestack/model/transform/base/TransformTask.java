@@ -34,21 +34,25 @@ public class TransformTask {
         }
     }
 
+    /** Add a key-value option pair to this task. */
     public void addOption(String key, Object value) {
         // Passing an empty key is a mistake, shouldn't happen
-        if (key == null || key.length() == 0)
+        if (key == null || key.length() == 0) {
             throw new InvalidParameterException("Task option key cannot be empty");
+        }
         // Allowing the passing of a null value however, is for convenience
         // If we're leaving out an option for a transform task, we only need to check for that here
-        if (value == null)
+        if (value == null) {
             return;
+        }
 
         String valueString;
 
-        if (value.getClass().isArray())
-            valueString = Arrays.toString((Object[])value);
-        else
+        if (value.getClass().isArray()) {
+            valueString = Arrays.toString((Object[]) value);
+        } else {
             valueString = value.toString();
+        }
 
         // Remove spaces between array items
         valueString = valueString.replace(" ", "");
@@ -59,10 +63,12 @@ public class TransformTask {
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder(name);
         stringBuilder.append("=");
-        for (Option option : options)
-            if (option.value != null)
+        for (Option option : options) {
+            if (option.value != null) {
                 stringBuilder.append(option.key).append(":").append(option.value).append(",");
-        stringBuilder.deleteCharAt(stringBuilder.length()-1);
+            }
+        }
+        stringBuilder.deleteCharAt(stringBuilder.length() - 1);
         return stringBuilder.toString();
     }
 }
