@@ -40,11 +40,7 @@ publishing {
 // Bintray publishing config
 bintray {
     user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-    if (user == null)
-        throw new IllegalArgumentException("Bintray user not set")
     key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-    if (key == null)
-        throw new IllegalArgumentException("Bintray key not set")
     publications = ['Maven']
     publish = true
     pkg {
