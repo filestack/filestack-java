@@ -1,22 +1,23 @@
 package com.filestack.model;
 
-import com.google.common.io.Files;
+import static com.filestack.util.MockConstants.API_KEY;
+import static com.filestack.util.MockConstants.HANDLE;
+import static com.filestack.util.MockConstants.SECURITY;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import com.filestack.util.FilestackIOException;
+import com.filestack.util.MockInterceptor;
+import com.filestack.util.Networking;
+import com.google.common.io.Files;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import okhttp3.OkHttpClient;
 import okhttp3.ResponseBody;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import com.filestack.util.MockInterceptor;
-import com.filestack.util.Networking;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static com.filestack.util.MockConstants.*;
 
 /**
  * Tests {@link FileLink FileLink} class.
