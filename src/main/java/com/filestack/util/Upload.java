@@ -1,26 +1,32 @@
 package com.filestack.util;
 
+import static com.filestack.util.FilestackService.Upload.CompleteResponse;
+import static com.filestack.util.FilestackService.Upload.StartResponse;
+import static com.filestack.util.FilestackService.Upload.UploadResponse;
+
+import com.filestack.model.FileLink;
 import com.filestack.model.FilestackClient;
+import com.filestack.model.Security;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
-import com.filestack.model.FileLink;
-import com.filestack.model.Security;
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import org.apache.tika.Tika;
-import retrofit2.Response;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.*;
-
-import static com.filestack.util.FilestackService.Upload.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import org.apache.tika.Tika;
+import retrofit2.Response;
 
 public class Upload {
     private static final int MIN_CHUNK_SIZE = 32 * 1024;
@@ -39,12 +45,13 @@ public class Upload {
     private Map<String, RequestBody> baseParams;
     private String[] etags;
 
-    // Use global upload service
-    public Upload(String filepath, FilestackClient fsClient, UploadOptions options) throws IOException {
+    /** Construct an instance using global networking singletons. */
+    public Upload(String filepath, FilestackClient fsClient, UploadOptions options)
+            throws IOException {
         this(filepath, fsClient, options, Networking.getUploadService(), 2);
     }
 
-    // Use provided upload service, used for mocking
+    /** Construct an instance using provided networking objects. */
     public Upload(String filepath, FilestackClient fsClient, UploadOptions options,
                   FilestackService.Upload restService, int delayBase) throws IOException {
 
@@ -60,7 +67,9 @@ public class Upload {
 
         // Open file and check if it exists
         File file = new File(filepath);
-        if (!file.exists()) throw new FileNotFoundException();
+        if (!file.exists()) {
+            throw new FileNotFoundException();
+        }
 
         filesize = file.length();
         String mimeType = new Tika().detect(file);
@@ -88,7 +97,8 @@ public class Upload {
 
         CompleteResponse completeResponse = multipartComplete();
 
-        return new FileLink(fsClient.getApiKey(), completeResponse.getHandle(), fsClient.getSecurity());
+        return new FileLink(fsClient.getApiKey(), completeResponse.getHandle(),
+                fsClient.getSecurity());
     }
 
     /**
@@ -167,17 +177,19 @@ public class Upload {
         @Override
         public Void call() throws IOException {
             // No work for this thread
-            if (count == 0)
+            if (count == 0) {
                 return null;
+            }
 
             RandomAccessFile file = new RandomAccessFile(filepath, "r");
             file.seek(start * partSize);
 
             byte[] bytes;
-            if (intelligent)
+            if (intelligent) {
                 bytes = new byte[chunkSize];
-            else
+            } else {
                 bytes = new byte[partSize];
+            }
 
             int bytesLeft;
             int bytesRead;
@@ -196,21 +208,24 @@ public class Upload {
                 // If intelligent ingestion upload, we upload in multiple chunkSize chunks
                 while (bytesLeft != 0) {
 
-                    if (intelligent)
+                    if (intelligent) {
                         bytesRead = file.read(bytes, 0, chunkSize);
-                    else
+                    } else {
                         bytesRead = file.read(bytes, 0, partSize);
+                    }
 
-                    if (bytesRead == -1)
+                    if (bytesRead == -1) {
                         break;
+                    }
 
                     bytesSent = uploadToS3(part, offset, bytesRead, bytes);
 
                     if (bytesSent < bytesRead) {
-                        if (bytesSent < MIN_CHUNK_SIZE)
+                        if (bytesSent < MIN_CHUNK_SIZE) {
                             throw new IOException("Upload failed: Network unusable");
+                        }
                         chunkSize = bytesSent;
-                        // Seek backwards in the file to the byte after where we've successfully sent
+                        // Seek backwards to the byte after where we've successfully sent
                         // Otherwise we'd skip bytes when we reduce the chunkSize
                         file.seek(((start + i) * partSize) + offset + bytesSent);
                     }
@@ -219,8 +234,9 @@ public class Upload {
                     bytesLeft -= bytesSent;
                 }
 
-                if (intelligent)
+                if (intelligent) {
                     multipartCommit(part);
+                }
             }
 
             return null;
@@ -230,7 +246,8 @@ public class Upload {
     /**
      * Get parameters from Filestack for the upload to S3.
      */
-    private UploadResponse getUploadParams(int part, int offset, int size, byte[] bytes) throws IOException {
+    private UploadResponse getUploadParams(int part, int offset, int size, byte[] bytes)
+            throws IOException {
 
         // Deprecated because MD5 is insecure not because this is unmaintained
         @SuppressWarnings("deprecation")
@@ -242,8 +259,9 @@ public class Upload {
         params.put("part", Util.createStringPart(Integer.toString(part)));
         params.put("size", Util.createStringPart(Integer.toString(size)));
         params.put("md5", Util.createStringPart(md5));
-        if (intelligent)
+        if (intelligent) {
             params.put("offset", Util.createStringPart(Integer.toString(offset)));
+        }
 
         return new RetryNetworkFunc<UploadResponse>(5, 5, delayBase) {
 
@@ -258,7 +276,8 @@ public class Upload {
      * Upload a chunk to S3.
      * Makes calls to {@link #getUploadParams(int, int, int, byte[])}.
      */
-    private int uploadToS3(final int part, final int offset, final int size, final byte[] bytes) throws IOException {
+    private int uploadToS3(final int part, final int offset, final int size, final byte[] bytes)
+            throws IOException {
 
         return new RetryNetworkFunc<Integer>(5, 5, delayBase) {
             private int attemptSize = size;
@@ -275,8 +294,9 @@ public class Upload {
 
             @Override
             Response retryNetwork() throws IOException {
-                if (intelligent)
+                if (intelligent) {
                     attemptSize /= 2;
+                }
                 return super.retryNetwork();
             }
 
@@ -284,7 +304,7 @@ public class Upload {
             Integer process(Response response) {
                 if (!intelligent) {
                     String etag = response.headers().get("ETag");
-                    etags[part-1] = etag;
+                    etags[part - 1] = etag;
                 }
                 return attemptSize;
             }
@@ -320,9 +340,10 @@ public class Upload {
 
         if (!intelligent) {
             StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < etags.length; i++)
-                builder.append(i+1).append(':').append(etags[i]).append(';');
-            builder.deleteCharAt(builder.length()-1);
+            for (int i = 0; i < etags.length; i++) {
+                builder.append(i + 1).append(':').append(etags[i]).append(';');
+            }
+            builder.deleteCharAt(builder.length() - 1);
             String parts = builder.toString();
             params.put("parts", Util.createStringPart(parts));
         }
