@@ -1,9 +1,8 @@
 package com.filestack.util;
 
-import okhttp3.RequestBody;
-
 import java.util.HashMap;
 import java.util.Map;
+import okhttp3.RequestBody;
 
 public class UploadOptions {
     private HashMap<String, RequestBody> options = new HashMap<>();
@@ -40,9 +39,11 @@ public class UploadOptions {
             return this;
         }
 
+        /** Validates and returns configured instance. */
         public UploadOptions build() {
-            if (!uploadOptions.options.containsKey("store_location"))
+            if (!uploadOptions.options.containsKey("store_location")) {
                 uploadOptions.options.put("store_location", Util.createStringPart("s3"));
+            }
             return uploadOptions;
         }
     }
