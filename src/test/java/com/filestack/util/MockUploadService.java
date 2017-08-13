@@ -1,6 +1,7 @@
 package com.filestack.util;
 
 import com.google.gson.Gson;
+import java.util.Map;
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -9,8 +10,6 @@ import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.mock.BehaviorDelegate;
 import retrofit2.mock.Calls;
-
-import java.util.Map;
 
 public class MockUploadService implements FilestackService.Upload {
     private final BehaviorDelegate<FilestackService.Upload> delegate;
@@ -59,7 +58,8 @@ public class MockUploadService implements FilestackService.Upload {
     public Call<ResponseBody> uploadS3(Map<String, String> headers, String url, RequestBody body) {
         MediaType mediaType = MediaType.parse("text/xml");
         ResponseBody responseBody = ResponseBody.create(mediaType, "");
-        Response<ResponseBody> response = Response.success(responseBody, Headers.of("ETag", "test-etag"));
+        Response<ResponseBody> response = Response.success(responseBody,
+                Headers.of("ETag", "test-etag"));
         Call<ResponseBody> call = Calls.response(response);
 
         return delegate.returningResponse(call).uploadS3(headers, url, body);
