@@ -1,10 +1,9 @@
 package com.filestack.util;
 
+import java.io.IOException;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
-
-import java.io.IOException;
 
 /**
  * Intercepts requests to add Filestack-specific headers.
