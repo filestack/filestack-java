@@ -1,9 +1,9 @@
 package com.filestack.model;
 
+import static org.junit.Assert.assertTrue;
+
 import com.google.gson.Gson;
 import org.junit.Test;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * Tests {@link Policy Policy} class to check building and converting to JSON.
