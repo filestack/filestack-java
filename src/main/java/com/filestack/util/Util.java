@@ -1,11 +1,10 @@
 package com.filestack.util;
 
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 
 /**
  * Small helper functions that don't need their own class.
