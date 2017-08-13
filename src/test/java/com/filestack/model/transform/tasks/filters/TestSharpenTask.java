@@ -7,30 +7,30 @@ import org.junit.Test;
 
 public class TestSharpenTask {
 
-    @Test
-    public void testToString() {
-        String correct = "sharpen";
+  @Test
+  public void testToString() {
+    String correct = "sharpen";
 
-        TransformTask task = new SharpenTask();
+    TransformTask task = new SharpenTask();
 
-        String output = task.toString();
+    String output = task.toString();
 
-        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s",
-                correct, output);
-        assertTrue(message, output.equals(correct));
-    }
+    String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s",
+        correct, output);
+    assertTrue(message, output.equals(correct));
+  }
 
-    @Test
-    public void testToStringAmount() {
-        String correct = "sharpen="
-                + "amount:5";
+  @Test
+  public void testToStringAmount() {
+    String correct = "sharpen="
+        + "amount:5";
 
-        TransformTask task = new SharpenTask(5);
+    TransformTask task = new SharpenTask(5);
 
-        String output = task.toString();
+    String output = task.toString();
 
-        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s",
-                correct, output);
-        assertTrue(message, output.equals(correct));
-    }
+    String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s",
+        correct, output);
+    assertTrue(message, output.equals(correct));
+  }
 }

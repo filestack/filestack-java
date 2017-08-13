@@ -7,30 +7,30 @@ import org.junit.Test;
 
 public class TestCircleTask {
 
-    @Test
-    public void testToString() {
-        String correct = "circle";
+  @Test
+  public void testToString() {
+    String correct = "circle";
 
-        TransformTask task = new CircleTask();
+    TransformTask task = new CircleTask();
 
-        String output = task.toString();
+    String output = task.toString();
 
-        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s",
-                correct, output);
-        assertTrue(message, output.equals(correct));
-    }
+    String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s",
+        correct, output);
+    assertTrue(message, output.equals(correct));
+  }
 
-    @Test
-    public void testToStringBackground() {
-        String correct = "circle="
-                + "background:white";
+  @Test
+  public void testToStringBackground() {
+    String correct = "circle="
+        + "background:white";
 
-        TransformTask task = new CircleTask("white");
+    TransformTask task = new CircleTask("white");
 
-        String output = task.toString();
+    String output = task.toString();
 
-        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s",
-                correct, output);
-        assertTrue(message, output.equals(correct));
-    }
+    String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s",
+        correct, output);
+    assertTrue(message, output.equals(correct));
+  }
 }

@@ -7,23 +7,23 @@ import org.junit.Test;
 
 public class TestUpscaleTask {
 
-    @Test
-    public void testToString() {
-        String correct = "upscale="
-                + "upscale:false,"
-                + "noise:none,"
-                + "style:artwork";
+  @Test
+  public void testToString() {
+    String correct = "upscale="
+        + "upscale:false,"
+        + "noise:none,"
+        + "style:artwork";
 
-        TransformTask task = new UpscaleTask.Builder()
-                .upscale(false)
-                .noise("none")
-                .style("artwork")
-                .build();
+    TransformTask task = new UpscaleTask.Builder()
+        .upscale(false)
+        .noise("none")
+        .style("artwork")
+        .build();
 
-        String output = task.toString();
+    String output = task.toString();
 
-        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s",
-                correct, output);
-        assertTrue(message, output.equals(correct));
-    }
+    String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s",
+        correct, output);
+    assertTrue(message, output.equals(correct));
+  }
 }

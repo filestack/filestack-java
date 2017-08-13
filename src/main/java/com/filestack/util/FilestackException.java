@@ -7,18 +7,18 @@ import java.io.IOException;
  */
 public class FilestackException extends IOException {
 
-    public FilestackException() {
-    }
+  public FilestackException() {
+  }
 
-    public FilestackException(String message) {
-        super(message);
-    }
+  public FilestackException(String message) {
+    super(message);
+  }
 
-    public FilestackException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public FilestackException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-    public FilestackException(Throwable cause) {
-        super(cause);
-    }
+  public FilestackException(Throwable cause) {
+    super(cause);
+  }
 }

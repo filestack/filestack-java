@@ -5,11 +5,11 @@ package com.filestack.model.transform.base;
  */
 public class ImageTransformTask extends TransformTask {
 
-    ImageTransformTask() {
-    }
+  ImageTransformTask() {
+  }
 
-    public ImageTransformTask(String name) {
-        super(name);
-    }
+  public ImageTransformTask(String name) {
+    super(name);
+  }
 }
 

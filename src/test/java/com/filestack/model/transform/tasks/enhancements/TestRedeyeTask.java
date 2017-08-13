@@ -7,16 +7,16 @@ import org.junit.Test;
 
 public class TestRedeyeTask {
 
-    @Test
-    public void testToString() {
-        String correct = "redeye";
+  @Test
+  public void testToString() {
+    String correct = "redeye";
 
-        TransformTask task = new RedeyeTask();
+    TransformTask task = new RedeyeTask();
 
-        String output = task.toString();
+    String output = task.toString();
 
-        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s",
-                correct, output);
-        assertTrue(message, output.equals(correct));
-    }
+    String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s",
+        correct, output);
+    assertTrue(message, output.equals(correct));
+  }
 }

@@ -7,16 +7,16 @@ import org.junit.Test;
 
 public class TestFlopTask {
 
-    @Test
-    public void testToString() {
-        String correct = "flop";
+  @Test
+  public void testToString() {
+    String correct = "flop";
 
-        TransformTask task = new FlopTask();
+    TransformTask task = new FlopTask();
 
-        String output = task.toString();
+    String output = task.toString();
 
-        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s",
-                correct, output);
-        assertTrue(message, output.equals(correct));
-    }
+    String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s",
+        correct, output);
+    assertTrue(message, output.equals(correct));
+  }
 }

@@ -10,9 +10,9 @@ import org.junit.Test;
  */
 public class TestFilestackClient {
 
-    @Test
-    public void testInstantiation() {
-        FilestackClient fsClient = new FilestackClient(API_KEY);
-        assertNotNull("Unable to create FilestackClient", fsClient);
-    }
+  @Test
+  public void testInstantiation() {
+    FilestackClient fsClient = new FilestackClient(API_KEY);
+    assertNotNull("Unable to create FilestackClient", fsClient);
+  }
 }

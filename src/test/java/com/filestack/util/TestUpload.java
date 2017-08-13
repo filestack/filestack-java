@@ -2,6 +2,7 @@ package com.filestack.util;
 
 import com.filestack.model.FileLink;
 import com.filestack.model.FilestackClient;
+
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
@@ -9,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+
 import okhttp3.OkHttpClient;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -21,51 +23,51 @@ import retrofit2.mock.NetworkBehavior;
 
 public class TestUpload {
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
-    private static MockUploadService createMockUploadService(NetworkBehavior behavior) {
+  private static MockUploadService createMockUploadService(NetworkBehavior behavior) {
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .client(new OkHttpClient())
-                .baseUrl(FilestackService.Upload.URL)
-                .build();
+    Retrofit retrofit = new Retrofit.Builder()
+        .client(new OkHttpClient())
+        .baseUrl(FilestackService.Upload.URL)
+        .build();
 
-        MockRetrofit mockRetrofit = new MockRetrofit.Builder(retrofit)
-                .networkBehavior(behavior)
-                .build();
+    MockRetrofit mockRetrofit = new MockRetrofit.Builder(retrofit)
+        .networkBehavior(behavior)
+        .build();
 
-        BehaviorDelegate<FilestackService.Upload> delegate =
-                mockRetrofit.create(FilestackService.Upload.class);
-        return new MockUploadService(delegate);
-    }
+    BehaviorDelegate<FilestackService.Upload> delegate =
+        mockRetrofit.create(FilestackService.Upload.class);
+    return new MockUploadService(delegate);
+  }
 
-    private static Path createRandomFile(long size) throws IOException {
-        Path path = Paths.get("/tmp/" + UUID.randomUUID().toString() + ".txt");
-        RandomAccessFile file = new RandomAccessFile(path.toString(), "rw");
-        file.writeChars("test content\n");
-        file.setLength(size);
-        file.close();
-        return path;
-    }
+  private static Path createRandomFile(long size) throws IOException {
+    Path path = Paths.get("/tmp/" + UUID.randomUUID().toString() + ".txt");
+    RandomAccessFile file = new RandomAccessFile(path.toString(), "rw");
+    file.writeChars("test content\n");
+    file.setLength(size);
+    file.close();
+    return path;
+  }
 
-    @Test
-    public void test() throws IOException {
-        Path path = createRandomFile(10 * 1024 * 1024);
+  @Test
+  public void test() throws IOException {
+    Path path = createRandomFile(10 * 1024 * 1024);
 
-        NetworkBehavior behavior = NetworkBehavior.create();
-        MockUploadService mockUploadService = createMockUploadService(behavior);
+    NetworkBehavior behavior = NetworkBehavior.create();
+    MockUploadService mockUploadService = createMockUploadService(behavior);
 
-        FilestackClient fsClient = new FilestackClient("apiKey");
-        UploadOptions options = new UploadOptions.Builder().build();
-        Upload upload = new Upload(path.toString(), fsClient, options, mockUploadService, 0);
+    FilestackClient fsClient = new FilestackClient("apiKey");
+    UploadOptions options = new UploadOptions.Builder().build();
+    Upload upload = new Upload(path.toString(), fsClient, options, mockUploadService, 0);
 
-        behavior.setDelay(0, TimeUnit.SECONDS);
+    behavior.setDelay(0, TimeUnit.SECONDS);
 
-        FileLink fileLink = upload.run();
+    FileLink fileLink = upload.run();
 
-        Assert.assertTrue(fileLink.getHandle().equals("handle"));
+    Assert.assertTrue(fileLink.getHandle().equals("handle"));
 
-        Files.delete(path);
-    }
+    Files.delete(path);
+  }
 }

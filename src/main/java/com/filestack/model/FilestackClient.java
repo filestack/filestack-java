@@ -11,37 +11,37 @@ import java.io.IOException;
  * Instantiate with an API Key from the Developer Portal.
  */
 public class FilestackClient {
-    private String apiKey;
-    private Security security;
+  private String apiKey;
+  private Security security;
 
-    public FilestackClient(String apiKey) {
-        this.apiKey = apiKey;
-    }
+  public FilestackClient(String apiKey) {
+    this.apiKey = apiKey;
+  }
 
-    public FilestackClient(String apiKey, Security security) {
-        this.apiKey = apiKey;
-        this.security = security;
-    }
+  public FilestackClient(String apiKey, Security security) {
+    this.apiKey = apiKey;
+    this.security = security;
+  }
 
-    public ImageTransform imageTransform(String url) {
-        return new ImageTransform(this, url);
-    }
+  public ImageTransform imageTransform(String url) {
+    return new ImageTransform(this, url);
+  }
 
-    public FileLink upload(String filepath) throws IOException {
-        UploadOptions defaultOptions = new UploadOptions.Builder().build();
-        return upload(filepath, defaultOptions);
-    }
+  public FileLink upload(String filepath) throws IOException {
+    UploadOptions defaultOptions = new UploadOptions.Builder().build();
+    return upload(filepath, defaultOptions);
+  }
 
-    public FileLink upload(String filepath, UploadOptions options) throws IOException {
-        Upload upload = new Upload(filepath, this, options);
-        return upload.run();
-    }
+  public FileLink upload(String filepath, UploadOptions options) throws IOException {
+    Upload upload = new Upload(filepath, this, options);
+    return upload.run();
+  }
 
-    public String getApiKey() {
-        return apiKey;
-    }
+  public String getApiKey() {
+    return apiKey;
+  }
 
-    public Security getSecurity() {
-        return security;
-    }
+  public Security getSecurity() {
+    return security;
+  }
 }
