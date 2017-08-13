@@ -1,9 +1,9 @@
 package com.filestack.model;
 
-import org.junit.Test;
-
+import static com.filestack.util.MockConstants.API_KEY;
 import static org.junit.Assert.assertNotNull;
-import static com.filestack.util.MockConstants.*;
+
+import org.junit.Test;
 
 /**
  * Tests {@link FilestackClient FilestackClient} class.
