@@ -32,7 +32,7 @@ public class MockInterceptor implements Interceptor {
         else if (MOCK_BASE_URL.contains(host))
             builder = genSimpleResponse(path.get(0));
         else
-            throw new FilestackIOException("Host not mocked");
+            throw new FilestackException("Host not mocked");
 
         return builder
                 .protocol(Protocol.HTTP_1_1)
@@ -89,7 +89,7 @@ public class MockInterceptor implements Interceptor {
                 return new Response.Builder().code(CODE_OK).message(MESSAGE_OK).body(responseBody);
 
             default:
-                throw new FilestackIOException("API method not mocked");
+                throw new FilestackException("API method not mocked");
         }
     }
 
@@ -126,7 +126,7 @@ public class MockInterceptor implements Interceptor {
             return new Response.Builder().code(CODE_OK).message(MESSAGE_OK).body(responseBody);
 
         } else {
-            throw new FilestackIOException("Process method not mocked");
+            throw new FilestackException("Process method not mocked");
         }
     }
 
@@ -146,7 +146,7 @@ public class MockInterceptor implements Interceptor {
             case TEST_UNMATCHED_PATH:
                 return new Response.Builder().code(0).message("FAKE MESSAGE");
             default:
-                throw new FilestackIOException("No path matched for mock host");
+                throw new FilestackException("No path matched for mock host");
         }
     }
 }

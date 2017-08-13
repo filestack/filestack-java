@@ -1,7 +1,7 @@
 package com.filestack.model;
 
 import com.filestack.model.transform.base.ImageTransform;
-import com.filestack.util.FilestackIOException;
+import com.filestack.util.FilestackException;
 import com.filestack.util.FilestackService;
 import com.filestack.util.Networking;
 import java.io.File;
@@ -128,7 +128,7 @@ public class FileLink {
      */
     public void overwrite(String pathname) throws IOException {
         if (security == null) {
-            throw new FilestackIOException("Overwrite requires security to be set");
+            throw new FilestackException("Overwrite requires security to be set");
         }
 
         File file = new File(pathname);
@@ -151,7 +151,7 @@ public class FileLink {
      */
     public void delete() throws IOException {
         if (security == null) {
-            throw new FilestackIOException("Delete requires security to be set");
+            throw new FilestackException("Delete requires security to be set");
         }
 
         apiService.delete(handle, apiKey, security.getPolicy(), security.getSignature()).execute();

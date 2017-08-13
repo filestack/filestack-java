@@ -146,7 +146,7 @@ public class Upload {
             try {
                 service.take().get();
             } catch (InterruptedException | ExecutionException e) {
-                throw new FilestackIOException("Upload failed: ", e);
+                throw new FilestackException("Upload failed: ", e);
             }
         }
     }

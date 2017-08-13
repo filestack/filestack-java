@@ -6,7 +6,7 @@ import static com.filestack.util.MockConstants.SECURITY;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.filestack.util.FilestackIOException;
+import com.filestack.util.FilestackException;
 import com.filestack.util.MockInterceptor;
 import com.filestack.util.Networking;
 import com.google.common.io.Files;
@@ -99,7 +99,7 @@ public class TestFileLink {
         fileLink.overwrite(OVERWRITE_PATHNAME);
     }
 
-    @Test(expected = FilestackIOException.class)
+    @Test(expected = FilestackException.class)
     public void testOverwriteWithoutSecurity() throws IOException {
         FileLink fileLink = new FileLink(API_KEY, HANDLE);
 
@@ -123,7 +123,7 @@ public class TestFileLink {
         fileLink.delete();
     }
 
-    @Test(expected = FilestackIOException.class)
+    @Test(expected = FilestackException.class)
     public void testDeleteWithoutSecurity() throws IOException {
         FileLink fileLink = new FileLink(API_KEY, HANDLE);
 
