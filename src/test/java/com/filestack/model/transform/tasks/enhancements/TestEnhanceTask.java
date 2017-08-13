@@ -1,9 +1,9 @@
 package com.filestack.model.transform.tasks.enhancements;
 
+import static org.junit.Assert.assertTrue;
+
 import com.filestack.model.transform.base.TransformTask;
 import org.junit.Test;
-
-import static org.junit.Assert.assertTrue;
 
 public class TestEnhanceTask {
 
@@ -15,7 +15,8 @@ public class TestEnhanceTask {
 
         String output = task.toString();
 
-        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s", correct, output);
+        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s",
+                correct, output);
         assertTrue(message, output.equals(correct));
     }
 }

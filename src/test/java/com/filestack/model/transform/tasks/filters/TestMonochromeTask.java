@@ -1,9 +1,9 @@
 package com.filestack.model.transform.tasks.filters;
 
+import static org.junit.Assert.assertTrue;
+
 import com.filestack.model.transform.base.TransformTask;
 import org.junit.Test;
-
-import static org.junit.Assert.assertTrue;
 
 public class TestMonochromeTask {
 
@@ -15,7 +15,8 @@ public class TestMonochromeTask {
 
         String output = task.toString();
 
-        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s", correct, output);
+        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s",
+                correct, output);
         assertTrue(message, output.equals(correct));
     }
 }
