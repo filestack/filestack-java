@@ -2,13 +2,23 @@ package com.filestack.util;
 
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
+import java.util.HashMap;
+import java.util.Map;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
-import retrofit2.http.*;
-
-import java.util.HashMap;
-import java.util.Map;
+import retrofit2.http.Body;
+import retrofit2.http.DELETE;
+import retrofit2.http.GET;
+import retrofit2.http.HeaderMap;
+import retrofit2.http.Multipart;
+import retrofit2.http.POST;
+import retrofit2.http.PUT;
+import retrofit2.http.PartMap;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
+import retrofit2.http.Streaming;
+import retrofit2.http.Url;
 
 /**
  * Retrofit interfaces wrapping Filestack API.
@@ -24,7 +34,8 @@ public class FilestackService {
 
         @DELETE("{handle}")
         Call<ResponseBody> delete(@Path("handle") String handle, @Query("key") String key,
-                                  @Query("policy") String policy, @Query("signature") String signature);
+                                  @Query("policy") String policy,
+                                  @Query("signature") String signature);
     }
 
     public interface Cdn {
@@ -122,7 +133,8 @@ public class FilestackService {
         Call<UploadResponse> upload(@PartMap Map<String, RequestBody> parameters);
 
         @PUT
-        Call<ResponseBody> uploadS3(@HeaderMap Map<String, String> headers, @Url String url, @Body RequestBody body);
+        Call<ResponseBody> uploadS3(@HeaderMap Map<String, String> headers, @Url String url,
+                                    @Body RequestBody body);
 
         @Multipart
         @POST("/multipart/commit")
@@ -135,12 +147,9 @@ public class FilestackService {
         class StartResponse {
             private String uri;
             private String region;
-            @SerializedName("location_url")
-            private String locationUrl;
-            @SerializedName("upload_id")
-            private String uploadId;
-            @SerializedName("upload_type")
-            private String uploadType;
+            @SerializedName("location_url") private String locationUrl;
+            @SerializedName("upload_id") private String uploadId;
+            @SerializedName("upload_type") private String uploadType;
 
             public Map<String, RequestBody> getUploadParams() {
                 HashMap<String, RequestBody> parameters = new HashMap<>();
@@ -157,10 +166,8 @@ public class FilestackService {
 
         public class UploadResponse {
             private String url;
-            @SerializedName("location_url")
-            private String locationUrl;
-            @SerializedName("headers")
-            private S3Headers s3Headers;
+            @SerializedName("location_url") private String locationUrl;
+            @SerializedName("headers") private S3Headers s3Headers;
 
             public String getUrl() {
                 return url;
@@ -170,11 +177,15 @@ public class FilestackService {
                 return locationUrl;
             }
 
+            /**
+             * CReturn S3Headers as a {@link Map} that can be easily added to request.
+             */
             public Map<String, String> getS3Headers() {
                 HashMap<String, String> headers = new HashMap<>();
                 headers.put("Authorization", s3Headers.auth);
-                if (s3Headers.acl != null)
+                if (s3Headers.acl != null) {
                     headers.put("x-amz-acl", s3Headers.acl);
+                }
                 headers.put("Content-MD5", s3Headers.md5);
                 headers.put("x-amz-content-sha256", s3Headers.sha256);
                 headers.put("x-amz-date", s3Headers.date);
@@ -183,16 +194,11 @@ public class FilestackService {
             }
 
             private class S3Headers {
-                @SerializedName("Authorization")
-                private String auth;
-                @SerializedName("x-amz-acl")
-                private String acl;
-                @SerializedName("Content-MD5")
-                private String md5;
-                @SerializedName("x-amz-content-sha256")
-                private String sha256;
-                @SerializedName("x-amz-date")
-                private String date;
+                @SerializedName("Authorization") private String auth;
+                @SerializedName("x-amz-acl") private String acl;
+                @SerializedName("Content-MD5") private String md5;
+                @SerializedName("x-amz-content-sha256") private String sha256;
+                @SerializedName("x-amz-date") private String date;
             }
         }
 
