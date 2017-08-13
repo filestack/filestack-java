@@ -1,5 +1,6 @@
 package com.filestack.util;
 
+import java.io.IOException;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import org.junit.Assert;
@@ -7,8 +8,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import retrofit2.Response;
-
-import java.io.IOException;
 
 public class TestRetryNetworkFunc {
 
