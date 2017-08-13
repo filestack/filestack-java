@@ -1,10 +1,9 @@
 package com.filestack.util;
 
+import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * Serves as singleton holder for the OkHttp client and Retrofit services.
@@ -17,6 +16,7 @@ public class Networking {
     private static FilestackService.Process processService;
     private static FilestackService.Upload uploadService;
 
+    /** Get http client singleton. */
     public static OkHttpClient getHttpClient() {
         if (httpClient == null) {
             httpClient = new OkHttpClient.Builder()
@@ -30,6 +30,7 @@ public class Networking {
         return httpClient;
     }
 
+    /** Get CDN service singleton. */
     public static FilestackService.Cdn getCdnService() {
         if (cdnService == null) {
             Retrofit retrofit = getRetrofitBuilder().baseUrl(FilestackService.Cdn.URL).build();
@@ -38,6 +39,7 @@ public class Networking {
         return cdnService;
     }
 
+    /** Get API service singleton. */
     public static FilestackService.Api getApiService() {
         if (apiService == null) {
             Retrofit retrofit = getRetrofitBuilder().baseUrl(FilestackService.Api.URL).build();
@@ -46,6 +48,7 @@ public class Networking {
         return apiService;
     }
 
+    /** Get process service singleton. */
     public static FilestackService.Process getProcessService() {
         if (processService == null) {
             Retrofit retrofit = getRetrofitBuilder().baseUrl(FilestackService.Process.URL).build();
@@ -54,6 +57,7 @@ public class Networking {
         return processService;
     }
 
+    /** Get upload service singleton. */
     public static FilestackService.Upload getUploadService() {
         if (uploadService == null) {
             Retrofit retrofit = getRetrofitBuilder().baseUrl(FilestackService.Upload.URL).build();
@@ -62,13 +66,16 @@ public class Networking {
         return uploadService;
     }
 
+    /** Set a custom http client. */
     public static void setCustomClient(OkHttpClient client) {
-        if (client == null)
+        if (client == null) {
             return;
+        }
         httpClient = client;
         invalidate();
     }
 
+    /** Remove custom http client. Resets to use default client. */
     public static void removeCustomClient() {
         httpClient = null;
         invalidate();
@@ -80,9 +87,7 @@ public class Networking {
                 .addConverterFactory(GsonConverterFactory.create());
     }
 
-    /**
-     * Sets the services to null so they'll be recreated.
-     */
+    /** Sets the services to null so they'll be recreated. */
     private static void invalidate() {
         cdnService = null;
         apiService = null;
