@@ -1,16 +1,21 @@
 package com.filestack.util;
 
 import com.google.gson.JsonObject;
-import okhttp3.*;
-import okio.Buffer;
-import org.junit.Assert;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import okhttp3.Interceptor;
+import okhttp3.MediaType;
+import okhttp3.Protocol;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+import okio.Buffer;
+import org.junit.Assert;
 
 /**
- * Generic interceptor that matches a URL regex, checks request body params, and sends a JSON response.
+ * Generic interceptor that matches a URL regex, checks request body, and sends a JSON response.
  */
 public class GenericInterceptor implements Interceptor {
     private static final MediaType JSON_MEDIA_TYPE = MediaType.parse("application/response");
@@ -33,9 +38,11 @@ public class GenericInterceptor implements Interceptor {
 
         for (String key : params.keySet()) {
             String value = params.get(key);
-            Assert.assertTrue("Missing key: " + key, bodyString.contains("name=\"" + key + "\""));
-            if (value != null)
+            Assert.assertTrue("Missing key: " + key,
+                    bodyString.contains("name=\"" + key + "\""));
+            if (value != null) {
                 Assert.assertTrue("Missing key: " + value, bodyString.contains(value));
+            }
         }
     }
 
@@ -44,8 +51,9 @@ public class GenericInterceptor implements Interceptor {
         Request request = chain.request();
         String url = request.url().toString();
 
-        if (!url.matches(urlRegex))
+        if (!url.matches(urlRegex)) {
             return chain.proceed(request);
+        }
 
         validateBody(request);
 
@@ -68,9 +76,11 @@ public class GenericInterceptor implements Interceptor {
             return this;
         }
 
+        /** Add params that will just be checked for existence. */
         public Builder addEmptyParam(String... keys) {
-            for (String key : keys)
+            for (String key : keys) {
                 interceptor.params.put(key, null);
+            }
             return this;
         }
 
@@ -79,16 +89,25 @@ public class GenericInterceptor implements Interceptor {
             return this;
         }
 
+        /** Add fields to the JSON response with default "test" values. */
         public Builder addEmptyResponse(String... keys) {
-            for (String key : keys)
+            for (String key : keys) {
                 interceptor.response.addProperty(key, "test");
+            }
             return this;
         }
 
+        /**
+         * Add a child JSON element to the response.
+         * Each field of the child element will have default "test" values.
+         * @param key for the element field
+         * @param objectKeys for the element itself
+         */
         public Builder addEmptyResponseObject(String key, String... objectKeys) {
             JsonObject object = new JsonObject();
-            for (String objectKey : objectKeys)
+            for (String objectKey : objectKeys) {
                 object.addProperty(objectKey, "test");
+            }
             interceptor.response.add(key, object);
             return this;
         }
