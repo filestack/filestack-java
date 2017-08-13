@@ -1,7 +1,14 @@
 package com.filestack.util;
 
-import com.filestack.model.FilestackClient;
 import com.filestack.model.FileLink;
+import com.filestack.model.FilestackClient;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -11,14 +18,6 @@ import retrofit2.Retrofit;
 import retrofit2.mock.BehaviorDelegate;
 import retrofit2.mock.MockRetrofit;
 import retrofit2.mock.NetworkBehavior;
-
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 public class TestUpload {
 
@@ -36,11 +35,12 @@ public class TestUpload {
                 .networkBehavior(behavior)
                 .build();
 
-        BehaviorDelegate<FilestackService.Upload> delegate = mockRetrofit.create(FilestackService.Upload.class);
+        BehaviorDelegate<FilestackService.Upload> delegate =
+                mockRetrofit.create(FilestackService.Upload.class);
         return new MockUploadService(delegate);
     }
 
-    private static Path createRandomFile(long size) throws IOException{
+    private static Path createRandomFile(long size) throws IOException {
         Path path = Paths.get("/tmp/" + UUID.randomUUID().toString() + ".txt");
         RandomAccessFile file = new RandomAccessFile(path.toString(), "rw");
         file.writeChars("test content\n");
