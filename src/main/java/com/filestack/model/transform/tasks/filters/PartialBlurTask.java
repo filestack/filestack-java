@@ -47,21 +47,21 @@ public class PartialBlurTask extends ImageTransformTask {
     }
 
     private static class Area {
-        int x;
-        int y;
+        int originX;
+        int originY;
         int width;
         int height;
 
-        public Area(int x, int y, int width, int height) {
-            this.x = x;
-            this.y = y;
+        public Area(int originX, int originY, int width, int height) {
+            this.originX = originX;
+            this.originY = originY;
             this.width = width;
             this.height = height;
         }
 
         @Override
         public String toString() {
-            return "[" + x + "," + y + "," + width + "," + height + "]";
+            return "[" + originX + "," + originY + "," + width + "," + height + "]";
         }
     }
 }
