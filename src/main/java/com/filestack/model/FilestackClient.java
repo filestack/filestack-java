@@ -4,7 +4,11 @@ import com.filestack.model.transform.base.ImageTransform;
 import com.filestack.util.Upload;
 import com.filestack.util.UploadOptions;
 
+import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
+
 import java.io.IOException;
+import java.util.concurrent.Callable;
 
 /**
  * Wrapper for communicating with the Filestack REST API.
@@ -57,6 +61,32 @@ public class FilestackClient {
   public FileLink upload(String filepath, UploadOptions options) throws IOException {
     Upload upload = new Upload(filepath, this, options);
     return upload.run();
+  }
+
+  // Async method wrappers
+
+  /**
+   * Async, observable version of {@link #upload(String)}.
+   * Throws same exceptions.
+   */
+  public Single<FileLink> uploadAsync(String filepath) {
+    UploadOptions defaultOptions = new UploadOptions.Builder().build();
+    return uploadAsync(filepath, defaultOptions);
+  }
+
+  /**
+   * Async, observable version of {@link #upload(String, UploadOptions)}.
+   * Throws same exceptions.
+   */
+  public Single<FileLink> uploadAsync(final String filepath, final UploadOptions options) {
+    return Single.fromCallable(new Callable<FileLink>() {
+      @Override
+      public FileLink call() throws IOException {
+        return upload(filepath, options);
+      }
+    })
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.single());
   }
 
   /**
