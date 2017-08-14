@@ -6,7 +6,11 @@ import com.filestack.model.transform.tasks.StoreOptions;
 import com.filestack.util.FilestackService;
 import com.google.gson.JsonObject;
 
+import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
+
 import java.io.IOException;
+import java.util.concurrent.Callable;
 
 /**
  * {@link Transform Transform} subclass for image transformations.
@@ -80,5 +84,45 @@ public class ImageTransform extends Transform {
     }
     tasks.add(task);
     return this;
+  }
+
+  // Async method wrappers
+
+  /**
+   * Async, observable version of {@link #debug()}.
+   * Throws same exceptions.
+   */
+  public Single<JsonObject> debugAsync() {
+    return Single.fromCallable(new Callable<JsonObject>() {
+      @Override
+      public JsonObject call() throws Exception {
+        return debug();
+      }
+    })
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.single());
+  }
+
+  /**
+   * Async, observable version of {@link #store()}.
+   * Throws same exceptions.
+   */
+  public Single<FileLink> storeAsync() {
+    return storeAsync(null);
+  }
+
+  /**
+   * Async, observable version of {@link #store(StoreOptions)}.
+   * Throws same exceptions.
+   */
+  public Single<FileLink> storeAsync(final StoreOptions storeOptions) {
+    return Single.fromCallable(new Callable<FileLink>() {
+      @Override
+      public FileLink call() throws Exception {
+        return store(storeOptions);
+      }
+    })
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.single());
   }
 }
