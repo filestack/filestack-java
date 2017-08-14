@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -27,7 +28,6 @@ import java.util.concurrent.Executors;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import org.apache.tika.Tika;
 import retrofit2.Response;
 
 public class Upload {
@@ -78,7 +78,7 @@ public class Upload {
     }
 
     filesize = file.length();
-    String mimeType = new Tika().detect(file);
+    String mimeType = URLConnection.guessContentTypeFromName(file.getName());
     mediaType = MediaType.parse(mimeType);
 
     baseParams.put("filename", Util.createStringPart(file.getName()));

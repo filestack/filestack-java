@@ -5,9 +5,16 @@ import com.filestack.util.FilestackException;
 import com.filestack.util.FilestackService;
 import com.filestack.util.Networking;
 
+import io.reactivex.Completable;
+import io.reactivex.Single;
+import io.reactivex.functions.Action;
+import io.reactivex.schedulers.Schedulers;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URLConnection;
+import java.util.concurrent.Callable;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -15,7 +22,6 @@ import okhttp3.ResponseBody;
 import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.Okio;
-import org.apache.tika.Tika;
 import retrofit2.Response;
 
 /**
@@ -36,11 +42,7 @@ public class FileLink {
    * @param handle id for a file, first path segment in dev portal urls
    */
   public FileLink(String apiKey, String handle) {
-    this.apiKey = apiKey;
-    this.handle = handle;
-
-    this.cdnService = Networking.getCdnService();
-    this.apiService = Networking.getApiService();
+    this(apiKey, handle, null);
   }
 
   /**
@@ -62,18 +64,16 @@ public class FileLink {
   /**
    * Directly returns the content of a file.
    *
-   * @return raw {@link ResponseBody ResponseBody } containing the file content
+   * @return byte[] of file content
    * @throws IOException for network failures, invalid handles, or invalid security
    */
-  public ResponseBody getContent() throws IOException {
-    if (security == null) {
-      return cdnService.get(this.handle, null, null).execute().body();
-    } else {
-      return cdnService
-          .get(this.handle, security.getPolicy(), security.getSignature())
-          .execute()
-          .body();
-    }
+  public byte[] getContent() throws IOException {
+    String policy = security != null ? security.getPolicy() : null;
+    String signature = security != null ? security.getSignature() : null;
+    return cdnService.get(this.handle, policy, signature)
+        .execute()
+        .body()
+        .bytes();
   }
 
   /**
@@ -96,22 +96,17 @@ public class FileLink {
    * @throws IOException for network failures, invalid handles, or invalid security
    */
   public File download(String directory, String filename) throws IOException {
-    Response<ResponseBody> response;
+    String policy = security != null ? security.getPolicy() : null;
+    String signature = security != null ? security.getSignature() : null;
 
-    if (security == null) {
-      response = cdnService.get(this.handle, null, null).execute();
-    } else {
-      response = cdnService
-          .get(this.handle, security.getPolicy(), security.getSignature())
-          .execute();
-    }
+    Response<ResponseBody> response = cdnService.get(this.handle, policy, signature).execute();
 
     if (filename == null) {
       filename = response.headers().get("x-file-name");
     }
 
     File file = new File(directory + "/" + filename);
-    boolean created = file.createNewFile();
+    file.createNewFile();
 
     BufferedSource source = response.body().source();
     BufferedSink sink = Okio.buffer(Okio.sink(file));
@@ -140,8 +135,7 @@ public class FileLink {
       throw new FileNotFoundException(pathname);
     }
 
-    Tika tika = new Tika();
-    String mimeType = tika.detect(file);
+    String mimeType = URLConnection.guessContentTypeFromName(file.getName());
     RequestBody body = RequestBody.create(MediaType.parse(mimeType), file);
 
     apiService.overwrite(handle, security.getPolicy(), security.getSignature(), body).execute();
@@ -159,6 +153,76 @@ public class FileLink {
     }
 
     apiService.delete(handle, apiKey, security.getPolicy(), security.getSignature()).execute();
+  }
+
+  // Async method wrappers
+
+  /**
+   * Async, observable version of {@link #getContent()}.
+   * Throws same exceptions.
+   */
+  public Single<byte[]> getContentAsync() {
+    return Single.fromCallable(new Callable<byte[]>() {
+      @Override
+      public byte[] call() throws IOException {
+        return getContent();
+      }
+    })
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.single());
+  }
+
+  /**
+   * Async, observable version of {@link #download(String)}.
+   * Throws same exceptions.
+   */
+  public Single<File> downloadAsync(final String directory) {
+    return downloadAsync(directory, null);
+  }
+
+  /**
+   * Async, observable version of {@link #download(String, String)}.
+   * Throws same exceptions.
+   */
+  public Single<File> downloadAsync(final String directory, final String filename) {
+    return Single.fromCallable(new Callable<File>() {
+      @Override
+      public File call() throws IOException {
+        return download(directory, filename);
+      }
+    })
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.single());
+  }
+
+  /**
+   * Async, observable version of {@link #overwrite(String)}.
+   * Throws same exceptions.
+   */
+  public Completable overwriteAsync(final String pathname) {
+    return Completable.fromAction(new Action() {
+      @Override
+      public void run() throws IOException {
+        overwrite(pathname);
+      }
+    })
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.single());
+  }
+
+  /**
+   * Async, observable version of {@link #delete()}.
+   * Throws same exceptions.
+   */
+  public Completable deleteAsync() {
+    return Completable.fromAction(new Action() {
+      @Override
+      public void run() throws IOException {
+        delete();
+      }
+    })
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.single());
   }
 
   /**
