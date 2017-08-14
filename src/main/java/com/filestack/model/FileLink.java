@@ -5,9 +5,15 @@ import com.filestack.util.FilestackException;
 import com.filestack.util.FilestackService;
 import com.filestack.util.Networking;
 
+import io.reactivex.Completable;
+import io.reactivex.Single;
+import io.reactivex.functions.Action;
+import io.reactivex.schedulers.Schedulers;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.concurrent.Callable;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -148,6 +154,76 @@ public class FileLink {
     }
 
     apiService.delete(handle, apiKey, security.getPolicy(), security.getSignature()).execute();
+  }
+
+  // Async method wrappers
+
+  /**
+   * Async, observable version of {@link #getContent()}.
+   * Throws same exceptions.
+   */
+  public Single<byte[]> getContentAsync() {
+    return Single.fromCallable(new Callable<byte[]>() {
+      @Override
+      public byte[] call() throws IOException {
+        return getContent();
+      }
+    })
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.single());
+  }
+
+  /**
+   * Async, observable version of {@link #download(String)}.
+   * Throws same exceptions.
+   */
+  public Single<File> downloadAsync(final String directory) {
+    return downloadAsync(directory, null);
+  }
+
+  /**
+   * Async, observable version of {@link #download(String, String)}.
+   * Throws same exceptions.
+   */
+  public Single<File> downloadAsync(final String directory, final String filename) {
+    return Single.fromCallable(new Callable<File>() {
+      @Override
+      public File call() throws IOException {
+        return download(directory, filename);
+      }
+    })
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.single());
+  }
+
+  /**
+   * Async, observable version of {@link #overwrite(String)}.
+   * Throws same exceptions.
+   */
+  public Completable overwriteAsync(final String pathname) {
+    return Completable.fromAction(new Action() {
+      @Override
+      public void run() throws IOException {
+        overwrite(pathname);
+      }
+    })
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.single());
+  }
+
+  /**
+   * Async, observable version of {@link #delete()}.
+   * Throws same exceptions.
+   */
+  public Completable deleteAsync() {
+    return Completable.fromAction(new Action() {
+      @Override
+      public void run() throws IOException {
+        delete();
+      }
+    })
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.single());
   }
 
   /**
