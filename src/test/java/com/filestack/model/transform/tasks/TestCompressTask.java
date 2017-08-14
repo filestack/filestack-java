@@ -1,34 +1,36 @@
 package com.filestack.model.transform.tasks;
 
+import static org.junit.Assert.assertTrue;
+
 import com.filestack.model.transform.base.TransformTask;
 import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
-
 public class TestCompressTask {
 
-    @Test
-    public void testToString() {
-        String correct = "compress";
+  @Test
+  public void testToString() {
+    String correct = "compress";
 
-        TransformTask task = new CompressTask();
+    TransformTask task = new CompressTask();
 
-        String output = task.toString();
+    String output = task.toString();
 
-        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s", correct, output);
-        assertTrue(message, output.equals(correct));
-    }
+    String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s",
+        correct, output);
+    assertTrue(message, output.equals(correct));
+  }
 
-    @Test
-    public void testToStringBackground() {
-        String correct = "compress="
-                + "metadata:true";
+  @Test
+  public void testToStringBackground() {
+    String correct = "compress="
+        + "metadata:true";
 
-        TransformTask task = new CompressTask(true);
+    TransformTask task = new CompressTask(true);
 
-        String output = task.toString();
+    String output = task.toString();
 
-        String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s", correct, output);
-        assertTrue(message, output.equals(correct));
-    }
+    String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s",
+        correct, output);
+    assertTrue(message, output.equals(correct));
+  }
 }

@@ -1,18 +1,18 @@
 package com.filestack.model;
 
-import org.junit.Test;
-
+import static com.filestack.util.MockConstants.API_KEY;
 import static org.junit.Assert.assertNotNull;
-import static com.filestack.util.MockConstants.*;
+
+import org.junit.Test;
 
 /**
  * Tests {@link FilestackClient FilestackClient} class.
  */
 public class TestFilestackClient {
 
-    @Test
-    public void testInstantiation() {
-        FilestackClient fsClient = new FilestackClient(API_KEY);
-        assertNotNull("Unable to create FilestackClient", fsClient);
-    }
+  @Test
+  public void testInstantiation() {
+    FilestackClient fsClient = new FilestackClient(API_KEY);
+    assertNotNull("Unable to create FilestackClient", fsClient);
+  }
 }
