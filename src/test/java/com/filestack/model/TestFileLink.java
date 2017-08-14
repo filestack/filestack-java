@@ -16,7 +16,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import okhttp3.OkHttpClient;
-import okhttp3.ResponseBody;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -52,8 +51,8 @@ public class TestFileLink {
   public void testGetContent() throws IOException {
     FileLink fileLink = new FileLink(API_KEY, HANDLE);
 
-    ResponseBody body = fileLink.getContent();
-    String text = body.string();
+    byte[] content = fileLink.getContent();
+    String text = new String(content);
     assertTrue("Unexpected content in response", text.contains("Test content"));
   }
 
@@ -61,8 +60,8 @@ public class TestFileLink {
   public void testGetContentWithSecurity() throws IOException {
     FileLink fileLink = new FileLink(API_KEY, HANDLE, SECURITY);
 
-    ResponseBody body = fileLink.getContent();
-    String text = body.string();
+    byte[] content = fileLink.getContent();
+    String text = new String(content);
     assertTrue("Unexpected content in response", text.contains("Test content"));
   }
 

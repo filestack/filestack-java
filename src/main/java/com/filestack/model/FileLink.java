@@ -58,13 +58,16 @@ public class FileLink {
   /**
    * Directly returns the content of a file.
    *
-   * @return raw {@link ResponseBody ResponseBody } containing the file content
+   * @return byte[] of file content
    * @throws IOException for network failures, invalid handles, or invalid security
    */
-  public ResponseBody getContent() throws IOException {
+  public byte[] getContent() throws IOException {
     String policy = security != null ? security.getPolicy() : null;
     String signature = security != null ? security.getSignature() : null;
-    return cdnService.get(this.handle, policy, signature).execute().body();
+    return cdnService.get(this.handle, policy, signature)
+        .execute()
+        .body()
+        .bytes();
   }
 
   /**
