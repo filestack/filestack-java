@@ -13,6 +13,7 @@ import io.reactivex.schedulers.Schedulers;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URLConnection;
 import java.util.concurrent.Callable;
 
 import okhttp3.MediaType;
@@ -21,7 +22,6 @@ import okhttp3.ResponseBody;
 import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.Okio;
-import org.apache.tika.Tika;
 import retrofit2.Response;
 
 /**
@@ -135,8 +135,7 @@ public class FileLink {
       throw new FileNotFoundException(pathname);
     }
 
-    Tika tika = new Tika();
-    String mimeType = tika.detect(file);
+    String mimeType = URLConnection.guessContentTypeFromName(file.getName());
     RequestBody body = RequestBody.create(MediaType.parse(mimeType), file);
 
     apiService.overwrite(handle, security.getPolicy(), security.getSignature(), body).execute();
