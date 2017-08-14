@@ -36,11 +36,7 @@ public class FileLink {
    * @param handle id for a file, first path segment in dev portal urls
    */
   public FileLink(String apiKey, String handle) {
-    this.apiKey = apiKey;
-    this.handle = handle;
-
-    this.cdnService = Networking.getCdnService();
-    this.apiService = Networking.getApiService();
+    this(apiKey, handle, null);
   }
 
   /**
@@ -66,14 +62,9 @@ public class FileLink {
    * @throws IOException for network failures, invalid handles, or invalid security
    */
   public ResponseBody getContent() throws IOException {
-    if (security == null) {
-      return cdnService.get(this.handle, null, null).execute().body();
-    } else {
-      return cdnService
-          .get(this.handle, security.getPolicy(), security.getSignature())
-          .execute()
-          .body();
-    }
+    String policy = security != null ? security.getPolicy() : null;
+    String signature = security != null ? security.getSignature() : null;
+    return cdnService.get(this.handle, policy, signature).execute().body();
   }
 
   /**
@@ -96,22 +87,17 @@ public class FileLink {
    * @throws IOException for network failures, invalid handles, or invalid security
    */
   public File download(String directory, String filename) throws IOException {
-    Response<ResponseBody> response;
+    String policy = security != null ? security.getPolicy() : null;
+    String signature = security != null ? security.getSignature() : null;
 
-    if (security == null) {
-      response = cdnService.get(this.handle, null, null).execute();
-    } else {
-      response = cdnService
-          .get(this.handle, security.getPolicy(), security.getSignature())
-          .execute();
-    }
+    Response<ResponseBody> response = cdnService.get(this.handle, policy, signature).execute();
 
     if (filename == null) {
       filename = response.headers().get("x-file-name");
     }
 
     File file = new File(directory + "/" + filename);
-    boolean created = file.createNewFile();
+    file.createNewFile();
 
     BufferedSource source = response.body().source();
     BufferedSink sink = Okio.buffer(Okio.sink(file));
