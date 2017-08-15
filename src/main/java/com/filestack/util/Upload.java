@@ -4,9 +4,12 @@ import static com.filestack.util.FilestackService.Upload.CompleteResponse;
 import static com.filestack.util.FilestackService.Upload.StartResponse;
 import static com.filestack.util.FilestackService.Upload.UploadResponse;
 
-import com.filestack.model.FileLink;
-import com.filestack.model.FilestackClient;
-import com.filestack.model.Security;
+import com.filestack.FileLink;
+import com.filestack.FilestackClient;
+import com.filestack.Security;
+import com.filestack.UploadOptions;
+import com.filestack.errors.FilestackException;
+
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;

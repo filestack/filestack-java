@@ -1,9 +1,9 @@
 package com.filestack.util;
 
-import com.filestack.model.FileLink;
-import com.filestack.model.FilestackClient;
-import com.filestack.model.Policy;
-import com.filestack.model.Security;
+import com.filestack.FileLink;
+import com.filestack.FilestackClient;
+import com.filestack.Policy;
+import com.filestack.Security;
 
 /**
  * Constants for {@link MockInterceptor MockInterceptor} and unit tests.

@@ -1,7 +1,8 @@
 package com.filestack.util;
 
-import com.filestack.model.FileLink;
-import com.filestack.model.FilestackClient;
+import com.filestack.FileLink;
+import com.filestack.FilestackClient;
+import com.filestack.UploadOptions;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;

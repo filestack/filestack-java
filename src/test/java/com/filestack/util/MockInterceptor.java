@@ -20,6 +20,7 @@ import static com.filestack.util.MockConstants.TEST_HEADER_PATH;
 import static com.filestack.util.MockConstants.TEST_NOT_FOUND_PATH;
 import static com.filestack.util.MockConstants.TEST_UNMATCHED_PATH;
 
+import com.filestack.errors.FilestackException;
 import com.google.gson.JsonObject;
 
 import java.io.IOException;
