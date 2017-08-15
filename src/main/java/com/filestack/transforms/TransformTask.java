@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * Generic task object.
+ * Generic transform task object.
  * A "task" in this case is a transformation, for example resize, crop, convert, etc.
  */
 public class TransformTask {
