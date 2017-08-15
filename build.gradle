@@ -11,6 +11,10 @@ sourceCompatibility = 1.7
 version = getVersion()
 group = 'com.filestack'
 
+javadoc {
+    destinationDir new File("./docs")
+}
+
 repositories {
     jcenter()
 }
