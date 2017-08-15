@@ -7,8 +7,8 @@ import com.google.common.io.BaseEncoding;
 import com.google.gson.Gson;
 
 /**
- * Generates and wraps policies and signatures.
- * See https://www.filestack.com/docs/security for more information on how this should be used.
+ * Holds a {@link Policy} and its signature.
+ * @see <a href="https://www.filestack.com/docs/security">Filestack Security Docs</a>
  */
 public class Security {
   private String policy;

@@ -25,7 +25,7 @@ import okio.Okio;
 import retrofit2.Response;
 
 /**
- * References a file in Filestack.
+ * References and performs operations on an individual file.
  */
 public class FileLink {
   private String apiKey;

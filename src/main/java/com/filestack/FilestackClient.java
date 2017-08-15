@@ -10,8 +10,7 @@ import java.io.IOException;
 import java.util.concurrent.Callable;
 
 /**
- * Wrapper for communicating with the Filestack REST API.
- * Instantiate with an API Key from the Developer Portal.
+ * Uploads new files.
  */
 public class FilestackClient {
   private String apiKey;

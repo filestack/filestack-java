@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.Date;
 
 /**
- * Convenience class to make creating policies easier.
- * See https://www.filestack.com/docs/security/creating-policies for information about policies themselves.
+ * Determines what access a user is allowed (if account security is enabled).
+ * A policy sets access and a signature validates the policy.
+ * @see <a href="https://www.filestack.com/docs/security">Filestack Security Docs</a>
  */
 public class Policy {
   public static final String CALL_PICK = "pick";
@@ -31,6 +32,12 @@ public class Policy {
 
   }
 
+  // Javadoc comments adapted from
+  // https://www.filestack.com/docs/security/creating-policies
+
+  /**
+   * Builds new {@link Policy}.
+   */
   public static class Builder {
     private Long expiry;
     private ArrayList<String> calls;
@@ -41,16 +48,22 @@ public class Policy {
     private String path;
     private String container;
 
+    /**
+     * Set when the policy will expire.
+     *
+     * @param expiry in UNIX time
+     */
     public Builder expiry(Long expiry) {
       this.expiry = expiry;
       return this;
     }
 
     /**
-     * Permits the policy to make the given call.
-     * For example you can add a permission to "read" or "remove".
+     * Add a call that this policy is allowed to make. A policy without any call permissions
+     * specified is permitted to make all calls except for exif, which needs to be explicitly
+     * included in a policy in order to be allowed.
      *
-     * @param call name of call to allow
+     * @param call can be pick, read, stat, write, writeUrl, store, convert, remove, or exif
      */
     public Builder addCall(String call) {
       if (calls == null) {
@@ -60,38 +73,66 @@ public class Policy {
       return this;
     }
 
+    /**
+     * Restrict access to a single file handle for all calls that act on a specific handle.
+     */
     public Builder handle(String handle) {
       this.handle = handle;
       return this;
     }
 
-    public Builder url(String url) {
-      this.url = url;
+    /**
+     * Restrict external transformations to certain URLs.
+     *
+     * @param regex regular expression matching allowed urls
+     */
+    public Builder url(String regex) {
+      this.url = regex;
       return this;
     }
 
+    /**
+     * Set the max file size in bytes that can be uploaded. Default is no limit.
+     */
     public Builder maxSize(Integer maxSize) {
       this.maxSize = maxSize;
       return this;
     }
 
+    /**
+     * Set the min file size in bytes that can be uploaded. Defaults to 0.
+     */
     public Builder minSize(Integer minSize) {
       this.minSize = minSize;
       return this;
     }
 
+    /**
+     * Restrict paths a file can be uploaded to. Prevents a user from storing files to different
+     * paths. Does not prevent a user from reading content from different paths.
+     * Defaults to allowing any path ('.*').
+     *
+     * @param path regular expression matching allowed paths
+     */
     public Builder path(String path) {
       this.path = path;
       return this;
     }
 
+    /**
+     * Restrict containers a file can be uploaded to. Prevents a user from storing files to
+     * different containers. Does not prevent a user from reading content from different
+     * containers. Defaults to allowing any path ('.*').
+     *
+     * @param container regular expression matching allowed paths
+     */
     public Builder container(String container) {
       this.container = container;
       return this;
     }
 
     /**
-     * Convenience method to create a policy with full access and one year expiry.
+     * Give the policy full access and a one year expiry.
      */
     public Builder giveFullAccess() {
       // Set expiry to one year from now
@@ -114,7 +155,7 @@ public class Policy {
     }
 
     /**
-     * Construct and return the policy.
+     * Create the {@link Policy} instance using the configured values.
      */
     public Policy build() {
       Policy policy = new Policy();
