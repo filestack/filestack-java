@@ -33,6 +33,7 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
+/** Holds upload state and request logic. */
 public class Upload {
   private static final int MIN_CHUNK_SIZE = 32 * 1024;
 

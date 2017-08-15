@@ -7,7 +7,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
- * Serves as singleton holder for the OkHttp client and Retrofit services.
+ * Holds {@link OkHttpClient} and {@link Retrofit} singletons.
  * We only want to instantiate these classes once per app.
  */
 public class Networking {
