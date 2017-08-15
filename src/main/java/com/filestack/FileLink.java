@@ -32,8 +32,7 @@ public class FileLink {
   private String handle;
   private Security security;
 
-  private FilestackService.Cdn cdnService;
-  private FilestackService.Api apiService;
+  private FilestackService fsService;
 
   /**
    * Constructs an instance without security.
@@ -57,8 +56,7 @@ public class FileLink {
     this.handle = handle;
     this.security = security;
 
-    this.cdnService = Networking.getCdnService();
-    this.apiService = Networking.getApiService();
+    this.fsService = Networking.getFsService();
   }
 
   /**
@@ -70,7 +68,7 @@ public class FileLink {
   public byte[] getContent() throws IOException {
     String policy = security != null ? security.getPolicy() : null;
     String signature = security != null ? security.getSignature() : null;
-    return cdnService.get(this.handle, policy, signature)
+    return fsService.get(this.handle, policy, signature)
         .execute()
         .body()
         .bytes();
@@ -99,7 +97,7 @@ public class FileLink {
     String policy = security != null ? security.getPolicy() : null;
     String signature = security != null ? security.getSignature() : null;
 
-    Response<ResponseBody> response = cdnService.get(this.handle, policy, signature).execute();
+    Response<ResponseBody> response = fsService.get(this.handle, policy, signature).execute();
 
     if (filename == null) {
       filename = response.headers().get("x-file-name");
@@ -138,7 +136,7 @@ public class FileLink {
     String mimeType = URLConnection.guessContentTypeFromName(file.getName());
     RequestBody body = RequestBody.create(MediaType.parse(mimeType), file);
 
-    apiService.overwrite(handle, security.getPolicy(), security.getSignature(), body).execute();
+    fsService.overwrite(handle, security.getPolicy(), security.getSignature(), body).execute();
   }
 
   /**
@@ -152,7 +150,7 @@ public class FileLink {
       throw new FilestackException("Delete requires security to be set");
     }
 
-    apiService.delete(handle, apiKey, security.getPolicy(), security.getSignature()).execute();
+    fsService.delete(handle, apiKey, security.getPolicy(), security.getSignature()).execute();
   }
 
   // Async method wrappers

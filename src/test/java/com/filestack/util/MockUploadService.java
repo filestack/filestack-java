@@ -1,5 +1,8 @@
 package com.filestack.util;
 
+import com.filestack.responses.CompleteResponse;
+import com.filestack.responses.StartResponse;
+import com.filestack.responses.UploadResponse;
 import com.google.gson.Gson;
 
 import java.util.Map;
@@ -13,11 +16,11 @@ import retrofit2.Response;
 import retrofit2.mock.BehaviorDelegate;
 import retrofit2.mock.Calls;
 
-public class MockUploadService implements FilestackService.Upload {
-  private final BehaviorDelegate<FilestackService.Upload> delegate;
+public class MockUploadService implements FilestackUploadService {
+  private final BehaviorDelegate<FilestackUploadService> delegate;
   private final Gson gson;
 
-  MockUploadService(BehaviorDelegate<FilestackService.Upload> delegate) {
+  MockUploadService(BehaviorDelegate<FilestackUploadService> delegate) {
     this.delegate = delegate;
     this.gson = new Gson();
   }

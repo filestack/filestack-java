@@ -20,7 +20,7 @@ public class Transform {
 
   ArrayList<TransformTask> tasks;
 
-  FilestackService.Process processService;
+  FilestackService fsService;
 
   Transform(FilestackClient fsClient, String source) {
     this(fsClient, source, null);
@@ -39,7 +39,7 @@ public class Transform {
     }
 
     this.tasks = new ArrayList<>();
-    this.processService = Networking.getProcessService();
+    this.fsService = Networking.getFsService();
 
     Security security = fsClient != null ? fsClient.getSecurity() : fileLink.getSecurity();
     this.security = security;
@@ -78,9 +78,9 @@ public class Transform {
     HttpUrl httpUrl;
 
     if (apiKey != null) {
-      httpUrl = processService.getExternal(apiKey, tasksString, source).request().url();
+      httpUrl = fsService.transformExt(apiKey, tasksString, source).request().url();
     } else {
-      httpUrl = processService.get(tasksString, source).request().url();
+      httpUrl = fsService.transform(tasksString, source).request().url();
     }
 
     // When building the request we add a / between tasks

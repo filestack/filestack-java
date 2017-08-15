@@ -31,15 +31,15 @@ public class TestUpload {
 
     Retrofit retrofit = new Retrofit.Builder()
         .client(new OkHttpClient())
-        .baseUrl(FilestackService.Upload.URL)
+        .baseUrl(FilestackUploadService.URL)
         .build();
 
     MockRetrofit mockRetrofit = new MockRetrofit.Builder(retrofit)
         .networkBehavior(behavior)
         .build();
 
-    BehaviorDelegate<FilestackService.Upload> delegate =
-        mockRetrofit.create(FilestackService.Upload.class);
+    BehaviorDelegate<FilestackUploadService> delegate =
+        mockRetrofit.create(FilestackUploadService.class);
     return new MockUploadService(delegate);
   }
 

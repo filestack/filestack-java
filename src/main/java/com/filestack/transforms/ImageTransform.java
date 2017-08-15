@@ -2,13 +2,11 @@ package com.filestack.transforms;
 
 import com.filestack.FileLink;
 import com.filestack.FilestackClient;
+import com.filestack.responses.StoreResponse;
 import com.filestack.transforms.tasks.StoreOptions;
-import com.filestack.util.FilestackService;
 import com.google.gson.JsonObject;
-
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
-
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
@@ -35,9 +33,9 @@ public class ImageTransform extends Transform {
     String tasksString = getTasksString();
 
     if (apiKey != null) {
-      return processService.debugExternal(apiKey, tasksString, source).execute().body();
+      return fsService.transformDebugExt(apiKey, tasksString, source).execute().body();
     } else {
-      return processService.debug(tasksString, source).execute().body();
+      return fsService.transformDebug(tasksString, source).execute().body();
     }
   }
 
@@ -59,13 +57,13 @@ public class ImageTransform extends Transform {
     }
     addTask(storeOptions);
 
-    FilestackService.Process.StoreResponse response;
+    StoreResponse response;
     String tasksString = getTasksString();
 
     if (apiKey != null) {
-      response = processService.storeExternal(apiKey, tasksString, source).execute().body();
+      response = fsService.transformStoreExt(apiKey, tasksString, source).execute().body();
     } else {
-      response = processService.store(tasksString, source).execute().body();
+      response = fsService.transformStore(tasksString, source).execute().body();
     }
 
     String handle = response.getUrl().split("/")[3];
