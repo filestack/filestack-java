@@ -1,12 +1,14 @@
 package com.filestack.util;
 
-import static com.filestack.util.FilestackService.Upload.CompleteResponse;
-import static com.filestack.util.FilestackService.Upload.StartResponse;
-import static com.filestack.util.FilestackService.Upload.UploadResponse;
+import com.filestack.FileLink;
+import com.filestack.FilestackClient;
+import com.filestack.Security;
+import com.filestack.UploadOptions;
+import com.filestack.errors.FilestackException;
 
-import com.filestack.model.FileLink;
-import com.filestack.model.FilestackClient;
-import com.filestack.model.Security;
+import com.filestack.responses.CompleteResponse;
+import com.filestack.responses.StartResponse;
+import com.filestack.responses.UploadResponse;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
@@ -30,11 +32,12 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
+/** Holds upload state and request logic. */
 public class Upload {
   private static final int MIN_CHUNK_SIZE = 32 * 1024;
 
   private final FilestackClient fsClient;
-  private final FilestackService.Upload restService;
+  private final FilestackUploadService fsUploadService;
 
   private final int delayBase;
   private final long filesize;
@@ -52,18 +55,18 @@ public class Upload {
    */
   public Upload(String filepath, FilestackClient fsClient, UploadOptions options)
       throws IOException {
-    this(filepath, fsClient, options, Networking.getUploadService(), 2);
+    this(filepath, fsClient, options, Networking.getFsUploadService(), 2);
   }
 
   /**
    * Construct an instance using provided networking objects.
    */
   public Upload(String filepath, FilestackClient fsClient, UploadOptions options,
-                FilestackService.Upload restService, int delayBase) throws IOException {
+                FilestackUploadService fsUploadService, int delayBase) throws IOException {
 
     this.filepath = filepath;
     this.fsClient = fsClient;
-    this.restService = restService;
+    this.fsUploadService = fsUploadService;
     this.delayBase = delayBase;
 
     // Setup base parameters
@@ -101,7 +104,7 @@ public class Upload {
     multipartStart();
     multipartUpload();
 
-    CompleteResponse completeResponse = multipartComplete();
+    com.filestack.responses.CompleteResponse completeResponse = multipartComplete();
 
     return new FileLink(fsClient.getApiKey(), completeResponse.getHandle(),
         fsClient.getSecurity());
@@ -114,8 +117,8 @@ public class Upload {
     StartResponse response = new RetryNetworkFunc<StartResponse>(0, 5, delayBase) {
 
       @Override
-      Response<StartResponse> work() throws IOException {
-        return restService.start(baseParams).execute();
+      Response<com.filestack.responses.StartResponse> work() throws IOException {
+        return fsUploadService.start(baseParams).execute();
       }
     }.call();
 
@@ -273,7 +276,7 @@ public class Upload {
 
       @Override
       Response<UploadResponse> work() throws IOException {
-        return restService.upload(params).execute();
+        return fsUploadService.upload(params).execute();
       }
     }.call();
   }
@@ -295,7 +298,7 @@ public class Upload {
         String url = params.getUrl();
 
         RequestBody requestBody = RequestBody.create(mediaType, bytes, 0, attemptSize);
-        return restService.uploadS3(headers, url, requestBody).execute();
+        return fsUploadService.uploadS3(headers, url, requestBody).execute();
       }
 
       @Override
@@ -331,7 +334,7 @@ public class Upload {
 
       @Override
       Response<ResponseBody> work() throws IOException {
-        return restService.commit(params).execute();
+        return fsUploadService.commit(params).execute();
       }
     }.call();
   }
@@ -340,7 +343,7 @@ public class Upload {
    * Called when upload is complete to get Filestack metadata for the final file.
    * In intelligent ingestion mode we poll this endpoint until the file is done processing.
    */
-  private CompleteResponse multipartComplete() throws IOException {
+  private com.filestack.responses.CompleteResponse multipartComplete() throws IOException {
     final HashMap<String, RequestBody> params = new HashMap<>();
     params.putAll(baseParams);
 
@@ -358,7 +361,7 @@ public class Upload {
 
       @Override
       Response<CompleteResponse> work() throws IOException {
-        return restService.complete(params).execute();
+        return fsUploadService.complete(params).execute();
       }
     }.call();
   }

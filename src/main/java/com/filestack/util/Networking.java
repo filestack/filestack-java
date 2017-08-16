@@ -7,15 +7,13 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
- * Serves as singleton holder for the OkHttp client and Retrofit services.
+ * Holds {@link OkHttpClient} and {@link Retrofit} singletons.
  * We only want to instantiate these classes once per app.
  */
 public class Networking {
   private static OkHttpClient httpClient;
-  private static FilestackService.Cdn cdnService;
-  private static FilestackService.Api apiService;
-  private static FilestackService.Process processService;
-  private static FilestackService.Upload uploadService;
+  private static FilestackService fsService;
+  private static FilestackUploadService fsUploadService;
 
   /**
    * Get http client singleton.
@@ -34,47 +32,25 @@ public class Networking {
   }
 
   /**
-   * Get CDN service singleton.
+   * Get {@link FilestackService} singleton.
    */
-  public static FilestackService.Cdn getCdnService() {
-    if (cdnService == null) {
-      Retrofit retrofit = getRetrofitBuilder().baseUrl(FilestackService.Cdn.URL).build();
-      cdnService = retrofit.create(FilestackService.Cdn.class);
+  public static FilestackService getFsService() {
+    if (fsService == null) {
+      Retrofit retrofit = getRetrofitBuilder().baseUrl(FilestackService.URL).build();
+      fsService = retrofit.create(FilestackService.class);
     }
-    return cdnService;
+    return fsService;
   }
 
   /**
-   * Get API service singleton.
+   * Get {@link FilestackUploadService} singleton.
    */
-  public static FilestackService.Api getApiService() {
-    if (apiService == null) {
-      Retrofit retrofit = getRetrofitBuilder().baseUrl(FilestackService.Api.URL).build();
-      apiService = retrofit.create(FilestackService.Api.class);
+  public static FilestackUploadService getFsUploadService() {
+    if (fsUploadService == null) {
+      Retrofit retrofit = getRetrofitBuilder().baseUrl(FilestackUploadService.URL).build();
+      fsUploadService = retrofit.create(FilestackUploadService.class);
     }
-    return apiService;
-  }
-
-  /**
-   * Get process service singleton.
-   */
-  public static FilestackService.Process getProcessService() {
-    if (processService == null) {
-      Retrofit retrofit = getRetrofitBuilder().baseUrl(FilestackService.Process.URL).build();
-      processService = retrofit.create(FilestackService.Process.class);
-    }
-    return processService;
-  }
-
-  /**
-   * Get upload service singleton.
-   */
-  public static FilestackService.Upload getUploadService() {
-    if (uploadService == null) {
-      Retrofit retrofit = getRetrofitBuilder().baseUrl(FilestackService.Upload.URL).build();
-      uploadService = retrofit.create(FilestackService.Upload.class);
-    }
-    return uploadService;
+    return fsUploadService;
   }
 
   /**
@@ -106,9 +82,7 @@ public class Networking {
    * Sets the services to null so they'll be recreated.
    */
   private static void invalidate() {
-    cdnService = null;
-    apiService = null;
-    processService = null;
-    uploadService = null;
+    fsService = null;
+    fsUploadService = null;
   }
 }

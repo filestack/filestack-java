@@ -20,6 +20,7 @@ import static com.filestack.util.MockConstants.TEST_HEADER_PATH;
 import static com.filestack.util.MockConstants.TEST_NOT_FOUND_PATH;
 import static com.filestack.util.MockConstants.TEST_UNMATCHED_PATH;
 
+import com.filestack.errors.FilestackException;
 import com.google.gson.JsonObject;
 
 import java.io.IOException;
@@ -49,16 +50,14 @@ public class MockInterceptor implements Interceptor {
     String host = url.host();
     List<String> path = url.pathSegments();
 
-    if (FilestackService.Cdn.URL.contains(host)) {
-      builder = genCdnResponse(path.get(0));
-    } else if (FilestackService.Api.URL.contains(host)) {
-      builder = genApiResponse(request);
-    } else if (FilestackService.Process.URL.contains(host)) {
-      builder = genProcessResponse(request);
-    } else if (MOCK_BASE_URL.contains(host)) {
+    if (MOCK_BASE_URL.contains(host)) {
       builder = genSimpleResponse(path.get(0));
+    } else if (request.method().equals("GET") && url.pathSegments().size() == 1) {
+      builder = genCdnResponse(path.get(0));
+    } else if (url.pathSegments().size() == 1) {
+      builder = genApiResponse(request);
     } else {
-      throw new FilestackException("Host not mocked");
+      builder = genProcessResponse(request);
     }
 
     return builder

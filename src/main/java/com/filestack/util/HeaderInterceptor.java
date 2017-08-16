@@ -7,7 +7,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 /**
- * Intercepts requests to add Filestack-specific headers.
+ * Intercepts requests to add Filestack headers.
  */
 public class HeaderInterceptor implements Interceptor {
   public static String HEADER_USER_AGENT = "User-Agent";
