@@ -6,15 +6,14 @@ import static com.filestack.util.MockConstants.SECURITY;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.filestack.FileLink;
 import com.filestack.errors.FilestackException;
+import com.filestack.errors.ValidationException;
 import com.filestack.util.MockInterceptor;
 import com.filestack.util.Networking;
 import com.google.common.io.Files;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 
 import okhttp3.OkHttpClient;
 import org.junit.AfterClass;
@@ -49,7 +48,7 @@ public class TestFileLink {
   }
 
   @Test
-  public void testGetContent() throws IOException {
+  public void testGetContent() throws Exception {
     FileLink fileLink = new FileLink(API_KEY, HANDLE);
 
     byte[] content = fileLink.getContent();
@@ -58,7 +57,7 @@ public class TestFileLink {
   }
 
   @Test
-  public void testGetContentWithSecurity() throws IOException {
+  public void testGetContentWithSecurity() throws Exception {
     FileLink fileLink = new FileLink(API_KEY, HANDLE, SECURITY);
 
     byte[] content = fileLink.getContent();
@@ -67,7 +66,7 @@ public class TestFileLink {
   }
 
   @Test
-  public void testDownload() throws IOException {
+  public void testDownload() throws Exception {
     FileLink fileLink = new FileLink(API_KEY, HANDLE);
 
     File file = fileLink.download(DIRECTORY);
@@ -75,7 +74,7 @@ public class TestFileLink {
   }
 
   @Test
-  public void testDownloadWithSecurity() throws IOException {
+  public void testDownloadWithSecurity() throws Exception {
     FileLink fileLink = new FileLink(API_KEY, HANDLE, SECURITY);
 
     File file = fileLink.download(DIRECTORY);
@@ -83,14 +82,14 @@ public class TestFileLink {
   }
 
   @Test
-  public void testDownloadCustomFilename() throws IOException {
+  public void testDownloadCustomFilename() throws Exception {
     FileLink fileLink = new FileLink(API_KEY, HANDLE);
     File file = fileLink.download(DIRECTORY, CUSTOM_FILENAME);
     assertTrue(file.isFile());
   }
 
   @Test
-  public void testOverwrite() throws IOException {
+  public void testOverwrite() throws Exception {
     FileLink fileLink = new FileLink(API_KEY, HANDLE, SECURITY);
 
     // Setup test file to read from
@@ -102,14 +101,14 @@ public class TestFileLink {
   }
 
   @Test(expected = FilestackException.class)
-  public void testOverwriteWithoutSecurity() throws IOException {
+  public void testOverwriteWithoutSecurity() throws Exception {
     FileLink fileLink = new FileLink(API_KEY, HANDLE);
 
     fileLink.overwrite(OVERWRITE_PATHNAME);
   }
 
-  @Test(expected = FileNotFoundException.class)
-  public void testOverwriteNoFile() throws IOException {
+  @Test(expected = ValidationException.class)
+  public void testOverwriteNoFile() throws Exception {
     FileLink fileLink = new FileLink(API_KEY, HANDLE, SECURITY);
 
     File file = new File(OVERWRITE_PATHNAME);
@@ -119,14 +118,14 @@ public class TestFileLink {
   }
 
   @Test
-  public void testDelete() throws IOException {
+  public void testDelete() throws Exception {
     FileLink fileLink = new FileLink(API_KEY, HANDLE, SECURITY);
 
     fileLink.delete();
   }
 
   @Test(expected = FilestackException.class)
-  public void testDeleteWithoutSecurity() throws IOException {
+  public void testDeleteWithoutSecurity() throws Exception {
     FileLink fileLink = new FileLink(API_KEY, HANDLE);
 
     fileLink.delete();

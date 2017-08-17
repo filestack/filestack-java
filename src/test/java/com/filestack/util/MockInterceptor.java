@@ -20,7 +20,6 @@ import static com.filestack.util.MockConstants.TEST_HEADER_PATH;
 import static com.filestack.util.MockConstants.TEST_NOT_FOUND_PATH;
 import static com.filestack.util.MockConstants.TEST_UNMATCHED_PATH;
 
-import com.filestack.errors.FilestackException;
 import com.google.gson.JsonObject;
 
 import java.io.IOException;
@@ -116,7 +115,7 @@ public class MockInterceptor implements Interceptor {
         return new Response.Builder().code(CODE_OK).message(MESSAGE_OK).body(responseBody);
 
       default:
-        throw new FilestackException("API method not mocked");
+        throw new IOException("API method not mocked");
     }
   }
 
@@ -155,7 +154,7 @@ public class MockInterceptor implements Interceptor {
       return new Response.Builder().code(CODE_OK).message(MESSAGE_OK).body(responseBody);
 
     } else {
-      throw new FilestackException("Process method not mocked");
+      throw new IOException("Process method not mocked");
     }
   }
 
@@ -175,7 +174,7 @@ public class MockInterceptor implements Interceptor {
       case TEST_UNMATCHED_PATH:
         return new Response.Builder().code(0).message("FAKE MESSAGE");
       default:
-        throw new FilestackException("No path matched for mock host");
+        throw new IOException("No path matched for mock host");
     }
   }
 }
