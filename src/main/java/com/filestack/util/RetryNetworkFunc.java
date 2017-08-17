@@ -1,7 +1,9 @@
 package com.filestack.util;
 
+import com.filestack.errors.InternalException;
+import com.filestack.errors.InvalidParameterException;
+import com.filestack.errors.PolicySignatureException;
 import java.io.IOException;
-
 import retrofit2.Response;
 
 /**
@@ -32,17 +34,23 @@ public abstract class RetryNetworkFunc<T> {
     this.delayBase = delayBase;
   }
 
-  public T call() throws IOException {
+  /** Start the request. */
+  public T call() throws Exception {
+
     Response response = run();
     return process(response);
   }
 
-  Response run() throws IOException {
+  /**
+   * Orchestrates calls to {@link #work()}, {@link #retryNetwork()}, {@link #retryServer(int)}.
+   */
+  Response run() throws Exception {
+
     Response response;
 
     try {
       response = work();
-    } catch (IOException e) {
+    } catch (Exception e) {
       response = retryNetwork();
     }
 
@@ -53,11 +61,14 @@ public abstract class RetryNetworkFunc<T> {
     return response;
   }
 
-  abstract Response work() throws IOException;
+  /** Contains the actual network call. */
+  abstract Response work() throws Exception;
 
-  Response retryNetwork() throws IOException {
+  /** Handles retry logic for network failures. */
+  Response retryNetwork() throws Exception {
+
     if (networkRetries >= maxNetworkRetries) {
-      throw new IOException("Upload failed: Network unusable");
+      throw new IOException();
     }
 
     if (delayBase > 0) {
@@ -72,9 +83,21 @@ public abstract class RetryNetworkFunc<T> {
     return run();
   }
 
-  Response retryServer(int code) throws IOException {
-    if (code == 206 || code == 400 || code == 403 || serverRetries >= maxServerRetries) {
-      throw new IOException("Upload failed: " + code);
+  /** Handles retry logic for server errors. */
+  Response retryServer(int code) throws Exception {
+
+    // Don't retry for any of these statuses
+    if (code == 206) {
+      throw new InternalException();
+    } else if (code == 400) {
+      throw new InvalidParameterException();
+    } else if (code == 403) {
+      throw new PolicySignatureException();
+    }
+
+    // Do retry otherwise, up to the max
+    if (serverRetries >= maxServerRetries) {
+      throw new InternalException();
     }
 
     if (delayBase > 0) {
@@ -90,7 +113,8 @@ public abstract class RetryNetworkFunc<T> {
   }
 
   @SuppressWarnings("unchecked")
-  T process(Response response) {
+  /** Process the response to get a return value. */
+  T process(Response response) throws Exception {
     return (T) response.body();
   }
 

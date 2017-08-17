@@ -4,20 +4,22 @@ import com.filestack.FileLink;
 import com.filestack.FilestackClient;
 import com.filestack.Security;
 import com.filestack.UploadOptions;
-import com.filestack.errors.FilestackException;
-
+import com.filestack.errors.InternalException;
+import com.filestack.errors.InvalidParameterException;
+import com.filestack.errors.PolicySignatureException;
+import com.filestack.errors.ResourceNotFoundException;
+import com.filestack.errors.ValidationException;
 import com.filestack.responses.CompleteResponse;
 import com.filestack.responses.StartResponse;
 import com.filestack.responses.UploadResponse;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
-
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.URLConnection;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -26,7 +28,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -52,19 +53,32 @@ public class Upload {
 
   /**
    * Construct an instance using global networking singletons.
+   *
+   * @param pathname path to the file to upload
+   * @param fsClient client used to make this upload
+   * @param options  for how to store the file
+   * @throws ValidationException if the pathname doesn't exist or isn't a regular file
    */
-  public Upload(String filepath, FilestackClient fsClient, UploadOptions options)
-      throws IOException {
-    this(filepath, fsClient, options, Networking.getFsUploadService(), 2);
+  public Upload(String pathname, FilestackClient fsClient, UploadOptions options)
+      throws ValidationException {
+    this(pathname, fsClient, options, Networking.getFsUploadService(), 2);
   }
 
   /**
    * Construct an instance using provided networking objects.
+   *
+   * @param pathname        for the file to upload
+   * @param fsClient        client used to make this upload
+   * @param options         for storing the file
+   * @param fsUploadService client to make Filestack API calls
+   * @param delayBase       base for exponential backoff, delay (seconds) == base ^ retryCount
+   * @throws ValidationException if the pathname doesn't exist or isn't a regular file
    */
-  public Upload(String filepath, FilestackClient fsClient, UploadOptions options,
-                FilestackUploadService fsUploadService, int delayBase) throws IOException {
+  public Upload(String pathname, FilestackClient fsClient, UploadOptions options,
+                FilestackUploadService fsUploadService, int delayBase)
+      throws ValidationException {
 
-    this.filepath = filepath;
+    this.filepath = pathname;
     this.fsClient = fsClient;
     this.fsUploadService = fsUploadService;
     this.delayBase = delayBase;
@@ -75,9 +89,13 @@ public class Upload {
     baseParams.putAll(options.getMap());
 
     // Open file and check if it exists
-    File file = new File(filepath);
+    File file = new File(pathname);
     if (!file.exists()) {
-      throw new FileNotFoundException();
+      throw new ValidationException("File doesn't exist: " + file.getPath());
+    } else if (file.isDirectory()) {
+      throw new ValidationException("Can't upload directory: " + file.getPath());
+    } else if (!Files.isRegularFile(file.toPath())) {
+      throw new ValidationException("Can't upload special file: " + file.getPath());
     }
 
     filesize = file.length();
@@ -98,29 +116,46 @@ public class Upload {
 
   /**
    * Starts upload.
+   *
+   * @return reference to new file
+   * @throws IOException               if request fails because of network or other IO issue
+   * @throws PolicySignatureException  if policy and/or signature are invalid or inadequate
+   * @throws InvalidParameterException if a request parameter is missing or invalid
+   * @throws InternalException         if unexpected error occurs
    */
-  public FileLink run() throws IOException {
-    // These alter state on this upload object, don't need to check return
-    multipartStart();
-    multipartUpload();
+  public FileLink run()
+      throws IOException, PolicySignatureException, InvalidParameterException, InternalException {
 
-    com.filestack.responses.CompleteResponse completeResponse = multipartComplete();
+    String handle = null;
 
-    return new FileLink(fsClient.getApiKey(), completeResponse.getHandle(),
-        fsClient.getSecurity());
+    try {
+      // These alter state on this upload object, don't need to check return
+      multipartStart();
+      multipartUpload();
+      handle = multipartComplete().getHandle();
+    } catch (Exception e) {
+      try {
+        Util.castExceptionAndThrow(e);
+      } catch (ResourceNotFoundException unexpected) {
+        // We shouldn't get one of these, so recast it if we do
+        throw new InternalException(unexpected);
+      }
+    }
+
+    return new FileLink(fsClient.getApiKey(), handle, fsClient.getSecurity());
   }
 
-  /**
-   * Get initial upload parameters from Filestack.
-   */
-  private void multipartStart() throws IOException {
+  /** Get initial upload parameters from Filestack. */
+  private void multipartStart() throws Exception {
+
     StartResponse response = new RetryNetworkFunc<StartResponse>(0, 5, delayBase) {
 
       @Override
-      Response<com.filestack.responses.StartResponse> work() throws IOException {
+      Response<com.filestack.responses.StartResponse> work() throws Exception {
         return fsUploadService.start(baseParams).execute();
       }
-    }.call();
+    }
+        .call();
 
     baseParams.putAll(response.getUploadParams());
     intelligent = response.isIntelligent();
@@ -137,7 +172,8 @@ public class Upload {
    * Calculates the total number of parts and parts per thread.
    * Sets up a pool of threads then sends each one a callable that does the actual upload work.
    */
-  private void multipartUpload() throws IOException {
+  private void multipartUpload() throws Exception {
+
     int numParts = (int) Math.ceil(filesize / (double) partSize);
     int numThreads = 4;
     int partsPerThread = (int) Math.ceil(numParts / (double) numThreads);
@@ -164,16 +200,15 @@ public class Upload {
     for (int i = 0; i < numThreads; i++) {
       try {
         service.take().get();
-      } catch (InterruptedException | ExecutionException e) {
-        throw new FilestackException("Upload failed: ", e);
+      } catch (InterruptedException e) {
+        throw new InternalException(e);
+      } catch (ExecutionException e) {
+        throw (Exception) e.getCause();
       }
     }
   }
 
-  /**
-   * Callable that does actual uploading work.
-   * We send one callable to each thread.
-   */
+  /** Callable that does actual uploading work. We send one callable to each thread. */
   private class UploadCallable implements Callable<Void> {
     private int start;
     private int count;
@@ -184,7 +219,8 @@ public class Upload {
     }
 
     @Override
-    public Void call() throws IOException {
+    public Void call() throws Exception {
+
       // No work for this thread
       if (count == 0) {
         return null;
@@ -231,7 +267,7 @@ public class Upload {
 
           if (bytesSent < bytesRead) {
             if (bytesSent < MIN_CHUNK_SIZE) {
-              throw new IOException("Upload failed: Network unusable");
+              throw new IOException();
             }
             chunkSize = bytesSent;
             // Seek backwards to the byte after where we've successfully sent
@@ -252,11 +288,9 @@ public class Upload {
     }
   }
 
-  /**
-   * Get parameters from Filestack for the upload to S3.
-   */
+  /** Get parameters from Filestack for the upload to S3. */
   private UploadResponse getUploadParams(int part, int offset, int size, byte[] bytes)
-      throws IOException {
+      throws Exception {
 
     // Deprecated because MD5 is insecure not because this is unmaintained
     @SuppressWarnings("deprecation")
@@ -275,24 +309,24 @@ public class Upload {
     return new RetryNetworkFunc<UploadResponse>(5, 5, delayBase) {
 
       @Override
-      Response<UploadResponse> work() throws IOException {
+      Response<UploadResponse> work() throws Exception {
         return fsUploadService.upload(params).execute();
       }
-    }.call();
+    }
+        .call();
   }
 
   /**
-   * Upload a chunk to S3.
-   * Makes calls to {@link #getUploadParams(int, int, int, byte[])}.
+   * Upload a chunk to S3. Makes calls to {@link #getUploadParams(int, int, int, byte[])}.
    */
   private int uploadToS3(final int part, final int offset, final int size, final byte[] bytes)
-      throws IOException {
+      throws Exception {
 
     return new RetryNetworkFunc<Integer>(5, 5, delayBase) {
       private int attemptSize = size;
 
       @Override
-      Response<ResponseBody> work() throws IOException {
+      Response<ResponseBody> work() throws Exception {
         UploadResponse params = getUploadParams(part, offset, attemptSize, bytes);
         Map<String, String> headers = params.getS3Headers();
         String url = params.getUrl();
@@ -302,7 +336,7 @@ public class Upload {
       }
 
       @Override
-      Response retryNetwork() throws IOException {
+      Response retryNetwork() throws Exception {
         if (intelligent) {
           attemptSize /= 2;
         }
@@ -317,15 +351,16 @@ public class Upload {
         }
         return attemptSize;
       }
-    }.call();
+    }
+        .call();
   }
 
   /**
-   * For intelligent ingestion mode only.
-   * Sent after uploading all the chunks of a part.
+   * For intelligent ingestion mode only. Sent after uploading all the chunks of a part.
    * Sends request to Filestack to start processing chunks.
    */
-  private void multipartCommit(int part) throws IOException {
+  private void multipartCommit(int part) throws Exception {
+
     final HashMap<String, RequestBody> params = new HashMap<>();
     params.putAll(baseParams);
     params.put("part", Util.createStringPart(Integer.toString(part)));
@@ -333,17 +368,19 @@ public class Upload {
     new RetryNetworkFunc<ResponseBody>(5, 5, delayBase) {
 
       @Override
-      Response<ResponseBody> work() throws IOException {
+      Response<ResponseBody> work() throws Exception {
         return fsUploadService.commit(params).execute();
       }
-    }.call();
+    }
+        .call();
   }
 
   /**
    * Called when upload is complete to get Filestack metadata for the final file.
    * In intelligent ingestion mode we poll this endpoint until the file is done processing.
    */
-  private com.filestack.responses.CompleteResponse multipartComplete() throws IOException {
+  private CompleteResponse multipartComplete() throws Exception {
+
     final HashMap<String, RequestBody> params = new HashMap<>();
     params.putAll(baseParams);
 
@@ -360,9 +397,10 @@ public class Upload {
     return new RetryNetworkFunc<CompleteResponse>(5, 5, delayBase) {
 
       @Override
-      Response<CompleteResponse> work() throws IOException {
+      Response<CompleteResponse> work() throws Exception {
         return fsUploadService.complete(params).execute();
       }
-    }.call();
+    }
+        .call();
   }
 }
