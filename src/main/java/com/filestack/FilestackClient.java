@@ -1,5 +1,9 @@
 package com.filestack;
 
+import com.filestack.errors.InternalException;
+import com.filestack.errors.InvalidParameterException;
+import com.filestack.errors.PolicySignatureException;
+import com.filestack.errors.ValidationException;
 import com.filestack.transforms.ImageTransform;
 import com.filestack.util.Upload;
 
@@ -39,25 +43,37 @@ public class FilestackClient {
   /**
    * Upload local file to Filestack using default storage options.
    *
-   * @param filepath path to the file, can be local or absolute
+   * @param pathname path to the file, can be local or absolute
    * @return new {@link FileLink} referencing file
-   * @throws IOException for network failures or invalid security
+   * @throws ValidationException       if the pathname doesn't exist or isn't a regular file
+   * @throws IOException               if request fails because of network or other IO issue
+   * @throws PolicySignatureException  if policy and/or signature are invalid or inadequate
+   * @throws InvalidParameterException if a request parameter is missing or invalid
+   * @throws InternalException         if unexpected error occurs
    */
-  public FileLink upload(String filepath) throws IOException {
+  public FileLink upload(String pathname)
+      throws ValidationException, IOException, PolicySignatureException,
+             InvalidParameterException, InternalException {
     UploadOptions defaultOptions = new UploadOptions.Builder().build();
-    return upload(filepath, defaultOptions);
+    return upload(pathname, defaultOptions);
   }
 
   /**
    * Upload local file to Filestack using custom storage options.
    *
-   * @param filepath path to the file, can be local or absolute
-   * @param options storage options, https://www.filestack.com/docs/rest-api/store
+   * @param pathname path to the file, can be local or absolute
+   * @param options  storage options, https://www.filestack.com/docs/rest-api/store
    * @return new {@link FileLink} referencing file
-   * @throws IOException or network failures or invalid security
+   * @throws ValidationException       if the pathname doesn't exist or isn't a regular file
+   * @throws IOException               if request fails because of network or other IO issue
+   * @throws PolicySignatureException  if policy and/or signature are invalid or inadequate
+   * @throws InvalidParameterException if a request parameter is missing or invalid
+   * @throws InternalException         if unexpected error occurs
    */
-  public FileLink upload(String filepath, UploadOptions options) throws IOException {
-    Upload upload = new Upload(filepath, this, options);
+  public FileLink upload(String pathname, UploadOptions options)
+      throws ValidationException, IOException, PolicySignatureException,
+             InvalidParameterException, InternalException {
+    Upload upload = new Upload(pathname, this, options);
     return upload.run();
   }
 
@@ -65,7 +81,7 @@ public class FilestackClient {
 
   /**
    * Async, observable version of {@link #upload(String)}.
-   * Throws same exceptions.
+   * Same exceptions are passed through observable.
    */
   public Single<FileLink> uploadAsync(String filepath) {
     UploadOptions defaultOptions = new UploadOptions.Builder().build();
@@ -74,12 +90,12 @@ public class FilestackClient {
 
   /**
    * Async, observable version of {@link #upload(String, UploadOptions)}.
-   * Throws same exceptions.
+   * Same exceptions are passed through observable.
    */
   public Single<FileLink> uploadAsync(final String filepath, final UploadOptions options) {
     return Single.fromCallable(new Callable<FileLink>() {
       @Override
-      public FileLink call() throws IOException {
+      public FileLink call() throws Exception {
         return upload(filepath, options);
       }
     })
@@ -88,7 +104,7 @@ public class FilestackClient {
   }
 
   /**
-   * Creates an image transformation object for this file.
+   * Creates an {@link ImageTransform} object for this file.
    * A transformation call isn't made directly by this method.
    *
    * @return {@link ImageTransform ImageTransform} instance configured for this file
