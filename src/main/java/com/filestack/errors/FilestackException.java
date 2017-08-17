@@ -1,11 +1,9 @@
 package com.filestack.errors;
 
-import java.io.IOException;
-
 /**
- * Base class for Filestack IO, networking, and API response exceptions.
+ * Base {@link Exception} subclass for all library exceptions.
  */
-public class FilestackException extends IOException {
+public class FilestackException extends Exception {
 
   public FilestackException() {
   }
