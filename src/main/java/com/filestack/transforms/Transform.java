@@ -3,7 +3,7 @@ package com.filestack.transforms;
 import com.filestack.FileLink;
 import com.filestack.FilestackClient;
 import com.filestack.Security;
-import com.filestack.util.FilestackService;
+import com.filestack.util.FsCdnService;
 import com.filestack.util.Networking;
 
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ public class Transform {
 
   ArrayList<TransformTask> tasks;
 
-  FilestackService fsService;
+  FsCdnService fsCdnService;
 
   Transform(FilestackClient fsClient, String source) {
     this(fsClient, source, null);
@@ -39,7 +39,7 @@ public class Transform {
     }
 
     this.tasks = new ArrayList<>();
-    this.fsService = Networking.getFsService();
+    this.fsCdnService = Networking.getFsCdnService();
 
     Security security = fsClient != null ? fsClient.getSecurity() : fileLink.getSecurity();
     this.security = security;
@@ -78,9 +78,9 @@ public class Transform {
     HttpUrl httpUrl;
 
     if (apiKey != null) {
-      httpUrl = fsService.transformExt(apiKey, tasksString, source).request().url();
+      httpUrl = fsCdnService.transformExt(apiKey, tasksString, source).request().url();
     } else {
-      httpUrl = fsService.transform(tasksString, source).request().url();
+      httpUrl = fsCdnService.transform(tasksString, source).request().url();
     }
 
     // When building the request we add a / between tasks
