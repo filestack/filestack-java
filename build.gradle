@@ -13,6 +13,7 @@ group = 'com.filestack'
 
 javadoc {
     destinationDir new File("./docs")
+    options.optionFiles(new File('./config/javadoc/javadoc.txt'))
 }
 
 repositories {
