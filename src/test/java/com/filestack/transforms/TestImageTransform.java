@@ -11,7 +11,7 @@ import static org.junit.Assert.assertTrue;
 import com.filestack.FileLink;
 import com.filestack.responses.StoreResponse;
 import com.filestack.transforms.tasks.StoreOptions;
-import com.filestack.util.FilestackService;
+import com.filestack.util.FsCdnService;
 import com.filestack.util.MockInterceptor;
 import com.filestack.util.Networking;
 
@@ -49,11 +49,11 @@ public class TestImageTransform {
 
   @Test
   public void testDebugUrl() throws Exception {
-    FilestackService fsService = Networking.getFsService();
+    FsCdnService fsCdnService = Networking.getFsCdnService();
 
-    String correct = FilestackService.URL + "debug/" + RESIZE_TASK_STRING
+    String correct = FsCdnService.URL + "debug/" + RESIZE_TASK_STRING
         + "/" + HANDLE;
-    String output = fsService.transformDebug(RESIZE_TASK_STRING, HANDLE)
+    String output = fsCdnService.transformDebug(RESIZE_TASK_STRING, HANDLE)
         .request()
         .url()
         .toString();
@@ -73,13 +73,13 @@ public class TestImageTransform {
 
   @Test
   public void testDebugExternalUrl() throws Exception {
-    FilestackService fsService = Networking.getFsService();
+    FsCdnService fsCdnService = Networking.getFsCdnService();
 
     // Retrofit will return the URL with some characters escaped
     // We check for a string with the encoded source
-    String correct = FilestackService.URL + API_KEY + "/debug/" + RESIZE_TASK_STRING
+    String correct = FsCdnService.URL + API_KEY + "/debug/" + RESIZE_TASK_STRING
         + "/" + ENCODED_SOURCE;
-    String output = fsService.transformDebugExt(API_KEY, RESIZE_TASK_STRING, SOURCE)
+    String output = fsCdnService.transformDebugExt(API_KEY, RESIZE_TASK_STRING, SOURCE)
         .request()
         .url()
         .toString();
@@ -95,9 +95,9 @@ public class TestImageTransform {
   @Test
   public void testStore() throws Exception {
     StoreOptions storeOptions = new StoreOptions();
-    FilestackService fsService = Networking.getFsService();
+    FsCdnService fsCdnService = Networking.getFsCdnService();
     StoreResponse storeResponse;
-    storeResponse = fsService.transformStore(storeOptions.toString(), FILE_LINK.getHandle())
+    storeResponse = fsCdnService.transformStore(storeOptions.toString(), FILE_LINK.getHandle())
         .execute()
         .body();
 

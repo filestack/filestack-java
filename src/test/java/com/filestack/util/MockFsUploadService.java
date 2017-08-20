@@ -16,11 +16,11 @@ import retrofit2.Response;
 import retrofit2.mock.BehaviorDelegate;
 import retrofit2.mock.Calls;
 
-public class MockUploadService implements FilestackUploadService {
-  private final BehaviorDelegate<FilestackUploadService> delegate;
+public class MockFsUploadService implements FsUploadService {
+  private final BehaviorDelegate<FsUploadService> delegate;
   private final Gson gson;
 
-  MockUploadService(BehaviorDelegate<FilestackUploadService> delegate) {
+  MockFsUploadService(BehaviorDelegate<FsUploadService> delegate) {
     this.delegate = delegate;
     this.gson = new Gson();
   }

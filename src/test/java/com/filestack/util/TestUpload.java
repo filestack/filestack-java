@@ -27,20 +27,20 @@ public class TestUpload {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private static MockUploadService createMockUploadService(NetworkBehavior behavior) {
+  private static MockFsUploadService createMockUploadService(NetworkBehavior behavior) {
 
     Retrofit retrofit = new Retrofit.Builder()
         .client(new OkHttpClient())
-        .baseUrl(FilestackUploadService.URL)
+        .baseUrl(FsUploadService.URL)
         .build();
 
     MockRetrofit mockRetrofit = new MockRetrofit.Builder(retrofit)
         .networkBehavior(behavior)
         .build();
 
-    BehaviorDelegate<FilestackUploadService> delegate =
-        mockRetrofit.create(FilestackUploadService.class);
-    return new MockUploadService(delegate);
+    BehaviorDelegate<FsUploadService> delegate =
+        mockRetrofit.create(FsUploadService.class);
+    return new MockFsUploadService(delegate);
   }
 
   private static Path createRandomFile(long size) throws IOException {
@@ -57,7 +57,7 @@ public class TestUpload {
     Path path = createRandomFile(10 * 1024 * 1024);
 
     NetworkBehavior behavior = NetworkBehavior.create();
-    MockUploadService mockUploadService = createMockUploadService(behavior);
+    MockFsUploadService mockUploadService = createMockUploadService(behavior);
 
     FilestackClient fsClient = new FilestackClient("apiKey");
     UploadOptions options = new UploadOptions.Builder().build();

@@ -8,7 +8,7 @@ import static com.filestack.util.MockConstants.HANDLE;
 import static com.filestack.util.MockConstants.SECURITY;
 import static org.junit.Assert.assertTrue;
 
-import com.filestack.util.FilestackService;
+import com.filestack.util.FsCdnService;
 import org.junit.Test;
 
 public class TestTransform {
@@ -27,7 +27,7 @@ public class TestTransform {
 
   @Test
   public void testUrl() {
-    String correct = FilestackService.URL + TASK_STRING + "/" + HANDLE;
+    String correct = FsCdnService.URL + TASK_STRING + "/" + HANDLE;
     Transform transform = new Transform(FILE_LINK);
     transform.tasks.add(TASK);
     String output = transform.url();
@@ -39,7 +39,7 @@ public class TestTransform {
 
   @Test
   public void testUrlSecurity() {
-    String correct = FilestackService.URL
+    String correct = FsCdnService.URL
         + "security=policy:" + SECURITY.getPolicy() + ","
         + "signature:" + SECURITY.getSignature() + "/"
         + TASK_STRING + "/" + HANDLE;
@@ -55,7 +55,7 @@ public class TestTransform {
 
   @Test
   public void testUrlExternal() {
-    String correct = FilestackService.URL + API_KEY + "/" + TASK_STRING + "/" + SOURCE;
+    String correct = FsCdnService.URL + API_KEY + "/" + TASK_STRING + "/" + SOURCE;
     Transform transform = new Transform(FS_CLIENT, SOURCE);
     transform.tasks.add(TASK);
     String output = transform.url();
@@ -67,7 +67,7 @@ public class TestTransform {
 
   @Test
   public void testUrlMultipleTasks() {
-    String correct = FilestackService.URL + TASK_STRING + "/" + TASK_STRING
+    String correct = FsCdnService.URL + TASK_STRING + "/" + TASK_STRING
         + "/" + HANDLE;
 
     Transform transform = new Transform(FILE_LINK);
@@ -82,7 +82,7 @@ public class TestTransform {
 
   @Test
   public void testUrlTaskWithoutOptions() {
-    String correct = FilestackService.URL + "task/" + HANDLE;
+    String correct = FsCdnService.URL + "task/" + HANDLE;
 
     Transform transform = new Transform(FILE_LINK);
     transform.tasks.add(new TransformTask("task"));
