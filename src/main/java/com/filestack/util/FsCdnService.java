@@ -13,8 +13,8 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 import retrofit2.http.Streaming;
 
-/** Provides Filestack REST API endpoints. */
-public interface FilestackService {
+/** Wraps endpoints that run on cdn.filestackcontent.com. */
+public interface FsCdnService {
   String URL = "https://cdn.filestackcontent.com/";
 
   // Base endpoints
