@@ -105,7 +105,6 @@ public class Upload {
     baseParams.put("filename", Util.createStringPart(file.getName()));
     baseParams.put("size", Util.createStringPart(Long.toString(file.length())));
     baseParams.put("mimetype", Util.createStringPart(mimeType));
-    baseParams.put("multipart", Util.createStringPart("true"));
 
     Security security = fsClient.getSecurity();
     if (security != null) {
