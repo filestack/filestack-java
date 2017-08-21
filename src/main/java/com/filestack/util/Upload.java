@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.URLConnection;
-import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -88,15 +87,7 @@ public class Upload {
     baseParams.put("apikey", Util.createStringPart(fsClient.getApiKey()));
     baseParams.putAll(options.getMap());
 
-    // Open file and check if it exists
-    File file = new File(pathname);
-    if (!file.exists()) {
-      throw new ValidationException("File doesn't exist: " + file.getPath());
-    } else if (file.isDirectory()) {
-      throw new ValidationException("Can't upload directory: " + file.getPath());
-    } else if (!Files.isRegularFile(file.toPath())) {
-      throw new ValidationException("Can't upload special file: " + file.getPath());
-    }
+    File file = Util.createReadFile(pathname);
 
     filesize = file.length();
     String mimeType = URLConnection.guessContentTypeFromName(file.getName());
@@ -150,7 +141,7 @@ public class Upload {
     StartResponse response = new RetryNetworkFunc<StartResponse>(0, 5, delayBase) {
 
       @Override
-      Response<com.filestack.responses.StartResponse> work() throws Exception {
+      Response<StartResponse> work() throws Exception {
         return fsUploadService.start(baseParams).execute();
       }
     }
@@ -335,11 +326,11 @@ public class Upload {
       }
 
       @Override
-      Response retryNetwork() throws Exception {
+      public void onNetworkFail(int retries) {
         if (intelligent) {
           attemptSize /= 2;
         }
-        return super.retryNetwork();
+        super.onNetworkFail(retries);
       }
 
       @Override
