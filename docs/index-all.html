@@ -401,9 +401,17 @@
 <dd>
 <div class="block">Creates an instance from a <a href="com/filestack/Policy.html" title="class in com.filestack"><code>Policy</code></a> object and app secret.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/filestack/util/Util.html#createReadFile-java.lang.String-">createReadFile(String)</a></span> - Static method in class com.filestack.util.<a href="com/filestack/util/Util.html" title="class in com.filestack.util">Util</a></dt>
+<dd>
+<div class="block">Creates and validates a new <code>File</code> for reading.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/filestack/util/Util.html#createStringPart-java.lang.String-">createStringPart(String)</a></span> - Static method in class com.filestack.util.<a href="com/filestack/util/Util.html" title="class in com.filestack.util">Util</a></dt>
 <dd>
 <div class="block">Creates <code>Request Body</code> from String.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/filestack/util/Util.html#createWriteFile-java.lang.String-">createWriteFile(String)</a></span> - Static method in class com.filestack.util.<a href="com/filestack/util/Util.html" title="class in com.filestack.util">Util</a></dt>
+<dd>
+<div class="block">Creates and validates a new <code>File</code> for writing.</div>
 </dd>
 <dt><a href="com/filestack/transforms/tasks/CropFacesTask.html" title="class in com.filestack.transforms.tasks"><span class="typeNameLink">CropFacesTask</span></a> - Class in <a href="com/filestack/transforms/tasks/package-summary.html">com.filestack.transforms.tasks</a></dt>
 <dd>&nbsp;</dd>
@@ -741,6 +749,10 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/filestack/transforms/ImageTransformTask.html#ImageTransformTask-java.lang.String-">ImageTransformTask(String)</a></span> - Constructor for class com.filestack.transforms.<a href="com/filestack/transforms/ImageTransformTask.html" title="class in com.filestack.transforms">ImageTransformTask</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/filestack/UploadOptions.Builder.html#intelligent-boolean-">intelligent(boolean)</a></span> - Method in class com.filestack.<a href="com/filestack/UploadOptions.Builder.html" title="class in com.filestack">UploadOptions.Builder</a></dt>
+<dd>
+<div class="block">Sets if the upload should use Filestack Intelligent Ingestion.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/filestack/util/HeaderInterceptor.html#intercept-okhttp3.Interceptor.Chain-">intercept(Interceptor.Chain)</a></span> - Method in class com.filestack.util.<a href="com/filestack/util/HeaderInterceptor.html" title="class in com.filestack.util">HeaderInterceptor</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/filestack/errors/InternalException.html" title="class in com.filestack.errors"><span class="typeNameLink">InternalException</span></a> - Exception in <a href="com/filestack/errors/package-summary.html">com.filestack.errors</a></dt>
@@ -869,6 +881,14 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/filestack/transforms/tasks/OilPaintTask.html#OilPaintTask-int-">OilPaintTask(int)</a></span> - Constructor for class com.filestack.transforms.tasks.<a href="com/filestack/transforms/tasks/OilPaintTask.html" title="class in com.filestack.transforms.tasks">OilPaintTask</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/filestack/util/RetryNetworkFunc.html#onNetworkFail-int-">onNetworkFail(int)</a></span> - Method in class com.filestack.util.<a href="com/filestack/util/RetryNetworkFunc.html" title="class in com.filestack.util">RetryNetworkFunc</a></dt>
+<dd>
+<div class="block">Called for network failures.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/filestack/util/RetryNetworkFunc.html#onServerFail-int-">onServerFail(int)</a></span> - Method in class com.filestack.util.<a href="com/filestack/util/RetryNetworkFunc.html" title="class in com.filestack.util">RetryNetworkFunc</a></dt>
+<dd>
+<div class="block">Called for server failures.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/filestack/transforms/tasks/ShadowTask.Builder.html#opacity-int-">opacity(int)</a></span> - Method in class com.filestack.transforms.tasks.<a href="com/filestack/transforms/tasks/ShadowTask.Builder.html" title="class in com.filestack.transforms.tasks">ShadowTask.Builder</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/filestack/FileLink.html#overwrite-java.lang.String-">overwrite(String)</a></span> - Method in class com.filestack.<a href="com/filestack/FileLink.html" title="class in com.filestack">FileLink</a></dt>
@@ -1181,7 +1201,7 @@
 </dd>
 <dt><a href="com/filestack/UploadOptions.html" title="class in com.filestack"><span class="typeNameLink">UploadOptions</span></a> - Class in <a href="com/filestack/package-summary.html">com.filestack</a></dt>
 <dd>
-<div class="block">Configures storage options for a new upload.</div>
+<div class="block">Configures options for an upload.</div>
 </dd>
 <dt><a href="com/filestack/UploadOptions.Builder.html" title="class in com.filestack"><span class="typeNameLink">UploadOptions.Builder</span></a> - Class in <a href="com/filestack/package-summary.html">com.filestack</a></dt>
 <dd>

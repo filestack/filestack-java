@@ -8,16 +8,17 @@ import java.util.Map;
 import okhttp3.RequestBody;
 
 /**
- * Configures storage options for a new upload.
+ * Configures options for an upload.
  */
 public class UploadOptions {
-  private HashMap<String, RequestBody> options = new HashMap<>();
+  HashMap<String, RequestBody> map;
 
-  private UploadOptions() {
+  private UploadOptions(HashMap<String, RequestBody> map) {
+    this.map = map;
   }
 
   public Map<String, RequestBody> getMap() {
-    return options;
+    return map;
   }
 
   // Javadoc comments adapted from
@@ -27,7 +28,7 @@ public class UploadOptions {
    * Builds new {@link UploadOptions}.
    */
   public static class Builder {
-    UploadOptions uploadOptions = new UploadOptions();
+    HashMap<String, RequestBody> map = new HashMap<>();
 
     /**
      * Set the location where the file will be stored. For locations other than s3 the file will be
@@ -38,7 +39,7 @@ public class UploadOptions {
      * @param location s3, gcs, dropbox, azure, or rackspace
      */
     public Builder location(String location) {
-      uploadOptions.options.put("store_location", Util.createStringPart(location));
+      map.put("store_location", Util.createStringPart(location));
       return this;
     }
 
@@ -48,13 +49,13 @@ public class UploadOptions {
      * Amazon.
      */
     public Builder region(String region) {
-      uploadOptions.options.put("store_region", Util.createStringPart(region));
+      map.put("store_region", Util.createStringPart(region));
       return this;
     }
 
     /** Set the name of the container where the file will be stored. */
     public Builder container(String container) {
-      uploadOptions.options.put("store_container", Util.createStringPart(container));
+      map.put("store_container", Util.createStringPart(container));
       return this;
     }
 
@@ -65,7 +66,7 @@ public class UploadOptions {
      * if the file is stored in Filestack's internal S3 bucket.
      */
     public Builder path(String path) {
-      uploadOptions.options.put("store_path", Util.createStringPart(path));
+      map.put("store_path", Util.createStringPart(path));
       return this;
     }
 
@@ -77,7 +78,16 @@ public class UploadOptions {
      * @param access private or public
      */
     public Builder access(String access) {
-      uploadOptions.options.put("store_access", Util.createStringPart(access));
+      map.put("store_access", Util.createStringPart(access));
+      return this;
+    }
+
+    /**
+     * Sets if the upload should use Filestack Intelligent Ingestion. Enabled by default.
+     * This must also be enabled on your account to work, if not it will be ignored.
+     */
+    public Builder intelligent(boolean intelligent) {
+      map.put("multipart", Util.createStringPart(Boolean.toString(intelligent)));
       return this;
     }
 
@@ -85,10 +95,13 @@ public class UploadOptions {
      * Create the {@link UploadOptions} instance using the configured values.
      */
     public UploadOptions build() {
-      if (!uploadOptions.options.containsKey("store_location")) {
-        uploadOptions.options.put("store_location", Util.createStringPart("s3"));
+      if (!map.containsKey("store_location")) {
+        map.put("store_location", Util.createStringPart("s3"));
       }
-      return uploadOptions;
+      if (!map.containsKey("multipart")) {
+        map.put("multipart", Util.createStringPart("true"));
+      }
+      return new UploadOptions(map);
     }
   }
 }

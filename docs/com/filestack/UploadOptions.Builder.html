@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -170,17 +170,23 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="../../com/filestack/UploadOptions.Builder.html" title="class in com.filestack">UploadOptions.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/UploadOptions.Builder.html#intelligent-boolean-">intelligent</a></span>(boolean&nbsp;intelligent)</code>
+<div class="block">Sets if the upload should use Filestack Intelligent Ingestion.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="../../com/filestack/UploadOptions.Builder.html" title="class in com.filestack">UploadOptions.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/UploadOptions.Builder.html#location-java.lang.String-">location</a></span>(java.lang.String&nbsp;location)</code>
 <div class="block">Set the location where the file will be stored.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="../../com/filestack/UploadOptions.Builder.html" title="class in com.filestack">UploadOptions.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/UploadOptions.Builder.html#path-java.lang.String-">path</a></span>(java.lang.String&nbsp;path)</code>
 <div class="block">Set the path where the file will be stored.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="../../com/filestack/UploadOptions.Builder.html" title="class in com.filestack">UploadOptions.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/UploadOptions.Builder.html#region-java.lang.String-">region</a></span>(java.lang.String&nbsp;region)</code>
 <div class="block">Set an S3 region for the selected S3 bucket.</div>
@@ -291,6 +297,17 @@ extends java.lang.Object</pre>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>access</code> - private or public</dd>
 </dl>
+</li>
+</ul>
+<a name="intelligent-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>intelligent</h4>
+<pre>public&nbsp;<a href="../../com/filestack/UploadOptions.Builder.html" title="class in com.filestack">UploadOptions.Builder</a>&nbsp;intelligent(boolean&nbsp;intelligent)</pre>
+<div class="block">Sets if the upload should use Filestack Intelligent Ingestion. Enabled by default.
+ This must also be enabled on your account to work, if not it will be ignored.</div>
 </li>
 </ul>
 <a name="build--">

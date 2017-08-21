@@ -3,7 +3,6 @@ package com.filestack.util;
 import com.filestack.errors.InternalException;
 import com.filestack.errors.InvalidParameterException;
 import com.filestack.errors.PolicySignatureException;
-import java.io.IOException;
 import retrofit2.Response;
 
 /**
@@ -42,20 +41,37 @@ public abstract class RetryNetworkFunc<T> {
   }
 
   /**
-   * Orchestrates calls to {@link #work()}, {@link #retryNetwork()}, {@link #retryServer(int)}.
+   * Orchestrates calling {@link #work()} and retrying on failure.
    */
   Response run() throws Exception {
+    Response response = null;
+    Exception exception = null;
 
-    Response response;
+    while (networkRetries <= maxNetworkRetries && serverRetries <= maxServerRetries) {
 
-    try {
-      response = work();
-    } catch (Exception e) {
-      response = retryNetwork();
+      try {
+        response = work();
+      } catch (Exception e) {
+        exception = e;
+        onNetworkFail(networkRetries);
+        continue;
+      }
+
+      if (!responseOkay(response)) {
+        onServerFail(serverRetries);
+      } else {
+        break;
+      }
     }
 
-    if (response.code() != 200) {
-      response = retryServer(response.code());
+    if (networkRetries > maxNetworkRetries) {
+      if (exception != null) {
+        throw exception;
+      } else {
+        throw new InternalException();
+      }
+    } else if (serverRetries > maxServerRetries) {
+      throw new InternalException();
     }
 
     return response;
@@ -64,29 +80,49 @@ public abstract class RetryNetworkFunc<T> {
   /** Contains the actual network call. */
   abstract Response work() throws Exception;
 
-  /** Handles retry logic for network failures. */
-  Response retryNetwork() throws Exception {
-
-    if (networkRetries >= maxNetworkRetries) {
-      throw new IOException();
-    }
-
-    if (delayBase > 0) {
-      try {
-        Thread.sleep((long) Math.pow(delayBase, networkRetries) * 1000);
-      } catch (InterruptedException e) {
-        networkRetries++;
-      }
-    }
-
-    networkRetries++;
-    return run();
+  @SuppressWarnings("unchecked")
+  /** Process the response to get a return value. */
+  T process(Response response) throws Exception {
+    return (T) response.body();
   }
 
-  /** Handles retry logic for server errors. */
-  Response retryServer(int code) throws Exception {
+  /** Called for network failures. */
+  public void onNetworkFail(int retries) {
+    networkRetries = sleep(retries);
+  }
 
-    // Don't retry for any of these statuses
+  /** Called for server failures. */
+  public void onServerFail(int retries) {
+    serverRetries = sleep(retries);
+  }
+
+  /**
+   * Causes thread to sleep for delayBase ^ count seconds.
+   *
+   * @param count power to raise delayBase to
+   * @return new count value
+   */
+  private int sleep(int count) {
+    if (delayBase > 0) {
+      try {
+        Thread.sleep((long) Math.pow(delayBase, count) * 1000);
+      } catch (InterruptedException e) {
+        count++;
+      }
+    }
+    return ++count;
+  }
+
+  /**
+   * Checks code of {@link #work()} response.
+   *
+   * @param response from {@link #work()}
+   * @return true for success response, false otherwise
+   * @throws Exception if failed response and not recoverable
+   */
+  private boolean responseOkay(Response response) throws Exception {
+    int code = response.code();
+
     if (code == 206) {
       throw new InternalException();
     } else if (code == 400) {
@@ -95,27 +131,7 @@ public abstract class RetryNetworkFunc<T> {
       throw new PolicySignatureException();
     }
 
-    // Do retry otherwise, up to the max
-    if (serverRetries >= maxServerRetries) {
-      throw new InternalException();
-    }
-
-    if (delayBase > 0) {
-      try {
-        Thread.sleep((long) Math.pow(delayBase, serverRetries) * 1000);
-      } catch (InterruptedException e) {
-        serverRetries++;
-      }
-    }
-
-    serverRetries++;
-    return run();
-  }
-
-  @SuppressWarnings("unchecked")
-  /** Process the response to get a return value. */
-  T process(Response response) throws Exception {
-    return (T) response.body();
+    return code == 200;
   }
 
   public int getNetworkRetries() {

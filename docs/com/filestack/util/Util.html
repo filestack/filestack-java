@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":9,"i2":9,"i3":9};
+var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -158,12 +158,24 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>static java.io.File</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../com/filestack/util/Util.html#createReadFile-java.lang.String-">createReadFile</a></span>(java.lang.String&nbsp;pathname)</code>
+<div class="block">Creates and validates a new <code>File</code> for reading.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>static okhttp3.RequestBody</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../com/filestack/util/Util.html#createStringPart-java.lang.String-">createStringPart</a></span>(java.lang.String&nbsp;content)</code>
 <div class="block">Creates <code>Request Body</code> from String.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>static java.io.File</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../com/filestack/util/Util.html#createWriteFile-java.lang.String-">createWriteFile</a></span>(java.lang.String&nbsp;pathname)</code>
+<div class="block">Creates and validates a new <code>File</code> for writing.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>static java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../com/filestack/util/Util.html#getVersion--">getVersion</a></span>()</code>
 <div class="block">Loads version string from properties file in resources folder.</div>
@@ -260,7 +272,7 @@ extends java.lang.Object</pre>
 <a name="castExceptionAndThrow-java.lang.Exception-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>castExceptionAndThrow</h4>
 <pre>public static&nbsp;void&nbsp;castExceptionAndThrow(java.lang.Exception&nbsp;e)
@@ -279,6 +291,44 @@ extends java.lang.Object</pre>
 <dd><code><a href="../../../com/filestack/errors/PolicySignatureException.html" title="class in com.filestack.errors">PolicySignatureException</a></code></dd>
 <dd><code><a href="../../../com/filestack/errors/ResourceNotFoundException.html" title="class in com.filestack.errors">ResourceNotFoundException</a></code></dd>
 <dd><code><a href="../../../com/filestack/errors/InternalException.html" title="class in com.filestack.errors">InternalException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="createWriteFile-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createWriteFile</h4>
+<pre>public static&nbsp;java.io.File&nbsp;createWriteFile(java.lang.String&nbsp;pathname)
+                                    throws <a href="../../../com/filestack/errors/ValidationException.html" title="class in com.filestack.errors">ValidationException</a></pre>
+<div class="block">Creates and validates a new <code>File</code> for writing.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>pathname</code> - path to file</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>file pointing to pathname</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../com/filestack/errors/ValidationException.html" title="class in com.filestack.errors">ValidationException</a></code> - if the pathname can't be created or exists but is unusable</dd>
+</dl>
+</li>
+</ul>
+<a name="createReadFile-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>createReadFile</h4>
+<pre>public static&nbsp;java.io.File&nbsp;createReadFile(java.lang.String&nbsp;pathname)
+                                   throws <a href="../../../com/filestack/errors/ValidationException.html" title="class in com.filestack.errors">ValidationException</a></pre>
+<div class="block">Creates and validates a new <code>File</code> for reading.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>pathname</code> - path to file</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>file pointing to pathname</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../com/filestack/errors/ValidationException.html" title="class in com.filestack.errors">ValidationException</a></code> - if the pathname doesn't exist or isn't usable</dd>
 </dl>
 </li>
 </ul>

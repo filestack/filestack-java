@@ -9,19 +9,15 @@ import com.filestack.transforms.ImageTransform;
 import com.filestack.util.FsApiService;
 import com.filestack.util.FsCdnService;
 import com.filestack.util.Networking;
-
 import com.filestack.util.Util;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.functions.Action;
 import io.reactivex.schedulers.Schedulers;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URLConnection;
-import java.nio.file.Files;
 import java.util.concurrent.Callable;
-
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -141,18 +137,7 @@ public class FileLink {
       filename = response.headers().get("x-file-name");
     }
 
-    File file = new File(directory + "/" + filename);
-    boolean created = file.createNewFile();
-
-    if (!created) {
-      if (Files.isDirectory(file.toPath())) {
-        throw new ValidationException("Can't overwrite directory: " + file.getPath());
-      } else if (!Files.isRegularFile(file.toPath())) {
-        throw new ValidationException("Can't overwrite special file: " + file.getPath());
-      } else if (!file.canWrite()) {
-        throw new ValidationException("No write access: " + file.getAbsolutePath());
-      }
-    }
+    File file = Util.createWriteFile(directory + "/" + filename);
 
     ResponseBody body = response.body();
     if (body == null) {
@@ -188,14 +173,7 @@ public class FileLink {
       throw new ValidationException("Security must be set in order to overwrite");
     }
 
-    File file = new File(pathname);
-    if (!file.exists()) {
-      throw new ValidationException("File doesn't exist: " + file.getPath());
-    } else if (file.isDirectory()) {
-      throw new ValidationException("Can't overwrite with directory: " + file.getPath());
-    } else if (!Files.isRegularFile(file.toPath())) {
-      throw new ValidationException("Can't overwrite with special file: " + file.getPath());
-    }
+    File file = Util.createReadFile(pathname);
 
     String mimeType = URLConnection.guessContentTypeFromName(file.getName());
     RequestBody body = RequestBody.create(MediaType.parse(mimeType), file);

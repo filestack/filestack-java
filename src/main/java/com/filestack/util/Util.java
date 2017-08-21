@@ -5,11 +5,11 @@ import com.filestack.errors.InternalException;
 import com.filestack.errors.InvalidParameterException;
 import com.filestack.errors.PolicySignatureException;
 import com.filestack.errors.ResourceNotFoundException;
-
+import com.filestack.errors.ValidationException;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.Response;
@@ -97,5 +97,56 @@ public class Util {
     }
 
     throw new InternalException(e);
+  }
+
+  /**
+   * Creates and validates a new {@link File} for writing.
+   *
+   * @param pathname path to file
+   * @return file pointing to pathname
+   * @throws ValidationException if the pathname can't be created or exists but is unusable
+   */
+  public static File createWriteFile(String pathname) throws ValidationException {
+    File file = new File(pathname);
+
+    boolean created;
+    try {
+      created = file.createNewFile();
+    } catch (IOException e) {
+      throw new ValidationException("Unable to create file: " + file.getPath(), e);
+    }
+
+    if (!created) {
+      if (file.isDirectory()) {
+        throw new ValidationException("Can't write to directory: " + file.getPath());
+      } else if (!file.isFile()) {
+        throw new ValidationException("Can't write to special file: " + file.getPath());
+      } else if (!file.canWrite()) {
+        throw new ValidationException("No write access: " + file.getAbsolutePath());
+      }
+    }
+
+    return file;
+  }
+
+  /**
+   * Creates and validates a new {@link File} for reading.
+   *
+   * @param pathname path to file
+   * @return file pointing to pathname
+   * @throws ValidationException if the pathname doesn't exist or isn't usable
+   */
+  public static File createReadFile(String pathname) throws ValidationException {
+    File file = new File(pathname);
+
+    if (!file.exists()) {
+      throw new ValidationException("File doesn't exist: " + file.getPath());
+    } else if (file.isDirectory()) {
+      throw new ValidationException("Can't read from directory: " + file.getPath());
+    } else if (!file.isFile()) {
+      throw new ValidationException("Can't read from special file: " + file.getPath());
+    }
+
+    return file;
   }
 }
