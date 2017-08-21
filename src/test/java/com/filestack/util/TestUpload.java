@@ -53,7 +53,7 @@ public class TestUpload {
   }
 
   @Test
-  public void test() throws IOException {
+  public void test() throws Exception {
     Path path = createRandomFile(10 * 1024 * 1024);
 
     NetworkBehavior behavior = NetworkBehavior.create();

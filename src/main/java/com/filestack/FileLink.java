@@ -1,19 +1,24 @@
 package com.filestack;
 
-import com.filestack.errors.FilestackException;
+import com.filestack.errors.InternalException;
+import com.filestack.errors.InvalidParameterException;
+import com.filestack.errors.PolicySignatureException;
+import com.filestack.errors.ResourceNotFoundException;
+import com.filestack.errors.ValidationException;
 import com.filestack.transforms.ImageTransform;
 import com.filestack.util.FilestackService;
 import com.filestack.util.Networking;
 
+import com.filestack.util.Util;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.functions.Action;
 import io.reactivex.schedulers.Schedulers;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URLConnection;
+import java.nio.file.Files;
 import java.util.concurrent.Callable;
 
 import okhttp3.MediaType;
@@ -63,15 +68,29 @@ public class FileLink {
    * Directly returns the content of a file.
    *
    * @return byte[] of file content
-   * @throws IOException for network failures, invalid handles, or invalid security
+   * @throws IOException               if request fails because of network or other IO issue
+   * @throws PolicySignatureException  if policy and/or signature are invalid or inadequate
+   * @throws ResourceNotFoundException if handle isn't found
+   * @throws InvalidParameterException if handle is malformed
+   * @throws InternalException         if unexpected error occurs
    */
-  public byte[] getContent() throws IOException {
+  public byte[] getContent()
+      throws IOException, PolicySignatureException, ResourceNotFoundException,
+             InvalidParameterException, InternalException {
+
     String policy = security != null ? security.getPolicy() : null;
     String signature = security != null ? security.getSignature() : null;
-    return fsService.get(this.handle, policy, signature)
-        .execute()
-        .body()
-        .bytes();
+
+    Response<ResponseBody> response = fsService.get(this.handle, policy, signature).execute();
+
+    Util.checkResponseAndThrow(response);
+
+    ResponseBody body = response.body();
+    if (body == null) {
+      throw new IOException();
+    }
+
+    return body.bytes();
   }
 
   /**
@@ -79,9 +98,16 @@ public class FileLink {
    *
    * @param directory location to save the file in
    * @return {@link File File} object pointing to new file
-   * @throws IOException for network failures, invalid handles, or invalid security
+   * @throws ValidationException       if the path (directory/filename) isn't writable
+   * @throws IOException               if request fails because of network or other IO issue
+   * @throws PolicySignatureException  if policy and/or signature are invalid or inadequate
+   * @throws ResourceNotFoundException if handle isn't found
+   * @throws InvalidParameterException if handle is malformed
+   * @throws InternalException         if unexpected error occurs
    */
-  public File download(String directory) throws IOException {
+  public File download(String directory)
+      throws ValidationException, IOException, PolicySignatureException,
+             ResourceNotFoundException, InvalidParameterException, InternalException {
     return download(directory, null);
   }
 
@@ -90,23 +116,47 @@ public class FileLink {
    *
    * @param directory location to save the file in
    * @param filename  local name for the file
-   * @return {@link File File} object pointing to new file
-   * @throws IOException for network failures, invalid handles, or invalid security
+   * @throws ValidationException       if the path (directory/filename) isn't writable
+   * @throws IOException               if request fails because of network or other IO issue
+   * @throws PolicySignatureException  if policy and/or signature are invalid or inadequate
+   * @throws ResourceNotFoundException if handle isn't found
+   * @throws InvalidParameterException if handle is malformed
+   * @throws InternalException         if unexpected error occurs
    */
-  public File download(String directory, String filename) throws IOException {
+  public File download(String directory, String filename)
+      throws ValidationException, IOException, PolicySignatureException,
+             ResourceNotFoundException, InvalidParameterException, InternalException {
+
     String policy = security != null ? security.getPolicy() : null;
     String signature = security != null ? security.getSignature() : null;
 
     Response<ResponseBody> response = fsService.get(this.handle, policy, signature).execute();
+
+    Util.checkResponseAndThrow(response);
 
     if (filename == null) {
       filename = response.headers().get("x-file-name");
     }
 
     File file = new File(directory + "/" + filename);
-    file.createNewFile();
+    boolean created = file.createNewFile();
 
-    BufferedSource source = response.body().source();
+    if (!created) {
+      if (Files.isDirectory(file.toPath())) {
+        throw new ValidationException("Can't overwrite directory: " + file.getPath());
+      } else if (!Files.isRegularFile(file.toPath())) {
+        throw new ValidationException("Can't overwrite special file: " + file.getPath());
+      } else if (!file.canWrite()) {
+        throw new ValidationException("No write access: " + file.getAbsolutePath());
+      }
+    }
+
+    ResponseBody body = response.body();
+    if (body == null) {
+      throw new IOException();
+    }
+
+    BufferedSource source = body.source();
     BufferedSink sink = Okio.buffer(Okio.sink(file));
 
     sink.writeAll(source);
@@ -116,53 +166,81 @@ public class FileLink {
   }
 
   /**
-   * Replace the content of an existing file handle.
-   * Does not update the filename or MIME type.
+   * Replace the content of an existing file handle. Requires security to be set. Does not update
+   * the filename or MIME type.
    *
    * @param pathname path to the file, can be local or absolute
-   * @throws IOException           for network failures, invalid handles, or invalid security
-   * @throws FileNotFoundException if the given pathname isn't a file or doesn't exist
+   * @throws ValidationException       if security isn't set or the pathname is invalid
+   * @throws IOException               if request fails because of network or other IO issue
+   * @throws PolicySignatureException  if policy and/or signature are invalid or inadequate
+   * @throws ResourceNotFoundException if handle isn't found
+   * @throws InvalidParameterException if handle is malformed
+   * @throws InternalException         if unexpected error occurs
    */
-  public void overwrite(String pathname) throws IOException {
+  public void overwrite(String pathname)
+      throws ValidationException, IOException, PolicySignatureException,
+             ResourceNotFoundException, InvalidParameterException, InternalException {
+
     if (security == null) {
-      throw new FilestackException("Overwrite requires security to be set");
+      throw new ValidationException("Security must be set in order to overwrite");
     }
 
     File file = new File(pathname);
-    if (!file.isFile()) {
-      throw new FileNotFoundException(pathname);
+    if (!file.exists()) {
+      throw new ValidationException("File doesn't exist: " + file.getPath());
+    } else if (file.isDirectory()) {
+      throw new ValidationException("Can't overwrite with directory: " + file.getPath());
+    } else if (!Files.isRegularFile(file.toPath())) {
+      throw new ValidationException("Can't overwrite with special file: " + file.getPath());
     }
 
     String mimeType = URLConnection.guessContentTypeFromName(file.getName());
     RequestBody body = RequestBody.create(MediaType.parse(mimeType), file);
 
-    fsService.overwrite(handle, security.getPolicy(), security.getSignature(), body).execute();
+    String policy = security.getPolicy();
+    String signature = security.getSignature();
+
+    Response response = fsService.overwrite(handle, policy, signature, body).execute();
+
+    Util.checkResponseAndThrow(response);
   }
 
   /**
-   * Deletes a file handle.
-   * Requires security to be set.
+   * Deletes a file handle. Requires security to be set.
    *
-   * @throws IOException for network failures, invalid handles, or invalid security
+   * @throws ValidationException       if security isn't set
+   * @throws IOException               if request fails because of network or other IO issue
+   * @throws PolicySignatureException  if policy and/or signature are invalid or inadequate
+   * @throws ResourceNotFoundException if handle isn't found
+   * @throws InvalidParameterException if handle is malformed
+   * @throws InternalException         if unexpected error occurs
    */
-  public void delete() throws IOException {
+  public void delete()
+      throws ValidationException, IOException, PolicySignatureException,
+             ResourceNotFoundException, InvalidParameterException, InternalException {
+
     if (security == null) {
-      throw new FilestackException("Delete requires security to be set");
+      throw new ValidationException("Security must be set in order to delete");
     }
 
-    fsService.delete(handle, apiKey, security.getPolicy(), security.getSignature()).execute();
+    String policy = security.getPolicy();
+    String signature = security.getSignature();
+
+    Response response = fsService.delete(handle, apiKey, policy, signature).execute();
+
+    Util.checkResponseAndThrow(response);
   }
 
   // Async method wrappers
 
   /**
    * Async, observable version of {@link #getContent()}.
-   * Throws same exceptions.
+   * Same exceptions are passed through observable.
    */
   public Single<byte[]> getContentAsync() {
     return Single.fromCallable(new Callable<byte[]>() {
       @Override
-      public byte[] call() throws IOException {
+      public byte[] call() throws Exception {
         return getContent();
       }
     })
@@ -172,7 +250,7 @@ public class FileLink {
 
   /**
    * Async, observable version of {@link #download(String)}.
-   * Throws same exceptions.
+   * Same exceptions are passed through observable.
    */
   public Single<File> downloadAsync(final String directory) {
     return downloadAsync(directory, null);
@@ -180,12 +258,12 @@ public class FileLink {
 
   /**
    * Async, observable version of {@link #download(String, String)}.
-   * Throws same exceptions.
+   * Same exceptions are passed through observable.
    */
   public Single<File> downloadAsync(final String directory, final String filename) {
     return Single.fromCallable(new Callable<File>() {
       @Override
-      public File call() throws IOException {
+      public File call() throws Exception {
         return download(directory, filename);
       }
     })
@@ -195,12 +273,12 @@ public class FileLink {
 
   /**
    * Async, observable version of {@link #overwrite(String)}.
-   * Throws same exceptions.
+   * Same exceptions are passed through observable.
    */
   public Completable overwriteAsync(final String pathname) {
     return Completable.fromAction(new Action() {
       @Override
-      public void run() throws IOException {
+      public void run() throws Exception {
         overwrite(pathname);
       }
     })
@@ -210,12 +288,12 @@ public class FileLink {
 
   /**
    * Async, observable version of {@link #delete()}.
-   * Throws same exceptions.
+   * Same exceptions are passed through observable.
    */
   public Completable deleteAsync() {
     return Completable.fromAction(new Action() {
       @Override
-      public void run() throws IOException {
+      public void run() throws Exception {
         delete();
       }
     })
@@ -224,7 +302,7 @@ public class FileLink {
   }
 
   /**
-   * Creates an image transformation object for this file.
+   * Creates an {@link ImageTransform} object for this file.
    * A transformation call isn't made directly by this method.
    *
    * @return {@link ImageTransform ImageTransform} instance configured for this file

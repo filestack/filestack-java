@@ -17,8 +17,6 @@ import com.filestack.util.Networking;
 
 import com.google.gson.JsonObject;
 
-import java.io.IOException;
-
 import okhttp3.OkHttpClient;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -42,7 +40,7 @@ public class TestImageTransform {
   }
 
   @Test
-  public void testDebug() throws IOException {
+  public void testDebug() throws Exception {
     ImageTransform transform = FILE_LINK.imageTransform();
     JsonObject debugResponse = transform.debug();
     String message = "Debug response was null";
@@ -50,7 +48,7 @@ public class TestImageTransform {
   }
 
   @Test
-  public void testDebugUrl() throws IOException {
+  public void testDebugUrl() throws Exception {
     FilestackService fsService = Networking.getFsService();
 
     String correct = FilestackService.URL + "debug/" + RESIZE_TASK_STRING
@@ -66,7 +64,7 @@ public class TestImageTransform {
   }
 
   @Test
-  public void testDebugExternal() throws IOException {
+  public void testDebugExternal() throws Exception {
     ImageTransform transform = FS_CLIENT.imageTransform(SOURCE);
     JsonObject debugResponse = transform.debug();
     String message = "External debug response was null";
@@ -74,7 +72,7 @@ public class TestImageTransform {
   }
 
   @Test
-  public void testDebugExternalUrl() throws IOException {
+  public void testDebugExternalUrl() throws Exception {
     FilestackService fsService = Networking.getFsService();
 
     // Retrofit will return the URL with some characters escaped
@@ -95,7 +93,7 @@ public class TestImageTransform {
    * Tests conversion of JSON response into POJO and creation of a new {@link FileLink} object.
    */
   @Test
-  public void testStore() throws IOException {
+  public void testStore() throws Exception {
     StoreOptions storeOptions = new StoreOptions();
     FilestackService fsService = Networking.getFsService();
     StoreResponse storeResponse;
@@ -117,8 +115,8 @@ public class TestImageTransform {
     assertTrue(filelink.getHandle().equals("NEW_HANDLE"));
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testAddNullTask() throws IOException {
+  @Test(expected = NullPointerException.class)
+  public void testAddNullTask() throws Exception {
     ImageTransform transform = FILE_LINK.imageTransform();
     transform.addTask(null);
   }
