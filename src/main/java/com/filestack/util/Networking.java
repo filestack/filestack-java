@@ -12,8 +12,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public class Networking {
   private static OkHttpClient httpClient;
-  private static FilestackService fsService;
-  private static FilestackUploadService fsUploadService;
+  private static FsApiService fsApiService;
+  private static FsCdnService fsCdnService;
+  private static FsUploadService fsUploadService;
 
   /**
    * Get http client singleton.
@@ -32,23 +33,34 @@ public class Networking {
   }
 
   /**
-   * Get {@link FilestackService} singleton.
+   * Get {@link FsApiService} singleton.
    */
-  public static FilestackService getFsService() {
-    if (fsService == null) {
-      Retrofit retrofit = getRetrofitBuilder().baseUrl(FilestackService.URL).build();
-      fsService = retrofit.create(FilestackService.class);
+  public static FsApiService getFsApiService() {
+    if (fsApiService == null) {
+      Retrofit retrofit = getRetrofitBuilder().baseUrl(FsApiService.URL).build();
+      fsApiService = retrofit.create(FsApiService.class);
     }
-    return fsService;
+    return fsApiService;
   }
 
   /**
-   * Get {@link FilestackUploadService} singleton.
+   * Get {@link FsCdnService} singleton.
    */
-  public static FilestackUploadService getFsUploadService() {
+  public static FsCdnService getFsCdnService() {
+    if (fsCdnService == null) {
+      Retrofit retrofit = getRetrofitBuilder().baseUrl(FsCdnService.URL).build();
+      fsCdnService = retrofit.create(FsCdnService.class);
+    }
+    return fsCdnService;
+  }
+
+  /**
+   * Get {@link FsUploadService} singleton.
+   */
+  public static FsUploadService getFsUploadService() {
     if (fsUploadService == null) {
-      Retrofit retrofit = getRetrofitBuilder().baseUrl(FilestackUploadService.URL).build();
-      fsUploadService = retrofit.create(FilestackUploadService.class);
+      Retrofit retrofit = getRetrofitBuilder().baseUrl(FsUploadService.URL).build();
+      fsUploadService = retrofit.create(FsUploadService.class);
     }
     return fsUploadService;
   }
@@ -82,7 +94,8 @@ public class Networking {
    * Sets the services to null so they'll be recreated.
    */
   private static void invalidate() {
-    fsService = null;
+    fsApiService = null;
+    fsCdnService = null;
     fsUploadService = null;
   }
 }

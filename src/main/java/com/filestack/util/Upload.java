@@ -38,7 +38,7 @@ public class Upload {
   private static final int MIN_CHUNK_SIZE = 32 * 1024;
 
   private final FilestackClient fsClient;
-  private final FilestackUploadService fsUploadService;
+  private final FsUploadService fsUploadService;
 
   private final int delayBase;
   private final long filesize;
@@ -75,7 +75,7 @@ public class Upload {
    * @throws ValidationException if the pathname doesn't exist or isn't a regular file
    */
   public Upload(String pathname, FilestackClient fsClient, UploadOptions options,
-                FilestackUploadService fsUploadService, int delayBase)
+                FsUploadService fsUploadService, int delayBase)
       throws ValidationException {
 
     this.filepath = pathname;

@@ -51,12 +51,16 @@ public class MockInterceptor implements Interceptor {
 
     if (MOCK_BASE_URL.contains(host)) {
       builder = genSimpleResponse(path.get(0));
-    } else if (request.method().equals("GET") && url.pathSegments().size() == 1) {
-      builder = genCdnResponse(path.get(0));
-    } else if (url.pathSegments().size() == 1) {
+    } else if (FsApiService.URL.contains(host)) {
       builder = genApiResponse(request);
+    } else if (FsCdnService.URL.contains(host)) {
+      if (path.size() == 1) {
+        builder = genCdnResponse(path.get(0));
+      } else {
+        builder = genProcessResponse(request);
+      }
     } else {
-      builder = genProcessResponse(request);
+      throw new IOException("Host not mocked");
     }
 
     return builder
