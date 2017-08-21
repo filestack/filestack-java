@@ -21,7 +21,7 @@ public class TestRetryNetworkFunc {
 
       @Override
       Response work() throws Exception {
-        throw new Exception();
+        throw new IOException();
       }
     };
 
