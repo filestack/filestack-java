@@ -4,8 +4,8 @@ import com.filestack.transforms.ImageTransformTask;
 
 public class BlurFacesTask extends ImageTransformTask {
 
-  // Constructor made private because this task cannot be used with default options
-  private BlurFacesTask() {
+  // Constructor made package-private because this task cannot be used with default options
+  BlurFacesTask() {
     super("pixelate_faces");
   }
 

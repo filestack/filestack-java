@@ -9,6 +9,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.filestack.FileLink;
+import com.filestack.FilestackClient;
 import com.filestack.responses.StoreResponse;
 import com.filestack.transforms.tasks.StoreOptions;
 import com.filestack.util.FsCdnService;
@@ -19,6 +20,7 @@ import com.google.gson.JsonObject;
 
 import okhttp3.OkHttpClient;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -41,10 +43,10 @@ public class TestImageTransform {
 
   @Test
   public void testDebug() throws Exception {
-    ImageTransform transform = FILE_LINK.imageTransform();
-    JsonObject debugResponse = transform.debug();
-    String message = "Debug response was null";
-    assertTrue(message, debugResponse != null);
+    FileLink fileLink = new FileLink("apiKey", "handle");
+    Assert.assertNotNull(fileLink.imageTransform().debug());
+    FilestackClient client = new FilestackClient("apiKey");
+    Assert.assertNotNull(client.imageTransform("https://example.com/image.jpg").debug());
   }
 
   @Test
@@ -89,30 +91,12 @@ public class TestImageTransform {
     assertTrue(message, output.equals(correct));
   }
 
-  /**
-   * Tests conversion of JSON response into POJO and creation of a new {@link FileLink} object.
-   */
   @Test
   public void testStore() throws Exception {
-    StoreOptions storeOptions = new StoreOptions();
-    FsCdnService fsCdnService = Networking.getFsCdnService();
-    StoreResponse storeResponse;
-    storeResponse = fsCdnService.transformStore(storeOptions.toString(), FILE_LINK.getHandle())
-        .execute()
-        .body();
-
-    assertNotNull(storeResponse);
-    assertTrue(storeResponse.getContainer().equals("my_bucket"));
-    assertTrue(storeResponse.getKey().equals("NEW_HANDLE_some_file.jpg"));
-    assertTrue(storeResponse.getFilename().equals("some_file.jpg"));
-    assertTrue(storeResponse.getType().equals("image/jpeg"));
-    assertEquals(storeResponse.getWidth(), 1000);
-    assertEquals(storeResponse.getHeight(), 1000);
-    assertEquals(storeResponse.getSize(), 200000);
-
-    ImageTransform transform = FILE_LINK.imageTransform();
-    FileLink filelink = transform.store();
-    assertTrue(filelink.getHandle().equals("NEW_HANDLE"));
+    FileLink fileLink = new FileLink("apiKey", "handle");
+    Assert.assertNotNull(fileLink.imageTransform().store());
+    FilestackClient client = new FilestackClient("apiKey");
+    Assert.assertNotNull(client.imageTransform("https://example.com/image.jpg").store());
   }
 
   @Test(expected = NullPointerException.class)

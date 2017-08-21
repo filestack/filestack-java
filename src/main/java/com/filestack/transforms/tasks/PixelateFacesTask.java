@@ -4,8 +4,8 @@ import com.filestack.transforms.ImageTransformTask;
 
 public class PixelateFacesTask extends ImageTransformTask {
 
-  // Constructor made private because this task cannot be used with default options
-  private PixelateFacesTask() {
+  // Constructor made package-private because this task cannot be used with default options
+  PixelateFacesTask() {
     super("pixelate_faces");
   }
 

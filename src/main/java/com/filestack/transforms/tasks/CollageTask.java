@@ -6,8 +6,8 @@ import java.util.ArrayList;
 
 public class CollageTask extends ImageTransformTask {
 
-  // Constructor made private because this task cannot be used with default options
-  private CollageTask() {
+  // Constructor made package-private because this task cannot be used with default options
+  CollageTask() {
     super("collage");
   }
 

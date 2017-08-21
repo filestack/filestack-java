@@ -4,8 +4,8 @@ import com.filestack.transforms.ImageTransformTask;
 
 public class ResizeTask extends ImageTransformTask {
 
-  // Constructor made private because this task cannot be used with default options
-  private ResizeTask() {
+  // Constructor made package-private because this task cannot be used with default options
+  ResizeTask() {
     super("resize");
   }
 
