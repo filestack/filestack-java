@@ -83,7 +83,7 @@ public class UploadOptions {
     }
 
     /**
-     * Sets if the upload should use Filestack Intelligent Ingestion.
+     * Sets if the upload should use Filestack Intelligent Ingestion. Enabled by default.
      * This must also be enabled on your account to work, if not it will be ignored.
      */
     public Builder intelligent(boolean intelligent) {
