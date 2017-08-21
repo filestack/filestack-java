@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -167,6 +167,18 @@ extends java.lang.Object</pre>
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../com/filestack/util/RetryNetworkFunc.html#getServerRetries--">getServerRetries</a></span>()</code>&nbsp;</td>
 </tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../com/filestack/util/RetryNetworkFunc.html#onNetworkFail-int-">onNetworkFail</a></span>(int&nbsp;retries)</code>
+<div class="block">Called for network failures.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../com/filestack/util/RetryNetworkFunc.html#onServerFail-int-">onServerFail</a></span>(int&nbsp;retries)</code>
+<div class="block">Called for server failures.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -230,6 +242,26 @@ extends java.lang.Object</pre>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code>java.lang.Exception</code></dd>
 </dl>
+</li>
+</ul>
+<a name="onNetworkFail-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onNetworkFail</h4>
+<pre>public&nbsp;void&nbsp;onNetworkFail(int&nbsp;retries)</pre>
+<div class="block">Called for network failures.</div>
+</li>
+</ul>
+<a name="onServerFail-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onServerFail</h4>
+<pre>public&nbsp;void&nbsp;onServerFail(int&nbsp;retries)</pre>
+<div class="block">Called for server failures.</div>
 </li>
 </ul>
 <a name="getNetworkRetries--">
