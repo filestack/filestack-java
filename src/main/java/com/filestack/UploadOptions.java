@@ -98,6 +98,9 @@ public class UploadOptions {
       if (!map.containsKey("store_location")) {
         map.put("store_location", Util.createStringPart("s3"));
       }
+      if (!map.containsKey("multipart")) {
+        map.put("multipart", Util.createStringPart("true"));
+      }
       return new UploadOptions(map);
     }
   }
