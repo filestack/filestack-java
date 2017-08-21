@@ -63,6 +63,7 @@ public class TestUpload {
     UploadOptions options = new UploadOptions.Builder().build();
     Upload upload = new Upload(path.toString(), fsClient, options, mockUploadService, 0);
 
+    behavior.setFailurePercent(0);
     behavior.setDelay(0, TimeUnit.SECONDS);
 
     FileLink fileLink = upload.run();
