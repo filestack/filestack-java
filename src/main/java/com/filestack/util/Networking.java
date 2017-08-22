@@ -16,9 +16,7 @@ public class Networking {
   private static FsCdnService fsCdnService;
   private static FsUploadService fsUploadService;
 
-  /**
-   * Get http client singleton.
-   */
+  /** Get http client singleton. */
   public static OkHttpClient getHttpClient() {
     if (httpClient == null) {
       httpClient = new OkHttpClient.Builder()
@@ -65,23 +63,19 @@ public class Networking {
     return fsUploadService;
   }
 
-  /**
-   * Set a custom http client.
-   */
+  /** Set a custom http client. */
   public static void setCustomClient(OkHttpClient client) {
     if (client == null) {
       return;
     }
     httpClient = client;
-    invalidate();
+    invalidateServices();
   }
 
-  /**
-   * Remove custom http client. Resets to use default client.
-   */
-  public static void removeCustomClient() {
+  /** Sets all singletons to null so they'll be recreated. */
+  public static void invalidate() {
     httpClient = null;
-    invalidate();
+    invalidateServices();
   }
 
   private static Retrofit.Builder getRetrofitBuilder() {
@@ -90,10 +84,8 @@ public class Networking {
         .addConverterFactory(GsonConverterFactory.create());
   }
 
-  /**
-   * Sets the services to null so they'll be recreated.
-   */
-  private static void invalidate() {
+  /** Sets the services to null so they'll be recreated. */
+  private static void invalidateServices() {
     fsApiService = null;
     fsCdnService = null;
     fsUploadService = null;

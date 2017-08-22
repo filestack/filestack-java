@@ -4,8 +4,8 @@ import com.filestack.transforms.ImageTransformTask;
 
 public class CropFacesTask extends ImageTransformTask {
 
-  // Constructor made private because this task cannot be used with default options
-  private CropFacesTask() {
+  // Constructor made package-private because this task cannot be used with default options
+  CropFacesTask() {
     super("crop_faces");
   }
 
