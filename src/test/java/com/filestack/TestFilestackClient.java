@@ -53,7 +53,7 @@ public class TestFilestackClient {
     Security security = Security.createNew(policy, "app_secret");
 
     FilestackClient client1 = new FilestackClient("apiKey");
-    FilestackClient client3 = new FilestackClient("apiKey", security);
+    FilestackClient client2 = new FilestackClient("apiKey", security);
   }
 
   @Test
@@ -64,8 +64,12 @@ public class TestFilestackClient {
     Policy policy = new Policy.Builder().giveFullAccess().build();
     Security security = Security.createNew(policy, "app_secret");
 
-    FilestackClient client = new FilestackClient("apiKey", security);
-    client.setFsUploadService(mockUploadService);
+    FilestackClient client = new FilestackClient.Builder()
+        .apiKey("api_key")
+        .security(security)
+        .service(mockUploadService)
+        .delayBase(0)
+        .build();
 
     behavior.setFailurePercent(0);
     behavior.setDelay(0, TimeUnit.SECONDS);
@@ -73,8 +77,8 @@ public class TestFilestackClient {
     Path path = createRandomFile(10 * 1024 * 1024);
     UploadOptions options = new UploadOptions.Builder().build();
 
-    Assert.assertEquals("handle", client.upload(path.toString(), 0).getHandle());
-    Assert.assertEquals("handle", client.upload(path.toString(), options, 0).getHandle());
+    Assert.assertEquals("handle", client.upload(path.toString()).getHandle());
+    Assert.assertEquals("handle", client.upload(path.toString(), options).getHandle());
 
     Files.delete(path);
   }
