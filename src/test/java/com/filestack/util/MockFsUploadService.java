@@ -20,7 +20,7 @@ public class MockFsUploadService implements FsUploadService {
   private final BehaviorDelegate<FsUploadService> delegate;
   private final Gson gson;
 
-  MockFsUploadService(BehaviorDelegate<FsUploadService> delegate) {
+  public MockFsUploadService(BehaviorDelegate<FsUploadService> delegate) {
     this.delegate = delegate;
     this.gson = new Gson();
   }
