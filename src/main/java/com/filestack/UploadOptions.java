@@ -13,7 +13,7 @@ import okhttp3.RequestBody;
 public class UploadOptions {
   HashMap<String, RequestBody> map;
 
-  private UploadOptions(HashMap<String, RequestBody> map) {
+  UploadOptions(HashMap<String, RequestBody> map) {
     this.map = map;
   }
 
