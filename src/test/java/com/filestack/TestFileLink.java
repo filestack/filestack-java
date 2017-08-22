@@ -13,7 +13,6 @@ import com.filestack.util.Networking;
 import com.google.common.io.Files;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 
 import okhttp3.OkHttpClient;
 import org.junit.AfterClass;
@@ -136,6 +135,6 @@ public class TestFileLink {
    */
   @AfterClass
   public static void teardown() {
-    Networking.removeCustomClient();
+    Networking.invalidate();
   }
 }

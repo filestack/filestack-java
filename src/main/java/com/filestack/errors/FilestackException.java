@@ -1,7 +1,7 @@
 package com.filestack.errors;
 
 /**
- * Base {@link Exception} subclass for all library exceptions.
+ * Base {@link Exception} subclass for all checked library exceptions.
  */
 public class FilestackException extends Exception {
 

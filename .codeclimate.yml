@@ -1,0 +1,12 @@
+engines:
+  checkstyle:
+    enabled: true
+    channel: "beta"
+    config: 'config/checkstyle/checkstyle.xml'
+
+ratings:
+  paths:
+  - "**.java"
+
+exclude_paths:
+- docs/

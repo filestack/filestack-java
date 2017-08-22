@@ -4,8 +4,8 @@ import com.filestack.transforms.ImageTransformTask;
 
 public class WatermarkTask extends ImageTransformTask {
 
-  // Constructor made private because this task cannot be used with default options
-  private WatermarkTask() {
+  // Constructor made package-private because this task cannot be used with default options
+  WatermarkTask() {
     super("watermark");
   }
 

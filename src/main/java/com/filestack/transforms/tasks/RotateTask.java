@@ -4,8 +4,8 @@ import com.filestack.transforms.ImageTransformTask;
 
 public class RotateTask extends ImageTransformTask {
 
-  // Constructor made private because this task cannot be used with default options
-  private RotateTask() {
+  // Constructor made package-private because this task cannot be used with default options
+  RotateTask() {
     super("rotate");
   }
 
