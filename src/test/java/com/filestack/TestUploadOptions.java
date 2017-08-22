@@ -1,10 +1,9 @@
 package com.filestack;
 
+import java.util.Map;
 import okhttp3.RequestBody;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.Map;
 
 public class TestUploadOptions {
 
