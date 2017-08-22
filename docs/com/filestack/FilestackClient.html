@@ -48,7 +48,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../com/filestack/FileLink.html" title="class in com.filestack"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../com/filestack/Policy.html" title="class in com.filestack"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../com/filestack/FilestackClient.Builder.html" title="class in com.filestack"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../index.html?com/filestack/FilestackClient.html" target="_top">Frames</a></li>
@@ -72,7 +72,7 @@ var activeTableTab = "activeTableTab";
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -116,6 +116,27 @@ extends java.lang.Object</pre>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Class and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FilestackClient.Builder.html" title="class in com.filestack">FilestackClient.Builder</a></span></code>
+<div class="block">Builds new <a href="../../com/filestack/FilestackClient.html" title="class in com.filestack"><code>FilestackClient</code></a>.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor.summary">
@@ -170,27 +191,27 @@ extends java.lang.Object</pre>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="../../com/filestack/FileLink.html" title="class in com.filestack">FileLink</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FilestackClient.html#upload-java.lang.String-">upload</a></span>(java.lang.String&nbsp;pathname)</code>
-<div class="block">Upload local file to Filestack using default storage options.</div>
+<div class="block">Upload local file using default storage options.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../../com/filestack/FileLink.html" title="class in com.filestack">FileLink</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FilestackClient.html#upload-java.lang.String-com.filestack.UploadOptions-">upload</a></span>(java.lang.String&nbsp;pathname,
       <a href="../../com/filestack/UploadOptions.html" title="class in com.filestack">UploadOptions</a>&nbsp;options)</code>
-<div class="block">Upload local file to Filestack using custom storage options.</div>
+<div class="block">Upload local file using custom storage options.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>io.reactivex.Single&lt;<a href="../../com/filestack/FileLink.html" title="class in com.filestack">FileLink</a>&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FilestackClient.html#uploadAsync-java.lang.String-">uploadAsync</a></span>(java.lang.String&nbsp;filepath)</code>
-<div class="block">Async, observable version of <a href="../../com/filestack/FilestackClient.html#upload-java.lang.String-"><code>upload(String)</code></a>.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FilestackClient.html#uploadAsync-java.lang.String-">uploadAsync</a></span>(java.lang.String&nbsp;pathname)</code>
+<div class="block">Asynchronously upload local file using default storage options.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>io.reactivex.Single&lt;<a href="../../com/filestack/FileLink.html" title="class in com.filestack">FileLink</a>&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FilestackClient.html#uploadAsync-java.lang.String-com.filestack.UploadOptions-">uploadAsync</a></span>(java.lang.String&nbsp;filepath,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FilestackClient.html#uploadAsync-java.lang.String-com.filestack.UploadOptions-">uploadAsync</a></span>(java.lang.String&nbsp;pathname,
            <a href="../../com/filestack/UploadOptions.html" title="class in com.filestack">UploadOptions</a>&nbsp;options)</code>
-<div class="block">Async, observable version of <a href="../../com/filestack/FilestackClient.html#upload-java.lang.String-com.filestack.UploadOptions-"><code>upload(String, UploadOptions)</code></a>.</div>
+<div class="block">Asynchronously upload local file using custom storage options.</div>
 </td>
 </tr>
 </table>
@@ -224,8 +245,8 @@ extends java.lang.Object</pre>
 <pre>public&nbsp;FilestackClient(java.lang.String&nbsp;apiKey)</pre>
 <div class="block">Constructs an instance without security.</div>
 <dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>apiKey</code> - account key from the dev portal</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../com/filestack/FilestackClient.html#FilestackClient-java.lang.String-com.filestack.Security-"><code>FilestackClient(String, Security)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -265,18 +286,16 @@ extends java.lang.Object</pre>
                        <a href="../../com/filestack/errors/PolicySignatureException.html" title="class in com.filestack.errors">PolicySignatureException</a>,
                        <a href="../../com/filestack/errors/InvalidParameterException.html" title="class in com.filestack.errors">InvalidParameterException</a>,
                        <a href="../../com/filestack/errors/InternalException.html" title="class in com.filestack.errors">InternalException</a></pre>
-<div class="block">Upload local file to Filestack using default storage options.</div>
+<div class="block">Upload local file using default storage options.</div>
 <dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>pathname</code> - path to the file, can be local or absolute</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>new <a href="../../com/filestack/FileLink.html" title="class in com.filestack"><code>FileLink</code></a> referencing file</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../com/filestack/errors/ValidationException.html" title="class in com.filestack.errors">ValidationException</a></code> - if the pathname doesn't exist or isn't a regular file</dd>
-<dd><code>java.io.IOException</code> - if request fails because of network or other IO issue</dd>
-<dd><code><a href="../../com/filestack/errors/PolicySignatureException.html" title="class in com.filestack.errors">PolicySignatureException</a></code> - if policy and/or signature are invalid or inadequate</dd>
-<dd><code><a href="../../com/filestack/errors/InvalidParameterException.html" title="class in com.filestack.errors">InvalidParameterException</a></code> - if a request parameter is missing or invalid</dd>
-<dd><code><a href="../../com/filestack/errors/InternalException.html" title="class in com.filestack.errors">InternalException</a></code> - if unexpected error occurs</dd>
+<dd><code><a href="../../com/filestack/errors/ValidationException.html" title="class in com.filestack.errors">ValidationException</a></code></dd>
+<dd><code>java.io.IOException</code></dd>
+<dd><code><a href="../../com/filestack/errors/PolicySignatureException.html" title="class in com.filestack.errors">PolicySignatureException</a></code></dd>
+<dd><code><a href="../../com/filestack/errors/InvalidParameterException.html" title="class in com.filestack.errors">InvalidParameterException</a></code></dd>
+<dd><code><a href="../../com/filestack/errors/InternalException.html" title="class in com.filestack.errors">InternalException</a></code></dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../com/filestack/FilestackClient.html#upload-java.lang.String-com.filestack.UploadOptions-"><code>upload(String, UploadOptions)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -293,7 +312,7 @@ extends java.lang.Object</pre>
                        <a href="../../com/filestack/errors/PolicySignatureException.html" title="class in com.filestack.errors">PolicySignatureException</a>,
                        <a href="../../com/filestack/errors/InvalidParameterException.html" title="class in com.filestack.errors">InvalidParameterException</a>,
                        <a href="../../com/filestack/errors/InternalException.html" title="class in com.filestack.errors">InternalException</a></pre>
-<div class="block">Upload local file to Filestack using custom storage options.</div>
+<div class="block">Upload local file using custom storage options.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>pathname</code> - path to the file, can be local or absolute</dd>
@@ -315,9 +334,12 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>uploadAsync</h4>
-<pre>public&nbsp;io.reactivex.Single&lt;<a href="../../com/filestack/FileLink.html" title="class in com.filestack">FileLink</a>&gt;&nbsp;uploadAsync(java.lang.String&nbsp;filepath)</pre>
-<div class="block">Async, observable version of <a href="../../com/filestack/FilestackClient.html#upload-java.lang.String-"><code>upload(String)</code></a>.
- Same exceptions are passed through observable.</div>
+<pre>public&nbsp;io.reactivex.Single&lt;<a href="../../com/filestack/FileLink.html" title="class in com.filestack">FileLink</a>&gt;&nbsp;uploadAsync(java.lang.String&nbsp;pathname)</pre>
+<div class="block">Asynchronously upload local file using default storage options.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../com/filestack/FilestackClient.html#upload-java.lang.String-com.filestack.UploadOptions-"><code>upload(String, UploadOptions)</code></a></dd>
+</dl>
 </li>
 </ul>
 <a name="uploadAsync-java.lang.String-com.filestack.UploadOptions-">
@@ -326,10 +348,13 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>uploadAsync</h4>
-<pre>public&nbsp;io.reactivex.Single&lt;<a href="../../com/filestack/FileLink.html" title="class in com.filestack">FileLink</a>&gt;&nbsp;uploadAsync(java.lang.String&nbsp;filepath,
+<pre>public&nbsp;io.reactivex.Single&lt;<a href="../../com/filestack/FileLink.html" title="class in com.filestack">FileLink</a>&gt;&nbsp;uploadAsync(java.lang.String&nbsp;pathname,
                                                  <a href="../../com/filestack/UploadOptions.html" title="class in com.filestack">UploadOptions</a>&nbsp;options)</pre>
-<div class="block">Async, observable version of <a href="../../com/filestack/FilestackClient.html#upload-java.lang.String-com.filestack.UploadOptions-"><code>upload(String, UploadOptions)</code></a>.
- Same exceptions are passed through observable.</div>
+<div class="block">Asynchronously upload local file using custom storage options.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../com/filestack/FilestackClient.html#upload-java.lang.String-com.filestack.UploadOptions-"><code>upload(String, UploadOptions)</code></a></dd>
+</dl>
 </li>
 </ul>
 <a name="imageTransform-java.lang.String-">
@@ -393,7 +418,7 @@ extends java.lang.Object</pre>
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../com/filestack/FileLink.html" title="class in com.filestack"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../com/filestack/Policy.html" title="class in com.filestack"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../com/filestack/FilestackClient.Builder.html" title="class in com.filestack"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../index.html?com/filestack/FilestackClient.html" target="_top">Frames</a></li>
@@ -417,7 +442,7 @@ extends java.lang.Object</pre>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
