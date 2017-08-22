@@ -2,6 +2,8 @@ package com.filestack.util;
 
 import com.filestack.FileLink;
 import com.filestack.FilestackClient;
+import com.filestack.Policy;
+import com.filestack.Security;
 import com.filestack.UploadOptions;
 
 import java.io.IOException;
@@ -53,13 +55,35 @@ public class TestUpload {
   }
 
   @Test
-  public void test() throws Exception {
+  public void testInstantiation() throws Exception {
     Path path = createRandomFile(10 * 1024 * 1024);
 
     NetworkBehavior behavior = NetworkBehavior.create();
     MockFsUploadService mockUploadService = createMockUploadService(behavior);
 
-    FilestackClient fsClient = new FilestackClient("apiKey");
+    Policy policy = new Policy.Builder().giveFullAccess().build();
+    Security security = Security.createNew(policy, "app_secret");
+    FilestackClient fsClient = new FilestackClient("apiKey", security);
+    UploadOptions options = new UploadOptions.Builder().build();
+
+    Upload upload = new Upload(path.toString(), fsClient, options);
+    Assert.assertNotNull(upload);
+    upload = new Upload(path.toString(), fsClient, options, mockUploadService, 0);
+    Assert.assertNotNull(upload);
+
+    Files.delete(path);
+  }
+
+  @Test
+  public void testRun() throws Exception {
+    Path path = createRandomFile(10 * 1024 * 1024);
+
+    NetworkBehavior behavior = NetworkBehavior.create();
+    MockFsUploadService mockUploadService = createMockUploadService(behavior);
+
+    Policy policy = new Policy.Builder().giveFullAccess().build();
+    Security security = Security.createNew(policy, "app_secret");
+    FilestackClient fsClient = new FilestackClient("apiKey", security);
     UploadOptions options = new UploadOptions.Builder().build();
     Upload upload = new Upload(path.toString(), fsClient, options, mockUploadService, 0);
 

@@ -10,8 +10,6 @@ import static org.junit.Assert.assertTrue;
 
 import com.filestack.FileLink;
 import com.filestack.FilestackClient;
-import com.filestack.responses.StoreResponse;
-import com.filestack.transforms.tasks.StoreOptions;
 import com.filestack.util.FsCdnService;
 import com.filestack.util.MockInterceptor;
 import com.filestack.util.Networking;
@@ -110,6 +108,6 @@ public class TestImageTransform {
    */
   @AfterClass
   public static void teardown() {
-    Networking.removeCustomClient();
+    Networking.invalidate();
   }
 }
