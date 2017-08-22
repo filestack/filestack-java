@@ -49,16 +49,11 @@ public class TestFilestackClient {
 
   @Test
   public void testConstructors() {
-    NetworkBehavior behavior = NetworkBehavior.create();
-    MockFsUploadService mockUploadService = createMockUploadService(behavior);
-
     Policy policy = new Policy.Builder().giveFullAccess().build();
     Security security = Security.createNew(policy, "app_secret");
 
     FilestackClient client1 = new FilestackClient("apiKey");
-    FilestackClient client2 = new FilestackClient("apiKey", mockUploadService);
     FilestackClient client3 = new FilestackClient("apiKey", security);
-    FilestackClient client4 = new FilestackClient("apiKey", security, mockUploadService);
   }
 
   @Test
@@ -69,7 +64,8 @@ public class TestFilestackClient {
     Policy policy = new Policy.Builder().giveFullAccess().build();
     Security security = Security.createNew(policy, "app_secret");
 
-    FilestackClient client = new FilestackClient("apiKey", security, mockUploadService);
+    FilestackClient client = new FilestackClient("apiKey", security);
+    client.setFsUploadService(mockUploadService);
 
     behavior.setFailurePercent(0);
     behavior.setDelay(0, TimeUnit.SECONDS);

@@ -23,45 +23,21 @@ public class FilestackClient {
   /**
    * Constructs an instance without security.
    *
-   * @see #FilestackClient(String, Security, FsUploadService)
+   * @see #FilestackClient(String, Security)
    */
   public FilestackClient(String apiKey) {
-    this(apiKey, null, null);
-  }
-
-  /**
-   * Constructs an instance without security using provided {@link FsUploadService}.
-   *
-   * @see #FilestackClient(String, Security, FsUploadService)
-   */
-  public FilestackClient(String apiKey, FsUploadService fsUploadService) {
-    this(apiKey, null, fsUploadService);
+    this(apiKey, null);
   }
 
   /**
    * Constructs an instance with security.
    *
-   * @see #FilestackClient(String, Security, FsUploadService)
-   */
-  public FilestackClient(String apiKey, Security security) {
-    this(apiKey, security, null);
-  }
-
-  /**
-   * Constructs an instance with security using provided {@link FsUploadService}.
-   *
    * @param apiKey          account key from the dev portal
    * @param security        needs required permissions for your intended actions
-   * @param fsUploadService service to use instead of global singleton
    */
-  public FilestackClient(String apiKey, Security security, FsUploadService fsUploadService) {
+  public FilestackClient(String apiKey, Security security) {
     this.apiKey = apiKey;
     this.security = security;
-    if (fsUploadService != null) {
-      this.fsUploadService = fsUploadService;
-    } else {
-      this.fsUploadService = Networking.getFsUploadService();
-    }
   }
 
   /**
@@ -181,6 +157,10 @@ public class FilestackClient {
    */
   public ImageTransform imageTransform(String url) {
     return new ImageTransform(this, url);
+  }
+
+  public void setFsUploadService(FsUploadService fsUploadService) {
+    this.fsUploadService = fsUploadService;
   }
 
   public String getApiKey() {
