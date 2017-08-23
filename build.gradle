@@ -1,8 +1,10 @@
 plugins {
     id 'com.jfrog.bintray' version '1.7.3'
+    id 'com.github.kt3k.coveralls' version '2.6.3'
 }
 
 apply plugin: 'checkstyle'
+apply plugin: 'jacoco'
 apply plugin: 'java-library'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
@@ -14,6 +16,13 @@ group = 'com.filestack'
 javadoc {
     destinationDir new File("./docs")
     options.optionFiles(new File('./config/javadoc/javadoc.txt'))
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true // coveralls plugin depends on xml format report
+        html.enabled = true
+    }
 }
 
 repositories {
