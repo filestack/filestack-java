@@ -1,8 +1,5 @@
-<!--
-[![Travis CI][travis_ci_badge]][travis_ci]
-[![Coveralls][coveralls_badge]][coveralls]
-[![Code Climate][code_climate_badge]][code_climate]
--->
+[![Bintray][bintray_badge]][bintray]
+[![Travis][travis_badge]][travis]
 
 # Filestack Java SDK
 <a href="https://www.filestack.com"><img src="https://filestack.com/themes/filestack/assets/images/press-articles/color.svg" align="left" hspace="10" vspace="6"></a>
@@ -44,9 +41,7 @@ Please see [CONTRIBUTING.md](https://github.com/filestack/filestack-java/blob/ma
 
 Thank you to all the [contributors](https://github.com/filestack/filestack-java/graphs/contributors). :clap: :clap: :clap:
 
-[travis_ci]: http://travis-ci.org/filestack/filestack-java
-[travis_ci_badge]: https://travis-ci.org/filestack/filestack-java.svg?branch=master
-[code_climate]: https://codeclimate.com/github/filestack/filestack-java
-[code_climate_badge]: https://codeclimate.com/github/filestack/filestack-java.png
-[coveralls]: https://coveralls.io/github/filestack/filestack-java?branch=master
-[coveralls_badge]: https://coveralls.io/repos/github/filestack/filestack-java/badge.svg?branch=master
+[bintray]: https://bintray.com/filestack/maven/filestack-java/
+[bintray_badge]: https://img.shields.io/bintray/v/filestack/maven/filestack-java.svg?style=flat-square
+[travis]: https://travis-ci.org/filestack/filestack-java
+[travis_badge]: https://img.shields.io/travis/filestack/filestack-java.svg?style=flat-square
