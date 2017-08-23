@@ -113,6 +113,8 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/filestack/transforms/tasks/VignetteTask.Builder.html#amount-int-">amount(int)</a></span> - Method in class com.filestack.transforms.tasks.<a href="com/filestack/transforms/tasks/VignetteTask.Builder.html" title="class in com.filestack.transforms.tasks">VignetteTask.Builder</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/filestack/FilestackClient.Builder.html#apiKey-java.lang.String-">apiKey(String)</a></span> - Method in class com.filestack.<a href="com/filestack/FilestackClient.Builder.html" title="class in com.filestack">FilestackClient.Builder</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/filestack/transforms/tasks/AsciiTask.html" title="class in com.filestack.transforms.tasks"><span class="typeNameLink">AsciiTask</span></a> - Class in <a href="com/filestack/transforms/tasks/package-summary.html">com.filestack.transforms.tasks</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/filestack/transforms/tasks/AsciiTask.html#AsciiTask--">AsciiTask()</a></span> - Constructor for class com.filestack.transforms.tasks.<a href="com/filestack/transforms/tasks/AsciiTask.html" title="class in com.filestack.transforms.tasks">AsciiTask</a></dt>
@@ -189,6 +191,8 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/filestack/transforms/tasks/PixelateFacesTask.Builder.html#buffer-int-">buffer(int)</a></span> - Method in class com.filestack.transforms.tasks.<a href="com/filestack/transforms/tasks/PixelateFacesTask.Builder.html" title="class in com.filestack.transforms.tasks">PixelateFacesTask.Builder</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/filestack/FilestackClient.Builder.html#build--">build()</a></span> - Method in class com.filestack.<a href="com/filestack/FilestackClient.Builder.html" title="class in com.filestack">FilestackClient.Builder</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/filestack/Policy.Builder.html#build--">build()</a></span> - Method in class com.filestack.<a href="com/filestack/Policy.Builder.html" title="class in com.filestack">Policy.Builder</a></dt>
 <dd>
 <div class="block">Create the <a href="com/filestack/Policy.html" title="class in com.filestack"><code>Policy</code></a> instance using the configured values.</div>
@@ -239,6 +243,8 @@
 <dd>
 <div class="block">Create the <a href="com/filestack/UploadOptions.html" title="class in com.filestack"><code>UploadOptions</code></a> instance using the configured values.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/filestack/FilestackClient.Builder.html#Builder--">Builder()</a></span> - Constructor for class com.filestack.<a href="com/filestack/FilestackClient.Builder.html" title="class in com.filestack">FilestackClient.Builder</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/filestack/Policy.Builder.html#Builder--">Builder()</a></span> - Constructor for class com.filestack.<a href="com/filestack/Policy.Builder.html" title="class in com.filestack">Policy.Builder</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/filestack/transforms/tasks/AsciiTask.Builder.html#Builder--">Builder()</a></span> - Constructor for class com.filestack.transforms.tasks.<a href="com/filestack/transforms/tasks/AsciiTask.Builder.html" title="class in com.filestack.transforms.tasks">AsciiTask.Builder</a></dt>
@@ -441,6 +447,8 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/filestack/transforms/tasks/UrlScreenshotTask.Builder.html#delay-int-">delay(int)</a></span> - Method in class com.filestack.transforms.tasks.<a href="com/filestack/transforms/tasks/UrlScreenshotTask.Builder.html" title="class in com.filestack.transforms.tasks">UrlScreenshotTask.Builder</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/filestack/FilestackClient.Builder.html#delayBase-int-">delayBase(int)</a></span> - Method in class com.filestack.<a href="com/filestack/FilestackClient.Builder.html" title="class in com.filestack">FilestackClient.Builder</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/filestack/FileLink.html#delete--">delete()</a></span> - Method in class com.filestack.<a href="com/filestack/FileLink.html" title="class in com.filestack">FileLink</a></dt>
 <dd>
 <div class="block">Deletes a file handle.</div>
@@ -451,7 +459,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/filestack/FileLink.html#deleteAsync--">deleteAsync()</a></span> - Method in class com.filestack.<a href="com/filestack/FileLink.html" title="class in com.filestack">FileLink</a></dt>
 <dd>
-<div class="block">Async, observable version of <a href="com/filestack/FileLink.html#delete--"><code>FileLink.delete()</code></a>.</div>
+<div class="block">Asynchronously deletes a file handle.</div>
 </dd>
 <dt><a href="com/filestack/transforms/tasks/DetectFacesTask.html" title="class in com.filestack.transforms.tasks"><span class="typeNameLink">DetectFacesTask</span></a> - Class in <a href="com/filestack/transforms/tasks/package-summary.html">com.filestack.transforms.tasks</a></dt>
 <dd>&nbsp;</dd>
@@ -461,19 +469,19 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/filestack/FileLink.html#download-java.lang.String-">download(String)</a></span> - Method in class com.filestack.<a href="com/filestack/FileLink.html" title="class in com.filestack">FileLink</a></dt>
 <dd>
-<div class="block">Saves the file to the specified directory using the name it was uploaded with.</div>
+<div class="block">Saves the file using the name it was uploaded with.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/filestack/FileLink.html#download-java.lang.String-java.lang.String-">download(String, String)</a></span> - Method in class com.filestack.<a href="com/filestack/FileLink.html" title="class in com.filestack">FileLink</a></dt>
 <dd>
-<div class="block">Saves the file to the specified directory overriding the name it was uploaded with.</div>
+<div class="block">Saves the file overriding the name it was uploaded with.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/filestack/FileLink.html#downloadAsync-java.lang.String-">downloadAsync(String)</a></span> - Method in class com.filestack.<a href="com/filestack/FileLink.html" title="class in com.filestack">FileLink</a></dt>
 <dd>
-<div class="block">Async, observable version of <a href="com/filestack/FileLink.html#download-java.lang.String-"><code>FileLink.download(String)</code></a>.</div>
+<div class="block">Asynchronously saves the file using the name it was uploaded with.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/filestack/FileLink.html#downloadAsync-java.lang.String-java.lang.String-">downloadAsync(String, String)</a></span> - Method in class com.filestack.<a href="com/filestack/FileLink.html" title="class in com.filestack">FileLink</a></dt>
 <dd>
-<div class="block">Async, observable version of <a href="com/filestack/FileLink.html#download-java.lang.String-java.lang.String-"><code>FileLink.download(String, String)</code></a>.</div>
+<div class="block">Asynchronously saves the file overriding the name it was uploaded with.</div>
 </dd>
 </dl>
 <a name="I:E">
@@ -553,9 +561,13 @@
 <dd>
 <div class="block">Constructs an instance with security.</div>
 </dd>
+<dt><a href="com/filestack/FilestackClient.Builder.html" title="class in com.filestack"><span class="typeNameLink">FilestackClient.Builder</span></a> - Class in <a href="com/filestack/package-summary.html">com.filestack</a></dt>
+<dd>
+<div class="block">Builds new <a href="com/filestack/FilestackClient.html" title="class in com.filestack"><code>FilestackClient</code></a>.</div>
+</dd>
 <dt><a href="com/filestack/errors/FilestackException.html" title="class in com.filestack.errors"><span class="typeNameLink">FilestackException</span></a> - Exception in <a href="com/filestack/errors/package-summary.html">com.filestack.errors</a></dt>
 <dd>
-<div class="block">Base <code>Exception</code> subclass for all library exceptions.</div>
+<div class="block">Base <code>Exception</code> subclass for all checked library exceptions.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/filestack/errors/FilestackException.html#FilestackException--">FilestackException()</a></span> - Constructor for exception com.filestack.errors.<a href="com/filestack/errors/FilestackException.html" title="class in com.filestack.errors">FilestackException</a></dt>
 <dd>&nbsp;</dd>
@@ -564,6 +576,18 @@
 <dt><span class="memberNameLink"><a href="com/filestack/errors/FilestackException.html#FilestackException-java.lang.String-java.lang.Throwable-">FilestackException(String, Throwable)</a></span> - Constructor for exception com.filestack.errors.<a href="com/filestack/errors/FilestackException.html" title="class in com.filestack.errors">FilestackException</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/filestack/errors/FilestackException.html#FilestackException-java.lang.Throwable-">FilestackException(Throwable)</a></span> - Constructor for exception com.filestack.errors.<a href="com/filestack/errors/FilestackException.html" title="class in com.filestack.errors">FilestackException</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/filestack/errors/FilestackRuntimeException.html" title="class in com.filestack.errors"><span class="typeNameLink">FilestackRuntimeException</span></a> - Exception in <a href="com/filestack/errors/package-summary.html">com.filestack.errors</a></dt>
+<dd>
+<div class="block">Base <code>RuntimeException</code> subclass for all unchecked library exceptions.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/filestack/errors/FilestackRuntimeException.html#FilestackRuntimeException--">FilestackRuntimeException()</a></span> - Constructor for exception com.filestack.errors.<a href="com/filestack/errors/FilestackRuntimeException.html" title="class in com.filestack.errors">FilestackRuntimeException</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/filestack/errors/FilestackRuntimeException.html#FilestackRuntimeException-java.lang.String-">FilestackRuntimeException(String)</a></span> - Constructor for exception com.filestack.errors.<a href="com/filestack/errors/FilestackRuntimeException.html" title="class in com.filestack.errors">FilestackRuntimeException</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/filestack/errors/FilestackRuntimeException.html#FilestackRuntimeException-java.lang.String-java.lang.Throwable-">FilestackRuntimeException(String, Throwable)</a></span> - Constructor for exception com.filestack.errors.<a href="com/filestack/errors/FilestackRuntimeException.html" title="class in com.filestack.errors">FilestackRuntimeException</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/filestack/errors/FilestackRuntimeException.html#FilestackRuntimeException-java.lang.Throwable-">FilestackRuntimeException(Throwable)</a></span> - Constructor for exception com.filestack.errors.<a href="com/filestack/errors/FilestackRuntimeException.html" title="class in com.filestack.errors">FilestackRuntimeException</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/filestack/transforms/tasks/CollageTask.Builder.html#fit-java.lang.String-">fit(String)</a></span> - Method in class com.filestack.transforms.tasks.<a href="com/filestack/transforms/tasks/CollageTask.Builder.html" title="class in com.filestack.transforms.tasks">CollageTask.Builder</a></dt>
 <dd>&nbsp;</dd>
@@ -609,11 +633,11 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/filestack/FileLink.html#getContent--">getContent()</a></span> - Method in class com.filestack.<a href="com/filestack/FileLink.html" title="class in com.filestack">FileLink</a></dt>
 <dd>
-<div class="block">Directly returns the content of a file.</div>
+<div class="block">Returns the content of a file.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/filestack/FileLink.html#getContentAsync--">getContentAsync()</a></span> - Method in class com.filestack.<a href="com/filestack/FileLink.html" title="class in com.filestack">FileLink</a></dt>
 <dd>
-<div class="block">Async, observable version of <a href="com/filestack/FileLink.html#getContent--"><code>FileLink.getContent()</code></a>.</div>
+<div class="block">Asynchronously returns the content of a file.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/filestack/responses/CompleteResponse.html#getFilename--">getFilename()</a></span> - Method in class com.filestack.responses.<a href="com/filestack/responses/CompleteResponse.html" title="class in com.filestack.responses">CompleteResponse</a></dt>
 <dd>&nbsp;</dd>
@@ -767,6 +791,22 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/filestack/errors/InternalException.html#InternalException-java.lang.Throwable-">InternalException(Throwable)</a></span> - Constructor for exception com.filestack.errors.<a href="com/filestack/errors/InternalException.html" title="class in com.filestack.errors">InternalException</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/filestack/errors/InvalidArgumentException.html" title="class in com.filestack.errors"><span class="typeNameLink">InvalidArgumentException</span></a> - Exception in <a href="com/filestack/errors/package-summary.html">com.filestack.errors</a></dt>
+<dd>
+<div class="block">Thrown to indicate a method was passed invalid arguments.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/filestack/errors/InvalidArgumentException.html#InvalidArgumentException--">InvalidArgumentException()</a></span> - Constructor for exception com.filestack.errors.<a href="com/filestack/errors/InvalidArgumentException.html" title="class in com.filestack.errors">InvalidArgumentException</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/filestack/errors/InvalidArgumentException.html#InvalidArgumentException-java.lang.String-">InvalidArgumentException(String)</a></span> - Constructor for exception com.filestack.errors.<a href="com/filestack/errors/InvalidArgumentException.html" title="class in com.filestack.errors">InvalidArgumentException</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/filestack/errors/InvalidArgumentException.html#InvalidArgumentException-java.lang.String-java.lang.Throwable-">InvalidArgumentException(String, Throwable)</a></span> - Constructor for exception com.filestack.errors.<a href="com/filestack/errors/InvalidArgumentException.html" title="class in com.filestack.errors">InvalidArgumentException</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/filestack/errors/InvalidArgumentException.html#InvalidArgumentException-java.lang.Throwable-">InvalidArgumentException(Throwable)</a></span> - Constructor for exception com.filestack.errors.<a href="com/filestack/errors/InvalidArgumentException.html" title="class in com.filestack.errors">InvalidArgumentException</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/filestack/util/Networking.html#invalidate--">invalidate()</a></span> - Static method in class com.filestack.util.<a href="com/filestack/util/Networking.html" title="class in com.filestack.util">Networking</a></dt>
+<dd>
+<div class="block">Sets all singletons to null so they'll be recreated.</div>
+</dd>
 <dt><a href="com/filestack/errors/InvalidParameterException.html" title="class in com.filestack.errors"><span class="typeNameLink">InvalidParameterException</span></a> - Exception in <a href="com/filestack/errors/package-summary.html">com.filestack.errors</a></dt>
 <dd>
 <div class="block">Thrown to indicate a request had invalid or missing parameters.</div>
@@ -901,7 +941,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/filestack/FileLink.html#overwriteAsync-java.lang.String-">overwriteAsync(String)</a></span> - Method in class com.filestack.<a href="com/filestack/FileLink.html" title="class in com.filestack">FileLink</a></dt>
 <dd>
-<div class="block">Async, observable version of <a href="com/filestack/FileLink.html#overwrite-java.lang.String-"><code>FileLink.overwrite(String)</code></a>.</div>
+<div class="block">Asynchronously replace the content of an existing file handle.</div>
 </dd>
 </dl>
 <a name="I:P">
@@ -997,10 +1037,6 @@
 <dd>
 <div class="block">Set an S3 region for the selected S3 bucket.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/filestack/util/Networking.html#removeCustomClient--">removeCustomClient()</a></span> - Static method in class com.filestack.util.<a href="com/filestack/util/Networking.html" title="class in com.filestack.util">Networking</a></dt>
-<dd>
-<div class="block">Remove custom http client.</div>
-</dd>
 <dt><a href="com/filestack/transforms/tasks/ResizeTask.html" title="class in com.filestack.transforms.tasks"><span class="typeNameLink">ResizeTask</span></a> - Class in <a href="com/filestack/transforms/tasks/package-summary.html">com.filestack.transforms.tasks</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/filestack/transforms/tasks/ResizeTask.Builder.html" title="class in com.filestack.transforms.tasks"><span class="typeNameLink">ResizeTask.Builder</span></a> - Class in <a href="com/filestack/transforms/tasks/package-summary.html">com.filestack.transforms.tasks</a></dt>
@@ -1051,6 +1087,8 @@
 <dl>
 <dt><span class="memberNameLink"><a href="com/filestack/transforms/tasks/ModulateTask.Builder.html#saturation-int-">saturation(int)</a></span> - Method in class com.filestack.transforms.tasks.<a href="com/filestack/transforms/tasks/ModulateTask.Builder.html" title="class in com.filestack.transforms.tasks">ModulateTask.Builder</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/filestack/FilestackClient.Builder.html#security-com.filestack.Security-">security(Security)</a></span> - Method in class com.filestack.<a href="com/filestack/FilestackClient.Builder.html" title="class in com.filestack">FilestackClient.Builder</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/filestack/Security.html" title="class in com.filestack"><span class="typeNameLink">Security</span></a> - Class in <a href="com/filestack/package-summary.html">com.filestack</a></dt>
 <dd>
 <div class="block">Holds a <a href="com/filestack/Policy.html" title="class in com.filestack"><code>Policy</code></a> and its signature.</div>
@@ -1060,6 +1098,8 @@
 <dt><span class="memberNameLink"><a href="com/filestack/transforms/tasks/SepiaTask.html#SepiaTask--">SepiaTask()</a></span> - Constructor for class com.filestack.transforms.tasks.<a href="com/filestack/transforms/tasks/SepiaTask.html" title="class in com.filestack.transforms.tasks">SepiaTask</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/filestack/transforms/tasks/SepiaTask.html#SepiaTask-int-">SepiaTask(int)</a></span> - Constructor for class com.filestack.transforms.tasks.<a href="com/filestack/transforms/tasks/SepiaTask.html" title="class in com.filestack.transforms.tasks">SepiaTask</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/filestack/FilestackClient.Builder.html#service-com.filestack.util.FsUploadService-">service(FsUploadService)</a></span> - Method in class com.filestack.<a href="com/filestack/FilestackClient.Builder.html" title="class in com.filestack">FilestackClient.Builder</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/filestack/util/Networking.html#setCustomClient-okhttp3.OkHttpClient-">setCustomClient(OkHttpClient)</a></span> - Static method in class com.filestack.util.<a href="com/filestack/util/Networking.html" title="class in com.filestack.util">Networking</a></dt>
 <dd>
@@ -1171,11 +1211,11 @@
 <dl>
 <dt><span class="memberNameLink"><a href="com/filestack/FilestackClient.html#upload-java.lang.String-">upload(String)</a></span> - Method in class com.filestack.<a href="com/filestack/FilestackClient.html" title="class in com.filestack">FilestackClient</a></dt>
 <dd>
-<div class="block">Upload local file to Filestack using default storage options.</div>
+<div class="block">Upload local file using default storage options.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/filestack/FilestackClient.html#upload-java.lang.String-com.filestack.UploadOptions-">upload(String, UploadOptions)</a></span> - Method in class com.filestack.<a href="com/filestack/FilestackClient.html" title="class in com.filestack">FilestackClient</a></dt>
 <dd>
-<div class="block">Upload local file to Filestack using custom storage options.</div>
+<div class="block">Upload local file using custom storage options.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/filestack/util/FsUploadService.html#upload-java.util.Map-">upload(Map&lt;String, RequestBody&gt;)</a></span> - Method in interface com.filestack.util.<a href="com/filestack/util/FsUploadService.html" title="interface in com.filestack.util">FsUploadService</a></dt>
 <dd>&nbsp;</dd>
@@ -1185,19 +1225,19 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/filestack/util/Upload.html#Upload-java.lang.String-com.filestack.FilestackClient-com.filestack.UploadOptions-">Upload(String, FilestackClient, UploadOptions)</a></span> - Constructor for class com.filestack.util.<a href="com/filestack/util/Upload.html" title="class in com.filestack.util">Upload</a></dt>
 <dd>
-<div class="block">Construct an instance using global networking singletons.</div>
+<div class="block">Construct an instance using global <a href="com/filestack/util/FsUploadService.html" title="interface in com.filestack.util"><code>singleton</code></a> and default delay.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/filestack/util/Upload.html#Upload-java.lang.String-com.filestack.FilestackClient-com.filestack.UploadOptions-com.filestack.util.FsUploadService-int-">Upload(String, FilestackClient, UploadOptions, FsUploadService, int)</a></span> - Constructor for class com.filestack.util.<a href="com/filestack/util/Upload.html" title="class in com.filestack.util">Upload</a></dt>
 <dd>
-<div class="block">Construct an instance using provided networking objects.</div>
+<div class="block">Construct an instance using custom <a href="com/filestack/util/FsUploadService.html" title="interface in com.filestack.util"><code>singleton</code></a> and delay.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/filestack/FilestackClient.html#uploadAsync-java.lang.String-">uploadAsync(String)</a></span> - Method in class com.filestack.<a href="com/filestack/FilestackClient.html" title="class in com.filestack">FilestackClient</a></dt>
 <dd>
-<div class="block">Async, observable version of <a href="com/filestack/FilestackClient.html#upload-java.lang.String-"><code>FilestackClient.upload(String)</code></a>.</div>
+<div class="block">Asynchronously upload local file using default storage options.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/filestack/FilestackClient.html#uploadAsync-java.lang.String-com.filestack.UploadOptions-">uploadAsync(String, UploadOptions)</a></span> - Method in class com.filestack.<a href="com/filestack/FilestackClient.html" title="class in com.filestack">FilestackClient</a></dt>
 <dd>
-<div class="block">Async, observable version of <a href="com/filestack/FilestackClient.html#upload-java.lang.String-com.filestack.UploadOptions-"><code>FilestackClient.upload(String, UploadOptions)</code></a>.</div>
+<div class="block">Asynchronously upload local file using custom storage options.</div>
 </dd>
 <dt><a href="com/filestack/UploadOptions.html" title="class in com.filestack"><span class="typeNameLink">UploadOptions</span></a> - Class in <a href="com/filestack/package-summary.html">com.filestack</a></dt>
 <dd>

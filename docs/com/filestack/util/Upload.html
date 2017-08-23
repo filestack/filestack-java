@@ -131,7 +131,7 @@ extends java.lang.Object</pre>
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../com/filestack/util/Upload.html#Upload-java.lang.String-com.filestack.FilestackClient-com.filestack.UploadOptions-">Upload</a></span>(java.lang.String&nbsp;pathname,
       <a href="../../../com/filestack/FilestackClient.html" title="class in com.filestack">FilestackClient</a>&nbsp;fsClient,
       <a href="../../../com/filestack/UploadOptions.html" title="class in com.filestack">UploadOptions</a>&nbsp;options)</code>
-<div class="block">Construct an instance using global networking singletons.</div>
+<div class="block">Construct an instance using global <a href="../../../com/filestack/util/FsUploadService.html" title="interface in com.filestack.util"><code>singleton</code></a> and default delay.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -140,7 +140,7 @@ extends java.lang.Object</pre>
       <a href="../../../com/filestack/UploadOptions.html" title="class in com.filestack">UploadOptions</a>&nbsp;options,
       <a href="../../../com/filestack/util/FsUploadService.html" title="interface in com.filestack.util">FsUploadService</a>&nbsp;fsUploadService,
       int&nbsp;delayBase)</code>
-<div class="block">Construct an instance using provided networking objects.</div>
+<div class="block">Construct an instance using custom <a href="../../../com/filestack/util/FsUploadService.html" title="interface in com.filestack.util"><code>singleton</code></a> and delay.</div>
 </td>
 </tr>
 </table>
@@ -196,7 +196,7 @@ extends java.lang.Object</pre>
               <a href="../../../com/filestack/FilestackClient.html" title="class in com.filestack">FilestackClient</a>&nbsp;fsClient,
               <a href="../../../com/filestack/UploadOptions.html" title="class in com.filestack">UploadOptions</a>&nbsp;options)
        throws <a href="../../../com/filestack/errors/ValidationException.html" title="class in com.filestack.errors">ValidationException</a></pre>
-<div class="block">Construct an instance using global networking singletons.</div>
+<div class="block">Construct an instance using global <a href="../../../com/filestack/util/FsUploadService.html" title="interface in com.filestack.util"><code>singleton</code></a> and default delay.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>pathname</code> - path to the file to upload</dd>
@@ -219,7 +219,7 @@ extends java.lang.Object</pre>
               <a href="../../../com/filestack/util/FsUploadService.html" title="interface in com.filestack.util">FsUploadService</a>&nbsp;fsUploadService,
               int&nbsp;delayBase)
        throws <a href="../../../com/filestack/errors/ValidationException.html" title="class in com.filestack.errors">ValidationException</a></pre>
-<div class="block">Construct an instance using provided networking objects.</div>
+<div class="block">Construct an instance using custom <a href="../../../com/filestack/util/FsUploadService.html" title="interface in com.filestack.util"><code>singleton</code></a> and delay.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>pathname</code> - for the file to upload</dd>

@@ -51,7 +51,7 @@ public class Upload {
   private String[] etags;
 
   /**
-   * Construct an instance using global networking singletons.
+   * Construct an instance using global {@link FsUploadService singleton} and default delay.
    *
    * @param pathname path to the file to upload
    * @param fsClient client used to make this upload
@@ -64,7 +64,7 @@ public class Upload {
   }
 
   /**
-   * Construct an instance using provided networking objects.
+   * Construct an instance using custom {@link FsUploadService singleton} and delay.
    *
    * @param pathname        for the file to upload
    * @param fsClient        client used to make this upload

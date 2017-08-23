@@ -164,45 +164,45 @@ extends java.lang.Object</pre>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>io.reactivex.Completable</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FileLink.html#deleteAsync--">deleteAsync</a></span>()</code>
-<div class="block">Async, observable version of <a href="../../com/filestack/FileLink.html#delete--"><code>delete()</code></a>.</div>
+<div class="block">Asynchronously deletes a file handle.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>java.io.File</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FileLink.html#download-java.lang.String-">download</a></span>(java.lang.String&nbsp;directory)</code>
-<div class="block">Saves the file to the specified directory using the name it was uploaded with.</div>
+<div class="block">Saves the file using the name it was uploaded with.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>java.io.File</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FileLink.html#download-java.lang.String-java.lang.String-">download</a></span>(java.lang.String&nbsp;directory,
         java.lang.String&nbsp;filename)</code>
-<div class="block">Saves the file to the specified directory overriding the name it was uploaded with.</div>
+<div class="block">Saves the file overriding the name it was uploaded with.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>io.reactivex.Single&lt;java.io.File&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FileLink.html#downloadAsync-java.lang.String-">downloadAsync</a></span>(java.lang.String&nbsp;directory)</code>
-<div class="block">Async, observable version of <a href="../../com/filestack/FileLink.html#download-java.lang.String-"><code>download(String)</code></a>.</div>
+<div class="block">Asynchronously saves the file using the name it was uploaded with.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>io.reactivex.Single&lt;java.io.File&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FileLink.html#downloadAsync-java.lang.String-java.lang.String-">downloadAsync</a></span>(java.lang.String&nbsp;directory,
              java.lang.String&nbsp;filename)</code>
-<div class="block">Async, observable version of <a href="../../com/filestack/FileLink.html#download-java.lang.String-java.lang.String-"><code>download(String, String)</code></a>.</div>
+<div class="block">Asynchronously saves the file overriding the name it was uploaded with.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FileLink.html#getContent--">getContent</a></span>()</code>
-<div class="block">Directly returns the content of a file.</div>
+<div class="block">Returns the content of a file.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>io.reactivex.Single&lt;byte[]&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FileLink.html#getContentAsync--">getContentAsync</a></span>()</code>
-<div class="block">Async, observable version of <a href="../../com/filestack/FileLink.html#getContent--"><code>getContent()</code></a>.</div>
+<div class="block">Asynchronously returns the content of a file.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
@@ -228,7 +228,7 @@ extends java.lang.Object</pre>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>io.reactivex.Completable</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FileLink.html#overwriteAsync-java.lang.String-">overwriteAsync</a></span>(java.lang.String&nbsp;pathname)</code>
-<div class="block">Async, observable version of <a href="../../com/filestack/FileLink.html#overwrite-java.lang.String-"><code>overwrite(String)</code></a>.</div>
+<div class="block">Asynchronously replace the content of an existing file handle.</div>
 </td>
 </tr>
 </table>
@@ -263,9 +263,8 @@ extends java.lang.Object</pre>
                 java.lang.String&nbsp;handle)</pre>
 <div class="block">Constructs an instance without security.</div>
 <dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>apiKey</code> - account key from the dev portal</dd>
-<dd><code>handle</code> - id for a file, first path segment in dev portal urls</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../com/filestack/FileLink.html#FileLink-java.lang.String-java.lang.String-com.filestack.Security-"><code>FileLink(String, String, Security)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -307,7 +306,7 @@ extends java.lang.Object</pre>
                          <a href="../../com/filestack/errors/ResourceNotFoundException.html" title="class in com.filestack.errors">ResourceNotFoundException</a>,
                          <a href="../../com/filestack/errors/InvalidParameterException.html" title="class in com.filestack.errors">InvalidParameterException</a>,
                          <a href="../../com/filestack/errors/InternalException.html" title="class in com.filestack.errors">InternalException</a></pre>
-<div class="block">Directly returns the content of a file.</div>
+<div class="block">Returns the content of a file.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>byte[] of file content</dd>
@@ -333,19 +332,17 @@ extends java.lang.Object</pre>
                              <a href="../../com/filestack/errors/ResourceNotFoundException.html" title="class in com.filestack.errors">ResourceNotFoundException</a>,
                              <a href="../../com/filestack/errors/InvalidParameterException.html" title="class in com.filestack.errors">InvalidParameterException</a>,
                              <a href="../../com/filestack/errors/InternalException.html" title="class in com.filestack.errors">InternalException</a></pre>
-<div class="block">Saves the file to the specified directory using the name it was uploaded with.</div>
+<div class="block">Saves the file using the name it was uploaded with.</div>
 <dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>directory</code> - location to save the file in</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd><code>File</code> object pointing to new file</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../com/filestack/errors/ValidationException.html" title="class in com.filestack.errors">ValidationException</a></code> - if the path (directory/filename) isn't writable</dd>
-<dd><code>java.io.IOException</code> - if request fails because of network or other IO issue</dd>
-<dd><code><a href="../../com/filestack/errors/PolicySignatureException.html" title="class in com.filestack.errors">PolicySignatureException</a></code> - if policy and/or signature are invalid or inadequate</dd>
-<dd><code><a href="../../com/filestack/errors/ResourceNotFoundException.html" title="class in com.filestack.errors">ResourceNotFoundException</a></code> - if handle isn't found</dd>
-<dd><code><a href="../../com/filestack/errors/InvalidParameterException.html" title="class in com.filestack.errors">InvalidParameterException</a></code> - if handle is malformed</dd>
-<dd><code><a href="../../com/filestack/errors/InternalException.html" title="class in com.filestack.errors">InternalException</a></code> - if unexpected error occurs</dd>
+<dd><code><a href="../../com/filestack/errors/ValidationException.html" title="class in com.filestack.errors">ValidationException</a></code></dd>
+<dd><code>java.io.IOException</code></dd>
+<dd><code><a href="../../com/filestack/errors/PolicySignatureException.html" title="class in com.filestack.errors">PolicySignatureException</a></code></dd>
+<dd><code><a href="../../com/filestack/errors/ResourceNotFoundException.html" title="class in com.filestack.errors">ResourceNotFoundException</a></code></dd>
+<dd><code><a href="../../com/filestack/errors/InvalidParameterException.html" title="class in com.filestack.errors">InvalidParameterException</a></code></dd>
+<dd><code><a href="../../com/filestack/errors/InternalException.html" title="class in com.filestack.errors">InternalException</a></code></dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../com/filestack/FileLink.html#download-java.lang.String-java.lang.String-"><code>download(String, String)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -363,7 +360,7 @@ extends java.lang.Object</pre>
                              <a href="../../com/filestack/errors/ResourceNotFoundException.html" title="class in com.filestack.errors">ResourceNotFoundException</a>,
                              <a href="../../com/filestack/errors/InvalidParameterException.html" title="class in com.filestack.errors">InvalidParameterException</a>,
                              <a href="../../com/filestack/errors/InternalException.html" title="class in com.filestack.errors">InternalException</a></pre>
-<div class="block">Saves the file to the specified directory overriding the name it was uploaded with.</div>
+<div class="block">Saves the file overriding the name it was uploaded with.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>directory</code> - location to save the file in</dd>
@@ -391,8 +388,8 @@ extends java.lang.Object</pre>
                       <a href="../../com/filestack/errors/ResourceNotFoundException.html" title="class in com.filestack.errors">ResourceNotFoundException</a>,
                       <a href="../../com/filestack/errors/InvalidParameterException.html" title="class in com.filestack.errors">InvalidParameterException</a>,
                       <a href="../../com/filestack/errors/InternalException.html" title="class in com.filestack.errors">InternalException</a></pre>
-<div class="block">Replace the content of an existing file handle. Requires security to be set. Does not update
- the filename or MIME type.</div>
+<div class="block">Replace the content of an existing file handle. Requires security to be set.
+ Does not update the filename or MIME type.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>pathname</code> - path to the file, can be local or absolute</dd>
@@ -438,8 +435,11 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>getContentAsync</h4>
 <pre>public&nbsp;io.reactivex.Single&lt;byte[]&gt;&nbsp;getContentAsync()</pre>
-<div class="block">Async, observable version of <a href="../../com/filestack/FileLink.html#getContent--"><code>getContent()</code></a>.
- Same exceptions are passed through observable.</div>
+<div class="block">Asynchronously returns the content of a file.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../com/filestack/FileLink.html#getContent--"><code>getContent()</code></a></dd>
+</dl>
 </li>
 </ul>
 <a name="downloadAsync-java.lang.String-">
@@ -449,8 +449,11 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>downloadAsync</h4>
 <pre>public&nbsp;io.reactivex.Single&lt;java.io.File&gt;&nbsp;downloadAsync(java.lang.String&nbsp;directory)</pre>
-<div class="block">Async, observable version of <a href="../../com/filestack/FileLink.html#download-java.lang.String-"><code>download(String)</code></a>.
- Same exceptions are passed through observable.</div>
+<div class="block">Asynchronously saves the file using the name it was uploaded with.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../com/filestack/FileLink.html#download-java.lang.String-java.lang.String-"><code>download(String, String)</code></a></dd>
+</dl>
 </li>
 </ul>
 <a name="downloadAsync-java.lang.String-java.lang.String-">
@@ -461,8 +464,11 @@ extends java.lang.Object</pre>
 <h4>downloadAsync</h4>
 <pre>public&nbsp;io.reactivex.Single&lt;java.io.File&gt;&nbsp;downloadAsync(java.lang.String&nbsp;directory,
                                                        java.lang.String&nbsp;filename)</pre>
-<div class="block">Async, observable version of <a href="../../com/filestack/FileLink.html#download-java.lang.String-java.lang.String-"><code>download(String, String)</code></a>.
- Same exceptions are passed through observable.</div>
+<div class="block">Asynchronously saves the file overriding the name it was uploaded with.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../com/filestack/FileLink.html#download-java.lang.String-java.lang.String-"><code>download(String, String)</code></a></dd>
+</dl>
 </li>
 </ul>
 <a name="overwriteAsync-java.lang.String-">
@@ -472,8 +478,12 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>overwriteAsync</h4>
 <pre>public&nbsp;io.reactivex.Completable&nbsp;overwriteAsync(java.lang.String&nbsp;pathname)</pre>
-<div class="block">Async, observable version of <a href="../../com/filestack/FileLink.html#overwrite-java.lang.String-"><code>overwrite(String)</code></a>.
- Same exceptions are passed through observable.</div>
+<div class="block">Asynchronously replace the content of an existing file handle. Requires security to be set.
+ Does not update the filename or MIME type.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../com/filestack/FileLink.html#overwrite-java.lang.String-"><code>overwrite(String)</code></a></dd>
+</dl>
 </li>
 </ul>
 <a name="deleteAsync--">
@@ -483,8 +493,11 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>deleteAsync</h4>
 <pre>public&nbsp;io.reactivex.Completable&nbsp;deleteAsync()</pre>
-<div class="block">Async, observable version of <a href="../../com/filestack/FileLink.html#delete--"><code>delete()</code></a>.
- Same exceptions are passed through observable.</div>
+<div class="block">Asynchronously deletes a file handle. Requires security to be set.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../com/filestack/FileLink.html#delete--"><code>delete()</code></a></dd>
+</dl>
 </li>
 </ul>
 <a name="imageTransform--">

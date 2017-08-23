@@ -6,8 +6,8 @@ import java.util.ArrayList;
 
 public class PartialBlurTask extends ImageTransformTask {
 
-  // Constructor made private because this task cannot be used with default options
-  private PartialBlurTask() {
+  // Constructor made package-private because this task cannot be used with default options
+  PartialBlurTask() {
     super("partial_pixelate");
   }
 

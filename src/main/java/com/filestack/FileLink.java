@@ -26,9 +26,7 @@ import okio.BufferedSource;
 import okio.Okio;
 import retrofit2.Response;
 
-/**
- * References and performs operations on an individual file.
- */
+/** References and performs operations on an individual file. */
 public class FileLink {
   private String apiKey;
   private String handle;
@@ -40,8 +38,7 @@ public class FileLink {
   /**
    * Constructs an instance without security.
    *
-   * @param apiKey account key from the dev portal
-   * @param handle id for a file, first path segment in dev portal urls
+   * @see #FileLink(String, String, Security)
    */
   public FileLink(String apiKey, String handle) {
     this(apiKey, handle, null);
@@ -64,7 +61,7 @@ public class FileLink {
   }
 
   /**
-   * Directly returns the content of a file.
+   * Returns the content of a file.
    *
    * @return byte[] of file content
    * @throws IOException               if request fails because of network or other IO issue
@@ -93,16 +90,9 @@ public class FileLink {
   }
 
   /**
-   * Saves the file to the specified directory using the name it was uploaded with.
+   * Saves the file using the name it was uploaded with.
    *
-   * @param directory location to save the file in
-   * @return {@link File File} object pointing to new file
-   * @throws ValidationException       if the path (directory/filename) isn't writable
-   * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if policy and/or signature are invalid or inadequate
-   * @throws ResourceNotFoundException if handle isn't found
-   * @throws InvalidParameterException if handle is malformed
-   * @throws InternalException         if unexpected error occurs
+   * @see #download(String, String)
    */
   public File download(String directory)
       throws ValidationException, IOException, PolicySignatureException,
@@ -111,7 +101,7 @@ public class FileLink {
   }
 
   /**
-   * Saves the file to the specified directory overriding the name it was uploaded with.
+   * Saves the file overriding the name it was uploaded with.
    *
    * @param directory location to save the file in
    * @param filename  local name for the file
@@ -154,8 +144,8 @@ public class FileLink {
   }
 
   /**
-   * Replace the content of an existing file handle. Requires security to be set. Does not update
-   * the filename or MIME type.
+   * Replace the content of an existing file handle. Requires security to be set.
+   * Does not update the filename or MIME type.
    *
    * @param pathname path to the file, can be local or absolute
    * @throws ValidationException       if security isn't set or the pathname is invalid
@@ -215,8 +205,9 @@ public class FileLink {
   // Async method wrappers
 
   /**
-   * Async, observable version of {@link #getContent()}.
-   * Same exceptions are passed through observable.
+   * Asynchronously returns the content of a file.
+   *
+   * @see #getContent()
    */
   public Single<byte[]> getContentAsync() {
     return Single.fromCallable(new Callable<byte[]>() {
@@ -230,16 +221,18 @@ public class FileLink {
   }
 
   /**
-   * Async, observable version of {@link #download(String)}.
-   * Same exceptions are passed through observable.
+   * Asynchronously saves the file using the name it was uploaded with.
+   *
+   * @see #download(String, String)
    */
   public Single<File> downloadAsync(final String directory) {
     return downloadAsync(directory, null);
   }
 
   /**
-   * Async, observable version of {@link #download(String, String)}.
-   * Same exceptions are passed through observable.
+   * Asynchronously saves the file overriding the name it was uploaded with.
+   *
+   * @see #download(String, String)
    */
   public Single<File> downloadAsync(final String directory, final String filename) {
     return Single.fromCallable(new Callable<File>() {
@@ -253,8 +246,10 @@ public class FileLink {
   }
 
   /**
-   * Async, observable version of {@link #overwrite(String)}.
-   * Same exceptions are passed through observable.
+   * Asynchronously replace the content of an existing file handle. Requires security to be set.
+   * Does not update the filename or MIME type.
+   *
+   * @see #overwrite(String)
    */
   public Completable overwriteAsync(final String pathname) {
     return Completable.fromAction(new Action() {
@@ -268,8 +263,9 @@ public class FileLink {
   }
 
   /**
-   * Async, observable version of {@link #delete()}.
-   * Same exceptions are passed through observable.
+   * Asynchronously deletes a file handle. Requires security to be set.
+   *
+   * @see #delete()
    */
   public Completable deleteAsync() {
     return Completable.fromAction(new Action() {

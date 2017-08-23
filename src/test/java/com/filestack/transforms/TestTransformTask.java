@@ -2,10 +2,18 @@ package com.filestack.transforms;
 
 import static org.junit.Assert.assertTrue;
 
-import com.filestack.transforms.TransformTask;
+import com.filestack.errors.InvalidArgumentException;
+import com.filestack.errors.InvalidParameterException;
+import com.filestack.errors.ValidationException;
+import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class TestTransformTask {
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   private static final TransformTask TASK = new TransformTask("task");
 
   static {
@@ -25,5 +33,22 @@ public class TestTransformTask {
     String message = String.format("Task string malformed\nCorrect: %s\nOutput: %s",
         TASK_STRING, output);
     assertTrue(message, output.equals(TASK_STRING));
+  }
+
+  @Test
+  public void testOptionNullKey() throws ValidationException {
+    TransformTask transformTask = new TransformTask("test");
+
+    thrown.expect(InvalidArgumentException.class);
+    thrown.expectMessage("Task option key cannot be empty");
+    transformTask.addOption(null, "");
+  }
+
+  @Test
+  public void testOptionNullValue() {
+    TransformTask transformTask = new TransformTask("test");
+    Assert.assertEquals(0, transformTask.options.size());
+    transformTask.addOption("key", null);
+    Assert.assertEquals(0, transformTask.options.size());
   }
 }

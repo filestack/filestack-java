@@ -65,11 +65,7 @@ public abstract class RetryNetworkFunc<T> {
     }
 
     if (networkRetries > maxNetworkRetries) {
-      if (exception != null) {
-        throw exception;
-      } else {
-        throw new InternalException();
-      }
+      throw exception;
     } else if (serverRetries > maxServerRetries) {
       throw new InternalException();
     }

@@ -4,8 +4,8 @@ import com.filestack.transforms.ImageTransformTask;
 
 public class VignetteTask extends ImageTransformTask {
 
-  // Constructor made private because this task cannot be used with default options
-  private VignetteTask() {
+  // Constructor made package-private because this task cannot be used with default options
+  VignetteTask() {
     super("vignette");
   }
 
