@@ -5,8 +5,7 @@ import com.filestack.errors.InvalidParameterException;
 import com.filestack.errors.PolicySignatureException;
 import com.filestack.errors.ValidationException;
 import com.filestack.transforms.ImageTransform;
-import com.filestack.util.FsUploadService;
-import com.filestack.util.Networking;
+import com.filestack.util.FsService;
 import com.filestack.util.Upload;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
@@ -18,7 +17,7 @@ public class FilestackClient {
   String apiKey;
   Security security;
 
-  FsUploadService service = Networking.getFsUploadService();
+  FsService fsService;
   Integer delayBase = 2;
 
   /**
@@ -39,6 +38,7 @@ public class FilestackClient {
   public FilestackClient(String apiKey, Security security) {
     this.apiKey = apiKey;
     this.security = security;
+    this.fsService = new FsService();
   }
 
   FilestackClient() {}
@@ -59,8 +59,8 @@ public class FilestackClient {
       return this;
     }
 
-    public Builder service(FsUploadService service) {
-      building.service = service;
+    public Builder service(FsService fsService) {
+      building.fsService = fsService;
       return this;
     }
 
@@ -104,7 +104,7 @@ public class FilestackClient {
       options = new UploadOptions.Builder().build();
     }
 
-    Upload upload = new Upload(pathname, this, options, service, delayBase);
+    Upload upload = new Upload(pathname, this, options, fsService, delayBase);
     return upload.run();
   }
 
@@ -151,5 +151,9 @@ public class FilestackClient {
 
   public Security getSecurity() {
     return security;
+  }
+
+  public FsService getFsService() {
+    return fsService;
   }
 }
