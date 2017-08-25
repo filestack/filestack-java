@@ -20,11 +20,11 @@ repositories {
 dependencies {
     testImplementation 'junit:junit:4.12' // Testing
     testImplementation 'org.mockito:mockito-core:2.8.47' // Mocking
+    testImplementation 'com.squareup.retrofit2:retrofit-mock:2.3.0' // Testing helpers for Retrofit
 
     compile 'com.squareup.okhttp3:okhttp:3.8.0' // Low-level HTTP client
     compile 'com.squareup.retrofit2:retrofit:2.3.0' // High-level HTTP client
     compile 'com.squareup.retrofit2:converter-gson:2.3.0' // GSON integration
-    testImplementation 'com.squareup.retrofit2:retrofit-mock:2.3.0' // Testing / mocking tools
 
     compile 'com.google.code.gson:gson:2.8.1' // JSON serialization to Java objects
     compile ('com.google.guava:guava:22.0-android', { // Useful core libraries for Java
