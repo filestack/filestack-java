@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -48,7 +48,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li>Prev&nbsp;Class</li>
-<li><a href="../../com/filestack/FilestackClient.html" title="class in com.filestack"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../com/filestack/FileLink.Builder.html" title="class in com.filestack"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../index.html?com/filestack/FileLink.html" target="_top">Frames</a></li>
@@ -72,7 +72,7 @@ var activeTableTab = "activeTableTab";
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -116,6 +116,27 @@ extends java.lang.Object</pre>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Class and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FileLink.Builder.html" title="class in com.filestack">FileLink.Builder</a></span></code>
+<div class="block">Builds new <a href="../../com/filestack/FilestackClient.html" title="class in com.filestack"><code>FilestackClient</code></a>.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor.summary">
@@ -206,26 +227,30 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i8" class="altColor">
+<td class="colFirst"><code><a href="../../com/filestack/util/FsService.html" title="class in com.filestack.util">FsService</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FileLink.html#getFsService--">getFsService</a></span>()</code>&nbsp;</td>
+</tr>
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FileLink.html#getHandle--">getHandle</a></span>()</code>&nbsp;</td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="../../com/filestack/Security.html" title="class in com.filestack">Security</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FileLink.html#getSecurity--">getSecurity</a></span>()</code>&nbsp;</td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="../../com/filestack/transforms/ImageTransform.html" title="class in com.filestack.transforms">ImageTransform</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FileLink.html#imageTransform--">imageTransform</a></span>()</code>
 <div class="block">Creates an <a href="../../com/filestack/transforms/ImageTransform.html" title="class in com.filestack.transforms"><code>ImageTransform</code></a> object for this file.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FileLink.html#overwrite-java.lang.String-">overwrite</a></span>(java.lang.String&nbsp;pathname)</code>
 <div class="block">Replace the content of an existing file handle.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>io.reactivex.Completable</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FileLink.html#overwriteAsync-java.lang.String-">overwriteAsync</a></span>(java.lang.String&nbsp;pathname)</code>
 <div class="block">Asynchronously replace the content of an existing file handle.</div>
@@ -527,10 +552,19 @@ extends java.lang.Object</pre>
 <a name="getSecurity--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getSecurity</h4>
 <pre>public&nbsp;<a href="../../com/filestack/Security.html" title="class in com.filestack">Security</a>&nbsp;getSecurity()</pre>
+</li>
+</ul>
+<a name="getFsService--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getFsService</h4>
+<pre>public&nbsp;<a href="../../com/filestack/util/FsService.html" title="class in com.filestack.util">FsService</a>&nbsp;getFsService()</pre>
 </li>
 </ul>
 </li>
@@ -561,7 +595,7 @@ extends java.lang.Object</pre>
 <div class="subNav">
 <ul class="navList">
 <li>Prev&nbsp;Class</li>
-<li><a href="../../com/filestack/FilestackClient.html" title="class in com.filestack"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../com/filestack/FileLink.Builder.html" title="class in com.filestack"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../index.html?com/filestack/FileLink.html" target="_top">Frames</a></li>
@@ -585,7 +619,7 @@ extends java.lang.Object</pre>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

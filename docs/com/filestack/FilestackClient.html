@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../com/filestack/FileLink.html" title="class in com.filestack"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../com/filestack/FileLink.Builder.html" title="class in com.filestack"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../com/filestack/FilestackClient.Builder.html" title="class in com.filestack"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -179,35 +179,39 @@ extends java.lang.Object</pre>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FilestackClient.html#getApiKey--">getApiKey</a></span>()</code>&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="../../com/filestack/util/FsService.html" title="class in com.filestack.util">FsService</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FilestackClient.html#getFsService--">getFsService</a></span>()</code>&nbsp;</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../../com/filestack/Security.html" title="class in com.filestack">Security</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FilestackClient.html#getSecurity--">getSecurity</a></span>()</code>&nbsp;</td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="../../com/filestack/transforms/ImageTransform.html" title="class in com.filestack.transforms">ImageTransform</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FilestackClient.html#imageTransform-java.lang.String-">imageTransform</a></span>(java.lang.String&nbsp;url)</code>
 <div class="block">Creates an <a href="../../com/filestack/transforms/ImageTransform.html" title="class in com.filestack.transforms"><code>ImageTransform</code></a> object for this file.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../../com/filestack/FileLink.html" title="class in com.filestack">FileLink</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FilestackClient.html#upload-java.lang.String-">upload</a></span>(java.lang.String&nbsp;pathname)</code>
 <div class="block">Upload local file using default storage options.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="../../com/filestack/FileLink.html" title="class in com.filestack">FileLink</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FilestackClient.html#upload-java.lang.String-com.filestack.UploadOptions-">upload</a></span>(java.lang.String&nbsp;pathname,
       <a href="../../com/filestack/UploadOptions.html" title="class in com.filestack">UploadOptions</a>&nbsp;options)</code>
 <div class="block">Upload local file using custom storage options.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>io.reactivex.Single&lt;<a href="../../com/filestack/FileLink.html" title="class in com.filestack">FileLink</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FilestackClient.html#uploadAsync-java.lang.String-">uploadAsync</a></span>(java.lang.String&nbsp;pathname)</code>
 <div class="block">Asynchronously upload local file using default storage options.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>io.reactivex.Single&lt;<a href="../../com/filestack/FileLink.html" title="class in com.filestack">FileLink</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../com/filestack/FilestackClient.html#uploadAsync-java.lang.String-com.filestack.UploadOptions-">uploadAsync</a></span>(java.lang.String&nbsp;pathname,
            <a href="../../com/filestack/UploadOptions.html" title="class in com.filestack">UploadOptions</a>&nbsp;options)</code>
@@ -384,10 +388,19 @@ extends java.lang.Object</pre>
 <a name="getSecurity--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getSecurity</h4>
 <pre>public&nbsp;<a href="../../com/filestack/Security.html" title="class in com.filestack">Security</a>&nbsp;getSecurity()</pre>
+</li>
+</ul>
+<a name="getFsService--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getFsService</h4>
+<pre>public&nbsp;<a href="../../com/filestack/util/FsService.html" title="class in com.filestack.util">FsService</a>&nbsp;getFsService()</pre>
 </li>
 </ul>
 </li>
@@ -417,7 +430,7 @@ extends java.lang.Object</pre>
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../com/filestack/FileLink.html" title="class in com.filestack"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../com/filestack/FileLink.Builder.html" title="class in com.filestack"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../com/filestack/FilestackClient.Builder.html" title="class in com.filestack"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
