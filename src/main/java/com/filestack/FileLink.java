@@ -6,9 +6,7 @@ import com.filestack.errors.PolicySignatureException;
 import com.filestack.errors.ResourceNotFoundException;
 import com.filestack.errors.ValidationException;
 import com.filestack.transforms.ImageTransform;
-import com.filestack.util.FsApiService;
-import com.filestack.util.FsCdnService;
-import com.filestack.util.Networking;
+import com.filestack.util.FsService;
 import com.filestack.util.Util;
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -32,8 +30,7 @@ public class FileLink {
   private String handle;
   private Security security;
 
-  private FsApiService fsApiService;
-  private FsCdnService fsCdnService;
+  private FsService fsService;
 
   /**
    * Constructs an instance without security.
@@ -56,8 +53,40 @@ public class FileLink {
     this.handle = handle;
     this.security = security;
 
-    this.fsApiService = Networking.getFsApiService();
-    this.fsCdnService = Networking.getFsCdnService();
+    this.fsService = new FsService();
+  }
+
+  FileLink() {}
+
+  /**
+   * Builds new {@link FilestackClient}.
+   */
+  public static class Builder {
+    private FileLink building = new FileLink();
+
+    public Builder apiKey(String apiKey) {
+      building.apiKey = apiKey;
+      return this;
+    }
+
+    public Builder handle(String handle) {
+      building.handle = handle;
+      return this;
+    }
+
+    public Builder security(Security security) {
+      building.security = security;
+      return this;
+    }
+
+    public Builder service(FsService service) {
+      building.fsService = service;
+      return this;
+    }
+
+    public FileLink build() {
+      return building;
+    }
   }
 
   /**
@@ -77,7 +106,7 @@ public class FileLink {
     String policy = security != null ? security.getPolicy() : null;
     String signature = security != null ? security.getSignature() : null;
 
-    Response<ResponseBody> response = fsCdnService.get(this.handle, policy, signature).execute();
+    Response<ResponseBody> response = fsService.get(this.handle, policy, signature).execute();
 
     Util.checkResponseAndThrow(response);
 
@@ -119,7 +148,7 @@ public class FileLink {
     String policy = security != null ? security.getPolicy() : null;
     String signature = security != null ? security.getSignature() : null;
 
-    Response<ResponseBody> response = fsCdnService.get(this.handle, policy, signature).execute();
+    Response<ResponseBody> response = fsService.get(this.handle, policy, signature).execute();
 
     Util.checkResponseAndThrow(response);
 
@@ -171,7 +200,7 @@ public class FileLink {
     String policy = security.getPolicy();
     String signature = security.getSignature();
 
-    Response response = fsApiService.overwrite(handle, policy, signature, body).execute();
+    Response response = fsService.overwrite(handle, policy, signature, body).execute();
 
     Util.checkResponseAndThrow(response);
   }
@@ -197,7 +226,7 @@ public class FileLink {
     String policy = security.getPolicy();
     String signature = security.getSignature();
 
-    Response response = fsApiService.delete(handle, apiKey, policy, signature).execute();
+    Response response = fsService.delete(handle, apiKey, policy, signature).execute();
 
     Util.checkResponseAndThrow(response);
   }
@@ -294,5 +323,9 @@ public class FileLink {
 
   public Security getSecurity() {
     return security;
+  }
+
+  public FsService getFsService() {
+    return fsService;
   }
 }
