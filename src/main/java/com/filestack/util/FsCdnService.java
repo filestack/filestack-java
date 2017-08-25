@@ -17,30 +17,12 @@ import retrofit2.http.Streaming;
 public interface FsCdnService {
   String URL = "https://cdn.filestackcontent.com/";
 
-  // Base endpoints
-
   @GET("{handle}")
   @Streaming
   Call<ResponseBody> get(
       @Path("handle") String handle,
       @Query("policy") String policy,
       @Query("signature") String signature);
-
-  @POST("{handle}")
-  Call<ResponseBody> overwrite(
-      @Path("handle") String handle,
-      @Query("policy") String policy,
-      @Query("signature") String signature,
-      @Body RequestBody body);
-
-  @DELETE("{handle}")
-  Call<ResponseBody> delete(
-      @Path("handle") String handle,
-      @Query("key") String key,
-      @Query("policy") String policy,
-      @Query("signature") String signature);
-
-  // Transform endpoints
 
   // Using an existing handle
   @Streaming
