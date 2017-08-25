@@ -6,7 +6,7 @@ import com.filestack.Policy;
 import com.filestack.Security;
 
 /**
- * Constants for {@link MockInterceptor MockInterceptor} and unit tests.
+ * Constants for unit tests.
  */
 public class MockConstants {
   static final String MOCK_BASE_URL = "https://mock.filestackapi.com/";
