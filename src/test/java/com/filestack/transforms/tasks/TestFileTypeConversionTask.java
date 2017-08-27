@@ -4,7 +4,7 @@ import com.filestack.transforms.TransformTask;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestFileConversionTask {
+public class TestFileTypeConversionTask {
 
   @Test
   public void testToString() {
@@ -22,7 +22,7 @@ public class TestFileConversionTask {
         + "pageformat:legal,"
         + "pageorientation:landscape";
 
-    TransformTask task = new FileConversionTask.Builder()
+    TransformTask task = new FileTypeConversionTask.Builder()
         .format("png")
         .background("white")
         .page(4)
@@ -47,7 +47,7 @@ public class TestFileConversionTask {
     String correct = "output="
         + "quality:input";
 
-    TransformTask task = new FileConversionTask.Builder()
+    TransformTask task = new FileTypeConversionTask.Builder()
         .quality("input")
         .build();
 

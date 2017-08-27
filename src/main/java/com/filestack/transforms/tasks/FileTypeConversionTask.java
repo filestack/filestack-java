@@ -2,87 +2,87 @@ package com.filestack.transforms.tasks;
 
 import com.filestack.transforms.ImageTransformTask;
 
-public class FileConversionTask extends ImageTransformTask {
+public class FileTypeConversionTask extends ImageTransformTask {
 
-  FileConversionTask() {
+  FileTypeConversionTask() {
     super("output");
   }
 
   public static class Builder {
-    private FileConversionTask fileConversionTask;
+    private FileTypeConversionTask fileTypeConversionTask;
 
     public Builder() {
-      this.fileConversionTask = new FileConversionTask();
+      this.fileTypeConversionTask = new FileTypeConversionTask();
     }
 
     public Builder format(String format) {
-      fileConversionTask.addOption("format", format);
+      fileTypeConversionTask.addOption("format", format);
       return this;
     }
 
     public Builder background(String background) {
-      fileConversionTask.addOption("background", background);
+      fileTypeConversionTask.addOption("background", background);
       return this;
     }
 
     public Builder page(int page) {
-      fileConversionTask.addOption("page", page);
+      fileTypeConversionTask.addOption("page", page);
       return this;
     }
 
     public Builder density(int density) {
-      fileConversionTask.addOption("density", density);
+      fileTypeConversionTask.addOption("density", density);
       return this;
     }
 
     public Builder compress(boolean compress) {
-      fileConversionTask.addOption("compress", compress);
+      fileTypeConversionTask.addOption("compress", compress);
       return this;
     }
 
     public Builder quality(int quality) {
-      fileConversionTask.addOption("quality", quality);
+      fileTypeConversionTask.addOption("quality", quality);
       return this;
     }
 
     /** For "input" option. */
     public Builder quality(String quality) {
-      fileConversionTask.addOption("quality", quality);
+      fileTypeConversionTask.addOption("quality", quality);
       return this;
     }
 
     public Builder strip(boolean strip) {
-      fileConversionTask.addOption("strip", strip);
+      fileTypeConversionTask.addOption("strip", strip);
       return this;
     }
 
     public Builder colorSpace(String colorSpace) {
-      fileConversionTask.addOption("colorspace", colorSpace);
+      fileTypeConversionTask.addOption("colorspace", colorSpace);
       return this;
     }
 
     public Builder secure(boolean secure) {
-      fileConversionTask.addOption("secure", secure);
+      fileTypeConversionTask.addOption("secure", secure);
       return this;
     }
 
     public Builder docInfo(boolean docInfo) {
-      fileConversionTask.addOption("docinfo", docInfo);
+      fileTypeConversionTask.addOption("docinfo", docInfo);
       return this;
     }
 
     public Builder pageFormat(String pageFormat) {
-      fileConversionTask.addOption("pageformat", pageFormat);
+      fileTypeConversionTask.addOption("pageformat", pageFormat);
       return this;
     }
 
     public Builder pageOrientation(String pageOrientation) {
-      fileConversionTask.addOption("pageorientation", pageOrientation);
+      fileTypeConversionTask.addOption("pageorientation", pageOrientation);
       return this;
     }
 
-    public FileConversionTask build() {
-      return fileConversionTask;
+    public FileTypeConversionTask build() {
+      return fileTypeConversionTask;
     }
   }
 }
