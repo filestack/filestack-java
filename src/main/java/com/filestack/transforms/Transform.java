@@ -3,8 +3,7 @@ package com.filestack.transforms;
 import com.filestack.FileLink;
 import com.filestack.FilestackClient;
 import com.filestack.Security;
-import com.filestack.util.FsCdnService;
-import com.filestack.util.Networking;
+import com.filestack.util.FsService;
 
 import java.util.ArrayList;
 
@@ -20,26 +19,27 @@ public class Transform {
 
   ArrayList<TransformTask> tasks;
 
-  FsCdnService fsCdnService;
+  FsService fsService;
 
-  Transform(FilestackClient fsClient, String source) {
-    this(fsClient, source, null);
+  Transform(FilestackClient fsClient, String url) {
+    this(fsClient, null, url);
   }
 
   Transform(FileLink fileLink) {
-    this(null, null, fileLink);
+    this(null, fileLink, null);
   }
 
-  Transform(FilestackClient fsClient, String source, FileLink fileLink) {
+  Transform(FilestackClient fsClient, FileLink fileLink, String url) {
     if (fsClient != null) {
       this.apiKey = fsClient.getApiKey();
-      this.source = source;
+      this.source = url;
+      this.fsService = fsClient.getFsService();
     } else {
       this.source = fileLink.getHandle();
+      this.fsService = fileLink.getFsService();
     }
 
     this.tasks = new ArrayList<>();
-    this.fsCdnService = Networking.getFsCdnService();
 
     Security security = fsClient != null ? fsClient.getSecurity() : fileLink.getSecurity();
     this.security = security;
@@ -78,9 +78,9 @@ public class Transform {
     HttpUrl httpUrl;
 
     if (apiKey != null) {
-      httpUrl = fsCdnService.transformExt(apiKey, tasksString, source).request().url();
+      httpUrl = fsService.transformExt(apiKey, tasksString, source).request().url();
     } else {
-      httpUrl = fsCdnService.transform(tasksString, source).request().url();
+      httpUrl = fsService.transform(tasksString, source).request().url();
     }
 
     // When building the request we add a / between tasks

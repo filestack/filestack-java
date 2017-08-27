@@ -37,7 +37,7 @@ public class Upload {
   private static final int MIN_CHUNK_SIZE = 32 * 1024;
 
   private final FilestackClient fsClient;
-  private final FsUploadService fsUploadService;
+  private final FsService fsService;
 
   private final int delayBase;
   private final long filesize;
@@ -60,7 +60,7 @@ public class Upload {
    */
   public Upload(String pathname, FilestackClient fsClient, UploadOptions options)
       throws ValidationException {
-    this(pathname, fsClient, options, Networking.getFsUploadService(), 2);
+    this(pathname, fsClient, options, new FsService(), 2);
   }
 
   /**
@@ -69,17 +69,17 @@ public class Upload {
    * @param pathname        for the file to upload
    * @param fsClient        client used to make this upload
    * @param options         for storing the file
-   * @param fsUploadService client to make Filestack API calls
+   * @param fsService client to make Filestack API calls
    * @param delayBase       base for exponential backoff, delay (seconds) == base ^ retryCount
    * @throws ValidationException if the pathname doesn't exist or isn't a regular file
    */
   public Upload(String pathname, FilestackClient fsClient, UploadOptions options,
-                FsUploadService fsUploadService, int delayBase)
+                FsService fsService, int delayBase)
       throws ValidationException {
 
     this.filepath = pathname;
     this.fsClient = fsClient;
-    this.fsUploadService = fsUploadService;
+    this.fsService = fsService;
     this.delayBase = delayBase;
 
     // Setup base parameters
@@ -142,7 +142,7 @@ public class Upload {
 
       @Override
       Response<StartResponse> work() throws Exception {
-        return fsUploadService.start(baseParams).execute();
+        return fsService.start(baseParams).execute();
       }
     }
         .call();
@@ -300,7 +300,7 @@ public class Upload {
 
       @Override
       Response<UploadResponse> work() throws Exception {
-        return fsUploadService.upload(params).execute();
+        return fsService.upload(params).execute();
       }
     }
         .call();
@@ -322,7 +322,7 @@ public class Upload {
         String url = params.getUrl();
 
         RequestBody requestBody = RequestBody.create(mediaType, bytes, 0, attemptSize);
-        return fsUploadService.uploadS3(headers, url, requestBody).execute();
+        return fsService.uploadS3(headers, url, requestBody).execute();
       }
 
       @Override
@@ -359,7 +359,7 @@ public class Upload {
 
       @Override
       Response<ResponseBody> work() throws Exception {
-        return fsUploadService.commit(params).execute();
+        return fsService.commit(params).execute();
       }
     }
         .call();
@@ -388,7 +388,7 @@ public class Upload {
 
       @Override
       Response<CompleteResponse> work() throws Exception {
-        return fsUploadService.complete(params).execute();
+        return fsService.complete(params).execute();
       }
     }
         .call();

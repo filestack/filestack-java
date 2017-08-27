@@ -135,10 +135,10 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../com/filestack/util/Upload.html#Upload-java.lang.String-com.filestack.FilestackClient-com.filestack.UploadOptions-com.filestack.util.FsUploadService-int-">Upload</a></span>(java.lang.String&nbsp;pathname,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../com/filestack/util/Upload.html#Upload-java.lang.String-com.filestack.FilestackClient-com.filestack.UploadOptions-com.filestack.util.FsService-int-">Upload</a></span>(java.lang.String&nbsp;pathname,
       <a href="../../../com/filestack/FilestackClient.html" title="class in com.filestack">FilestackClient</a>&nbsp;fsClient,
       <a href="../../../com/filestack/UploadOptions.html" title="class in com.filestack">UploadOptions</a>&nbsp;options,
-      <a href="../../../com/filestack/util/FsUploadService.html" title="interface in com.filestack.util">FsUploadService</a>&nbsp;fsUploadService,
+      <a href="../../../com/filestack/util/FsService.html" title="class in com.filestack.util">FsService</a>&nbsp;fsService,
       int&nbsp;delayBase)</code>
 <div class="block">Construct an instance using custom <a href="../../../com/filestack/util/FsUploadService.html" title="interface in com.filestack.util"><code>singleton</code></a> and delay.</div>
 </td>
@@ -207,7 +207,7 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a name="Upload-java.lang.String-com.filestack.FilestackClient-com.filestack.UploadOptions-com.filestack.util.FsUploadService-int-">
+<a name="Upload-java.lang.String-com.filestack.FilestackClient-com.filestack.UploadOptions-com.filestack.util.FsService-int-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -216,7 +216,7 @@ extends java.lang.Object</pre>
 <pre>public&nbsp;Upload(java.lang.String&nbsp;pathname,
               <a href="../../../com/filestack/FilestackClient.html" title="class in com.filestack">FilestackClient</a>&nbsp;fsClient,
               <a href="../../../com/filestack/UploadOptions.html" title="class in com.filestack">UploadOptions</a>&nbsp;options,
-              <a href="../../../com/filestack/util/FsUploadService.html" title="interface in com.filestack.util">FsUploadService</a>&nbsp;fsUploadService,
+              <a href="../../../com/filestack/util/FsService.html" title="class in com.filestack.util">FsService</a>&nbsp;fsService,
               int&nbsp;delayBase)
        throws <a href="../../../com/filestack/errors/ValidationException.html" title="class in com.filestack.errors">ValidationException</a></pre>
 <div class="block">Construct an instance using custom <a href="../../../com/filestack/util/FsUploadService.html" title="interface in com.filestack.util"><code>singleton</code></a> and delay.</div>
@@ -225,7 +225,7 @@ extends java.lang.Object</pre>
 <dd><code>pathname</code> - for the file to upload</dd>
 <dd><code>fsClient</code> - client used to make this upload</dd>
 <dd><code>options</code> - for storing the file</dd>
-<dd><code>fsUploadService</code> - client to make Filestack API calls</dd>
+<dd><code>fsService</code> - client to make Filestack API calls</dd>
 <dd><code>delayBase</code> - base for exponential backoff, delay (seconds) == base ^ retryCount</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../com/filestack/errors/ValidationException.html" title="class in com.filestack.errors">ValidationException</a></code> - if the pathname doesn't exist or isn't a regular file</dd>

@@ -1,113 +1,130 @@
 package com.filestack.transforms;
 
-import static com.filestack.util.MockConstants.API_KEY;
-import static com.filestack.util.MockConstants.FILE_LINK;
-import static com.filestack.util.MockConstants.FS_CLIENT;
-import static com.filestack.util.MockConstants.HANDLE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import com.filestack.FileLink;
 import com.filestack.FilestackClient;
+import com.filestack.responses.StoreResponse;
 import com.filestack.util.FsCdnService;
-import com.filestack.util.MockInterceptor;
-import com.filestack.util.Networking;
-
+import com.filestack.util.FsService;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-
-import okhttp3.OkHttpClient;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
+import retrofit2.mock.Calls;
 
 public class TestImageTransform {
-  private static final String RESIZE_TASK_STRING = "resize=width:100,height:100";
-  private static final String SOURCE = "https://example.com/image.jpg";
-  private static final String ENCODED_SOURCE = "https:%2F%2Fexample.com%2Fimage.jpg";
-
-  /**
-   * Set a custom httpClient for our testing.
-   * This custom client has an added interceptor to create mock responses.
-   */
-  @BeforeClass
-  public static void setup() {
-    OkHttpClient client = new OkHttpClient.Builder()
-        .addInterceptor(new MockInterceptor())
-        .build();
-    Networking.setCustomClient(client);
-  }
-
-  @Test
-  public void testDebug() throws Exception {
-    FileLink fileLink = new FileLink("apiKey", "handle");
-    Assert.assertNotNull(fileLink.imageTransform().debug());
-    FilestackClient client = new FilestackClient("apiKey");
-    Assert.assertNotNull(client.imageTransform("https://example.com/image.jpg").debug());
-  }
 
   @Test
   public void testDebugUrl() throws Exception {
-    FsCdnService fsCdnService = Networking.getFsCdnService();
+    FsService fsService = new FsService();
 
-    String correct = FsCdnService.URL + "debug/" + RESIZE_TASK_STRING
-        + "/" + HANDLE;
-    String output = fsCdnService.transformDebug(RESIZE_TASK_STRING, HANDLE)
+    String taskString = "resize=width:100,height:100";
+    String correctUrl = FsCdnService.URL + "debug/" + taskString + "/handle";
+    String outputUrl = fsService.transformDebug(taskString, "handle")
         .request()
         .url()
         .toString();
 
-    String message = String.format("Debug URL malformed\nCorrect: %s\nOutput:  %s",
-        correct, output);
-    assertTrue(message, output.equals(correct));
+    Assert.assertEquals(correctUrl, outputUrl);
+  }
+
+  @Test
+  public void testDebugUrlExternal() throws Exception {
+    FsService fsService = new FsService();
+
+    String taskString = "resize=width:100,height:100";
+    String url = "https://example.com/image.jpg";
+    String encodedUrl = "https:%2F%2Fexample.com%2Fimage.jpg";
+
+    // Retrofit will return the URL with some characters escaped, so check for encoded version
+    String correctUrl = FsCdnService.URL + "apiKey/debug/" + taskString + "/" + encodedUrl;
+    String outputUrl = fsService.transformDebugExt("apiKey", taskString, url)
+        .request()
+        .url()
+        .toString();
+
+    Assert.assertEquals(correctUrl, outputUrl);
+  }
+
+  @Test
+  public void testDebugHandle() throws Exception {
+    FsService mockFsService = Mockito.mock(FsService.class);
+    FileLink fileLink = new FileLink.Builder()
+        .apiKey("apiKey")
+        .handle("handle")
+        .service(mockFsService)
+        .build();
+
+    Mockito.doReturn(Calls.response(new JsonObject()))
+        .when(mockFsService)
+        .transformDebug("", "handle");
+
+    Assert.assertNotNull(fileLink.imageTransform().debug());
   }
 
   @Test
   public void testDebugExternal() throws Exception {
-    ImageTransform transform = FS_CLIENT.imageTransform(SOURCE);
-    JsonObject debugResponse = transform.debug();
-    String message = "External debug response was null";
-    assertTrue(message, debugResponse != null);
+    String url = "https://example.com/image.jpg";
+    FsService mockFsService = Mockito.mock(FsService.class);
+    FilestackClient client = new FilestackClient.Builder()
+        .apiKey("apiKey")
+        .service(mockFsService)
+        .build();
+
+    Mockito.doReturn(Calls.response(new JsonObject()))
+        .when(mockFsService)
+        .transformDebugExt("apiKey", "", url);
+
+    Assert.assertNotNull(client.imageTransform(url).debug());
   }
 
   @Test
-  public void testDebugExternalUrl() throws Exception {
-    FsCdnService fsCdnService = Networking.getFsCdnService();
+  public void testStoreHandle() throws Exception {
+    FsService mockFsService = Mockito.mock(FsService.class);
 
-    // Retrofit will return the URL with some characters escaped
-    // We check for a string with the encoded source
-    String correct = FsCdnService.URL + API_KEY + "/debug/" + RESIZE_TASK_STRING
-        + "/" + ENCODED_SOURCE;
-    String output = fsCdnService.transformDebugExt(API_KEY, RESIZE_TASK_STRING, SOURCE)
-        .request()
-        .url()
-        .toString();
+    FileLink fileLink = new FileLink.Builder()
+        .apiKey("apiKey")
+        .handle("handle")
+        .service(mockFsService)
+        .build();
 
-    String message = String.format("External debug URL malformed\nCorrect: %s\nOutput:  %s",
-        correct, output);
-    assertTrue(message, output.equals(correct));
-  }
+    String jsonString = "{'url': 'https://cdn.filestackcontent.com/handle'}";
+    Gson gson = new Gson();
+    StoreResponse storeResponse = gson.fromJson(jsonString, StoreResponse.class);
 
-  @Test
-  public void testStore() throws Exception {
-    FileLink fileLink = new FileLink("apiKey", "handle");
+    Mockito.doReturn(Calls.response(storeResponse))
+        .when(mockFsService)
+        .transformStore("store", "handle");
+
     Assert.assertNotNull(fileLink.imageTransform().store());
-    FilestackClient client = new FilestackClient("apiKey");
-    Assert.assertNotNull(client.imageTransform("https://example.com/image.jpg").store());
+  }
+
+  @Test
+  public void testStoreExternal() throws Exception {
+    FsService mockFsService = Mockito.mock(FsService.class);
+
+    FilestackClient client = new FilestackClient.Builder()
+        .apiKey("apiKey")
+        .service(mockFsService)
+        .build();
+
+    String jsonString = "{'url': 'https://cdn.filestackcontent.com/handle'}";
+    Gson gson = new Gson();
+    StoreResponse storeResponse = gson.fromJson(jsonString, StoreResponse.class);
+
+    String url = "https://example.com/image.jpg";
+
+    Mockito.doReturn(Calls.response(storeResponse))
+        .when(mockFsService)
+        .transformStoreExt("apiKey", "store", url);
+
+    Assert.assertNotNull(client.imageTransform(url).store());
   }
 
   @Test(expected = NullPointerException.class)
   public void testAddNullTask() throws Exception {
-    ImageTransform transform = FILE_LINK.imageTransform();
+    FileLink filelink = new FileLink("apiKey", "handle");
+    ImageTransform transform = filelink.imageTransform();
     transform.addTask(null);
-  }
-
-  /**
-   * Clear changes to {@link Networking Networking} class since it's a shared resource.
-   */
-  @AfterClass
-  public static void teardown() {
-    Networking.invalidate();
   }
 }

@@ -48,9 +48,9 @@ public class ImageTransform extends Transform {
 
     Response<JsonObject> response;
     if (apiKey != null) {
-      response = fsCdnService.transformDebugExt(apiKey, tasksString, source).execute();
+      response = fsService.transformDebugExt(apiKey, tasksString, source).execute();
     } else {
-      response = fsCdnService.transformDebug(tasksString, source).execute();
+      response = fsService.transformDebug(tasksString, source).execute();
     }
 
     Util.checkResponseAndThrow(response);
@@ -105,9 +105,9 @@ public class ImageTransform extends Transform {
     Response<StoreResponse> response;
     String tasksString = getTasksString();
     if (apiKey != null) {
-      response = fsCdnService.transformStoreExt(apiKey, tasksString, source).execute();
+      response = fsService.transformStoreExt(apiKey, tasksString, source).execute();
     } else {
-      response = fsCdnService.transformStore(tasksString, source).execute();
+      response = fsService.transformStore(tasksString, source).execute();
     }
 
     Util.checkResponseAndThrow(response);
