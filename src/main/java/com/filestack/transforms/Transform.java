@@ -3,11 +3,22 @@ package com.filestack.transforms;
 import com.filestack.FileLink;
 import com.filestack.FilestackClient;
 import com.filestack.Security;
+import com.filestack.errors.InternalException;
+import com.filestack.errors.InvalidParameterException;
+import com.filestack.errors.PolicySignatureException;
+import com.filestack.errors.ResourceNotFoundException;
 import com.filestack.util.FsService;
-
+import com.filestack.util.Util;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
+import java.io.IOException;
 import java.util.ArrayList;
-
+import java.util.concurrent.Callable;
 import okhttp3.HttpUrl;
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 /**
  * Base class for file transformations and conversions.
@@ -87,5 +98,57 @@ public class Transform {
     // Because that entire task string is added as a single path variable, the / is URL encoded
     // That's a little confusing so we're replacing "%2F" with "/" for a more expected URL
     return httpUrl.toString().replace("%2F", "/");
+  }
+
+  public ResponseBody getContent()
+      throws IOException, PolicySignatureException, ResourceNotFoundException,
+             InvalidParameterException, InternalException {
+
+    String tasksString = getTasksString();
+    Response<ResponseBody> response;
+
+    if (apiKey != null) {
+      response = fsService.transformExt(apiKey, tasksString, source).execute();
+    } else {
+      response = fsService.transform(tasksString, source).execute();
+    }
+
+    Util.checkResponseAndThrow(response);
+
+    return response.body();
+  }
+
+  public JsonObject getContentJson()
+      throws IOException, PolicySignatureException, ResourceNotFoundException,
+      InvalidParameterException, InternalException {
+
+    ResponseBody body = getContent();
+
+    Gson gson = new Gson();
+    return gson.fromJson(body.charStream(), JsonObject.class);
+  }
+
+  // Async method wrappers
+
+  public Single<ResponseBody> getContentAsync() {
+    return Single.fromCallable(new Callable<ResponseBody>() {
+      @Override
+      public ResponseBody call() throws Exception {
+        return getContent();
+      }
+    })
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.single());
+  }
+
+  public Single<JsonObject> getContentJsonAsync() {
+    return Single.fromCallable(new Callable<JsonObject>() {
+      @Override
+      public JsonObject call() throws Exception {
+        return getContentJson();
+      }
+    })
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.single());
   }
 }
