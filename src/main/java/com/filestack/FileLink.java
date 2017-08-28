@@ -6,7 +6,7 @@ import com.filestack.errors.PolicySignatureException;
 import com.filestack.errors.ResourceNotFoundException;
 import com.filestack.errors.ValidationException;
 import com.filestack.transforms.ImageTransform;
-import com.filestack.transforms.tasks.TaggingTask;
+import com.filestack.transforms.ImageTransformTask;
 import com.filestack.util.FsService;
 import com.filestack.util.Util;
 import com.google.gson.Gson;
@@ -265,7 +265,7 @@ public class FileLink {
     }
 
     ImageTransform transform = new ImageTransform(this);
-    transform.addTask(new TaggingTask());
+    transform.addTask(new ImageTransformTask("tags"));
     JsonObject json = transform.getContentJson();
     Gson gson = new Gson();
     return gson.fromJson(json, ImageTags.class);
