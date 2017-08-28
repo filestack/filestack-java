@@ -5,8 +5,16 @@ import com.filestack.FilestackClient;
 import com.filestack.Policy;
 import com.filestack.Security;
 import com.filestack.util.FsCdnService;
+import com.filestack.util.FsService;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import okhttp3.MediaType;
+import okhttp3.ResponseBody;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
+import retrofit2.Call;
+import retrofit2.mock.Calls;
 
 public class TestTransform {
   private static final TransformTask TASK = new TransformTask("task");
@@ -79,5 +87,79 @@ public class TestTransform {
 
     String correctUrl = FsCdnService.URL + "task/handle";
     Assert.assertEquals(correctUrl, transform.url());
+  }
+
+  @Test
+  public void testGetContentExt() throws Exception {
+    FsService mockFsService = Mockito.mock(FsService.class);
+
+    MediaType mediaType = MediaType.parse("application/octet-stream");
+    ResponseBody responseBody = ResponseBody.create(mediaType, "Test Response");
+    Call call = Calls.response(responseBody);
+    Mockito.doReturn(call)
+        .when(mockFsService)
+        .transformExt("apiKey", "task", "https://example.com/");
+
+    FilestackClient client = new FilestackClient.Builder()
+        .apiKey("apiKey")
+        .service(mockFsService)
+        .build();
+
+    Transform transform = new Transform(client, "https://example.com/");
+    transform.tasks.add(new TransformTask("task"));
+
+    Assert.assertEquals("Test Response", transform.getContent().string());
+  }
+
+  @Test
+  public void testGetContentHandle() throws Exception {
+    FsService mockFsService = Mockito.mock(FsService.class);
+
+    MediaType mediaType = MediaType.parse("application/octet-stream");
+    ResponseBody responseBody = ResponseBody.create(mediaType, "Test Response");
+    Call call = Calls.response(responseBody);
+    Mockito.doReturn(call)
+        .when(mockFsService)
+        .transform("task", "handle");
+
+    FileLink fileLink = new FileLink.Builder()
+        .apiKey("apiKey")
+        .handle("handle")
+        .service(mockFsService)
+        .build();
+
+    Transform transform = new Transform(fileLink);
+    transform.tasks.add(new TransformTask("task"));
+
+    Assert.assertEquals("Test Response", transform.getContent().string());
+  }
+
+  @Test
+  public void testGetContentJson() throws Exception {
+    FsService mockFsService = Mockito.mock(FsService.class);
+
+    String jsonString = "{"
+        + "'key': 'value'"
+        + "}";
+
+    MediaType mediaType = MediaType.parse("application/json");
+    ResponseBody responseBody = ResponseBody.create(mediaType, jsonString);
+    Call call = Calls.response(responseBody);
+    Mockito.doReturn(call)
+        .when(mockFsService)
+        .transform("task", "handle");
+
+    FileLink fileLink = new FileLink.Builder()
+        .apiKey("apiKey")
+        .handle("handle")
+        .service(mockFsService)
+        .build();
+
+    Transform transform = new Transform(fileLink);
+    transform.tasks.add(new TransformTask("task"));
+
+    JsonObject jsonObject = transform.getContentJson();
+
+    Assert.assertEquals("value", jsonObject.get("key").getAsString());
   }
 }
