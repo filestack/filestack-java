@@ -245,8 +245,12 @@ public class FileLink {
   }
 
   public ImageTags imageTag()
-      throws IOException, PolicySignatureException, ResourceNotFoundException,
-      InvalidParameterException, InternalException {
+      throws ValidationException, IOException, PolicySignatureException,
+             ResourceNotFoundException, InvalidParameterException, InternalException {
+
+    if (security == null) {
+      throw new ValidationException("Security must be set in order to tag an image");
+    }
 
     ImageTransform transform = new ImageTransform(this);
     transform.addTask(new TaggingTask());
