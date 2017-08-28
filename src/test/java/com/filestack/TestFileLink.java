@@ -11,6 +11,8 @@ import okhttp3.ResponseBody;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import retrofit2.Call;
 import retrofit2.mock.Calls;
 
@@ -231,5 +233,42 @@ public class TestFileLink {
     ImageTags imageTags = fileLink.imageTag();
 
     Assert.assertEquals((Integer) 100, imageTags.getAuto().get("giraffe"));
+  }
+
+  @Test(expected = ValidationException.class)
+  public void testImageSfwNoSecurity() throws Exception {
+    FileLink fileLink = new FileLink("apiKey", "handle");
+    fileLink.imageSfw();
+  }
+
+  @Test
+  public void testImageSfw() throws Exception {
+    FsService mockFsService = Mockito.mock(FsService.class);
+
+    Mockito.doAnswer(new Answer() {
+      @Override
+      public Call<ResponseBody> answer(InvocationOnMock invocation) throws Throwable {
+        String handle = invocation.getArgument(1);
+        String json = "{'sfw': " + (handle.equals("safe") ? "true" : "false") + "}";
+        MediaType mediaType = MediaType.parse("application/json");
+        return Calls.response(ResponseBody.create(mediaType, json));
+      }
+    })
+        .when(mockFsService)
+        .transform(Mockito.anyString(), Mockito.anyString());
+
+    Policy policy = new Policy.Builder().giveFullAccess().build();
+    Security security = Security.createNew(policy, "appSecret");
+
+    FileLink.Builder builder = new FileLink.Builder()
+        .apiKey("apiKey")
+        .security(security)
+        .service(mockFsService);
+
+    FileLink safe = builder.handle("safe").build();
+    FileLink notSafe = builder.handle("notSafe").build();
+
+    Assert.assertTrue(safe.imageSfw());
+    Assert.assertFalse(notSafe.imageSfw());
   }
 }
