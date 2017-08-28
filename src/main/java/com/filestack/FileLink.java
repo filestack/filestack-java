@@ -271,6 +271,33 @@ public class FileLink {
     return gson.fromJson(json, ImageTags.class);
   }
 
+  /**
+   * Determines if an image FileLink is "safe for work" using the Google Vision API.
+   *
+   * @throws ValidationException       if security isn't set
+   * @throws IOException               if request fails because of network or other IO issue
+   * @throws PolicySignatureException  if security is missing or invalid or tagging isn't enabled
+   * @throws ResourceNotFoundException if handle isn't found
+   * @throws InvalidParameterException if handle is malformed
+   * @throws InternalException         if unexpected error occurs
+   *
+   * @see <a href="https://www.filestack.com/docs/tagging"></a>
+   */
+  public boolean imageSfw()
+      throws ValidationException, IOException, PolicySignatureException,
+      ResourceNotFoundException, InvalidParameterException, InternalException {
+
+    if (security == null) {
+      throw new ValidationException("Security must be set in order to tag an image");
+    }
+
+    ImageTransform transform = new ImageTransform(this);
+    transform.addTask(new ImageTransformTask("sfw"));
+    JsonObject json = transform.getContentJson();
+
+    return json.get("sfw").getAsBoolean();
+  }
+
   // Async method wrappers
 
   /**
@@ -357,6 +384,22 @@ public class FileLink {
       @Override
       public ImageTags call() throws Exception {
         return imageTag();
+      }
+    })
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.single());
+  }
+
+  /**
+   * Asynchronously determines if an image FileLink is "safe for work" using the Google Vision API.
+   *
+   * @see #imageSfw()
+   */
+  public Single<Boolean> imageSfwAsync() {
+    return Single.fromCallable(new Callable<Boolean>() {
+      @Override
+      public Boolean call() throws Exception {
+        return imageSfw();
       }
     })
         .subscribeOn(Schedulers.io())
