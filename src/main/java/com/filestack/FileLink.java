@@ -65,30 +65,41 @@ public class FileLink {
    * Builds new {@link FilestackClient}.
    */
   public static class Builder {
-    private FileLink building = new FileLink();
+    private String apiKey;
+    private String handle;
+    private Security security;
+    private FsService fsService;
 
     public Builder apiKey(String apiKey) {
-      building.apiKey = apiKey;
+      this.apiKey = apiKey;
       return this;
     }
 
     public Builder handle(String handle) {
-      building.handle = handle;
+      this.handle = handle;
       return this;
     }
 
     public Builder security(Security security) {
-      building.security = security;
+      this.security = security;
       return this;
     }
 
-    public Builder service(FsService service) {
-      building.fsService = service;
+    public Builder service(FsService fsService) {
+      this.fsService = fsService;
       return this;
     }
 
+    /**
+     * Create the {@link FileLink} using the configured values.
+     */
     public FileLink build() {
-      return building;
+      FileLink fileLink = new FileLink();
+      fileLink.apiKey = apiKey;
+      fileLink.handle = handle;
+      fileLink.security = security;
+      fileLink.fsService = fsService != null ? fsService : new FsService();
+      return fileLink;
     }
   }
 
