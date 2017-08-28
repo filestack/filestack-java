@@ -48,9 +48,8 @@ public class TestFileLink {
         .service(mockFsService)
         .build();
 
-    byte[] content = fileLink.getContent();
-    String text = new String(content);
-    Assert.assertEquals("Test content", text);
+    ResponseBody content = fileLink.getContent();
+    Assert.assertEquals("Test content", content.string());
   }
 
   @Test

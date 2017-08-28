@@ -113,7 +113,7 @@ public class FileLink {
    * @throws InvalidParameterException if handle is malformed
    * @throws InternalException         if unexpected error occurs
    */
-  public byte[] getContent()
+  public ResponseBody getContent()
       throws IOException, PolicySignatureException, ResourceNotFoundException,
              InvalidParameterException, InternalException {
 
@@ -124,12 +124,7 @@ public class FileLink {
 
     Util.checkResponseAndThrow(response);
 
-    ResponseBody body = response.body();
-    if (body == null) {
-      throw new IOException();
-    }
-
-    return body.bytes();
+    return response.body();
   }
 
   /**
@@ -316,10 +311,10 @@ public class FileLink {
    *
    * @see #getContent()
    */
-  public Single<byte[]> getContentAsync() {
-    return Single.fromCallable(new Callable<byte[]>() {
+  public Single<ResponseBody> getContentAsync() {
+    return Single.fromCallable(new Callable<ResponseBody>() {
       @Override
-      public byte[] call() throws Exception {
+      public ResponseBody call() throws Exception {
         return getContent();
       }
     })
