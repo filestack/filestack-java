@@ -6,8 +6,11 @@ import com.filestack.errors.PolicySignatureException;
 import com.filestack.errors.ResourceNotFoundException;
 import com.filestack.errors.ValidationException;
 import com.filestack.transforms.ImageTransform;
+import com.filestack.transforms.tasks.TaggingTask;
 import com.filestack.util.FsService;
 import com.filestack.util.Util;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.functions.Action;
@@ -231,6 +234,27 @@ public class FileLink {
     Util.checkResponseAndThrow(response);
   }
 
+  /**
+   * Creates an {@link ImageTransform} object for this file.
+   * A transformation call isn't made directly by this method.
+   *
+   * @return {@link ImageTransform ImageTransform} instance configured for this file
+   */
+  public ImageTransform imageTransform() {
+    return new ImageTransform(this);
+  }
+
+  public ImageTags imageTag()
+      throws IOException, PolicySignatureException, ResourceNotFoundException,
+      InvalidParameterException, InternalException {
+
+    ImageTransform transform = new ImageTransform(this);
+    transform.addTask(new TaggingTask());
+    JsonObject json = transform.getContentJson();
+    Gson gson = new Gson();
+    return gson.fromJson(json, ImageTags.class);
+  }
+
   // Async method wrappers
 
   /**
@@ -307,14 +331,15 @@ public class FileLink {
         .observeOn(Schedulers.single());
   }
 
-  /**
-   * Creates an {@link ImageTransform} object for this file.
-   * A transformation call isn't made directly by this method.
-   *
-   * @return {@link ImageTransform ImageTransform} instance configured for this file
-   */
-  public ImageTransform imageTransform() {
-    return new ImageTransform(this);
+  public Single<ImageTags> imageTagAsync() {
+    return Single.fromCallable(new Callable<ImageTags>() {
+      @Override
+      public ImageTags call() throws Exception {
+        return imageTag();
+      }
+    })
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.single());
   }
 
   public String getHandle() {
