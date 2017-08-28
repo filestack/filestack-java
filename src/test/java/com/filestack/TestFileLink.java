@@ -186,4 +186,50 @@ public class TestFileLink {
     FileLink fileLink = new FileLink("apiKey", "handle");
     fileLink.delete();
   }
+
+  @Test(expected = ValidationException.class)
+  public void testImageTagNoSecurity() throws Exception {
+    FileLink fileLink = new FileLink("apiKey", "handle");
+    fileLink.imageTag();
+  }
+
+  @Test
+  public void testImageTag() throws Exception {
+    FsService mockFsService = Mockito.mock(FsService.class);
+
+    String jsonString = "{"
+        + "'tags': {"
+        + "'auto': {"
+        + "'giraffe': 100"
+        + "},"
+        + "'user': null"
+        + "}"
+        + "}";
+
+    MediaType mediaType = MediaType.parse("application/json");
+    ResponseBody responseBody = ResponseBody.create(mediaType, jsonString);
+    Call call = Calls.response(responseBody);
+
+    Policy policy = new Policy.Builder().giveFullAccess().build();
+    Security security = Security.createNew(policy, "appSecret");
+
+    String tasksString = "security=policy:" + security.getPolicy()
+        + ",signature:" + security.getSignature()
+        + "/tags";
+
+    Mockito.doReturn(call)
+        .when(mockFsService)
+        .transform(tasksString, "handle");
+
+    FileLink fileLink = new FileLink.Builder()
+        .apiKey("apiKey")
+        .handle("handle")
+        .security(security)
+        .service(mockFsService)
+        .build();
+
+    ImageTags imageTags = fileLink.imageTag();
+
+    Assert.assertEquals((Integer) 100, imageTags.getAuto().get("giraffe"));
+  }
 }
