@@ -245,11 +245,11 @@ public class FileLink {
   }
 
   /**
-   * Returns tags from Google Vision API for image FileLinks.
+   * Returns tags from the Google Vision API for image FileLinks.
    *
    * @throws ValidationException       if security isn't set
    * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if security is missing or invalid
+   * @throws PolicySignatureException  if security is missing or invalid or tagging isn't enabled
    * @throws ResourceNotFoundException if handle isn't found
    * @throws InvalidParameterException if handle is malformed
    * @throws InternalException         if unexpected error occurs
