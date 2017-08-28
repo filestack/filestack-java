@@ -105,7 +105,7 @@ public class Transform {
    *
    * @return raw transformation content, streamable
    * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if policy and/or signature are invalid or inadequate
+   * @throws PolicySignatureException  if security is missing or invalid
    * @throws ResourceNotFoundException if handle or API key isn't found
    * @throws InvalidParameterException if any of the task options is malformed
    * @throws InternalException         if unexpected error occurs

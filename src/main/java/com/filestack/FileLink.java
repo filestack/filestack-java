@@ -97,7 +97,7 @@ public class FileLink {
    *
    * @return byte[] of file content
    * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if policy and/or signature are invalid or inadequate
+   * @throws PolicySignatureException  if security is missing or invalid
    * @throws ResourceNotFoundException if handle isn't found
    * @throws InvalidParameterException if handle is malformed
    * @throws InternalException         if unexpected error occurs
@@ -139,7 +139,7 @@ public class FileLink {
    * @param filename  local name for the file
    * @throws ValidationException       if the path (directory/filename) isn't writable
    * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if policy and/or signature are invalid or inadequate
+   * @throws PolicySignatureException  if security is missing or invalid
    * @throws ResourceNotFoundException if handle isn't found
    * @throws InvalidParameterException if handle is malformed
    * @throws InternalException         if unexpected error occurs
@@ -182,7 +182,7 @@ public class FileLink {
    * @param pathname path to the file, can be local or absolute
    * @throws ValidationException       if security isn't set or the pathname is invalid
    * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if policy and/or signature are invalid or inadequate
+   * @throws PolicySignatureException  if security is missing or invalid
    * @throws ResourceNotFoundException if handle isn't found
    * @throws InvalidParameterException if handle is malformed
    * @throws InternalException         if unexpected error occurs
@@ -213,7 +213,7 @@ public class FileLink {
    *
    * @throws ValidationException       if security isn't set
    * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if policy and/or signature are invalid or inadequate
+   * @throws PolicySignatureException  if security is missing or invalid
    * @throws ResourceNotFoundException if handle isn't found
    * @throws InvalidParameterException if handle is malformed
    * @throws InternalException         if unexpected error occurs
@@ -249,7 +249,7 @@ public class FileLink {
    *
    * @throws ValidationException       if security isn't set
    * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if policy and/or signature are invalid or inadequate
+   * @throws PolicySignatureException  if security is missing or invalid
    * @throws ResourceNotFoundException if handle isn't found
    * @throws InvalidParameterException if handle is malformed
    * @throws InternalException         if unexpected error occurs
