@@ -244,6 +244,18 @@ public class FileLink {
     return new ImageTransform(this);
   }
 
+  /**
+   * Returns tags from Google Vision API for image FileLinks.
+   *
+   * @throws ValidationException       if security isn't set
+   * @throws IOException               if request fails because of network or other IO issue
+   * @throws PolicySignatureException  if policy and/or signature are invalid or inadequate
+   * @throws ResourceNotFoundException if handle isn't found
+   * @throws InvalidParameterException if handle is malformed
+   * @throws InternalException         if unexpected error occurs
+   *
+   * @see <a href="https://www.filestack.com/docs/tagging"></a>
+   */
   public ImageTags imageTag()
       throws ValidationException, IOException, PolicySignatureException,
              ResourceNotFoundException, InvalidParameterException, InternalException {
@@ -335,6 +347,11 @@ public class FileLink {
         .observeOn(Schedulers.single());
   }
 
+  /**
+   * Asynchronously returns tags from Google Vision API for image FileLinks.
+   *
+   * @see #imageTag()
+   */
   public Single<ImageTags> imageTagAsync() {
     return Single.fromCallable(new Callable<ImageTags>() {
       @Override

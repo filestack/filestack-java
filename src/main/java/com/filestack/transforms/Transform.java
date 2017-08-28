@@ -100,6 +100,16 @@ public class Transform {
     return httpUrl.toString().replace("%2F", "/");
   }
 
+  /**
+   * Returns the content of a transformation.
+   *
+   * @return raw transformation content, streamable
+   * @throws IOException               if request fails because of network or other IO issue
+   * @throws PolicySignatureException  if policy and/or signature are invalid or inadequate
+   * @throws ResourceNotFoundException if handle or API key isn't found
+   * @throws InvalidParameterException if any of the task options is malformed
+   * @throws InternalException         if unexpected error occurs
+   */
   public ResponseBody getContent()
       throws IOException, PolicySignatureException, ResourceNotFoundException,
              InvalidParameterException, InternalException {
@@ -118,6 +128,11 @@ public class Transform {
     return response.body();
   }
 
+  /**
+   * Returns the content of a transformation as JSON.
+   *
+   * @see #getContent()
+   */
   public JsonObject getContentJson()
       throws IOException, PolicySignatureException, ResourceNotFoundException,
       InvalidParameterException, InternalException {
@@ -130,6 +145,11 @@ public class Transform {
 
   // Async method wrappers
 
+  /**
+   * Asynchronously returns the content of a transformation.
+   *
+   * @see #getContent()
+   */
   public Single<ResponseBody> getContentAsync() {
     return Single.fromCallable(new Callable<ResponseBody>() {
       @Override
@@ -141,6 +161,11 @@ public class Transform {
         .observeOn(Schedulers.single());
   }
 
+  /**
+   * Asynchronously returns the content of a transformation as JSON.
+   *
+   * @see #getContent()
+   */
   public Single<JsonObject> getContentJsonAsync() {
     return Single.fromCallable(new Callable<JsonObject>() {
       @Override
