@@ -8,7 +8,6 @@ import com.filestack.errors.InvalidParameterException;
 import com.filestack.errors.PolicySignatureException;
 import com.filestack.errors.ResourceNotFoundException;
 import com.filestack.responses.StoreResponse;
-import com.filestack.transforms.tasks.StoreOptions;
 import com.filestack.util.Util;
 import com.google.gson.JsonObject;
 import io.reactivex.Single;
