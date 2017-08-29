@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import okhttp3.RequestBody;
 
+/** Configure storage options for uploads and transformation stores. */
 public class StorageOptions {
   private String access;
   private Boolean base64Decode;
@@ -17,12 +18,14 @@ public class StorageOptions {
 
   public StorageOptions() { }
 
+  /** Get these options as a task. */
   public TransformTask getAsTask() {
     TransformTask task = new TransformTask("store");
     addToTask(task);
     return task;
   }
 
+  /** Add these options to an existing task. */
   public void addToTask(TransformTask task) {
     task.addOption("access", access);
     task.addOption("base64decode", base64Decode);
@@ -33,6 +36,7 @@ public class StorageOptions {
     task.addOption("region", region);
   }
 
+  /** Get these options as a part map to use for uploads. */
   public Map<String, RequestBody> getAsPartMap() {
     HashMap<String, RequestBody> map = new HashMap<>();
     addToMap(map, "store_access", access);
@@ -93,6 +97,9 @@ public class StorageOptions {
       return this;
     }
 
+    /**
+     * Builds new {@link StorageOptions}.
+     */
     public StorageOptions build() {
       StorageOptions building = new StorageOptions();
       building.access = access;

@@ -52,6 +52,8 @@ public class Upload {
   private String[] etags;
 
   /**
+   * Constructs a new instance. Must call {@link #run()} to actually perform the upload.
+   *
    * @param pathname        for the file to upload
    * @param options         for storing the file
    * @param intelligent     intelligent ingestion, improves reliability for bad networks
