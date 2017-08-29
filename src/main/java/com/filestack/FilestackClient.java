@@ -88,7 +88,7 @@ public class FilestackClient {
   /**
    * Upload local file using default storage options.
    *
-   * @see #upload(String, UploadOptions)
+   * @see #upload(String, StorageOptions, boolean)
    */
   public FileLink upload(String pathname)
       throws ValidationException, IOException, PolicySignatureException,
@@ -99,8 +99,20 @@ public class FilestackClient {
   /**
    * Upload local file using custom storage options.
    *
-   * @param pathname  path to the file, can be local or absolute
-   * @param options   storage options, https://www.filestack.com/docs/rest-api/store
+   * @see #upload(String, StorageOptions, boolean)
+   */
+  public FileLink upload(String pathname, StorageOptions options)
+      throws ValidationException, IOException, PolicySignatureException,
+             InvalidParameterException, InternalException {
+    return upload(pathname, options, true);
+  }
+
+  /**
+   * Upload local file using custom storage and upload options.
+   *
+   * @param pathname    path to the file, can be local or absolute
+   * @param options     storage options, https://www.filestack.com/docs/rest-api/store
+   * @param intelligent intelligent ingestion, improves reliability for bad networks
    * @return new {@link FileLink} referencing file
    * @throws ValidationException       if the pathname doesn't exist or isn't a regular file
    * @throws IOException               if request fails because of network or other IO issue
@@ -108,14 +120,15 @@ public class FilestackClient {
    * @throws InvalidParameterException if a request parameter is missing or invalid
    * @throws InternalException         if unexpected error occurs
    */
-  public FileLink upload(String pathname, UploadOptions options)
+  public FileLink upload(String pathname, StorageOptions options, boolean intelligent)
       throws ValidationException, IOException, PolicySignatureException,
              InvalidParameterException, InternalException {
+
     if (options == null) {
-      options = new UploadOptions.Builder().build();
+      options = new StorageOptions.Builder().build();
     }
 
-    Upload upload = new Upload(pathname, this, options, fsService, delayBase);
+    Upload upload = new Upload(pathname, options, intelligent, delayBase, this, fsService);
     return upload.run();
   }
 
@@ -124,7 +137,7 @@ public class FilestackClient {
   /**
    * Asynchronously upload local file using default storage options.
    *
-   * @see #upload(String, UploadOptions)
+   * @see #upload(String, StorageOptions, boolean)
    */
   public Single<FileLink> uploadAsync(String pathname) {
     return uploadAsync(pathname, null);
@@ -133,13 +146,24 @@ public class FilestackClient {
   /**
    * Asynchronously upload local file using custom storage options.
    *
-   * @see #upload(String, UploadOptions)
+   * @see #upload(String, StorageOptions, boolean)
    */
-  public Single<FileLink> uploadAsync(final String pathname, final UploadOptions options) {
+  public Single<FileLink> uploadAsync(final String pathname, final StorageOptions options) {
+    return uploadAsync(pathname, options, true);
+  }
+
+  /**
+   * Asynchronously upload local file using custom storage and upload options.
+   *
+   * @see #upload(String, StorageOptions, boolean)
+   */
+  public Single<FileLink> uploadAsync(final String pathname, final StorageOptions options,
+                                      final boolean intelligent) {
+
     return Single.fromCallable(new Callable<FileLink>() {
       @Override
       public FileLink call() throws Exception {
-        return upload(pathname, options);
+        return upload(pathname, options, intelligent);
       }
     })
         .subscribeOn(Schedulers.io())
