@@ -11,16 +11,20 @@ apply plugin: 'maven-publish'
 
 group = 'com.filestack'
 sourceCompatibility = 1.7
-version = getVersion()
+version = file(new File('VERSION')).text.trim() // Get version string from VERSION text file
 
-repositories {
-    jcenter()
+// ***************************************** Config ***********************************************
+
+configurations {
+    integTestCompile.extendsFrom testCompile
+    integTestRuntime.extendsFrom testRuntime
+    integTestImplementation.extendsFrom testImplementation
 }
 
 dependencies {
     testImplementation 'junit:junit:4.12' // Testing
     testImplementation 'org.mockito:mockito-core:2.8.47' // Mocking
-    testImplementation 'com.squareup.retrofit2:retrofit-mock:2.3.0' // Testing helpers for Retrofit
+    testImplementation 'com.squareup.retrofit2:retrofit-mock:2.3.0' // Helpers for Retrofit
 
     compile 'com.squareup.okhttp3:okhttp:3.8.0' // Low-level HTTP client
     compile 'com.squareup.retrofit2:retrofit:2.3.0' // High-level HTTP client
@@ -34,55 +38,10 @@ dependencies {
     compile 'io.reactivex.rxjava2:rxjava:2.1.2' // Observable pattern for async methods
 }
 
-
-// ***************************************** General Config ***************************************
-
-checkstyle {
-    toolVersion '8.1'
-}
-
-jacocoTestReport {
-    reports {
-        xml.enabled = true
-        html.enabled = true
-    }
-}
-
 javadoc {
     destinationDir new File("./docs")
     options.optionFiles(new File('./config/javadoc/javadoc.txt'))
 }
-
-// ***************************************** General Config ***************************************
-
-
-// ***************************************** Version Config ***************************************
-
-// Get version string from VERSION text file
-def getVersion() {
-    return file(new File('VERSION')).text.trim()
-}
-
-// Create version properties file from VERSION text file
-task createProperties(dependsOn: processResources) {
-    doLast {
-        new File("$buildDir/resources/main/version.properties").withWriter { w ->
-            Properties p = new Properties()
-            p['version'] = project.version.toString()
-            p.store w, null
-        }
-    }
-}
-
-// Add task to build process
-classes {
-    dependsOn createProperties
-}
-
-// ***************************************** Version Config ***************************************
-
-
-// ***************************************** Bintray Config ***************************************
 
 // Publications define artifacts to upload to Bintray
 publishing {
@@ -95,7 +54,61 @@ publishing {
     }
 }
 
-// Bintray publishing config
+repositories {
+    jcenter()
+}
+
+sourceSets {
+    integTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file('src/integTest/java')
+        }
+        resources.srcDir file('src/integTest/resources')
+    }
+}
+
+// ***************************************** Tasks ************************************************
+
+// Output version to version.properties file
+task createProperties(dependsOn: processResources) {
+    doLast {
+        new File("$buildDir/resources/main/version.properties").withWriter { w ->
+            Properties p = new Properties()
+            p['version'] = project.version.toString()
+            p.store w, null
+        }
+    }
+}
+
+// Run integration tests
+task integTest(type: Test) {
+    testClassesDir = sourceSets.integTest.output.classesDir
+    classpath = sourceSets.integTest.runtimeClasspath
+    outputs.upToDateWhen { false }
+}
+
+// Create javadoc artifact jar
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+// Create source artifact jar
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+classes.dependsOn createProperties // Create version.properties as part of build
+integTest.mustRunAfter test // Run integration tests after unit tests
+tasks.withType(Test) { // Put unit and integration test reports in separate directories
+    reports.html.destination = file("${reporting.baseDir}/${name}")
+}
+
+// *************************************** Plugin Config ******************************************
+
 bintray {
     user = project.hasProperty('bintrayUser') ? project.property('bintrayUser')
             : System.getenv('BINTRAY_USER')
@@ -127,15 +140,13 @@ bintray {
     }
 }
 
-// Tasks for creating artifact jars
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
+checkstyle {
+    toolVersion '8.1'
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
 }
-
-// ***************************************** Bintray Config ***************************************
