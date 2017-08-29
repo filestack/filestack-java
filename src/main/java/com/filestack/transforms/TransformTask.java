@@ -12,7 +12,7 @@ public class TransformTask {
   String name;
   ArrayList<Option> options;
 
-  TransformTask(String name) {
+  public TransformTask(String name) {
     this.name = name;
     this.options = new ArrayList<>();
   }
