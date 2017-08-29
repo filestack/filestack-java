@@ -4,7 +4,6 @@ import com.filestack.FileLink;
 import com.filestack.FilestackClient;
 import com.filestack.Security;
 import com.filestack.StorageOptions;
-import com.filestack.UploadOptions;
 import com.filestack.errors.InternalException;
 import com.filestack.errors.InvalidParameterException;
 import com.filestack.errors.PolicySignatureException;

@@ -161,7 +161,6 @@ public class TestFilestackClient {
         .build();
 
     Path path = createRandomFile(10 * 1024 * 1024);
-    UploadOptions options = new UploadOptions.Builder().build();
 
     Assert.assertEquals("handle", client.upload(path.toString()).getHandle());
 
