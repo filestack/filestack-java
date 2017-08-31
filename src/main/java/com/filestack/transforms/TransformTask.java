@@ -3,6 +3,7 @@ package com.filestack.transforms;
 import com.filestack.errors.InvalidArgumentException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * Generic transform task object.
@@ -47,14 +48,18 @@ public class TransformTask {
 
     String valueString;
 
+    // If value is a an array (not a Collection)
     if (value.getClass().isArray()) {
       valueString = Arrays.toString((Object[]) value);
     } else {
       valueString = value.toString();
     }
 
-    // Remove spaces between array items
-    valueString = valueString.replace(" ", "");
+    // Remove spaces between array or Collection items
+    if (value.getClass().isArray() || value instanceof Collection) {
+      valueString = valueString.replace(", ", ",");
+    }
+
     options.add(new Option(key, valueString));
   }
 
