@@ -70,4 +70,18 @@ public class TransformTask {
     stringBuilder.deleteCharAt(stringBuilder.length() - 1);
     return stringBuilder.toString();
   }
+
+  /**
+   * Merges options from multiple tasks and returns a new task with combined options.
+   * Does not account for duplicate options.
+   */
+  public static TransformTask merge(String newName, TransformTask... tasks) {
+    ArrayList<Option> options = new ArrayList<>();
+    for (TransformTask task : tasks) {
+      options.addAll(task.options);
+    }
+    TransformTask newTask = new TransformTask(newName);
+    newTask.options = options;
+    return newTask;
+  }
 }
