@@ -6,8 +6,10 @@ import com.filestack.errors.PolicySignatureException;
 import com.filestack.errors.ResourceNotFoundException;
 import com.filestack.errors.ValidationException;
 import com.filestack.responses.ImageTagResponse;
+import com.filestack.transforms.AvTransform;
 import com.filestack.transforms.ImageTransform;
 import com.filestack.transforms.ImageTransformTask;
+import com.filestack.transforms.tasks.AvTransformOptions;
 import com.filestack.util.FsService;
 import com.filestack.util.Util;
 import com.google.gson.Gson;
@@ -305,6 +307,28 @@ public class FileLink {
     JsonObject json = transform.getContentJson();
 
     return json.get("sfw").getAsBoolean();
+  }
+
+  /**
+   * Creates an {@link AvTransform} object for this file using default storage options.
+   *
+   * @see #avTransform(StorageOptions, AvTransformOptions)
+   */
+  public AvTransform avTransform(AvTransformOptions avOptions) {
+    return avTransform(null, avOptions);
+  }
+
+  /**
+   * Creates an {@link AvTransform} object for this file using custom storage options.
+   * A transformation call isn't made directly by this method.
+   * For both audio and video transformations.
+   *
+   * @param storeOptions options for how to save the file(s) in your storage backend
+   * @param avOptions    options for how ot convert the file
+   * @return {@link AvTransform ImageTransform} instance configured for this file
+   */
+  public AvTransform avTransform(StorageOptions storeOptions, AvTransformOptions avOptions) {
+    return new AvTransform(this, storeOptions, avOptions);
   }
 
   // Async method wrappers
