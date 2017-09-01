@@ -44,7 +44,7 @@ public class AvTransform extends Transform {
 
   /**
    * Gets converted content as a new {@link FileLink}. Starts processing on first call.
-   * Returns null if still processing. Poll this method or use {@link #getFilelinkAsync()}.
+   * Returns null if still processing. Poll this method or use {@link #getFileLinkAsync()}.
    * If you need other data, such as thumbnails, use {@link Transform#getContentJson()}.
    *
    * @return null if processing, new {@link FileLink} if complete
@@ -54,7 +54,7 @@ public class AvTransform extends Transform {
    * @throws InvalidParameterException if handle is malformed
    * @throws InternalException         if unexpected error occurs
    */
-  public FileLink getFilelink()
+  public FileLink getFileLink()
       throws IOException, PolicySignatureException, ResourceNotFoundException,
              InvalidParameterException, InternalException {
 
@@ -79,27 +79,27 @@ public class AvTransform extends Transform {
 
   /**
    * Asynchronously gets converted content as a new {@link FileLink}.
-   * Uses default 10 second polling. Use {@link #getFilelinkAsync(int)} to adjust interval.
+   * Uses default 10 second polling. Use {@link #getFileLinkAsync(int)} to adjust interval.
    *
-   * @see #getFilelink()
+   * @see #getFileLink()
    */
-  public Single<FileLink> getFilelinkAsync() {
-    return getFilelinkAsync(10);
+  public Single<FileLink> getFileLinkAsync() {
+    return getFileLinkAsync(10);
   }
 
   /**
    * Asynchronously gets converted content as a new {@link FileLink}.
    *
    * @param pollInterval how frequently to poll (in seconds)
-   * @see #getFilelink()
+   * @see #getFileLink()
    */
-  public Single<FileLink> getFilelinkAsync(final int pollInterval) {
+  public Single<FileLink> getFileLinkAsync(final int pollInterval) {
     return Single.fromCallable(new Callable<FileLink>() {
       @Override
       public FileLink call() throws Exception {
         FileLink fileLink = null;
         while (fileLink == null) {
-          fileLink = getFilelink();
+          fileLink = getFileLink();
           if (!Util.isUnitTest()) {
             Thread.sleep(pollInterval * 1000);
           }

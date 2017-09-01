@@ -77,9 +77,9 @@ public class TestAvTransform {
 
     AvTransformOptions avOptions = new AvTransformOptions.Builder().preset("mp4").build();
 
-    FileLink converted = ready.avTransform(avOptions).getFilelink();
+    FileLink converted = ready.avTransform(avOptions).getFileLink();
     Assert.assertEquals("handle", converted.getHandle());
-    Assert.assertNull(pending.avTransform(avOptions).getFilelink());
+    Assert.assertNull(pending.avTransform(avOptions).getFileLink());
   }
 
   @Test(expected = InternalException.class)
@@ -103,6 +103,6 @@ public class TestAvTransform {
 
     AvTransformOptions avOptions = new AvTransformOptions.Builder().preset("mp4").build();
 
-    fileLink.avTransform(avOptions).getFilelink();
+    fileLink.avTransform(avOptions).getFileLink();
   }
 }
