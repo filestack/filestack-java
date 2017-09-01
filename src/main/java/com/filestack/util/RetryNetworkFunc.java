@@ -99,7 +99,7 @@ public abstract class RetryNetworkFunc<T> {
    * @return new count value
    */
   private int sleep(int count) {
-    if (delayBase > 0) {
+    if (!Util.isUnitTest()) {
       try {
         Thread.sleep((long) Math.pow(delayBase, count) * 1000);
       } catch (InterruptedException e) {
