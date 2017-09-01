@@ -11,5 +11,8 @@ cache:
 jdk:
   - oraclejdk8
 
+script:
+  - TEST_TYPE='unit' ./gradlew check
+
 after_success:
   - ./gradlew jacocoTestReport coveralls
