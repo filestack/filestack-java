@@ -159,4 +159,9 @@ public class Util {
 
     return file;
   }
+
+  public static boolean isUnitTest() {
+    String env = System.getenv("TEST_TYPE");
+    return env != null && env.equals("unit");
+  }
 }
