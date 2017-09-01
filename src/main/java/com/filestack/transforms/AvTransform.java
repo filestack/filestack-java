@@ -8,10 +8,9 @@ import com.filestack.errors.InvalidParameterException;
 import com.filestack.errors.PolicySignatureException;
 import com.filestack.errors.ResourceNotFoundException;
 import com.filestack.transforms.tasks.AvTransformOptions;
+import com.filestack.util.Util;
 import com.google.gson.JsonObject;
-import io.reactivex.Completable;
 import io.reactivex.Single;
-import io.reactivex.functions.Action;
 import io.reactivex.schedulers.Schedulers;
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -44,43 +43,11 @@ public class AvTransform extends Transform {
   }
 
   /**
-   * Asynchronously starts the conversion.
-   * Use {@link #isReady()} to check the status.
-   * Once {@link #isReady()} returns true, use {@link #getFilelink()} to get the result.
+   * Gets converted content as a new {@link FileLink}. Starts processing on first call.
+   * Returns null if still processing. Poll this method or use {@link #getFilelinkAsync()}.
    * If you need other data, such as thumbnails, use {@link Transform#getContentJson()}.
-   */
-  public void start() {
-    Completable.fromAction(new Action() {
-      @Override
-      public void run() throws Exception {
-        getContent();
-      }
-    })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
-  }
-
-  /**
-   * Checks the status of the conversion.
    *
-   * @return true if the file has finished processing
-   * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if security is missing or invalid or tagging isn't enabled
-   * @throws ResourceNotFoundException if handle isn't found
-   * @throws InvalidParameterException if handle is malformed
-   * @throws InternalException         if unexpected error occurs
-   */
-  public boolean isReady()
-      throws IOException, PolicySignatureException, ResourceNotFoundException,
-             InvalidParameterException, InternalException {
-
-    return getContentJson().get("status").getAsString().equals("completed");
-  }
-
-  /**
-   * Gets the converted content as a new {@link FileLink}.
-   *
-   * @return {@link FileLink} pointing to converted file
+   * @return null if processing, new {@link FileLink} if complete
    * @throws IOException               if request fails because of network or other IO issue
    * @throws PolicySignatureException  if security is missing or invalid or tagging isn't enabled
    * @throws ResourceNotFoundException if handle isn't found
@@ -91,44 +58,53 @@ public class AvTransform extends Transform {
       throws IOException, PolicySignatureException, ResourceNotFoundException,
              InvalidParameterException, InternalException {
 
-    if (isReady()) {
-      JsonObject json = getContentJson();
-      String url = json.get("data").getAsJsonObject().get("url").getAsString();
-      String handle = url.split("/")[3];
-      return new FileLink(apiKey, handle, security);
-    }
+    JsonObject json = getContentJson();
+    String status = json.get("status").getAsString();
 
-    return null;
+    switch (status) {
+      case "started":
+      case "pending":
+        return null;
+      case "completed":
+        JsonObject data = json.get("data").getAsJsonObject();
+        String url = data.get("url").getAsString();
+        String handle = url.split("/")[3];
+        return new FileLink(apiKey, handle, security);
+      default:
+        throw new InternalException();
+    }
   }
 
   // Async method wrappers
 
   /**
-   * Asynchronously checks the status of the conversion.
-   *
-   * @see #isReady()
-   */
-  public Single<Boolean> isReadyAsync() {
-    return Single.fromCallable(new Callable<Boolean>() {
-      @Override
-      public Boolean call() throws Exception {
-        return isReady();
-      }
-    })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
-  }
-
-  /**
-   * Asynchronously gets the converted content as a new {@link FileLink}.
+   * Asynchronously gets converted content as a new {@link FileLink}.
+   * Uses default 10 second polling. Use {@link #getFilelinkAsync(int)} to adjust interval.
    *
    * @see #getFilelink()
    */
   public Single<FileLink> getFilelinkAsync() {
+    return getFilelinkAsync(10);
+  }
+
+  /**
+   * Asynchronously gets converted content as a new {@link FileLink}.
+   *
+   * @param pollInterval how frequently to poll (in seconds)
+   * @see #getFilelink()
+   */
+  public Single<FileLink> getFilelinkAsync(final int pollInterval) {
     return Single.fromCallable(new Callable<FileLink>() {
       @Override
       public FileLink call() throws Exception {
-        return getFilelink();
+        FileLink fileLink = null;
+        while (fileLink == null) {
+          fileLink = getFilelink();
+          if (!Util.isUnitTest()) {
+            Thread.sleep(pollInterval * 1000);
+          }
+        }
+        return fileLink;
       }
     })
         .subscribeOn(Schedulers.io())

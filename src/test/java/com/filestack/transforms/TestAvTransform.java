@@ -2,6 +2,7 @@ package com.filestack.transforms;
 
 import com.filestack.FileLink;
 import com.filestack.StorageOptions;
+import com.filestack.errors.InternalException;
 import com.filestack.errors.InvalidArgumentException;
 import com.filestack.transforms.tasks.AvTransformOptions;
 import com.filestack.util.FsService;
@@ -52,63 +53,6 @@ public class TestAvTransform {
   }
 
   @Test
-  public void testStart() {
-    FsService mockFsService = Mockito.mock(FsService.class);
-
-    FileLink fileLink = new FileLink.Builder()
-        .apiKey("apiKey")
-        .handle("handle")
-        .service(mockFsService)
-        .build();
-
-    MediaType mediaType = MediaType.parse("application/json");
-    ResponseBody responseBody = ResponseBody.create(mediaType, "{}");
-    Mockito
-        .doReturn(Calls.response(responseBody))
-        .when(mockFsService)
-        .transform("video_convert=preset:mp4", "handle");
-
-    AvTransformOptions avOptions = new AvTransformOptions.Builder()
-        .preset("mp4")
-        .build();
-
-    fileLink.avTransform(avOptions).start();
-  }
-
-  @Test
-  public void testIsReady() throws Exception {
-    FsService mockFsService = Mockito.mock(FsService.class);
-
-    Mockito
-        .doAnswer(new Answer() {
-          @Override
-          public Call<ResponseBody> answer(InvocationOnMock invocation) throws Throwable {
-            String handle = invocation.getArgument(1);
-            boolean ready = handle.equals("ready");
-            String json = "{'status': " + (ready ? "'completed'" : "'pending'") + "}";
-            MediaType mediaType = MediaType.parse("application/json");
-            return Calls.response(ResponseBody.create(mediaType, json));
-          }
-        })
-        .when(mockFsService)
-        .transform(Mockito.anyString(), Mockito.anyString());
-
-    FileLink.Builder builder = new FileLink.Builder()
-        .apiKey("apiKey")
-        .service(mockFsService);
-
-    FileLink ready = builder.handle("ready").build();
-    FileLink pending = builder.handle("pending").build();
-
-    AvTransformOptions avOptions = new AvTransformOptions.Builder()
-        .preset("mp4")
-        .build();
-
-    Assert.assertTrue(ready.avTransform(avOptions).isReady());
-    Assert.assertFalse(pending.avTransform(avOptions).isReady());
-  }
-
-  @Test
   public void testGetFilelink() throws Exception {
     FsService mockFsService = Mockito.mock(FsService.class);
 
@@ -136,5 +80,29 @@ public class TestAvTransform {
     FileLink converted = ready.avTransform(avOptions).getFilelink();
     Assert.assertEquals("handle", converted.getHandle());
     Assert.assertNull(pending.avTransform(avOptions).getFilelink());
+  }
+
+  @Test(expected = InternalException.class)
+  public void testGetFilelinkFail() throws Exception {
+    FsService mockFsService = Mockito.mock(FsService.class);
+
+    String json = "{'status':'failed'}";
+    MediaType mediaType = MediaType.parse("application/json");
+    ResponseBody responseBody = ResponseBody.create(mediaType, json);
+
+    Mockito
+        .doReturn(Calls.response(responseBody))
+        .when(mockFsService)
+        .transform("video_convert=preset:mp4", "handle");
+
+    FileLink fileLink = new FileLink.Builder()
+        .apiKey("apiKey")
+        .handle("handle")
+        .service(mockFsService)
+        .build();
+
+    AvTransformOptions avOptions = new AvTransformOptions.Builder().preset("mp4").build();
+
+    fileLink.avTransform(avOptions).getFilelink();
   }
 }
