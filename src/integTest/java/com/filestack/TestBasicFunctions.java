@@ -112,6 +112,7 @@ public class TestBasicFunctions {
     Assert.assertEquals(overwriteUuid, content);
   }
 
+  /** Deletes any files uploaded during tests. */
   @AfterClass
   public static void cleanupHandles() {
     for (String handle : handles) {
@@ -124,6 +125,7 @@ public class TestBasicFunctions {
     }
   }
 
+  /** Deletes any local files created during tests. */
   @AfterClass
   public static void cleanupFiles() {
     for (File file : files) {

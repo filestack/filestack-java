@@ -43,6 +43,7 @@ public class TestTransforms {
     Assert.assertEquals(correct, output);
   }
 
+  /** Deletes any files uploaded during tests. */
   @AfterClass
   public static void cleanupHandles() {
     for (String handle : handles) {
@@ -55,6 +56,7 @@ public class TestTransforms {
     }
   }
 
+  /** Deletes any local files created during tests. */
   @AfterClass
   public static void cleanupFiles() {
     for (File file : files) {
