@@ -2,12 +2,12 @@ package com.filestack.transforms;
 
 import com.filestack.FileLink;
 import com.filestack.FilestackClient;
+import com.filestack.StorageOptions;
 import com.filestack.errors.InternalException;
 import com.filestack.errors.InvalidParameterException;
 import com.filestack.errors.PolicySignatureException;
 import com.filestack.errors.ResourceNotFoundException;
 import com.filestack.responses.StoreResponse;
-import com.filestack.transforms.tasks.StoreOptions;
 import com.filestack.util.Util;
 import com.google.gson.JsonObject;
 import io.reactivex.Single;
@@ -85,7 +85,7 @@ public class ImageTransform extends Transform {
    * Stores the result of a transformation into a new file.
    * @see <a href="https://www.filestack.com/docs/image-transformations/store"></a>
    *
-   * @param storeOptions configure where and how your file is stored
+   * @param storageOptions configure where and how your file is stored
    * @return new {@link FileLink FileLink} pointing to the file
    * @throws IOException               if request fails because of network or other IO issue
    * @throws PolicySignatureException  if security is missing or invalid
@@ -93,14 +93,15 @@ public class ImageTransform extends Transform {
    * @throws InvalidParameterException if a request parameter is missing or invalid
    * @throws InternalException         if unexpected error occurs
    */
-  public FileLink store(StoreOptions storeOptions)
+  public FileLink store(StorageOptions storageOptions)
       throws IOException, PolicySignatureException, ResourceNotFoundException,
              InvalidParameterException, InternalException {
 
-    if (storeOptions == null) {
-      storeOptions = new StoreOptions();
+    if (storageOptions == null) {
+      storageOptions = new StorageOptions();
     }
-    addTask(storeOptions);
+
+    tasks.add(storageOptions.getAsTask());
 
     Response<StoreResponse> response;
     String tasksString = getTasksString();
@@ -160,14 +161,14 @@ public class ImageTransform extends Transform {
   }
 
   /**
-   * Async, observable version of {@link #store(StoreOptions)}.
+   * Async, observable version of {@link #store(StorageOptions)}.
    * Same exceptions are passed through observable.
    */
-  public Single<FileLink> storeAsync(final StoreOptions storeOptions) {
+  public Single<FileLink> storeAsync(final StorageOptions storageOptions) {
     return Single.fromCallable(new Callable<FileLink>() {
       @Override
       public FileLink call() throws Exception {
-        return store(storeOptions);
+        return store(storageOptions);
       }
     })
         .subscribeOn(Schedulers.io())

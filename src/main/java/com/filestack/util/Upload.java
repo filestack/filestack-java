@@ -3,7 +3,7 @@ package com.filestack.util;
 import com.filestack.FileLink;
 import com.filestack.FilestackClient;
 import com.filestack.Security;
-import com.filestack.UploadOptions;
+import com.filestack.StorageOptions;
 import com.filestack.errors.InternalException;
 import com.filestack.errors.InvalidParameterException;
 import com.filestack.errors.PolicySignatureException;
@@ -51,30 +51,19 @@ public class Upload {
   private String[] etags;
 
   /**
-   * Construct an instance using global {@link FsUploadService singleton} and default delay.
-   *
-   * @param pathname path to the file to upload
-   * @param fsClient client used to make this upload
-   * @param options  for how to store the file
-   * @throws ValidationException if the pathname doesn't exist or isn't a regular file
-   */
-  public Upload(String pathname, FilestackClient fsClient, UploadOptions options)
-      throws ValidationException {
-    this(pathname, fsClient, options, new FsService(), 2);
-  }
-
-  /**
-   * Construct an instance using custom {@link FsUploadService singleton} and delay.
+   * Constructs a new instance. Must call {@link #run()} to actually perform the upload.
    *
    * @param pathname        for the file to upload
-   * @param fsClient        client used to make this upload
    * @param options         for storing the file
-   * @param fsService client to make Filestack API calls
+   * @param intelligent     intelligent ingestion, improves reliability for bad networks
    * @param delayBase       base for exponential backoff, delay (seconds) == base ^ retryCount
+   * @param fsClient        client used to make this upload
+   * @param fsService       client to make Filestack API calls
+   *
    * @throws ValidationException if the pathname doesn't exist or isn't a regular file
    */
-  public Upload(String pathname, FilestackClient fsClient, UploadOptions options,
-                FsService fsService, int delayBase)
+  public Upload(String pathname, StorageOptions options, boolean intelligent,
+                int delayBase, FilestackClient fsClient, FsService fsService)
       throws ValidationException {
 
     this.filepath = pathname;
@@ -85,7 +74,11 @@ public class Upload {
     // Setup base parameters
     baseParams = new HashMap<>();
     baseParams.put("apikey", Util.createStringPart(fsClient.getApiKey()));
-    baseParams.putAll(options.getMap());
+    baseParams.putAll(options.getAsPartMap());
+
+    if (intelligent) {
+      baseParams.put("multipart", Util.createStringPart("true"));
+    }
 
     File file = Util.createReadFile(pathname);
 
