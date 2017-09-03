@@ -109,7 +109,7 @@ public class Upload {
    *
    * @return reference to new file
    * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if policy and/or signature are invalid or inadequate
+   * @throws PolicySignatureException  if security is missing or invalid
    * @throws InvalidParameterException if a request parameter is missing or invalid
    * @throws InternalException         if unexpected error occurs
    */

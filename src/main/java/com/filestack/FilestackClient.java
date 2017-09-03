@@ -14,11 +14,11 @@ import java.util.concurrent.Callable;
 
 /** Uploads new files. */
 public class FilestackClient {
-  String apiKey;
-  Security security;
+  private String apiKey;
+  private Security security;
 
-  FsService fsService;
-  Integer delayBase = 2;
+  private FsService fsService;
+  private Integer delayBase = 2;
 
   /**
    * Constructs an instance without security.
@@ -47,30 +47,41 @@ public class FilestackClient {
    * Builds new {@link FilestackClient}.
    */
   public static class Builder {
-    private FilestackClient building = new FilestackClient();
+    private String apiKey;
+    private Security security;
+    private FsService fsService;
+    private Integer delayBase;
 
     public Builder apiKey(String apiKey) {
-      building.apiKey = apiKey;
+      this.apiKey = apiKey;
       return this;
     }
 
     public Builder security(Security security) {
-      building.security = security;
+      this.security = security;
       return this;
     }
 
     public Builder service(FsService fsService) {
-      building.fsService = fsService;
+      this.fsService = fsService;
       return this;
     }
 
     public Builder delayBase(int delayBase) {
-      building.delayBase = delayBase;
+      this.delayBase = delayBase;
       return this;
     }
 
+    /**
+     * Create the {@link FilestackClient} using the configured values.
+     */
     public FilestackClient build() {
-      return building;
+      FilestackClient client = new FilestackClient();
+      client.apiKey = apiKey;
+      client.security = security;
+      client.fsService = fsService != null ? fsService : new FsService();
+      client.delayBase = delayBase != null ? delayBase : 2;
+      return client;
     }
   }
 
@@ -93,7 +104,7 @@ public class FilestackClient {
    * @return new {@link FileLink} referencing file
    * @throws ValidationException       if the pathname doesn't exist or isn't a regular file
    * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if policy and/or signature are invalid or inadequate
+   * @throws PolicySignatureException  if security is missing or invalid
    * @throws InvalidParameterException if a request parameter is missing or invalid
    * @throws InternalException         if unexpected error occurs
    */

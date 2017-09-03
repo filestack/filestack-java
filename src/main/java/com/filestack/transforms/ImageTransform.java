@@ -35,7 +35,7 @@ public class ImageTransform extends Transform {
    *
    * @return {@link JsonObject JSON} report for transformation
    * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if policy and/or signature are invalid or inadequate
+   * @throws PolicySignatureException  if security is missing or invalid
    * @throws ResourceNotFoundException if API key, handle, or external URL are not found
    * @throws InvalidParameterException if a request parameter is missing or invalid
    * @throws InternalException         if unexpected error occurs
@@ -69,7 +69,7 @@ public class ImageTransform extends Transform {
    *
    * @return new {@link FileLink FileLink} pointing to the file
    * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if policy and/or signature are invalid or inadequate
+   * @throws PolicySignatureException  if security is missing or invalid
    * @throws ResourceNotFoundException if API key, handle, or external URL are not found
    * @throws InvalidParameterException if a request parameter is missing or invalid
    * @throws InternalException         if unexpected error occurs
@@ -88,7 +88,7 @@ public class ImageTransform extends Transform {
    * @param storeOptions configure where and how your file is stored
    * @return new {@link FileLink FileLink} pointing to the file
    * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if policy and/or signature are invalid or inadequate
+   * @throws PolicySignatureException  if security is missing or invalid
    * @throws ResourceNotFoundException if API key, handle, or external URL are not found
    * @throws InvalidParameterException if a request parameter is missing or invalid
    * @throws InternalException         if unexpected error occurs

@@ -5,12 +5,15 @@ import com.filestack.errors.ValidationException;
 import com.filestack.util.FsService;
 import com.google.common.io.Files;
 import java.io.File;
+import java.util.Map;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import retrofit2.Call;
 import retrofit2.mock.Calls;
 
@@ -46,9 +49,8 @@ public class TestFileLink {
         .service(mockFsService)
         .build();
 
-    byte[] content = fileLink.getContent();
-    String text = new String(content);
-    Assert.assertEquals("Test content", text);
+    ResponseBody content = fileLink.getContent();
+    Assert.assertEquals("Test content", content.string());
   }
 
   @Test
@@ -185,5 +187,88 @@ public class TestFileLink {
   public void testDeleteWithoutSecurity() throws Exception {
     FileLink fileLink = new FileLink("apiKey", "handle");
     fileLink.delete();
+  }
+
+  @Test(expected = ValidationException.class)
+  public void testImageTagNoSecurity() throws Exception {
+    FileLink fileLink = new FileLink("apiKey", "handle");
+    fileLink.imageTags();
+  }
+
+  @Test
+  public void testImageTag() throws Exception {
+    FsService mockFsService = Mockito.mock(FsService.class);
+
+    String jsonString = "{"
+        + "'tags': {"
+        + "'auto': {"
+        + "'giraffe': 100"
+        + "},"
+        + "'user': null"
+        + "}"
+        + "}";
+
+    MediaType mediaType = MediaType.parse("application/json");
+    ResponseBody responseBody = ResponseBody.create(mediaType, jsonString);
+    Call call = Calls.response(responseBody);
+
+    Policy policy = new Policy.Builder().giveFullAccess().build();
+    Security security = Security.createNew(policy, "appSecret");
+
+    String tasksString = "security=policy:" + security.getPolicy()
+        + ",signature:" + security.getSignature()
+        + "/tags";
+
+    Mockito.doReturn(call)
+        .when(mockFsService)
+        .transform(tasksString, "handle");
+
+    FileLink fileLink = new FileLink.Builder()
+        .apiKey("apiKey")
+        .handle("handle")
+        .security(security)
+        .service(mockFsService)
+        .build();
+
+    Map<String, Integer> tags = fileLink.imageTags();
+
+    Assert.assertEquals((Integer) 100, tags.get("giraffe"));
+  }
+
+  @Test(expected = ValidationException.class)
+  public void testImageSfwNoSecurity() throws Exception {
+    FileLink fileLink = new FileLink("apiKey", "handle");
+    fileLink.imageSfw();
+  }
+
+  @Test
+  public void testImageSfw() throws Exception {
+    FsService mockFsService = Mockito.mock(FsService.class);
+
+    Mockito.doAnswer(new Answer() {
+      @Override
+      public Call<ResponseBody> answer(InvocationOnMock invocation) throws Throwable {
+        String handle = invocation.getArgument(1);
+        String json = "{'sfw': " + (handle.equals("safe") ? "true" : "false") + "}";
+        MediaType mediaType = MediaType.parse("application/json");
+        return Calls.response(ResponseBody.create(mediaType, json));
+      }
+    })
+        .when(mockFsService)
+        .transform(Mockito.anyString(), Mockito.anyString());
+
+    Policy policy = new Policy.Builder().giveFullAccess().build();
+    Security security = Security.createNew(policy, "appSecret");
+
+    FileLink.Builder builder = new FileLink.Builder()
+        .apiKey("apiKey")
+        .security(security)
+        .service(mockFsService);
+
+    FileLink safe = builder.handle("safe").build();
+    FileLink notSafe = builder.handle("notSafe").build();
+
+    Assert.assertTrue(safe.imageSfw());
+    Assert.assertFalse(notSafe.imageSfw());
   }
 }
