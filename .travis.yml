@@ -11,8 +11,14 @@ cache:
 jdk:
   - oraclejdk8
 
+env:
+  - API_KEY=AFu5bYeZ4SACHWTcmmv8Oz
+  - POLICY=eyJleHBpcnkiOjE1MzU3NjAwMDAsImNhbGwiOlsicGljayIsInJlYWQiLCJ3cml0ZSIsImNvbnZlcnQiLCJyZW1vdmUiXSwibWF4U2l6ZSI6MjYyMTQ0MDB9
+  - SIGNATURE=cc8916377f5294dacca36d8f3cfc8c567187153f3a1f9a65c7224d0cc757ecdf
+
 script:
   - TEST_TYPE='unit' ./gradlew check
+  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./gradlew integTest; fi'
 
 after_success:
   - ./gradlew jacocoTestReport coveralls
