@@ -5,6 +5,7 @@ import com.filestack.errors.InvalidParameterException;
 import com.filestack.errors.PolicySignatureException;
 import com.filestack.errors.ResourceNotFoundException;
 import com.filestack.errors.ValidationException;
+import com.filestack.responses.ImageTagResponse;
 import com.filestack.transforms.ImageTransform;
 import com.filestack.transforms.ImageTransformTask;
 import com.filestack.util.FsService;
@@ -18,6 +19,7 @@ import io.reactivex.schedulers.Schedulers;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLConnection;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -262,7 +264,7 @@ public class FileLink {
    *
    * @see <a href="https://www.filestack.com/docs/tagging"></a>
    */
-  public ImageTags imageTag()
+  public Map<String, Integer> imageTags()
       throws ValidationException, IOException, PolicySignatureException,
              ResourceNotFoundException, InvalidParameterException, InternalException {
 
@@ -274,7 +276,8 @@ public class FileLink {
     transform.addTask(new ImageTransformTask("tags"));
     JsonObject json = transform.getContentJson();
     Gson gson = new Gson();
-    return gson.fromJson(json, ImageTags.class);
+    ImageTagResponse response = gson.fromJson(json, ImageTagResponse.class);
+    return response.getAuto();
   }
 
   /**
@@ -383,13 +386,13 @@ public class FileLink {
   /**
    * Asynchronously returns tags from Google Vision API for image FileLinks.
    *
-   * @see #imageTag()
+   * @see #imageTags()
    */
-  public Single<ImageTags> imageTagAsync() {
-    return Single.fromCallable(new Callable<ImageTags>() {
+  public Single<Map<String, Integer>> imageTagsAsync() {
+    return Single.fromCallable(new Callable<Map<String, Integer>>() {
       @Override
-      public ImageTags call() throws Exception {
-        return imageTag();
+      public Map<String, Integer> call() throws Exception {
+        return imageTags();
       }
     })
         .subscribeOn(Schedulers.io())

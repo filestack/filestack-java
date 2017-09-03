@@ -1,4 +1,4 @@
-package com.filestack;
+package com.filestack.responses;
 
 import java.util.Map;
 
@@ -7,7 +7,7 @@ import java.util.Map;
  *
  * @see <a href="https://www.filestack.com/docs/tagging"></a>
  */
-public class ImageTags {
+public class ImageTagResponse {
   Tags tags;
 
   class Tags {

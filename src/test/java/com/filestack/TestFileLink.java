@@ -5,6 +5,7 @@ import com.filestack.errors.ValidationException;
 import com.filestack.util.FsService;
 import com.google.common.io.Files;
 import java.io.File;
+import java.util.Map;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -191,7 +192,7 @@ public class TestFileLink {
   @Test(expected = ValidationException.class)
   public void testImageTagNoSecurity() throws Exception {
     FileLink fileLink = new FileLink("apiKey", "handle");
-    fileLink.imageTag();
+    fileLink.imageTags();
   }
 
   @Test
@@ -229,9 +230,9 @@ public class TestFileLink {
         .service(mockFsService)
         .build();
 
-    ImageTags imageTags = fileLink.imageTag();
+    Map<String, Integer> tags = fileLink.imageTags();
 
-    Assert.assertEquals((Integer) 100, imageTags.getAuto().get("giraffe"));
+    Assert.assertEquals((Integer) 100, tags.get("giraffe"));
   }
 
   @Test(expected = ValidationException.class)

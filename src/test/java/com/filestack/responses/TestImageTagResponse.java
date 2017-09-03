@@ -1,11 +1,11 @@
-package com.filestack;
+package com.filestack.responses;
 
 import com.google.gson.Gson;
 import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestImageTags {
+public class TestImageTagResponse {
 
   @Test
   public void test() {
@@ -29,7 +29,7 @@ public class TestImageTags {
         + "}"
         + "}";
 
-    ImageTags imageTags = gson.fromJson(jsonString, ImageTags.class);
+    ImageTagResponse imageTags = gson.fromJson(jsonString, ImageTagResponse.class);
 
     Assert.assertNotNull(imageTags.getAuto());
     Assert.assertNull(imageTags.getUser());
