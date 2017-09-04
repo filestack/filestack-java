@@ -1,5 +1,6 @@
 package com.filestack;
 
+import com.filestack.errors.ResourceNotFoundException;
 import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
@@ -8,7 +9,9 @@ import java.util.ArrayList;
 import java.util.UUID;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class TestBasicFunctions {
   private static final String API_KEY = System.getenv("API_KEY");
@@ -18,6 +21,9 @@ public class TestBasicFunctions {
 
   private static ArrayList<String> handles = new ArrayList<>();
   private static ArrayList<File> files = new ArrayList<>();
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   private static File createRandomFile(String uuid) throws IOException {
     return createRandomFile(uuid, null);
@@ -112,7 +118,23 @@ public class TestBasicFunctions {
     Assert.assertEquals(overwriteUuid, content);
   }
 
-  /** Deletes any files uploaded to Filestack during tests. Also tests delete function. */
+  @Test
+  public void testDelete() throws Exception {
+    FilestackClient client = new FilestackClient(API_KEY, SECURITY);
+
+    String uploadUuid = UUID.randomUUID().toString();
+    File uploadFile = createRandomFile(uploadUuid);
+    files.add(uploadFile);
+
+    FileLink fileLink = client.upload(uploadFile.getPath(), "text/plain");
+
+    fileLink.delete();
+
+    thrown.expect(ResourceNotFoundException.class);
+    fileLink.getContent();
+  }
+
+  /** Deletes any files uploaded during tests. */
   @AfterClass
   public static void cleanupHandles() {
     for (String handle : handles) {
