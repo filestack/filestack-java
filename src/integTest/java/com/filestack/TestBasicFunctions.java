@@ -42,7 +42,7 @@ public class TestBasicFunctions {
     File file = createRandomFile(uuid, 15L * 1024 * 1024);
     files.add(file);
 
-    FileLink fileLink = client.upload(file.getPath());
+    FileLink fileLink = client.upload(file.getPath(), "text/plain");
     String handle = fileLink.getHandle();
     handles.add(handle);
 
@@ -57,7 +57,7 @@ public class TestBasicFunctions {
     File file = createRandomFile(uuid);
     files.add(file);
 
-    FileLink fileLink = client.upload(file.getPath());
+    FileLink fileLink = client.upload(file.getPath(), "text/plain");
     String handle = fileLink.getHandle();
     handles.add(handle);
     byte[] bytes = fileLink.getContent().bytes();
@@ -74,7 +74,7 @@ public class TestBasicFunctions {
     File uploadFile = createRandomFile(uploadUuid);
     files.add(uploadFile);
 
-    FileLink fileLink = client.upload(uploadFile.getPath());
+    FileLink fileLink = client.upload(uploadFile.getPath(), "text/plain");
     String handle = fileLink.getHandle();
     handles.add(handle);
 
@@ -101,7 +101,7 @@ public class TestBasicFunctions {
     File overwriteFile = createRandomFile(overwriteUuid);
     files.add(overwriteFile);
 
-    FileLink fileLink = client.upload(uploadFile.getPath());
+    FileLink fileLink = client.upload(uploadFile.getPath(), "text/plain");
     String handle = fileLink.getHandle();
     handles.add(handle);
 
@@ -112,6 +112,7 @@ public class TestBasicFunctions {
     Assert.assertEquals(overwriteUuid, content);
   }
 
+  /** Deletes any files uploaded to Filestack during tests. Also tests delete function. */
   @AfterClass
   public static void cleanupHandles() {
     for (String handle : handles) {
@@ -124,6 +125,7 @@ public class TestBasicFunctions {
     }
   }
 
+  /** Deletes any local files created during tests. */
   @AfterClass
   public static void cleanupFiles() {
     for (File file : files) {
