@@ -68,6 +68,10 @@ public class AvTransform extends Transform {
       case "completed":
         JsonObject data = json.get("data").getAsJsonObject();
         String url = data.get("url").getAsString();
+        // Correcting for error where status is "completed" but fields are empty
+        if (url.equals("")) {
+          return null;
+        }
         String handle = url.split("/")[3];
         return new FileLink(apiKey, handle, security);
       default:
