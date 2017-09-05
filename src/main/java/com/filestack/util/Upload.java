@@ -62,7 +62,7 @@ public class Upload {
    *
    * @throws ValidationException if the pathname doesn't exist or isn't a regular file
    */
-  public Upload(String pathname, StorageOptions options, boolean intelligent,
+  public Upload(String pathname, String contentType, StorageOptions options, boolean intelligent,
                 int delayBase, FilestackClient fsClient, FsService fsService)
       throws ValidationException {
 
@@ -83,12 +83,11 @@ public class Upload {
     File file = Util.createReadFile(pathname);
 
     filesize = file.length();
-    String mimeType = URLConnection.guessContentTypeFromName(file.getName());
-    mediaType = MediaType.parse(mimeType);
+    mediaType = MediaType.parse(contentType);
 
     baseParams.put("filename", Util.createStringPart(file.getName()));
     baseParams.put("size", Util.createStringPart(Long.toString(file.length())));
-    baseParams.put("mimetype", Util.createStringPart(mimeType));
+    baseParams.put("mimetype", Util.createStringPart(contentType));
 
     Security security = fsClient.getSecurity();
     if (security != null) {
