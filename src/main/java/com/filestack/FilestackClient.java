@@ -5,8 +5,7 @@ import com.filestack.errors.InvalidParameterException;
 import com.filestack.errors.PolicySignatureException;
 import com.filestack.errors.ValidationException;
 import com.filestack.transforms.ImageTransform;
-import com.filestack.util.FsUploadService;
-import com.filestack.util.Networking;
+import com.filestack.util.FsService;
 import com.filestack.util.Upload;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
@@ -15,11 +14,11 @@ import java.util.concurrent.Callable;
 
 /** Uploads new files. */
 public class FilestackClient {
-  String apiKey;
-  Security security;
+  private String apiKey;
+  private Security security;
 
-  FsUploadService service = Networking.getFsUploadService();
-  Integer delayBase = 2;
+  private FsService fsService;
+  private Integer delayBase = 2;
 
   /**
    * Constructs an instance without security.
@@ -39,6 +38,7 @@ public class FilestackClient {
   public FilestackClient(String apiKey, Security security) {
     this.apiKey = apiKey;
     this.security = security;
+    this.fsService = new FsService();
   }
 
   FilestackClient() {}
@@ -47,64 +47,91 @@ public class FilestackClient {
    * Builds new {@link FilestackClient}.
    */
   public static class Builder {
-    private FilestackClient building = new FilestackClient();
+    private String apiKey;
+    private Security security;
+    private FsService fsService;
+    private Integer delayBase;
 
     public Builder apiKey(String apiKey) {
-      building.apiKey = apiKey;
+      this.apiKey = apiKey;
       return this;
     }
 
     public Builder security(Security security) {
-      building.security = security;
+      this.security = security;
       return this;
     }
 
-    public Builder service(FsUploadService service) {
-      building.service = service;
+    public Builder service(FsService fsService) {
+      this.fsService = fsService;
       return this;
     }
 
     public Builder delayBase(int delayBase) {
-      building.delayBase = delayBase;
+      this.delayBase = delayBase;
       return this;
     }
 
+    /**
+     * Create the {@link FilestackClient} using the configured values.
+     */
     public FilestackClient build() {
-      return building;
+      FilestackClient client = new FilestackClient();
+      client.apiKey = apiKey;
+      client.security = security;
+      client.fsService = fsService != null ? fsService : new FsService();
+      client.delayBase = delayBase != null ? delayBase : 2;
+      return client;
     }
   }
 
   /**
    * Upload local file using default storage options.
    *
-   * @see #upload(String, UploadOptions)
+   * @see #upload(String, String, StorageOptions, boolean)
    */
-  public FileLink upload(String pathname)
+  public FileLink upload(String path, String contentType)
       throws ValidationException, IOException, PolicySignatureException,
              InvalidParameterException, InternalException {
-    return upload(pathname, null);
+    return upload(path, contentType, null);
   }
 
   /**
    * Upload local file using custom storage options.
    *
-   * @param pathname  path to the file, can be local or absolute
-   * @param options   storage options, https://www.filestack.com/docs/rest-api/store
+   * @see #upload(String, String, StorageOptions, boolean)
+   */
+  public FileLink upload(String path, String contentType, StorageOptions storageOptions)
+      throws ValidationException, IOException, PolicySignatureException,
+             InvalidParameterException, InternalException {
+    return upload(path, contentType, storageOptions, true);
+  }
+
+  /**
+   * Upload local file using custom storage and upload options.
+   *
+   * @param path           path to the file, can be local or absolute
+   * @param contentType    MIME type of the file
+   * @param storageOptions storage options, https://www.filestack.com/docs/rest-api/store
+   * @param intelligent    intelligent ingestion, improves reliability for bad networks
    * @return new {@link FileLink} referencing file
    * @throws ValidationException       if the pathname doesn't exist or isn't a regular file
    * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if policy and/or signature are invalid or inadequate
+   * @throws PolicySignatureException  if security is missing or invalid
    * @throws InvalidParameterException if a request parameter is missing or invalid
    * @throws InternalException         if unexpected error occurs
    */
-  public FileLink upload(String pathname, UploadOptions options)
+  public FileLink upload(String path, String contentType, StorageOptions storageOptions,
+                         boolean intelligent)
       throws ValidationException, IOException, PolicySignatureException,
              InvalidParameterException, InternalException {
-    if (options == null) {
-      options = new UploadOptions.Builder().build();
+
+    if (storageOptions == null) {
+      storageOptions = new StorageOptions.Builder().build();
     }
 
-    Upload upload = new Upload(pathname, this, options, service, delayBase);
+    Upload upload = new Upload(path, contentType, storageOptions, intelligent,
+        delayBase,this, fsService);
     return upload.run();
   }
 
@@ -113,22 +140,33 @@ public class FilestackClient {
   /**
    * Asynchronously upload local file using default storage options.
    *
-   * @see #upload(String, UploadOptions)
+   * @see #upload(String, String, StorageOptions, boolean)
    */
-  public Single<FileLink> uploadAsync(String pathname) {
-    return uploadAsync(pathname, null);
+  public Single<FileLink> uploadAsync(String path, String type) {
+    return uploadAsync(path, type, null);
   }
 
   /**
    * Asynchronously upload local file using custom storage options.
    *
-   * @see #upload(String, UploadOptions)
+   * @see #upload(String, String, StorageOptions, boolean)
    */
-  public Single<FileLink> uploadAsync(final String pathname, final UploadOptions options) {
+  public Single<FileLink> uploadAsync(String path, String type, StorageOptions options) {
+    return uploadAsync(path, type, options, true);
+  }
+
+  /**
+   * Asynchronously upload local file using custom storage and upload options.
+   *
+   * @see #upload(String, String, StorageOptions, boolean)
+   */
+  public Single<FileLink> uploadAsync(final String path, final String type,
+                                      final StorageOptions options, final boolean intelligent) {
+
     return Single.fromCallable(new Callable<FileLink>() {
       @Override
       public FileLink call() throws Exception {
-        return upload(pathname, options);
+        return upload(path, type, options, intelligent);
       }
     })
         .subscribeOn(Schedulers.io())
@@ -151,5 +189,9 @@ public class FilestackClient {
 
   public Security getSecurity() {
     return security;
+  }
+
+  public FsService getFsService() {
+    return fsService;
   }
 }

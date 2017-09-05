@@ -51,4 +51,24 @@ public class TestTransformTask {
     transformTask.addOption("key", null);
     Assert.assertEquals(0, transformTask.options.size());
   }
+  
+  @Test
+  public void testMerge() {
+    TransformTask first = new TransformTask("first");
+    TransformTask second = new TransformTask("second");
+    TransformTask third = new TransformTask("third");
+
+    first.addOption("option1", "value1");
+    second.addOption("option2", "value2");
+    third.addOption("option3", "value3");
+
+    String correct = "merged="
+        + "option1:value1,"
+        + "option2:value2,"
+        + "option3:value3";
+
+    TransformTask merged = TransformTask.merge("merged", first, second, third);
+
+    Assert.assertEquals(correct, merged.toString());
+  }
 }

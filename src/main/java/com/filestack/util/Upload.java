@@ -3,7 +3,7 @@ package com.filestack.util;
 import com.filestack.FileLink;
 import com.filestack.FilestackClient;
 import com.filestack.Security;
-import com.filestack.UploadOptions;
+import com.filestack.StorageOptions;
 import com.filestack.errors.InternalException;
 import com.filestack.errors.InvalidParameterException;
 import com.filestack.errors.PolicySignatureException;
@@ -37,7 +37,7 @@ public class Upload {
   private static final int MIN_CHUNK_SIZE = 32 * 1024;
 
   private final FilestackClient fsClient;
-  private final FsUploadService fsUploadService;
+  private final FsService fsService;
 
   private final int delayBase;
   private final long filesize;
@@ -51,51 +51,43 @@ public class Upload {
   private String[] etags;
 
   /**
-   * Construct an instance using global {@link FsUploadService singleton} and default delay.
-   *
-   * @param pathname path to the file to upload
-   * @param fsClient client used to make this upload
-   * @param options  for how to store the file
-   * @throws ValidationException if the pathname doesn't exist or isn't a regular file
-   */
-  public Upload(String pathname, FilestackClient fsClient, UploadOptions options)
-      throws ValidationException {
-    this(pathname, fsClient, options, Networking.getFsUploadService(), 2);
-  }
-
-  /**
-   * Construct an instance using custom {@link FsUploadService singleton} and delay.
+   * Constructs a new instance. Must call {@link #run()} to actually perform the upload.
    *
    * @param pathname        for the file to upload
-   * @param fsClient        client used to make this upload
    * @param options         for storing the file
-   * @param fsUploadService client to make Filestack API calls
+   * @param intelligent     intelligent ingestion, improves reliability for bad networks
    * @param delayBase       base for exponential backoff, delay (seconds) == base ^ retryCount
+   * @param fsClient        client used to make this upload
+   * @param fsService       client to make Filestack API calls
+   *
    * @throws ValidationException if the pathname doesn't exist or isn't a regular file
    */
-  public Upload(String pathname, FilestackClient fsClient, UploadOptions options,
-                FsUploadService fsUploadService, int delayBase)
+  public Upload(String pathname, String contentType, StorageOptions options, boolean intelligent,
+                int delayBase, FilestackClient fsClient, FsService fsService)
       throws ValidationException {
 
     this.filepath = pathname;
     this.fsClient = fsClient;
-    this.fsUploadService = fsUploadService;
+    this.fsService = fsService;
     this.delayBase = delayBase;
 
     // Setup base parameters
     baseParams = new HashMap<>();
     baseParams.put("apikey", Util.createStringPart(fsClient.getApiKey()));
-    baseParams.putAll(options.getMap());
+    baseParams.putAll(options.getAsPartMap());
+
+    if (intelligent) {
+      baseParams.put("multipart", Util.createStringPart("true"));
+    }
 
     File file = Util.createReadFile(pathname);
 
     filesize = file.length();
-    String mimeType = URLConnection.guessContentTypeFromName(file.getName());
-    mediaType = MediaType.parse(mimeType);
+    mediaType = MediaType.parse(contentType);
 
     baseParams.put("filename", Util.createStringPart(file.getName()));
     baseParams.put("size", Util.createStringPart(Long.toString(file.length())));
-    baseParams.put("mimetype", Util.createStringPart(mimeType));
+    baseParams.put("mimetype", Util.createStringPart(contentType));
 
     Security security = fsClient.getSecurity();
     if (security != null) {
@@ -109,7 +101,7 @@ public class Upload {
    *
    * @return reference to new file
    * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if policy and/or signature are invalid or inadequate
+   * @throws PolicySignatureException  if security is missing or invalid
    * @throws InvalidParameterException if a request parameter is missing or invalid
    * @throws InternalException         if unexpected error occurs
    */
@@ -142,7 +134,7 @@ public class Upload {
 
       @Override
       Response<StartResponse> work() throws Exception {
-        return fsUploadService.start(baseParams).execute();
+        return fsService.start(baseParams).execute();
       }
     }
         .call();
@@ -300,7 +292,7 @@ public class Upload {
 
       @Override
       Response<UploadResponse> work() throws Exception {
-        return fsUploadService.upload(params).execute();
+        return fsService.upload(params).execute();
       }
     }
         .call();
@@ -322,7 +314,7 @@ public class Upload {
         String url = params.getUrl();
 
         RequestBody requestBody = RequestBody.create(mediaType, bytes, 0, attemptSize);
-        return fsUploadService.uploadS3(headers, url, requestBody).execute();
+        return fsService.uploadS3(headers, url, requestBody).execute();
       }
 
       @Override
@@ -359,7 +351,7 @@ public class Upload {
 
       @Override
       Response<ResponseBody> work() throws Exception {
-        return fsUploadService.commit(params).execute();
+        return fsService.commit(params).execute();
       }
     }
         .call();
@@ -388,7 +380,7 @@ public class Upload {
 
       @Override
       Response<CompleteResponse> work() throws Exception {
-        return fsUploadService.complete(params).execute();
+        return fsService.complete(params).execute();
       }
     }
         .call();

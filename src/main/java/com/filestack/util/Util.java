@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.util.Properties;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okio.Buffer;
 import retrofit2.Response;
 
 /**
@@ -46,6 +47,15 @@ public class Util {
    */
   public static RequestBody createStringPart(String content) {
     return RequestBody.create(MultipartBody.FORM, content);
+  }
+
+  /**
+   * Converts {@link RequestBody} to String.
+   */
+  public static String partToString(RequestBody body) throws IOException {
+    Buffer buffer = new Buffer();
+    body.writeTo(buffer);
+    return buffer.readUtf8();
   }
 
   /**
@@ -148,5 +158,10 @@ public class Util {
     }
 
     return file;
+  }
+
+  public static boolean isUnitTest() {
+    String env = System.getenv("TEST_TYPE");
+    return env != null && env.equals("unit");
   }
 }
