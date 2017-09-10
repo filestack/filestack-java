@@ -20,9 +20,6 @@ public class ProgMapFunc implements Function<List<Prog<FileLink>>, Publisher<Pro
 
   @Override
   public Publisher<Progress<FileLink>> apply(List<Prog<FileLink>> progs) throws Exception {
-    long currentTime = System.currentTimeMillis();
-    int elapsed = (int) ((currentTime - startTime) / 1000L);
-
     // Skip update if buffer is empty
     if (progs.size() == 0) {
       return Flowable.empty();
@@ -50,6 +47,9 @@ public class ProgMapFunc implements Function<List<Prog<FileLink>>, Publisher<Pro
     if (bytesSent == 0 || (bytesSent / upload.filesize == 1 && data == null)) {
       return Flowable.empty();
     }
+
+    long currentTime = System.currentTimeMillis();
+    int elapsed = (int) ((currentTime - startTime) / 1000L);
 
     double rate = avgRate / Upload.PROG_INTERVAL; // Want bytes / second not bytes / interval
     return Flowable.just(new Progress<>(bytesSent, upload.filesize, elapsed, rate, data));

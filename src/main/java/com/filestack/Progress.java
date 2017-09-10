@@ -9,6 +9,7 @@ public class Progress<T> {
   private final double rate;
   private final T data;
 
+  /** Constructs new instance. */
   public Progress(long bytesMoved, long bytesTotal, int elapsed, double rate, T data) {
     this.bytesMoved = bytesMoved;
     this.bytesTotal = bytesTotal;

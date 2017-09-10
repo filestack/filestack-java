@@ -86,7 +86,7 @@ public class FilestackClient {
   }
 
   /**
-   * Upload local file using default storage options.
+   * Uploads local file using default storage options.
    *
    * @see #upload(String, String, StorageOptions, boolean)
    */
@@ -108,7 +108,7 @@ public class FilestackClient {
   }
 
   /**
-   * Upload local file using custom storage and upload options.
+   * Uploads local file using custom storage and upload options.
    *
    * @param path           path to the file, can be local or absolute
    * @param contentType    MIME type of the file
@@ -144,18 +144,20 @@ public class FilestackClient {
   // Unlike the FileLink methods, the sync upload call actually wraps the async call
 
   /**
-   * Asynchronously upload local file using default storage options.
+   * Asynchronously uploads local file using default storage options.
    *
    * @see #upload(String, String, StorageOptions, boolean)
+   * @see #uploadAsync(String, String, StorageOptions, boolean)
    */
   public Flowable<Progress<FileLink>> uploadAsync(String path, String contentType) {
     return uploadAsync(path, contentType, null);
   }
 
   /**
-   * Asynchronously upload local file using custom storage options.
+   * Asynchronously uploads local file using custom storage options.
    *
    * @see #upload(String, String, StorageOptions, boolean)
+   * @see #uploadAsync(String, String, StorageOptions, boolean)
    */
   public Flowable<Progress<FileLink>> uploadAsync(String path, String contentType,
                                                   StorageOptions options) {
@@ -163,7 +165,11 @@ public class FilestackClient {
   }
 
   /**
-   * Asynchronously upload local file using custom storage and upload options.
+   * Asynchronously uploads local file using custom storage and upload options.
+   * A stream of {@link Progress} objects are emitted by the returned {@link Flowable}.
+   * The final {@link Progress} object will return a new {@link FileLink} from
+   * {@link Progress#getData()}. The upload is not done until {@link Progress#getData()} returns
+   * non-null.
    *
    * @see #upload(String, String, StorageOptions, boolean)
    */

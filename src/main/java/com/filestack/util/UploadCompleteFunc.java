@@ -38,7 +38,8 @@ public class UploadCompleteFunc implements Callable<Prog<FileLink>> {
       params.put("parts", Util.createStringPart(parts));
     }
 
-    RetryNetworkFunc<CompleteResponse> func = new RetryNetworkFunc<CompleteResponse>(5, 5, upload.delayBase) {
+    RetryNetworkFunc<CompleteResponse> func;
+    func = new RetryNetworkFunc<CompleteResponse>(5, 5, upload.delayBase) {
 
       @Override
       Response<CompleteResponse> work() throws Exception {

@@ -36,6 +36,7 @@ public class Upload {
   Map<String, RequestBody> baseParams;
   String[] etags;
 
+  /** Constructs new instance. */
   public Upload(String path, String contentType, StorageOptions options, boolean intelligent,
                 int delayBase, FilestackClient fsClient, FsService fsService) {
 
@@ -66,6 +67,11 @@ public class Upload {
     // Otherwise we'd have an async method that directly throws exceptions
   }
 
+  /**
+   * Start this upload asynchronously. Returns progress updates.
+   *
+   * @return {@link Flowable} that emits {@link Progress} events
+   */
   public Flowable<Progress<FileLink>> runAsync() {
     Flowable<Prog<FileLink>> startFlow = Flowable
         .fromCallable(new UploadStartFunc(this))
