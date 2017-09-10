@@ -7,15 +7,12 @@ import com.filestack.Security;
 import com.filestack.StorageOptions;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
-import org.reactivestreams.Publisher;
 
 /** Holds upload state and request logic. */
 public class Upload {
@@ -93,52 +90,7 @@ public class Upload {
         .concatWith(transferFlow)
         .concatWith(completeFlow)
         .buffer(PROG_INTERVAL, TimeUnit.SECONDS)
-        .flatMap(new Function<List<Prog<FileLink>>, Publisher<Progress<FileLink>>>() {
-          private long startTime = System.currentTimeMillis();
-          private long bytesSent;
-          private double avgRate; // bytes / second
-          private double oldAvgRate;
-
-          @Override
-          public Publisher<Progress<FileLink>> apply(List<Prog<FileLink>> progs)
-              throws Exception {
-            long currentTime = System.currentTimeMillis();
-            int elapsed = (int) ((currentTime - startTime) / 1000L);
-
-            // Skip update if buffer is empty
-            if (progs.size() == 0) {
-              return Flowable.empty();
-            }
-
-            int bytes = 0;
-            FileLink data = null;
-            for (Prog<FileLink> simple : progs) {
-              bytes += simple.getBytes();
-              data = simple.getData();
-            }
-
-            // Bytes could equal 0 if we only have a status from start or complete func
-            // We don't want to update the rate for requests that don't carry file content
-            if (bytes != 0) {
-              bytesSent += bytes;
-              if (avgRate == 0) {
-                avgRate = bytes;
-              } else {
-                avgRate = Progress.calcAvg(bytes, avgRate);
-              }
-            }
-
-            // Skip update if we haven't sent anything or are waiting on the complete func
-            if (bytesSent == 0 || (bytesSent / filesize == 1 && data == null)) {
-              return Flowable.empty();
-            }
-
-            oldAvgRate = avgRate;
-
-            double rate = avgRate / PROG_INTERVAL; // Want bytes / second not bytes / interval
-            return Flowable.just(new Progress<>(bytesSent, filesize, elapsed, rate, data));
-          }
-        })
+        .flatMap(new ProgMapFunc(this))
         .subscribeOn(Schedulers.io())
         .observeOn(Schedulers.single());
   }
