@@ -1,7 +1,6 @@
 package com.filestack.util;
 
 import com.filestack.FileLink;
-import com.filestack.Progress;
 import com.filestack.responses.CompleteResponse;
 import io.reactivex.Flowable;
 import java.util.HashMap;
@@ -17,7 +16,7 @@ import retrofit2.Response;
  * while the parts are still processing. In this case the {@link RetryNetworkFunc} will handle it
  * like a failure and automatically retry.
  */
-public class UploadCompleteFunc implements Callable<Progress<FileLink>> {
+public class UploadCompleteFunc implements Callable<Prog<FileLink>> {
   private Upload upload;
   
   UploadCompleteFunc(Upload upload) {
@@ -25,7 +24,7 @@ public class UploadCompleteFunc implements Callable<Progress<FileLink>> {
   }
   
   @Override
-  public Progress<FileLink> call() throws Exception {
+  public Prog<FileLink> call() throws Exception {
     final HashMap<String, RequestBody> params = new HashMap<>();
     params.putAll(upload.baseParams);
 
@@ -50,6 +49,6 @@ public class UploadCompleteFunc implements Callable<Progress<FileLink>> {
     CompleteResponse response = func.call();
     FileLink fileLink = new FileLink(upload.apiKey, response.getHandle(), upload.security);
 
-    return new Progress<>(0, fileLink);
+    return new Prog<>(fileLink);
   }
 }

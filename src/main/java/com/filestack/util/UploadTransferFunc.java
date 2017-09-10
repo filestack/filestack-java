@@ -1,7 +1,6 @@
 package com.filestack.util;
 
 import com.filestack.FileLink;
-import com.filestack.Progress;
 import com.filestack.responses.UploadResponse;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
@@ -24,7 +23,7 @@ import retrofit2.Response;
  * An upload should be divided between multiple instances, with each uploading a subrange of parts.
  * We take a sectionIndex that tells us what area of the file to be responsible for.
  */
-public class UploadTransferFunc implements FlowableOnSubscribe<Progress<FileLink>> {
+public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FileLink>> {
   private Upload upload;
   private int sectionIndex;
 
@@ -34,11 +33,9 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Progress<FileLink
   }
 
   @Override
-  public void subscribe(FlowableEmitter<Progress<FileLink>> e) throws Exception {
+  public void subscribe(FlowableEmitter<Prog<FileLink>> e) throws Exception {
     int start = sectionIndex * upload.partsPerFunc;
     int count = Math.min(upload.partsPerFunc, upload.numParts - start);
-
-    System.out.printf("sectionIndex: %d, start: %d, count: %d\n", sectionIndex, start, count);
 
     if (count <= 0) {
       // No work for this instance
@@ -83,7 +80,7 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Progress<FileLink
         }
 
         bytesSent = uploadToS3(upload, part, offset, bytesRead, bytes);
-        e.onNext(new Progress<FileLink>(bytesSent, null));
+        e.onNext(new Prog<FileLink>(bytesSent));
 
         if (bytesSent < bytesRead) {
           if (bytesSent < Upload.MIN_CHUNK_SIZE) {
