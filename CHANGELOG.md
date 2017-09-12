@@ -1,6 +1,15 @@
 Change Log
 ==========
 
+Version 0.3.0 *(2017-09-12)*
+----------------------------
+
+ * FS-1674 Add upload progress
+    * New: `Progress` class to return stats on an in-progress upload/download.
+    * Change: `FilestackClient.uploadAsync()` now returns a `Flowable` that emits a stream of
+      `Progress` objects. Monitor and act on an upload's ongoing progress by subscribing to the
+      `Flowable` with a `Consumer` or `FlowableSubscriber`.
+
 Version 0.2.0 *(2017-09-05)*
 ----------------------------
 
