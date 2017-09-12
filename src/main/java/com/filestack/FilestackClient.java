@@ -3,14 +3,14 @@ package com.filestack;
 import com.filestack.errors.InternalException;
 import com.filestack.errors.InvalidParameterException;
 import com.filestack.errors.PolicySignatureException;
+import com.filestack.errors.ResourceNotFoundException;
 import com.filestack.errors.ValidationException;
 import com.filestack.transforms.ImageTransform;
 import com.filestack.util.FsService;
 import com.filestack.util.Upload;
-import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
+import com.filestack.util.Util;
+import io.reactivex.Flowable;
 import java.io.IOException;
-import java.util.concurrent.Callable;
 
 /** Uploads new files. */
 public class FilestackClient {
@@ -86,7 +86,7 @@ public class FilestackClient {
   }
 
   /**
-   * Upload local file using default storage options.
+   * Uploads local file using default storage options.
    *
    * @see #upload(String, String, StorageOptions, boolean)
    */
@@ -101,18 +101,18 @@ public class FilestackClient {
    *
    * @see #upload(String, String, StorageOptions, boolean)
    */
-  public FileLink upload(String path, String contentType, StorageOptions storageOptions)
+  public FileLink upload(String path, String contentType, StorageOptions options)
       throws ValidationException, IOException, PolicySignatureException,
              InvalidParameterException, InternalException {
-    return upload(path, contentType, storageOptions, true);
+    return upload(path, contentType, options, true);
   }
 
   /**
-   * Upload local file using custom storage and upload options.
+   * Uploads local file using custom storage and upload options.
    *
    * @param path           path to the file, can be local or absolute
    * @param contentType    MIME type of the file
-   * @param storageOptions storage options, https://www.filestack.com/docs/rest-api/store
+   * @param options storage options, https://www.filestack.com/docs/rest-api/store
    * @param intelligent    intelligent ingestion, improves reliability for bad networks
    * @return new {@link FileLink} referencing file
    * @throws ValidationException       if the pathname doesn't exist or isn't a regular file
@@ -121,56 +121,67 @@ public class FilestackClient {
    * @throws InvalidParameterException if a request parameter is missing or invalid
    * @throws InternalException         if unexpected error occurs
    */
-  public FileLink upload(String path, String contentType, StorageOptions storageOptions,
+  public FileLink upload(String path, String contentType, StorageOptions options,
                          boolean intelligent)
       throws ValidationException, IOException, PolicySignatureException,
              InvalidParameterException, InternalException {
 
-    if (storageOptions == null) {
-      storageOptions = new StorageOptions.Builder().build();
+    try {
+      return uploadAsync(path, contentType, options, intelligent).blockingLast().getData();
+    } catch (RuntimeException e) {
+      try {
+        Util.castExceptionAndThrow(e.getCause());
+      } catch (ResourceNotFoundException ee) {
+        // Shouldn't get a 404 so if we do, indicate an unexpected error
+        throw new InternalException(ee);
+      }
     }
 
-    Upload upload = new Upload(path, contentType, storageOptions, intelligent,
-        delayBase,this, fsService);
-    return upload.run();
+    return null;
   }
 
-  // Async method wrappers
+  // Async methods
+  // Unlike the FileLink methods, the sync upload call actually wraps the async call
 
   /**
-   * Asynchronously upload local file using default storage options.
+   * Asynchronously uploads local file using default storage options.
    *
    * @see #upload(String, String, StorageOptions, boolean)
+   * @see #uploadAsync(String, String, StorageOptions, boolean)
    */
-  public Single<FileLink> uploadAsync(String path, String type) {
-    return uploadAsync(path, type, null);
-  }
-
-  /**
-   * Asynchronously upload local file using custom storage options.
-   *
-   * @see #upload(String, String, StorageOptions, boolean)
-   */
-  public Single<FileLink> uploadAsync(String path, String type, StorageOptions options) {
-    return uploadAsync(path, type, options, true);
+  public Flowable<Progress<FileLink>> uploadAsync(String path, String contentType) {
+    return uploadAsync(path, contentType, null);
   }
 
   /**
-   * Asynchronously upload local file using custom storage and upload options.
+   * Asynchronously uploads local file using custom storage options.
+   *
+   * @see #upload(String, String, StorageOptions, boolean)
+   * @see #uploadAsync(String, String, StorageOptions, boolean)
+   */
+  public Flowable<Progress<FileLink>> uploadAsync(String path, String contentType,
+                                                  StorageOptions options) {
+    return uploadAsync(path, contentType, options, true);
+  }
+
+  /**
+   * Asynchronously uploads local file using custom storage and upload options.
+   * A stream of {@link Progress} objects are emitted by the returned {@link Flowable}.
+   * The final {@link Progress} object will return a new {@link FileLink} from
+   * {@link Progress#getData()}. The upload is not done until {@link Progress#getData()} returns
+   * non-null.
    *
    * @see #upload(String, String, StorageOptions, boolean)
    */
-  public Single<FileLink> uploadAsync(final String path, final String type,
-                                      final StorageOptions options, final boolean intelligent) {
+  public Flowable<Progress<FileLink>> uploadAsync(String path, String contentType,
+                                                  StorageOptions options, boolean intelligent) {
 
-    return Single.fromCallable(new Callable<FileLink>() {
-      @Override
-      public FileLink call() throws Exception {
-        return upload(path, type, options, intelligent);
-      }
-    })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+    if (options == null) {
+      options = new StorageOptions.Builder().build();
+    }
+
+    Upload upload = new Upload(path, contentType, options, intelligent, delayBase, this, fsService);
+    return upload.runAsync();
   }
 
   /**

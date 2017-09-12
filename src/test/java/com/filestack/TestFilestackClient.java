@@ -1,5 +1,6 @@
 package com.filestack;
 
+import com.filestack.errors.ValidationException;
 import com.filestack.responses.CompleteResponse;
 import com.filestack.responses.StartResponse;
 import com.filestack.responses.UploadResponse;
@@ -16,7 +17,9 @@ import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -28,6 +31,9 @@ import retrofit2.mock.Calls;
  * Tests {@link FilestackClient FilestackClient} class.
  */
 public class TestFilestackClient {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   private static Path createRandomFile(long size) throws IOException {
     Path path = Paths.get("/tmp/" + UUID.randomUUID().toString() + ".txt");
@@ -138,6 +144,16 @@ public class TestFilestackClient {
 
     FilestackClient client1 = new FilestackClient("apiKey");
     FilestackClient client2 = new FilestackClient("apiKey", security);
+  }
+
+  @Test
+  public void testExceptionPassing() throws Exception {
+    Policy policy = new Policy.Builder().giveFullAccess().build();
+    Security security = Security.createNew(policy, "app_secret");
+
+    FilestackClient client = new FilestackClient("apiKey", security);
+    thrown.expect(ValidationException.class);
+    client.upload("/does_not_exist.txt", "text/plain");
   }
 
   @Test

@@ -85,6 +85,13 @@ public class TestUtil extends Util {
   }
 
   @Test
+  public void testCastExceptionAndThrowValidation() throws FilestackException, IOException {
+    Exception e = new ValidationException();
+    thrown.expect(ValidationException.class);
+    Util.castExceptionAndThrow(e);
+  }
+
+  @Test
   public void testCastExceptionAndThrowInternal() throws FilestackException, IOException {
     Exception e = new InternalException();
     thrown.expect(InternalException.class);
