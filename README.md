@@ -20,7 +20,7 @@ This is the official Java SDK for Filestack - API and content management system 
 ### Gradle
 
 ```
-compile 'com.filestack:filestack-java:0.2.0'
+compile 'com.filestack:filestack-java:0.3.0'
 ```
 
 ### Maven
@@ -29,7 +29,7 @@ compile 'com.filestack:filestack-java:0.2.0'
 <dependency>
   <groupId>com.filestack</groupId>
   <artifactId>filestack-java</artifactId>
-  <version>0.2.0</version>
+  <version>0.3.0</version>
   <type>pom</type>
 </dependency>
 ```
