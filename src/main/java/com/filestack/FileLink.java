@@ -331,7 +331,8 @@ public class FileLink {
     return new AvTransform(this, storeOptions, avOptions);
   }
 
-  // Async method wrappers
+  // Async methods
+  // These just wrap each of the sync methods in some class of observable
 
   /**
    * Asynchronously returns the content of a file.

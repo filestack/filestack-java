@@ -70,7 +70,7 @@ public class Util {
    */
   public static void checkResponseAndThrow(Response response)
       throws InvalidParameterException, PolicySignatureException, ResourceNotFoundException,
-      InternalException {
+             InternalException {
 
     int code = response.code();
 
@@ -86,27 +86,29 @@ public class Util {
   }
 
   /**
-   * Takes an {@link Exception} and recasts it to one of the {@link FilestackException} classes.
+   * Takes an {@link Throwable} and recasts it to one of the {@link FilestackException} classes.
    *
-   * @param e generic object to cast and rethrow
+   * @param throwable generic object to cast and rethrow
    */
-  public static void castExceptionAndThrow(Exception e)
+  public static void castExceptionAndThrow(Throwable throwable)
       throws InvalidParameterException, IOException, PolicySignatureException,
-             ResourceNotFoundException, InternalException {
+             ResourceNotFoundException, ValidationException, InternalException {
 
-    if (e instanceof InvalidParameterException) {
-      throw (InvalidParameterException) e;
-    } else if (e instanceof IOException) {
-      throw (IOException) e;
-    } else if (e instanceof PolicySignatureException) {
-      throw (PolicySignatureException) e;
-    } else if (e instanceof ResourceNotFoundException) {
-      throw (ResourceNotFoundException) e;
-    } else if (e instanceof  InternalException) {
-      throw (InternalException) e;
+    if (throwable instanceof InvalidParameterException) {
+      throw (InvalidParameterException) throwable;
+    } else if (throwable instanceof IOException) {
+      throw (IOException) throwable;
+    } else if (throwable instanceof PolicySignatureException) {
+      throw (PolicySignatureException) throwable;
+    } else if (throwable instanceof ResourceNotFoundException) {
+      throw (ResourceNotFoundException) throwable;
+    } else if (throwable instanceof ValidationException) {
+      throw (ValidationException) throwable;
+    } else if (throwable instanceof  InternalException) {
+      throw (InternalException) throwable;
     }
 
-    throw new InternalException(e);
+    throw new InternalException(throwable);
   }
 
   /**
