@@ -117,9 +117,8 @@ public class FilestackClient {
     }
 
     if (!options.hasContentType()) {
-      options = options.newBuilder()
-          .contentType("application/octet-stream")
-          .build();
+      String contentType = guessContentType(path);
+      options = options.newBuilder().contentType(contentType).build();
     }
 
     Upload upload = new Upload(path, intelligent, options, this, fsService);
@@ -134,6 +133,10 @@ public class FilestackClient {
    */
   public ImageTransform imageTransform(String url) {
     return new ImageTransform(this, url);
+  }
+
+  protected static String guessContentType(String path) {
+    return "application/octet-stream";
   }
 
   public String getApiKey() {
