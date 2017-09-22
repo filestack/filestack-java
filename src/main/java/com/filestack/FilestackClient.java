@@ -16,9 +16,7 @@ import java.io.IOException;
 public class FilestackClient {
   private String apiKey;
   private Security security;
-
   private FsService fsService;
-  private Integer delayBase = 2;
 
   /**
    * Constructs an instance without security.
@@ -32,88 +30,43 @@ public class FilestackClient {
   /**
    * Constructs an instance with security.
    *
-   * @param apiKey          account key from the dev portal
-   * @param security        needs required permissions for your intended actions
+   * @param apiKey   account key from the dev portal
+   * @param security needs required permissions for your intended actions
    */
   public FilestackClient(String apiKey, Security security) {
-    this.apiKey = apiKey;
-    this.security = security;
-    this.fsService = new FsService();
+    this(apiKey, security, null);
   }
 
-  FilestackClient() {}
-
   /**
-   * Builds new {@link FilestackClient}.
+   * Constructs an instance with security and custom {@link FsService}.
+   *
+   * @param apiKey   account key from the dev portal
+   * @param security needs required permissions for your intended actions
    */
-  public static class Builder {
-    private String apiKey;
-    private Security security;
-    private FsService fsService;
-    private Integer delayBase;
-
-    public Builder apiKey(String apiKey) {
-      this.apiKey = apiKey;
-      return this;
-    }
-
-    public Builder security(Security security) {
-      this.security = security;
-      return this;
-    }
-
-    public Builder service(FsService fsService) {
-      this.fsService = fsService;
-      return this;
-    }
-
-    public Builder delayBase(int delayBase) {
-      this.delayBase = delayBase;
-      return this;
-    }
-
-    /**
-     * Create the {@link FilestackClient} using the configured values.
-     */
-    public FilestackClient build() {
-      FilestackClient client = new FilestackClient();
-      client.apiKey = apiKey;
-      client.security = security;
-      client.fsService = fsService != null ? fsService : new FsService();
-      client.delayBase = delayBase != null ? delayBase : 2;
-      return client;
-    }
+  public FilestackClient(String apiKey, Security security, FsService fsService) {
+    this.apiKey = apiKey;
+    this.security = security;
+    this.fsService = fsService != null ? fsService : new FsService();
   }
 
   /**
    * Uploads local file using default storage options.
    *
-   * @see #upload(String, String, StorageOptions, boolean)
+   * @see #upload(String, boolean, StorageOptions)
    */
-  public FileLink upload(String path, String contentType)
+  public FileLink upload(String path, boolean intelligent)
       throws ValidationException, IOException, PolicySignatureException,
-             InvalidParameterException, InternalException {
-    return upload(path, contentType, null);
+      InvalidParameterException, InternalException {
+    return upload(path, intelligent, null);
   }
 
   /**
-   * Upload local file using custom storage options.
+   * Uploads local file.
    *
-   * @see #upload(String, String, StorageOptions, boolean)
-   */
-  public FileLink upload(String path, String contentType, StorageOptions options)
-      throws ValidationException, IOException, PolicySignatureException,
-             InvalidParameterException, InternalException {
-    return upload(path, contentType, options, true);
-  }
-
-  /**
-   * Uploads local file using custom storage and upload options.
-   *
-   * @param path           path to the file, can be local or absolute
-   * @param contentType    MIME type of the file
-   * @param options storage options, https://www.filestack.com/docs/rest-api/store
-   * @param intelligent    intelligent ingestion, improves reliability for bad networks
+   * @param path        path to the file, can be local or absolute
+   * @param options     storage options, https://www.filestack.com/docs/rest-api/store
+   * @param intelligent intelligent ingestion, setting to true to will decrease failures in very
+   *                    poor network conditions at the expense of upload speed
    * @return new {@link FileLink} referencing file
    * @throws ValidationException       if the pathname doesn't exist or isn't a regular file
    * @throws IOException               if request fails because of network or other IO issue
@@ -121,13 +74,12 @@ public class FilestackClient {
    * @throws InvalidParameterException if a request parameter is missing or invalid
    * @throws InternalException         if unexpected error occurs
    */
-  public FileLink upload(String path, String contentType, StorageOptions options,
-                         boolean intelligent)
+  public FileLink upload(String path, boolean intelligent, StorageOptions options)
       throws ValidationException, IOException, PolicySignatureException,
              InvalidParameterException, InternalException {
 
     try {
-      return uploadAsync(path, contentType, options, intelligent).blockingLast().getData();
+      return uploadAsync(path, intelligent, options).blockingLast().getData();
     } catch (RuntimeException e) {
       try {
         Util.castExceptionAndThrow(e.getCause());
@@ -140,53 +92,43 @@ public class FilestackClient {
     return null;
   }
 
-  // Async methods
-  // Unlike the FileLink methods, the sync upload call actually wraps the async call
-
   /**
    * Asynchronously uploads local file using default storage options.
    *
-   * @see #upload(String, String, StorageOptions, boolean)
-   * @see #uploadAsync(String, String, StorageOptions, boolean)
+   * @see #upload(String, boolean, StorageOptions)
    */
-  public Flowable<Progress<FileLink>> uploadAsync(String path, String contentType) {
-    return uploadAsync(path, contentType, null);
+  public Flowable<Progress<FileLink>> uploadAsync(String path, boolean intelligent) {
+    return uploadAsync(path, intelligent, null);
   }
 
   /**
-   * Asynchronously uploads local file using custom storage options.
+   * Asynchronously uploads local file. A stream of {@link Progress} objects are emitted by the
+   * returned {@link Flowable}. The final {@link Progress} object will return a new
+   * {@link FileLink} from {@link Progress#getData()}. The upload is not done until
+   * {@link Progress#getData()} returns non-null.
    *
-   * @see #upload(String, String, StorageOptions, boolean)
-   * @see #uploadAsync(String, String, StorageOptions, boolean)
+   * @see #upload(String, boolean, StorageOptions)
    */
-  public Flowable<Progress<FileLink>> uploadAsync(String path, String contentType,
+  public Flowable<Progress<FileLink>> uploadAsync(String path, boolean intelligent,
                                                   StorageOptions options) {
-    return uploadAsync(path, contentType, options, true);
-  }
-
-  /**
-   * Asynchronously uploads local file using custom storage and upload options.
-   * A stream of {@link Progress} objects are emitted by the returned {@link Flowable}.
-   * The final {@link Progress} object will return a new {@link FileLink} from
-   * {@link Progress#getData()}. The upload is not done until {@link Progress#getData()} returns
-   * non-null.
-   *
-   * @see #upload(String, String, StorageOptions, boolean)
-   */
-  public Flowable<Progress<FileLink>> uploadAsync(String path, String contentType,
-                                                  StorageOptions options, boolean intelligent) {
 
     if (options == null) {
-      options = new StorageOptions.Builder().build();
+      options = new StorageOptions();
     }
 
-    Upload upload = new Upload(path, contentType, options, intelligent, delayBase, this, fsService);
+    if (!options.hasContentType()) {
+      options = options.newBuilder()
+          .contentType("application/octet-stream")
+          .build();
+    }
+
+    Upload upload = new Upload(path, intelligent, options, this, fsService);
     return upload.runAsync();
   }
 
   /**
-   * Creates an {@link ImageTransform} object for this file.
-   * A transformation call isn't made directly by this method.
+   * Creates an {@link ImageTransform} object for this file. A transformation call isn't made
+   * directly by this method.
    *
    * @return {@link ImageTransform ImageTransform} instance configured for this file
    */
