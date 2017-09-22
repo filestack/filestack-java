@@ -29,7 +29,7 @@ public class UploadStartFunc implements Callable<Prog<FileLink>> {
     upload.baseParams.put("size", Util.createStringPart(Long.toString(upload.filesize)));
 
     RetryNetworkFunc<StartResponse> func;
-    func = new RetryNetworkFunc<StartResponse>(0, 5, upload.delayBase) {
+    func = new RetryNetworkFunc<StartResponse>(0, 5, Upload.DELAY_BASE) {
       @Override
       Response<StartResponse> work() throws Exception {
         return upload.fsService.start(upload.baseParams).execute();
