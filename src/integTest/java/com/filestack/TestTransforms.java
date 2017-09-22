@@ -29,7 +29,7 @@ public class TestTransforms {
     String origPath = loader.getResource("com/filestack/sample_image.jpg").getPath();
     File origFile = new File(origPath);
 
-    FileLink fileLink = client.upload(origPath, "image/jpeg");
+    FileLink fileLink = client.upload(origPath, false);
     handles.add(fileLink.getHandle());
 
     ImageTransform transform = fileLink.imageTransform();
@@ -53,7 +53,7 @@ public class TestTransforms {
     String oggPath = loader.getResource("com/filestack/sample_music.ogg").getPath();
     File oggFile = new File(oggPath);
 
-    FileLink oggFileLink = client.upload(oggPath, "audio/ogg");
+    FileLink oggFileLink = client.upload(oggPath, false);
     handles.add(oggFileLink.getHandle());
 
     AvTransformOptions options = new AvTransformOptions.Builder()

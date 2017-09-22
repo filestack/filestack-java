@@ -66,10 +66,7 @@ public class TestImageTransform {
   public void testDebugExternal() throws Exception {
     String url = "https://example.com/image.jpg";
     FsService mockFsService = Mockito.mock(FsService.class);
-    FilestackClient client = new FilestackClient.Builder()
-        .apiKey("apiKey")
-        .service(mockFsService)
-        .build();
+    FilestackClient client = new FilestackClient("apiKey", null, mockFsService);
 
     Mockito.doReturn(Calls.response(new JsonObject()))
         .when(mockFsService)
@@ -103,10 +100,7 @@ public class TestImageTransform {
   public void testStoreExternal() throws Exception {
     FsService mockFsService = Mockito.mock(FsService.class);
 
-    FilestackClient client = new FilestackClient.Builder()
-        .apiKey("apiKey")
-        .service(mockFsService)
-        .build();
+    FilestackClient client = new FilestackClient("apiKey", null, mockFsService);
 
     String jsonString = "{'url': 'https://cdn.filestackcontent.com/handle'}";
     Gson gson = new Gson();

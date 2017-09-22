@@ -24,7 +24,7 @@ public class TestImageTagging {
     String origPath = loader.getResource("com/filestack/sample_image.jpg").getPath();
     File origFile = new File(origPath);
 
-    FileLink fileLink = client.upload(origPath, "image/jpeg");
+    FileLink fileLink = client.upload(origPath, true);
     handles.add(fileLink.getHandle());
 
     Map<String, Integer> tags = fileLink.imageTags();
@@ -39,7 +39,7 @@ public class TestImageTagging {
     String origPath = loader.getResource("com/filestack/sample_image.jpg").getPath();
     File origFile = new File(origPath);
 
-    FileLink fileLink = client.upload(origPath, "image/jpeg");
+    FileLink fileLink = client.upload(origPath, false);
     handles.add(fileLink.getHandle());
 
     Assert.assertTrue(fileLink.imageSfw());

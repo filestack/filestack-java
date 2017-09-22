@@ -48,7 +48,7 @@ public class TestBasicFunctions {
     File file = createRandomFile(uuid, 15L * 1024 * 1024);
     files.add(file);
 
-    FileLink fileLink = client.upload(file.getPath(), "text/plain");
+    FileLink fileLink = client.upload(file.getPath(), false);
     String handle = fileLink.getHandle();
     handles.add(handle);
 
@@ -63,7 +63,7 @@ public class TestBasicFunctions {
     File file = createRandomFile(uuid);
     files.add(file);
 
-    FileLink fileLink = client.upload(file.getPath(), "text/plain");
+    FileLink fileLink = client.upload(file.getPath(), false);
     String handle = fileLink.getHandle();
     handles.add(handle);
     byte[] bytes = fileLink.getContent().bytes();
@@ -80,7 +80,7 @@ public class TestBasicFunctions {
     File uploadFile = createRandomFile(uploadUuid);
     files.add(uploadFile);
 
-    FileLink fileLink = client.upload(uploadFile.getPath(), "text/plain");
+    FileLink fileLink = client.upload(uploadFile.getPath(), false);
     String handle = fileLink.getHandle();
     handles.add(handle);
 
@@ -107,7 +107,7 @@ public class TestBasicFunctions {
     File overwriteFile = createRandomFile(overwriteUuid);
     files.add(overwriteFile);
 
-    FileLink fileLink = client.upload(uploadFile.getPath(), "text/plain");
+    FileLink fileLink = client.upload(uploadFile.getPath(), false);
     String handle = fileLink.getHandle();
     handles.add(handle);
 
@@ -126,7 +126,7 @@ public class TestBasicFunctions {
     File uploadFile = createRandomFile(uploadUuid);
     files.add(uploadFile);
 
-    FileLink fileLink = client.upload(uploadFile.getPath(), "text/plain");
+    FileLink fileLink = client.upload(uploadFile.getPath(), false);
 
     fileLink.delete();
 
