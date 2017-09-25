@@ -43,6 +43,7 @@ public class StorageOptions {
     HashMap<String, RequestBody> map = new HashMap<>();
     addToMap(map, "store_access", access);
     addToMap(map, "store_container", container);
+    addToMap(map, "filename", filename);
     addToMap(map, "store_location", location != null ? location : "s3");
     addToMap(map, "store_path", path);
     addToMap(map, "store_region", region);

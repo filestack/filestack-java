@@ -19,29 +19,30 @@ public class FilestackClient {
   private FsService fsService;
 
   /**
-   * Constructs an instance without security.
+   * Constructs a client without security.
    *
-   * @see #FilestackClient(String, Security)
+   * @param apiKey account key from the dev portal
    */
   public FilestackClient(String apiKey) {
     this(apiKey, null);
   }
 
   /**
-   * Constructs an instance with security.
+   * Constructs a client with security.
    *
    * @param apiKey   account key from the dev portal
-   * @param security needs required permissions for your intended actions
+   * @param security configured security object
    */
   public FilestackClient(String apiKey, Security security) {
     this(apiKey, security, null);
   }
 
   /**
-   * Constructs an instance with security and custom {@link FsService}.
+   * Constructs a client using custom {@link FsService}. For internal use.
    *
-   * @param apiKey   account key from the dev portal
-   * @param security needs required permissions for your intended actions
+   * @param apiKey    account key from the dev portal
+   * @param security  configured security object
+   * @param fsService service to use for API calls, overrides default singleton
    */
   public FilestackClient(String apiKey, Security security, FsService fsService) {
     this.apiKey = apiKey;
@@ -96,6 +97,7 @@ public class FilestackClient {
    * Asynchronously uploads local file using default storage options.
    *
    * @see #upload(String, boolean, StorageOptions)
+   * @see #uploadAsync(String, boolean, StorageOptions)
    */
   public Flowable<Progress<FileLink>> uploadAsync(String path, boolean intelligent) {
     return uploadAsync(path, intelligent, null);

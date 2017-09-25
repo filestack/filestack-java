@@ -25,7 +25,9 @@ public class UploadStartFunc implements Callable<Prog<FileLink>> {
     File file = Util.createReadFile(upload.path);
     upload.filesize = file.length();
 
-    upload.baseParams.put("filename", Util.createStringPart(file.getName()));
+    if (!upload.baseParams.containsKey("filename")) {
+      upload.baseParams.put("filename", Util.createStringPart(file.getName()));
+    }
     upload.baseParams.put("size", Util.createStringPart(Long.toString(upload.filesize)));
 
     RetryNetworkFunc<StartResponse> func;
