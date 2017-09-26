@@ -100,10 +100,7 @@ public class TestTransform {
         .when(mockFsService)
         .transformExt("apiKey", "task", "https://example.com/");
 
-    FilestackClient client = new FilestackClient.Builder()
-        .apiKey("apiKey")
-        .service(mockFsService)
-        .build();
+    FilestackClient client = new FilestackClient("apiKey", null, mockFsService);
 
     Transform transform = new Transform(client, "https://example.com/");
     transform.tasks.add(new TransformTask("task"));

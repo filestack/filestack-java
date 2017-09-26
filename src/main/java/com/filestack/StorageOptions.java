@@ -4,6 +4,7 @@ import com.filestack.transforms.TransformTask;
 import com.filestack.util.Util;
 import java.util.HashMap;
 import java.util.Map;
+import okhttp3.MediaType;
 import okhttp3.RequestBody;
 
 /** Configure storage options for uploads and transformation stores. */
@@ -15,6 +16,7 @@ public class StorageOptions {
   private String location;
   private String path;
   private String region;
+  private String contentType;
 
   public StorageOptions() { }
 
@@ -41,10 +43,24 @@ public class StorageOptions {
     HashMap<String, RequestBody> map = new HashMap<>();
     addToMap(map, "store_access", access);
     addToMap(map, "store_container", container);
+    addToMap(map, "filename", filename);
     addToMap(map, "store_location", location != null ? location : "s3");
     addToMap(map, "store_path", path);
     addToMap(map, "store_region", region);
+    addToMap(map, "mimetype", contentType);
     return map;
+  }
+
+  public MediaType getMediaType() {
+    return MediaType.parse(contentType);
+  }
+
+  public boolean hasContentType() {
+    return contentType != null;
+  }
+
+  public Builder newBuilder() {
+    return new Builder(this);
   }
 
   private static void addToMap(Map<String, RequestBody> map, String key, String value) {
@@ -61,6 +77,21 @@ public class StorageOptions {
     private String location;
     private String path;
     private String region;
+    private String contentType;
+
+    public Builder() { }
+
+    /** Create a new builder using an existing options config. */
+    public Builder(StorageOptions existing) {
+      access = existing.access;
+      base64Decode = existing.base64Decode;
+      container = existing.container;
+      filename = existing.filename;
+      location = existing.location;
+      path = existing.path;
+      region = existing.region;
+      contentType = existing.contentType;
+    }
 
     public Builder access(String access) {
       this.access = access;
@@ -97,6 +128,11 @@ public class StorageOptions {
       return this;
     }
 
+    public Builder contentType(String contentType) {
+      this.contentType = contentType;
+      return this;
+    }
+
     /**
      * Builds new {@link StorageOptions}.
      */
@@ -109,6 +145,7 @@ public class StorageOptions {
       building.location = location;
       building.path = path;
       building.region = region;
+      building.contentType = contentType;
       return building;
     }
   }

@@ -19,9 +19,9 @@ public class Upload {
   static final int CONCURRENCY = 4;
   static final int PROG_INTERVAL = 2;
   static final int MIN_CHUNK_SIZE = 32 * 1024;
+  static final int DELAY_BASE = 2;
 
   final FsService fsService;
-  final int delayBase;
   final MediaType mediaType;
   final Security security;
   final String apiKey;
@@ -37,19 +37,17 @@ public class Upload {
   String[] etags;
 
   /** Constructs new instance. */
-  public Upload(String path, String contentType, StorageOptions options, boolean intelligent,
-                int delayBase, FilestackClient fsClient, FsService fsService) {
+  public Upload(String path, boolean intelligent, StorageOptions options,
+                FilestackClient fsClient, FsService fsService) {
 
     this.path = path;
-    mediaType = MediaType.parse(contentType);
-    this.delayBase = delayBase;
+    mediaType = options.getMediaType();
     apiKey = fsClient.getApiKey();
     security = fsClient.getSecurity();
     this.fsService = fsService;
 
     // Setup base parameters
     baseParams = new HashMap<>();
-    baseParams.put("mimetype", Util.createStringPart(contentType));
     baseParams.putAll(options.getAsPartMap());
 
     if (intelligent) {

@@ -124,7 +124,7 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FileLink>> {
     }
 
     RetryNetworkFunc<UploadResponse> func;
-    func = new RetryNetworkFunc<UploadResponse>(5, 5, upload.delayBase) {
+    func = new RetryNetworkFunc<UploadResponse>(5, 5, Upload.DELAY_BASE) {
       @Override
       Response<UploadResponse> work() throws Exception {
         return upload.fsService.upload(params).execute();
@@ -140,7 +140,7 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FileLink>> {
       throws Exception {
 
     RetryNetworkFunc<Integer> func;
-    func = new RetryNetworkFunc<Integer>(5, 5, upload.delayBase) {
+    func = new RetryNetworkFunc<Integer>(5, 5, Upload.DELAY_BASE) {
       private int attemptSize = size;
 
       @Override
@@ -181,7 +181,7 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FileLink>> {
     params.put("part", Util.createStringPart(Integer.toString(part)));
 
     RetryNetworkFunc<ResponseBody> func;
-    func = new RetryNetworkFunc<ResponseBody>(5, 5, upload.delayBase) {
+    func = new RetryNetworkFunc<ResponseBody>(5, 5, Upload.DELAY_BASE) {
       @Override
       Response<ResponseBody> work() throws Exception {
         return upload.fsService.commit(params).execute();

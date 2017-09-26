@@ -153,7 +153,7 @@ public class TestFilestackClient {
 
     FilestackClient client = new FilestackClient("apiKey", security);
     thrown.expect(ValidationException.class);
-    client.upload("/does_not_exist.txt", "text/plain");
+    client.upload("/does_not_exist.txt", true);
   }
 
   @Test
@@ -169,16 +169,11 @@ public class TestFilestackClient {
     Policy policy = new Policy.Builder().giveFullAccess().build();
     Security security = Security.createNew(policy, "app_secret");
 
-    FilestackClient client = new FilestackClient.Builder()
-        .apiKey("api_key")
-        .security(security)
-        .service(mockFsService)
-        .delayBase(0)
-        .build();
+    FilestackClient client = new FilestackClient("apiKey", security, mockFsService);
 
     Path path = createRandomFile(10 * 1024 * 1024);
 
-    FileLink fileLink = client.upload(path.toString(), "text/plain");
+    FileLink fileLink = client.upload(path.toString(), false);
 
     Assert.assertEquals("handle", fileLink.getHandle());
 
