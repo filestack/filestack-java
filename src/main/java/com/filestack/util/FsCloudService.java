@@ -18,4 +18,7 @@ public interface FsCloudService {
   // Cloudrouter requires the trailing slash
   @POST("store/")
   Call<JsonObject> store(@Body JsonObject body);
+
+  @POST("/auth/logout")
+  Call<ResponseBody> logout(@Body JsonObject body);
 }
