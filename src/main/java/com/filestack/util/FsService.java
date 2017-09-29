@@ -11,7 +11,9 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 
 /** Combines all REST services into a single service. */
-public class FsService implements FsApiService, FsCdnService, FsUploadService, FsCloudService {
+public class FsService {
+  // An instance of this class can hold individual custom services
+  // It doesn't contain singletons though, so we specify these as custom
   private FsApiService customApiService;
   private FsCdnService customCdnService;
   private FsUploadService customUploadService;
@@ -29,7 +31,7 @@ public class FsService implements FsApiService, FsCdnService, FsUploadService, F
     this.customCloudService = cloud;
   }
   
-  private FsApiService getApiService() {
+  public FsApiService api() {
     if (customApiService != null) {
       return customApiService;
     } else {
@@ -37,7 +39,7 @@ public class FsService implements FsApiService, FsCdnService, FsUploadService, F
     }
   }
 
-  private FsCdnService getCdnService() {
+  public FsCdnService cdn() {
     if (customCdnService != null) {
       return customCdnService;
     } else {
@@ -45,7 +47,7 @@ public class FsService implements FsApiService, FsCdnService, FsUploadService, F
     }
   }
 
-  private FsUploadService getUploadService() {
+  public FsUploadService upload() {
     if (customUploadService != null) {
       return customUploadService;
     } else {
@@ -53,97 +55,11 @@ public class FsService implements FsApiService, FsCdnService, FsUploadService, F
     }
   }
 
-  private FsCloudService getCloudService() {
+  public FsCloudService cloud() {
     if (customCloudService != null) {
       return customCloudService;
     } else {
       return Networking.getFsCloudService();
     }
-  }
-
-  @Override
-  public Call<ResponseBody> overwrite(String handle, String policy, String signature,
-                                      RequestBody body) {
-    return getApiService().overwrite(handle, policy, signature, body);
-  }
-
-  @Override
-  public Call<ResponseBody> delete(String handle, String key, String policy, String signature) {
-    return getApiService().delete(handle, key, policy, signature);
-  }
-
-  @Override
-  public Call<ResponseBody> get(String handle, String policy, String signature) {
-    return getCdnService().get(handle, policy, signature);
-  }
-
-  @Override
-  public Call<ResponseBody> transform(String tasks, String handle) {
-    return getCdnService().transform(tasks, handle);
-  }
-
-  @Override
-  public Call<JsonObject> transformDebug(String tasks, String handle) {
-    return getCdnService().transformDebug(tasks, handle);
-  }
-
-  @Override
-  public Call<StoreResponse> transformStore(String tasks, String handle) {
-    return getCdnService().transformStore(tasks, handle);
-  }
-
-  @Override
-  public Call<ResponseBody> transformExt(String key, String tasks, String url) {
-    return getCdnService().transformExt(key, tasks, url);
-  }
-
-  @Override
-  public Call<JsonObject> transformDebugExt(String key, String tasks, String url) {
-    return getCdnService().transformDebugExt(key, tasks, url);
-  }
-
-  @Override
-  public Call<StoreResponse> transformStoreExt(String key, String tasks, String url) {
-    return getCdnService().transformStoreExt(key, tasks, url);
-  }
-
-  @Override
-  public Call<StartResponse> start(Map<String, RequestBody> parameters) {
-    return getUploadService().start(parameters);
-  }
-
-  @Override
-  public Call<UploadResponse> upload(Map<String, RequestBody> parameters) {
-    return getUploadService().upload(parameters);
-  }
-
-  @Override
-  public Call<ResponseBody> uploadS3(Map<String, String> headers, String url, RequestBody body) {
-    return getUploadService().uploadS3(headers, url, body);
-  }
-
-  @Override
-  public Call<ResponseBody> commit(Map<String, RequestBody> parameters) {
-    return getUploadService().commit(parameters);
-  }
-
-  @Override
-  public Call<CompleteResponse> complete(Map<String, RequestBody> parameters) {
-    return getUploadService().complete(parameters);
-  }
-
-  @Override
-  public Call<JsonObject> prefetch(JsonObject body) {
-    return getCloudService().prefetch(body);
-  }
-
-  @Override
-  public Call<JsonObject> list(JsonObject body) {
-    return getCloudService().list(body);
-  }
-
-  @Override
-  public Call<JsonObject> store(JsonObject body) {
-    return getCloudService().store(body);
   }
 }
