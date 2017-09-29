@@ -12,9 +12,9 @@ import retrofit2.Response;
 /**
  * Function to be passed to {@link Flowable#fromCallable(Callable)}.
  * Handles completing a multipart upload, gets metadata for final file.
- * In intelligent ingestion mode the {@link FsService#complete(Map)} call may return a 202 response
- * while the parts are still processing. In this case the {@link RetryNetworkFunc} will handle it
- * like a failure and automatically retry.
+ * In intelligent ingestion mode the {@link FsUploadService#complete(Map)} call may return a
+ * 202 response while the parts are still processing. In this case the {@link RetryNetworkFunc}
+ * will handle it like a failure and automatically retry.
  */
 public class UploadCompleteFunc implements Callable<Prog<FileLink>> {
   private Upload upload;
@@ -43,7 +43,7 @@ public class UploadCompleteFunc implements Callable<Prog<FileLink>> {
 
       @Override
       Response<CompleteResponse> work() throws Exception {
-        return upload.fsService.complete(params).execute();
+        return upload.fsService.upload().complete(params).execute();
       }
     };
 

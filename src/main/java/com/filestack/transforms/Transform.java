@@ -89,9 +89,9 @@ public class Transform {
     HttpUrl httpUrl;
 
     if (apiKey != null) {
-      httpUrl = fsService.transformExt(apiKey, tasksString, source).request().url();
+      httpUrl = fsService.cdn().transformExt(apiKey, tasksString, source).request().url();
     } else {
-      httpUrl = fsService.transform(tasksString, source).request().url();
+      httpUrl = fsService.cdn().transform(tasksString, source).request().url();
     }
 
     // When building the request we add a / between tasks
@@ -118,9 +118,9 @@ public class Transform {
     Response<ResponseBody> response;
 
     if (apiKey != null) {
-      response = fsService.transformExt(apiKey, tasksString, source).execute();
+      response = fsService.cdn().transformExt(apiKey, tasksString, source).execute();
     } else {
-      response = fsService.transform(tasksString, source).execute();
+      response = fsService.cdn().transform(tasksString, source).execute();
     }
 
     Util.checkResponseAndThrow(response);
