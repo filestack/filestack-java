@@ -110,9 +110,6 @@ public class TestFileLink {
 
   @Test
   public void testOverwrite() throws Exception {
-    FsApiService mockApiService = Mockito.mock(FsApiService.class);
-    FsService mockFsService = new FsService(mockApiService, null, null, null);
-
     MediaType jsonType = MediaType.parse("application/json");
     ResponseBody response = ResponseBody.create(jsonType, "");
     Call call = Calls.response(response);
@@ -130,10 +127,14 @@ public class TestFileLink {
     Policy policy = new Policy.Builder().giveFullAccess().build();
     Security security = Security.createNew(policy, "appSecret");
 
+    FsApiService mockApiService = Mockito.mock(FsApiService.class);
+
     Mockito.doReturn(call)
         .when(mockApiService)
         .overwrite(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
             Mockito.any(RequestBody.class));
+
+    FsService mockFsService = new FsService(mockApiService, null, null, null);
 
     FileLink fileLink = new FileLink.Builder()
         .apiKey("apiKey")

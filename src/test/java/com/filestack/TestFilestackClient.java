@@ -160,7 +160,6 @@ public class TestFilestackClient {
   @Test
   public void testUpload() throws Exception {
     FsUploadService mockUploadService = Mockito.mock(FsUploadService.class);
-    FsService mockFsService = new FsService(null, null, mockUploadService, null);
 
     setupStartMock(mockUploadService);
     setupUploadMock(mockUploadService);
@@ -171,6 +170,7 @@ public class TestFilestackClient {
     Policy policy = new Policy.Builder().giveFullAccess().build();
     Security security = Security.createNew(policy, "app_secret");
 
+    FsService mockFsService = new FsService(null, null, mockUploadService, null);
     FilestackClient client = new FilestackClient("apiKey", security, mockFsService);
 
     Path path = createRandomFile(10 * 1024 * 1024);
