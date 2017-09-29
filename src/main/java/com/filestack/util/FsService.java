@@ -30,7 +30,10 @@ public class FsService {
     this.customUploadService = upload;
     this.customCloudService = cloud;
   }
-  
+
+  /**
+   * Returns {@link FsApiService} instance, custom if provided, global singleton otherwise.
+   */
   public FsApiService api() {
     if (customApiService != null) {
       return customApiService;
@@ -39,6 +42,9 @@ public class FsService {
     }
   }
 
+  /**
+   * Returns {@link FsCdnService} instance, custom if provided, global singleton otherwise.
+   */
   public FsCdnService cdn() {
     if (customCdnService != null) {
       return customCdnService;
@@ -47,6 +53,9 @@ public class FsService {
     }
   }
 
+  /**
+   * Returns {@link FsUploadService} instance, custom if provided, global singleton otherwise.
+   */
   public FsUploadService upload() {
     if (customUploadService != null) {
       return customUploadService;
@@ -55,6 +64,9 @@ public class FsService {
     }
   }
 
+  /**
+   * Returns {@link FsCloudService} instance, custom if provided, global singleton otherwise.
+   */
   public FsCloudService cloud() {
     if (customCloudService != null) {
       return customCloudService;
