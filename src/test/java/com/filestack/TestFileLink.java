@@ -2,6 +2,8 @@ package com.filestack;
 
 import com.filestack.errors.FilestackException;
 import com.filestack.errors.ValidationException;
+import com.filestack.util.FsApiService;
+import com.filestack.util.FsCdnService;
 import com.filestack.util.FsService;
 import com.google.common.io.Files;
 import java.io.File;
@@ -33,14 +35,15 @@ public class TestFileLink {
 
   @Test
   public void testGetContent() throws Exception {
-    FsService mockFsService = Mockito.mock(FsService.class);
+    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
+    FsService mockFsService = new FsService(null, mockCdnService, null, null);
 
     MediaType mediaType = MediaType.parse("text/plain");
     ResponseBody response = ResponseBody.create(mediaType, "Test content");
     Call call = Calls.response(response);
 
     Mockito.doReturn(call)
-        .when(mockFsService)
+        .when(mockCdnService)
         .get("handle", null, null);
 
     FileLink fileLink = new FileLink.Builder()
@@ -55,14 +58,15 @@ public class TestFileLink {
 
   @Test
   public void testDownload() throws Exception {
-    FsService mockFsService = Mockito.mock(FsService.class);
+    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
+    FsService mockFsService = new FsService(null, mockCdnService, null, null);
 
     MediaType mediaType = MediaType.parse("text/plain");
     ResponseBody response = ResponseBody.create(mediaType, "Test content");
     Call call = Calls.response(response);
 
     Mockito.doReturn(call)
-        .when(mockFsService)
+        .when(mockCdnService)
         .get("handle", null, null);
 
     FileLink fileLink = new FileLink.Builder()
@@ -80,14 +84,15 @@ public class TestFileLink {
 
   @Test
   public void testDownloadCustomFilename() throws Exception {
-    FsService mockFsService = Mockito.mock(FsService.class);
+    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
+    FsService mockFsService = new FsService(null, mockCdnService, null, null);
 
     MediaType mediaType = MediaType.parse("text/plain");
     ResponseBody response = ResponseBody.create(mediaType, "Test content");
     Call call = Calls.response(response);
 
     Mockito.doReturn(call)
-        .when(mockFsService)
+        .when(mockCdnService)
         .get("handle", null, null);
 
     FileLink fileLink = new FileLink.Builder()
@@ -105,7 +110,8 @@ public class TestFileLink {
 
   @Test
   public void testOverwrite() throws Exception {
-    FsService mockFsService = Mockito.mock(FsService.class);
+    FsApiService mockApiService = Mockito.mock(FsApiService.class);
+    FsService mockFsService = new FsService(mockApiService, null, null, null);
 
     MediaType jsonType = MediaType.parse("application/json");
     ResponseBody response = ResponseBody.create(jsonType, "");
@@ -125,7 +131,7 @@ public class TestFileLink {
     Security security = Security.createNew(policy, "appSecret");
 
     Mockito.doReturn(call)
-        .when(mockFsService)
+        .when(mockApiService)
         .overwrite(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
             Mockito.any(RequestBody.class));
 
@@ -145,7 +151,8 @@ public class TestFileLink {
 
   @Test
   public void testDelete() throws Exception {
-    FsService mockFsService = Mockito.mock(FsService.class);
+    FsApiService mockApiService = Mockito.mock(FsApiService.class);
+    FsService mockFsService = new FsService(mockApiService, null, null, null);
 
     MediaType mediaType = MediaType.parse("application/json");
     ResponseBody response = ResponseBody.create(mediaType, "");
@@ -155,7 +162,7 @@ public class TestFileLink {
     Security security = Security.createNew(policy, "appSecret");
 
     Mockito.doReturn(call)
-        .when(mockFsService)
+        .when(mockApiService)
         .delete("handle", "apiKey", security.getPolicy(), security.getSignature());
 
     FileLink fileLink = new FileLink.Builder()
@@ -197,7 +204,8 @@ public class TestFileLink {
 
   @Test
   public void testImageTag() throws Exception {
-    FsService mockFsService = Mockito.mock(FsService.class);
+    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
+    FsService mockFsService = new FsService(null, mockCdnService, null, null);
 
     String jsonString = "{"
         + "'tags': {"
@@ -220,7 +228,7 @@ public class TestFileLink {
         + "/tags";
 
     Mockito.doReturn(call)
-        .when(mockFsService)
+        .when(mockCdnService)
         .transform(tasksString, "handle");
 
     FileLink fileLink = new FileLink.Builder()
@@ -243,7 +251,8 @@ public class TestFileLink {
 
   @Test
   public void testImageSfw() throws Exception {
-    FsService mockFsService = Mockito.mock(FsService.class);
+    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
+    FsService mockFsService = new FsService(null, mockCdnService, null, null);
 
     Mockito.doAnswer(new Answer() {
       @Override
@@ -254,7 +263,7 @@ public class TestFileLink {
         return Calls.response(ResponseBody.create(mediaType, json));
       }
     })
-        .when(mockFsService)
+        .when(mockCdnService)
         .transform(Mockito.anyString(), Mockito.anyString());
 
     Policy policy = new Policy.Builder().giveFullAccess().build();

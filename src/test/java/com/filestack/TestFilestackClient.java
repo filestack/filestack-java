@@ -5,6 +5,7 @@ import com.filestack.responses.CompleteResponse;
 import com.filestack.responses.StartResponse;
 import com.filestack.responses.UploadResponse;
 import com.filestack.util.FsService;
+import com.filestack.util.FsUploadService;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -44,7 +45,7 @@ public class TestFilestackClient {
     return path;
   }
 
-  private static void setupStartMock(FsService fsService) {
+  private static void setupStartMock(FsUploadService mockUploadService) {
     String jsonString = "{"
         + "'uri' : '/bucket/apikey/filename',"
         + "'region' : 'region',"
@@ -58,11 +59,11 @@ public class TestFilestackClient {
     Call call = Calls.response(response);
     Mockito
         .doReturn(call)
-        .when(fsService)
+        .when(mockUploadService)
         .start(Mockito.<String, RequestBody>anyMap());
   }
 
-  private static void setupUploadMock(FsService fsService) {
+  private static void setupUploadMock(FsUploadService mockUploadService) {
     String jsonString = "{"
         + "'url' : 'https://s3.amazonaws.com/path',"
         + "'headers' : {"
@@ -84,11 +85,11 @@ public class TestFilestackClient {
             return Calls.response(response);
           }
         })
-        .when(fsService)
+        .when(mockUploadService)
         .upload(Mockito.<String, RequestBody>anyMap());
   }
 
-  private static void setupUploadS3Mock(FsService fsService) {
+  private static void setupUploadS3Mock(FsUploadService mockUploadService) {
     MediaType mediaType = MediaType.parse("text/xml");
     ResponseBody responseBody = ResponseBody.create(mediaType, "");
     final Response<ResponseBody> response = Response.success(responseBody,
@@ -100,12 +101,12 @@ public class TestFilestackClient {
             return Calls.response(response);
           }
         })
-        .when(fsService)
+        .when(mockUploadService)
         .uploadS3(Mockito.<String, String>anyMap(), Mockito.anyString(),
             Mockito.any(RequestBody.class));
   }
 
-  private static void setupCommitMock(FsService fsService) {
+  private static void setupCommitMock(FsUploadService mockUploadService) {
     MediaType mediaType = MediaType.parse("text/plain");
     final ResponseBody response = ResponseBody.create(mediaType, "");
     Mockito
@@ -115,11 +116,11 @@ public class TestFilestackClient {
             return Calls.response(response);
           }
         })
-        .when(fsService)
+        .when(mockUploadService)
         .commit(Mockito.<String, RequestBody>anyMap());
   }
 
-  private static void setupCompleteMock(FsService fsService) {
+  private static void setupCompleteMock(FsUploadService mockUploadService) {
     String jsonString = "{"
         + "'handle' : 'handle',"
         + "'url' : 'url',"
@@ -133,7 +134,7 @@ public class TestFilestackClient {
     Call call = Calls.response(response);
     Mockito
         .doReturn(call)
-        .when(fsService)
+        .when(mockUploadService)
         .complete(Mockito.<String, RequestBody>anyMap());
   }
 
@@ -158,13 +159,14 @@ public class TestFilestackClient {
 
   @Test
   public void testUpload() throws Exception {
-    FsService mockFsService = Mockito.mock(FsService.class);
+    FsUploadService mockUploadService = Mockito.mock(FsUploadService.class);
+    FsService mockFsService = new FsService(null, null, mockUploadService, null);
 
-    setupStartMock(mockFsService);
-    setupUploadMock(mockFsService);
-    setupUploadS3Mock(mockFsService);
-    setupCommitMock(mockFsService);
-    setupCompleteMock(mockFsService);
+    setupStartMock(mockUploadService);
+    setupUploadMock(mockUploadService);
+    setupUploadS3Mock(mockUploadService);
+    setupCommitMock(mockUploadService);
+    setupCompleteMock(mockUploadService);
 
     Policy policy = new Policy.Builder().giveFullAccess().build();
     Security security = Security.createNew(policy, "app_secret");

@@ -20,7 +20,7 @@ public class TestImageTransform {
 
     String taskString = "resize=width:100,height:100";
     String correctUrl = FsCdnService.URL + "debug/" + taskString + "/handle";
-    String outputUrl = fsService.transformDebug(taskString, "handle")
+    String outputUrl = fsService.cdn().transformDebug(taskString, "handle")
         .request()
         .url()
         .toString();
@@ -38,7 +38,7 @@ public class TestImageTransform {
 
     // Retrofit will return the URL with some characters escaped, so check for encoded version
     String correctUrl = FsCdnService.URL + "apiKey/debug/" + taskString + "/" + encodedUrl;
-    String outputUrl = fsService.transformDebugExt("apiKey", taskString, url)
+    String outputUrl = fsService.cdn().transformDebugExt("apiKey", taskString, url)
         .request()
         .url()
         .toString();
@@ -48,7 +48,8 @@ public class TestImageTransform {
 
   @Test
   public void testDebugHandle() throws Exception {
-    FsService mockFsService = Mockito.mock(FsService.class);
+    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
+    FsService mockFsService = new FsService(null, mockCdnService, null, null);
     FileLink fileLink = new FileLink.Builder()
         .apiKey("apiKey")
         .handle("handle")
@@ -56,7 +57,7 @@ public class TestImageTransform {
         .build();
 
     Mockito.doReturn(Calls.response(new JsonObject()))
-        .when(mockFsService)
+        .when(mockCdnService)
         .transformDebug("", "handle");
 
     Assert.assertNotNull(fileLink.imageTransform().debug());
@@ -65,11 +66,12 @@ public class TestImageTransform {
   @Test
   public void testDebugExternal() throws Exception {
     String url = "https://example.com/image.jpg";
-    FsService mockFsService = Mockito.mock(FsService.class);
+    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
+    FsService mockFsService = new FsService(null, mockCdnService, null, null);
     FilestackClient client = new FilestackClient("apiKey", null, mockFsService);
 
     Mockito.doReturn(Calls.response(new JsonObject()))
-        .when(mockFsService)
+        .when(mockCdnService)
         .transformDebugExt("apiKey", "", url);
 
     Assert.assertNotNull(client.imageTransform(url).debug());
@@ -77,7 +79,8 @@ public class TestImageTransform {
 
   @Test
   public void testStoreHandle() throws Exception {
-    FsService mockFsService = Mockito.mock(FsService.class);
+    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
+    FsService mockFsService = new FsService(null, mockCdnService, null, null);
 
     FileLink fileLink = new FileLink.Builder()
         .apiKey("apiKey")
@@ -90,7 +93,7 @@ public class TestImageTransform {
     StoreResponse storeResponse = gson.fromJson(jsonString, StoreResponse.class);
 
     Mockito.doReturn(Calls.response(storeResponse))
-        .when(mockFsService)
+        .when(mockCdnService)
         .transformStore("store", "handle");
 
     Assert.assertNotNull(fileLink.imageTransform().store());
@@ -98,7 +101,8 @@ public class TestImageTransform {
 
   @Test
   public void testStoreExternal() throws Exception {
-    FsService mockFsService = Mockito.mock(FsService.class);
+    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
+    FsService mockFsService = new FsService(null, mockCdnService, null, null);
 
     FilestackClient client = new FilestackClient("apiKey", null, mockFsService);
 
@@ -109,7 +113,7 @@ public class TestImageTransform {
     String url = "https://example.com/image.jpg";
 
     Mockito.doReturn(Calls.response(storeResponse))
-        .when(mockFsService)
+        .when(mockCdnService)
         .transformStoreExt("apiKey", "store", url);
 
     Assert.assertNotNull(client.imageTransform(url).store());
