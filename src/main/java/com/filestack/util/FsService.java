@@ -11,19 +11,22 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 
 /** Combines all REST services into a single service. */
-public class FsService implements FsApiService, FsCdnService, FsUploadService {
+public class FsService implements FsApiService, FsCdnService, FsUploadService, FsCloudService {
   private FsApiService customApiService;
   private FsCdnService customCdnService;
   private FsUploadService customUploadService;
+  private FsCloudService customCloudService;
 
   /** Constructs instance using singleton REST services. */
   public FsService() { }
 
   /** Constructs instance using custom REST services. */
-  public FsService(FsApiService api, FsCdnService cdn, FsUploadService upload) {
+  public FsService(FsApiService api, FsCdnService cdn, FsUploadService upload,
+                   FsCloudService cloud) {
     this.customApiService = api;
     this.customCdnService = cdn;
     this.customUploadService = upload;
+    this.customCloudService = cloud;
   }
   
   private FsApiService getApiService() {
@@ -47,6 +50,14 @@ public class FsService implements FsApiService, FsCdnService, FsUploadService {
       return customUploadService;
     } else {
       return Networking.getFsUploadService();
+    }
+  }
+
+  private FsCloudService getCloudService() {
+    if (customCloudService != null) {
+      return customCloudService;
+    } else {
+      return Networking.getFsCloudService();
     }
   }
 
@@ -119,5 +130,20 @@ public class FsService implements FsApiService, FsCdnService, FsUploadService {
   @Override
   public Call<CompleteResponse> complete(Map<String, RequestBody> parameters) {
     return getUploadService().complete(parameters);
+  }
+
+  @Override
+  public Call<JsonObject> prefetch(JsonObject body) {
+    return getCloudService().prefetch(body);
+  }
+
+  @Override
+  public Call<JsonObject> list(JsonObject body) {
+    return getCloudService().list(body);
+  }
+
+  @Override
+  public Call<JsonObject> store(JsonObject body) {
+    return getCloudService().store(body);
   }
 }
