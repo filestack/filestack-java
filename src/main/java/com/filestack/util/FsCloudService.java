@@ -1,5 +1,6 @@
 package com.filestack.util;
 
+import com.filestack.AccountInfo;
 import com.google.gson.JsonObject;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -10,7 +11,7 @@ public interface FsCloudService {
   String URL = "https://cloud.filestackapi.com/";
 
   @POST("prefetch")
-  Call<JsonObject> prefetch(@Body JsonObject body);
+  Call<AccountInfo> prefetch(@Body JsonObject body);
 
   @POST("folder/list")
   Call<JsonObject> list(@Body JsonObject body);

@@ -3,8 +3,14 @@ package com.filestack;
 import com.filestack.transforms.ImageTransform;
 import com.filestack.util.FsService;
 import com.filestack.util.Upload;
+import com.filestack.util.Util;
+import com.google.gson.JsonObject;
 import io.reactivex.Flowable;
+import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 import java.io.IOException;
+import java.util.concurrent.Callable;
+import retrofit2.Response;
 
 /** Uploads new files. */
 public class FilestackClient {
@@ -75,6 +81,21 @@ public class FilestackClient {
   }
 
   /**
+   * Get basic account info for this client's API key.
+   *
+   * @throws HttpResponseException on error response from backend
+   * @throws IOException           on network failure
+   */
+  public AccountInfo getAccountInfo() throws IOException {
+    JsonObject params = getConfigJson();
+    Response<AccountInfo> response = fsService.cloud().prefetch(params).execute();
+    Util.checkResponseAndThrow(response);
+    return response.body();
+  }
+
+  // Async methods
+
+  /**
    * Asynchronously uploads local file using default storage options.
    *
    * @see #upload(String, boolean, StorageOptions)
@@ -109,6 +130,22 @@ public class FilestackClient {
   }
 
   /**
+   * Asynchronously get basic account info for this client's API key.
+   *
+   * @see #getAccountInfo()
+   */
+  public Single<AccountInfo> getAccountInfoAsync() {
+    return Single.fromCallable(new Callable<AccountInfo>() {
+      @Override
+      public AccountInfo call() throws Exception {
+        return getAccountInfo();
+      }
+    })
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.single());
+  }
+
+  /**
    * Creates an {@link ImageTransform} object for this file. A transformation call isn't made
    * directly by this method.
    *
@@ -120,6 +157,19 @@ public class FilestackClient {
 
   protected static String guessContentType(String path) {
     return "application/octet-stream";
+  }
+
+  /**
+   * Creates a {@link JsonObject} with this client's API key, policy, and signature.
+   */
+  protected JsonObject getConfigJson() {
+    JsonObject json = new JsonObject();
+    json.addProperty("apikey", apiKey);
+    if (security != null) {
+      json.addProperty("policy", security.getPolicy());
+      json.addProperty("signature", security.getSignature());
+    }
+    return json;
   }
 
   public String getApiKey() {
