@@ -3,10 +3,7 @@ package com.filestack.transforms;
 import com.filestack.FileLink;
 import com.filestack.FilestackClient;
 import com.filestack.Security;
-import com.filestack.errors.InternalException;
-import com.filestack.errors.InvalidParameterException;
-import com.filestack.errors.PolicySignatureException;
-import com.filestack.errors.ResourceNotFoundException;
+import com.filestack.HttpResponseException;
 import com.filestack.util.FsService;
 import com.filestack.util.Util;
 import com.google.gson.Gson;
@@ -104,16 +101,10 @@ public class Transform {
    * Returns the content of a transformation.
    *
    * @return raw transformation content, streamable
-   * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if security is missing or invalid
-   * @throws ResourceNotFoundException if handle or API key isn't found
-   * @throws InvalidParameterException if any of the task options is malformed
-   * @throws InternalException         if unexpected error occurs
+   * @throws HttpResponseException on error response from backend
+   * @throws IOException           on network failure
    */
-  public ResponseBody getContent()
-      throws IOException, PolicySignatureException, ResourceNotFoundException,
-             InvalidParameterException, InternalException {
-
+  public ResponseBody getContent() throws IOException {
     String tasksString = getTasksString();
     Response<ResponseBody> response;
 
@@ -133,10 +124,7 @@ public class Transform {
    *
    * @see #getContent()
    */
-  public JsonObject getContentJson()
-      throws IOException, PolicySignatureException, ResourceNotFoundException,
-      InvalidParameterException, InternalException {
-
+  public JsonObject getContentJson() throws IOException {
     ResponseBody body = getContent();
 
     Gson gson = new Gson();
