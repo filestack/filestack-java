@@ -1,17 +1,14 @@
 package com.filestack.util;
 
-import com.filestack.errors.FilestackException;
-import com.filestack.errors.InternalException;
-import com.filestack.errors.InvalidParameterException;
-import com.filestack.errors.PolicySignatureException;
-import com.filestack.errors.ResourceNotFoundException;
-import com.filestack.errors.ValidationException;
+import com.filestack.HttpResponseException;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import okio.Buffer;
 import retrofit2.Response;
 
@@ -29,15 +26,15 @@ public class Util {
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     InputStream inputStream = loader.getResourceAsStream("com/filestack/version.properties");
     Properties prop = new Properties();
-    String version = "";
+    String version;
 
     try {
       prop.load(inputStream);
+      version = prop.getProperty("version");
     } catch (IOException e) {
       version = "x.y.z";
     }
 
-    version = prop.getProperty("version");
     return version;
   }
 
@@ -59,56 +56,24 @@ public class Util {
   }
 
   /**
-   * Checks responses from any of the Filestack APIs.
-   * Throws an appropriate exception based on the HTTP status code.
+   * Checks status of backend responses.
+   * Throws a {@link HttpResponseException} if response isn't in 200 range.
    *
-   * @param response response from Filestack API
-   * @throws InvalidParameterException on a 400 response
-   * @throws PolicySignatureException  on a 403 response
-   * @throws ResourceNotFoundException on a 404 response
-   * @throws InternalException  on a 500 response
+   * @param response response from a backend call
+   * @throws HttpResponseException on response code not in 200 range
+   * @throws IOException           on error reading response body
    */
-  public static void checkResponseAndThrow(Response response)
-      throws InvalidParameterException, PolicySignatureException, ResourceNotFoundException,
-             InternalException {
-
-    int code = response.code();
-
-    if (code == 400) {
-      throw new InvalidParameterException();
-    } else if (code == 403) {
-      throw new PolicySignatureException();
-    } else if (code == 404) {
-      throw new ResourceNotFoundException();
-    } else if (code >= 500) {
-      throw new InternalException();
-    }
-  }
-
-  /**
-   * Takes an {@link Throwable} and recasts it to one of the {@link FilestackException} classes.
-   *
-   * @param throwable generic object to cast and rethrow
-   */
-  public static void castExceptionAndThrow(Throwable throwable)
-      throws InvalidParameterException, IOException, PolicySignatureException,
-             ResourceNotFoundException, ValidationException, InternalException {
-
-    if (throwable instanceof InvalidParameterException) {
-      throw (InvalidParameterException) throwable;
-    } else if (throwable instanceof IOException) {
-      throw (IOException) throwable;
-    } else if (throwable instanceof PolicySignatureException) {
-      throw (PolicySignatureException) throwable;
-    } else if (throwable instanceof ResourceNotFoundException) {
-      throw (ResourceNotFoundException) throwable;
-    } else if (throwable instanceof ValidationException) {
-      throw (ValidationException) throwable;
-    } else if (throwable instanceof  InternalException) {
-      throw (InternalException) throwable;
+  public static void checkResponseAndThrow(Response response) throws IOException {
+    if (response.isSuccessful()) {
+      return;
     }
 
-    throw new InternalException(throwable);
+    ResponseBody errorBody = response.errorBody();
+    if (errorBody != null) {
+      throw new HttpResponseException(response.code(), errorBody.string());
+    } else {
+      throw new HttpResponseException(response.code());
+    }
   }
 
   /**
@@ -116,25 +81,19 @@ public class Util {
    *
    * @param pathname path to file
    * @return file pointing to pathname
-   * @throws ValidationException if the pathname can't be created or exists but is unusable
+   * @throws FileNotFoundException if path isn't usable
+   * @throws IOException           if a file can't be created
    */
-  public static File createWriteFile(String pathname) throws ValidationException {
+  public static File createWriteFile(String pathname) throws IOException {
     File file = new File(pathname);
 
-    boolean created;
-    try {
-      created = file.createNewFile();
-    } catch (IOException e) {
-      throw new ValidationException("Unable to create file: " + file.getPath(), e);
-    }
-
-    if (!created) {
+    if (!file.createNewFile()) {
       if (file.isDirectory()) {
-        throw new ValidationException("Can't write to directory: " + file.getPath());
+        throw new FileNotFoundException("Can't write to directory: " + file.getPath());
       } else if (!file.isFile()) {
-        throw new ValidationException("Can't write to special file: " + file.getPath());
+        throw new FileNotFoundException("Can't write to special file: " + file.getPath());
       } else if (!file.canWrite()) {
-        throw new ValidationException("No write access: " + file.getAbsolutePath());
+        throw new FileNotFoundException("No write access: " + file.getAbsolutePath());
       }
     }
 
@@ -146,17 +105,17 @@ public class Util {
    *
    * @param pathname path to file
    * @return file pointing to pathname
-   * @throws ValidationException if the pathname doesn't exist or isn't usable
+   * @throws FileNotFoundException if path doesn't exist or isn't usable
    */
-  public static File createReadFile(String pathname) throws ValidationException {
+  public static File createReadFile(String pathname) throws IOException {
     File file = new File(pathname);
 
     if (!file.exists()) {
-      throw new ValidationException("File doesn't exist: " + file.getPath());
+      throw new FileNotFoundException(file.getPath());
     } else if (file.isDirectory()) {
-      throw new ValidationException("Can't read from directory: " + file.getPath());
+      throw new FileNotFoundException("Can't read from directory: " + file.getPath());
     } else if (!file.isFile()) {
-      throw new ValidationException("Can't read from special file: " + file.getPath());
+      throw new FileNotFoundException("Can't read from special file: " + file.getPath());
     }
 
     return file;
