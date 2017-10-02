@@ -1,10 +1,5 @@
 package com.filestack;
 
-import com.filestack.errors.InternalException;
-import com.filestack.errors.InvalidParameterException;
-import com.filestack.errors.PolicySignatureException;
-import com.filestack.errors.ResourceNotFoundException;
-import com.filestack.errors.ValidationException;
 import com.filestack.responses.ImageTagResponse;
 import com.filestack.transforms.AvTransform;
 import com.filestack.transforms.ImageTransform;
@@ -111,15 +106,10 @@ public class FileLink {
    * Returns the content of a file.
    *
    * @return byte[] of file content
-   * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if security is missing or invalid
-   * @throws ResourceNotFoundException if handle isn't found
-   * @throws InvalidParameterException if handle is malformed
-   * @throws InternalException         if unexpected error occurs
+   * @throws HttpResponseException on error response from backend
+   * @throws IOException           on network failure
    */
-  public ResponseBody getContent()
-      throws IOException, PolicySignatureException, ResourceNotFoundException,
-             InvalidParameterException, InternalException {
+  public ResponseBody getContent() throws IOException {
 
     String policy = security != null ? security.getPolicy() : null;
     String signature = security != null ? security.getSignature() : null;
@@ -136,9 +126,7 @@ public class FileLink {
    *
    * @see #download(String, String)
    */
-  public File download(String directory)
-      throws ValidationException, IOException, PolicySignatureException,
-             ResourceNotFoundException, InvalidParameterException, InternalException {
+  public File download(String directory) throws IOException {
     return download(directory, null);
   }
 
@@ -147,17 +135,10 @@ public class FileLink {
    *
    * @param directory location to save the file in
    * @param filename  local name for the file
-   * @throws ValidationException       if the path (directory/filename) isn't writable
-   * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if security is missing or invalid
-   * @throws ResourceNotFoundException if handle isn't found
-   * @throws InvalidParameterException if handle is malformed
-   * @throws InternalException         if unexpected error occurs
+   * @throws HttpResponseException on error response from backend
+   * @throws IOException           on error creating file or network failure
    */
-  public File download(String directory, String filename)
-      throws ValidationException, IOException, PolicySignatureException,
-             ResourceNotFoundException, InvalidParameterException, InternalException {
-
+  public File download(String directory, String filename) throws IOException {
     String policy = security != null ? security.getPolicy() : null;
     String signature = security != null ? security.getSignature() : null;
 
@@ -190,19 +171,12 @@ public class FileLink {
    * Does not update the filename or MIME type.
    *
    * @param pathname path to the file, can be local or absolute
-   * @throws ValidationException       if security isn't set or the pathname is invalid
-   * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if security is missing or invalid
-   * @throws ResourceNotFoundException if handle isn't found
-   * @throws InvalidParameterException if handle is malformed
-   * @throws InternalException         if unexpected error occurs
+   * @throws HttpResponseException on error response from backend
+   * @throws IOException           on error reading file or network failure
    */
-  public void overwrite(String pathname)
-      throws ValidationException, IOException, PolicySignatureException,
-             ResourceNotFoundException, InvalidParameterException, InternalException {
-
+  public void overwrite(String pathname) throws IOException {
     if (security == null) {
-      throw new ValidationException("Security must be set in order to overwrite");
+      throw new IllegalStateException("Security must be set in order to overwrite");
     }
 
     File file = Util.createReadFile(pathname);
@@ -221,19 +195,12 @@ public class FileLink {
   /**
    * Deletes a file handle. Requires security to be set.
    *
-   * @throws ValidationException       if security isn't set
-   * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if security is missing or invalid
-   * @throws ResourceNotFoundException if handle isn't found
-   * @throws InvalidParameterException if handle is malformed
-   * @throws InternalException         if unexpected error occurs
+   * @throws HttpResponseException on error response from backend
+   * @throws IOException           on network failure
    */
-  public void delete()
-      throws ValidationException, IOException, PolicySignatureException,
-             ResourceNotFoundException, InvalidParameterException, InternalException {
-
+  public void delete() throws IOException {
     if (security == null) {
-      throw new ValidationException("Security must be set in order to delete");
+      throw new IllegalStateException("Security must be set in order to delete");
     }
 
     String policy = security.getPolicy();
@@ -257,21 +224,14 @@ public class FileLink {
   /**
    * Returns tags from the Google Vision API for image FileLinks.
    *
-   * @throws ValidationException       if security isn't set
-   * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if security is missing or invalid or tagging isn't enabled
-   * @throws ResourceNotFoundException if handle isn't found
-   * @throws InvalidParameterException if handle is malformed
-   * @throws InternalException         if unexpected error occurs
+   * @throws HttpResponseException on error response from backend
+   * @throws IOException           on network failure
    *
    * @see <a href="https://www.filestack.com/docs/tagging"></a>
    */
-  public Map<String, Integer> imageTags()
-      throws ValidationException, IOException, PolicySignatureException,
-             ResourceNotFoundException, InvalidParameterException, InternalException {
-
+  public Map<String, Integer> imageTags() throws IOException {
     if (security == null) {
-      throw new ValidationException("Security must be set in order to tag an image");
+      throw new IllegalStateException("Security must be set in order to tag an image");
     }
 
     ImageTransform transform = new ImageTransform(this);
@@ -285,21 +245,14 @@ public class FileLink {
   /**
    * Determines if an image FileLink is "safe for work" using the Google Vision API.
    *
-   * @throws ValidationException       if security isn't set
-   * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if security is missing or invalid or tagging isn't enabled
-   * @throws ResourceNotFoundException if handle isn't found
-   * @throws InvalidParameterException if handle is malformed
-   * @throws InternalException         if unexpected error occurs
+   * @throws HttpResponseException on error response from backend
+   * @throws IOException           on network failure
    *
    * @see <a href="https://www.filestack.com/docs/tagging"></a>
    */
-  public boolean imageSfw()
-      throws ValidationException, IOException, PolicySignatureException,
-      ResourceNotFoundException, InvalidParameterException, InternalException {
-
+  public boolean imageSfw() throws IOException {
     if (security == null) {
-      throw new ValidationException("Security must be set in order to tag an image");
+      throw new IllegalStateException("Security must be set in order to tag an image");
     }
 
     ImageTransform transform = new ImageTransform(this);
