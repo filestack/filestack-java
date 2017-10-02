@@ -56,6 +56,22 @@ public class Util {
   }
 
   /**
+   * Throws an {@link HttpResponseException} with the code and error body from a {@link Response}.
+   *
+   * @param response response from a backend call
+   * @throws HttpResponseException always unless error reading response body
+   * @throws IOException           on error reading response body
+   */
+  public static void throwHttpResponseException(Response response) throws IOException {
+    ResponseBody errorBody = response.errorBody();
+    if (errorBody != null) {
+      throw new HttpResponseException(response.code(), errorBody.string());
+    } else {
+      throw new HttpResponseException(response.code());
+    }
+  }
+
+  /**
    * Checks status of backend responses.
    * Throws a {@link HttpResponseException} if response isn't in 200 range.
    *
@@ -67,13 +83,7 @@ public class Util {
     if (response.isSuccessful()) {
       return;
     }
-
-    ResponseBody errorBody = response.errorBody();
-    if (errorBody != null) {
-      throw new HttpResponseException(response.code(), errorBody.string());
-    } else {
-      throw new HttpResponseException(response.code());
-    }
+    throwHttpResponseException(response);
   }
 
   /**
