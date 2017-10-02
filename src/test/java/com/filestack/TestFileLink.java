@@ -1,12 +1,11 @@
 package com.filestack;
 
-import com.filestack.errors.FilestackException;
-import com.filestack.errors.ValidationException;
 import com.filestack.util.FsApiService;
 import com.filestack.util.FsCdnService;
 import com.filestack.util.FsService;
 import com.google.common.io.Files;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Map;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -176,13 +175,13 @@ public class TestFileLink {
     fileLink.delete();
   }
 
-  @Test(expected = FilestackException.class)
+  @Test(expected = IllegalStateException.class)
   public void testOverwriteWithoutSecurity() throws Exception {
     FileLink fileLink = new FileLink("apiKey", "handle");
     fileLink.overwrite("");
   }
 
-  @Test(expected = ValidationException.class)
+  @Test(expected = FileNotFoundException.class)
   public void testOverwriteNoFile() throws Exception {
     Policy policy = new Policy.Builder().giveFullAccess().build();
     Security security = Security.createNew(policy, "appSecret");
@@ -191,13 +190,13 @@ public class TestFileLink {
     fileLink.overwrite("/tmp/filestack_test_overwrite_no_file.txt");
   }
 
-  @Test(expected = FilestackException.class)
+  @Test(expected = IllegalStateException.class)
   public void testDeleteWithoutSecurity() throws Exception {
     FileLink fileLink = new FileLink("apiKey", "handle");
     fileLink.delete();
   }
 
-  @Test(expected = ValidationException.class)
+  @Test(expected = IllegalStateException.class)
   public void testImageTagNoSecurity() throws Exception {
     FileLink fileLink = new FileLink("apiKey", "handle");
     fileLink.imageTags();
@@ -244,7 +243,7 @@ public class TestFileLink {
     Assert.assertEquals((Integer) 100, tags.get("giraffe"));
   }
 
-  @Test(expected = ValidationException.class)
+  @Test(expected = IllegalStateException.class)
   public void testImageSfwNoSecurity() throws Exception {
     FileLink fileLink = new FileLink("apiKey", "handle");
     fileLink.imageSfw();

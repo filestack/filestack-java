@@ -1,12 +1,12 @@
 package com.filestack;
 
-import com.filestack.errors.ValidationException;
 import com.filestack.responses.CompleteResponse;
 import com.filestack.responses.StartResponse;
 import com.filestack.responses.UploadResponse;
 import com.filestack.util.FsService;
 import com.filestack.util.FsUploadService;
 import com.google.gson.Gson;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
@@ -153,7 +153,7 @@ public class TestFilestackClient {
     Security security = Security.createNew(policy, "app_secret");
 
     FilestackClient client = new FilestackClient("apiKey", security);
-    thrown.expect(ValidationException.class);
+    thrown.expect(FileNotFoundException.class);
     client.upload("/does_not_exist.txt", true);
   }
 

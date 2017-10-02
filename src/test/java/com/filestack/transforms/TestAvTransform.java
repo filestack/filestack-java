@@ -2,8 +2,6 @@ package com.filestack.transforms;
 
 import com.filestack.FileLink;
 import com.filestack.StorageOptions;
-import com.filestack.errors.InternalException;
-import com.filestack.errors.InvalidArgumentException;
 import com.filestack.transforms.tasks.AvTransformOptions;
 import com.filestack.util.FsCdnService;
 import com.filestack.util.FsService;
@@ -17,9 +15,11 @@ import org.mockito.stubbing.Answer;
 import retrofit2.Call;
 import retrofit2.mock.Calls;
 
+import java.io.IOException;
+
 public class TestAvTransform {
 
-  @Test(expected = InvalidArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testConstructorException() {
     FileLink fileLink = new FileLink("apiKey", "handle");
     fileLink.avTransform(null);
@@ -84,7 +84,7 @@ public class TestAvTransform {
     Assert.assertNull(pending.avTransform(avOptions).getFileLink());
   }
 
-  @Test(expected = InternalException.class)
+  @Test(expected = IOException.class)
   public void testGetFilelinkFail() throws Exception {
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
     FsService mockFsService = new FsService(null, mockCdnService, null, null);

@@ -1,6 +1,5 @@
 package com.filestack;
 
-import com.filestack.errors.ResourceNotFoundException;
 import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
@@ -130,7 +129,7 @@ public class TestBasicFunctions {
 
     fileLink.delete();
 
-    thrown.expect(ResourceNotFoundException.class);
+    thrown.expect(HttpResponseException.class);
     fileLink.getContent();
   }
 

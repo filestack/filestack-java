@@ -1,9 +1,7 @@
 package com.filestack.util;
 
-import com.filestack.errors.InternalException;
-import com.filestack.errors.InvalidParameterException;
-import com.filestack.errors.PolicySignatureException;
 import java.io.IOException;
+import com.filestack.HttpResponseException;
 import okhttp3.MediaType;
 import okhttp3.Protocol;
 import okhttp3.Request;
@@ -44,7 +42,7 @@ public class TestRetryNetworkFunc {
       }
     };
 
-    thrown.expect(InternalException.class);
+    thrown.expect(HttpResponseException.class);
     retryNetworkFunc.call();
   }
 
@@ -69,7 +67,7 @@ public class TestRetryNetworkFunc {
       }
     };
 
-    thrown.expect(InternalException.class);
+    thrown.expect(HttpResponseException.class);
     retryNetworkFunc.call();
   }
 
@@ -84,7 +82,7 @@ public class TestRetryNetworkFunc {
       }
     };
 
-    thrown.expect(InvalidParameterException.class);
+    thrown.expect(HttpResponseException.class);
     retryNetworkFunc.call();
   }
 
@@ -99,7 +97,7 @@ public class TestRetryNetworkFunc {
       }
     };
 
-    thrown.expect(PolicySignatureException.class);
+    thrown.expect(HttpResponseException.class);
     retryNetworkFunc.call();
   }
 
