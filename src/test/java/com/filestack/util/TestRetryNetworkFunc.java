@@ -1,7 +1,7 @@
 package com.filestack.util;
 
-import java.io.IOException;
 import com.filestack.HttpResponseException;
+import java.io.IOException;
 import okhttp3.MediaType;
 import okhttp3.Protocol;
 import okhttp3.Request;

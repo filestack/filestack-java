@@ -5,6 +5,7 @@ import com.filestack.StorageOptions;
 import com.filestack.transforms.tasks.AvTransformOptions;
 import com.filestack.util.FsCdnService;
 import com.filestack.util.FsService;
+import java.io.IOException;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import org.junit.Assert;
@@ -14,8 +15,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import retrofit2.Call;
 import retrofit2.mock.Calls;
-
-import java.io.IOException;
 
 public class TestAvTransform {
 
