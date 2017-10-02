@@ -1,14 +1,8 @@
 package com.filestack;
 
-import com.filestack.errors.InternalException;
-import com.filestack.errors.InvalidParameterException;
-import com.filestack.errors.PolicySignatureException;
-import com.filestack.errors.ResourceNotFoundException;
-import com.filestack.errors.ValidationException;
 import com.filestack.transforms.ImageTransform;
 import com.filestack.util.FsService;
 import com.filestack.util.Upload;
-import com.filestack.util.Util;
 import io.reactivex.Flowable;
 import java.io.IOException;
 
@@ -55,9 +49,7 @@ public class FilestackClient {
    *
    * @see #upload(String, boolean, StorageOptions)
    */
-  public FileLink upload(String path, boolean intelligent)
-      throws ValidationException, IOException, PolicySignatureException,
-      InvalidParameterException, InternalException {
+  public FileLink upload(String path, boolean intelligent) throws IOException {
     return upload(path, intelligent, null);
   }
 
@@ -69,28 +61,17 @@ public class FilestackClient {
    * @param intelligent intelligent ingestion, setting to true to will decrease failures in very
    *                    poor network conditions at the expense of upload speed
    * @return new {@link FileLink} referencing file
-   * @throws ValidationException       if the pathname doesn't exist or isn't a regular file
-   * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if security is missing or invalid
-   * @throws InvalidParameterException if a request parameter is missing or invalid
-   * @throws InternalException         if unexpected error occurs
+   * @throws HttpResponseException on error response from backend
+   * @throws IOException           on error reading file or network failure
    */
   public FileLink upload(String path, boolean intelligent, StorageOptions options)
-      throws ValidationException, IOException, PolicySignatureException,
-             InvalidParameterException, InternalException {
+      throws IOException {
 
     try {
       return uploadAsync(path, intelligent, options).blockingLast().getData();
     } catch (RuntimeException e) {
-      try {
-        Util.castExceptionAndThrow(e.getCause());
-      } catch (ResourceNotFoundException ee) {
-        // Shouldn't get a 404 so if we do, indicate an unexpected error
-        throw new InternalException(ee);
-      }
+      throw (IOException) e.getCause();
     }
-
-    return null;
   }
 
   /**
