@@ -1,4 +1,4 @@
-package com.filestack.responses;
+package com.filestack.util.responses;
 
 /** Response from multipart complete endpoint. */
 public class CompleteResponse {

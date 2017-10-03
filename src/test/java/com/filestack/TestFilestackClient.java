@@ -1,8 +1,8 @@
 package com.filestack;
 
-import com.filestack.responses.CompleteResponse;
-import com.filestack.responses.StartResponse;
-import com.filestack.responses.UploadResponse;
+import com.filestack.util.responses.CompleteResponse;
+import com.filestack.util.responses.StartResponse;
+import com.filestack.util.responses.UploadResponse;
 import com.filestack.util.FsService;
 import com.filestack.util.FsUploadService;
 import com.google.gson.Gson;

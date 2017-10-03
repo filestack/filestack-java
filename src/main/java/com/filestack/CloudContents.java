@@ -1,6 +1,6 @@
 package com.filestack;
 
-import com.filestack.responses.CloudAuthHolder;
+import com.filestack.util.responses.CloudAuthHolder;
 
 public class CloudContents {
   private CloudAuthHolder auth;

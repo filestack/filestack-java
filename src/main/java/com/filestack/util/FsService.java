@@ -1,15 +1,5 @@
 package com.filestack.util;
 
-import com.filestack.responses.CompleteResponse;
-import com.filestack.responses.StartResponse;
-import com.filestack.responses.StoreResponse;
-import com.filestack.responses.UploadResponse;
-import com.google.gson.JsonObject;
-import java.util.Map;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-
 /** Combines all REST services into a single service. */
 public class FsService {
   // An instance of this class can hold individual custom services

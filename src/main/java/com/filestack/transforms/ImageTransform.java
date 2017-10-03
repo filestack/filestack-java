@@ -4,7 +4,7 @@ import com.filestack.FileLink;
 import com.filestack.FilestackClient;
 import com.filestack.HttpResponseException;
 import com.filestack.StorageOptions;
-import com.filestack.responses.StoreResponse;
+import com.filestack.util.responses.StoreResponse;
 import com.filestack.util.Util;
 import com.google.gson.JsonObject;
 import io.reactivex.Single;

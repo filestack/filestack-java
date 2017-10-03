@@ -1,8 +1,8 @@
 package com.filestack.util;
 
-import com.filestack.responses.CompleteResponse;
-import com.filestack.responses.StartResponse;
-import com.filestack.responses.UploadResponse;
+import com.filestack.util.responses.CompleteResponse;
+import com.filestack.util.responses.StartResponse;
+import com.filestack.util.responses.UploadResponse;
 import java.util.Map;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;

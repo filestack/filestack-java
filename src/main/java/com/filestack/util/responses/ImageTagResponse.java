@@ -1,4 +1,4 @@
-package com.filestack.responses;
+package com.filestack.util.responses;
 
 import java.util.Map;
 

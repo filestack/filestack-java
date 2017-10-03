@@ -1,7 +1,7 @@
 package com.filestack.util;
 
 import com.filestack.FileLink;
-import com.filestack.responses.CompleteResponse;
+import com.filestack.util.responses.CompleteResponse;
 import io.reactivex.Flowable;
 import java.util.HashMap;
 import java.util.Map;

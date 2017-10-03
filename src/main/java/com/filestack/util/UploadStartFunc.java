@@ -1,7 +1,7 @@
 package com.filestack.util;
 
 import com.filestack.FileLink;
-import com.filestack.responses.StartResponse;
+import com.filestack.util.responses.StartResponse;
 import io.reactivex.Flowable;
 import java.io.File;
 import java.util.concurrent.Callable;

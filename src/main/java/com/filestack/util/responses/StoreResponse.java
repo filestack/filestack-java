@@ -1,4 +1,4 @@
-package com.filestack.responses;
+package com.filestack.util.responses;
 
 /** Response object from transform store endpoint. */
 public class StoreResponse {

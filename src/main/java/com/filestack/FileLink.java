@@ -1,6 +1,6 @@
 package com.filestack;
 
-import com.filestack.responses.ImageTagResponse;
+import com.filestack.util.responses.ImageTagResponse;
 import com.filestack.transforms.AvTransform;
 import com.filestack.transforms.ImageTransform;
 import com.filestack.transforms.ImageTransformTask;

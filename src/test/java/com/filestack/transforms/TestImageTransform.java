@@ -2,7 +2,7 @@ package com.filestack.transforms;
 
 import com.filestack.FileLink;
 import com.filestack.FilestackClient;
-import com.filestack.responses.StoreResponse;
+import com.filestack.util.responses.StoreResponse;
 import com.filestack.util.FsCdnService;
 import com.filestack.util.FsService;
 import com.google.gson.Gson;
