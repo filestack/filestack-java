@@ -4,6 +4,7 @@ import com.filestack.transforms.ImageTransform;
 import com.filestack.util.FsService;
 import com.filestack.util.Upload;
 import com.filestack.util.Util;
+import com.filestack.util.responses.CloudStoreResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -130,6 +131,43 @@ public class FilestackClient {
     return gson.fromJson(provider, CloudContents.class);
   }
 
+  /**
+   * Transfers file from a user's cloud "drive" to Filestack. Uses default storage options.
+   *
+   * @see #storeCloudItem(String, String, StorageOptions)
+   */
+  public FileLink storeCloudItem(String providerName, String path) throws IOException {
+    return storeCloudItem(providerName, path, null);
+  }
+
+  /**
+   * Transfers file from a user's cloud "drive" to Filestack.
+   *
+   * @param providerName one of the static CLOUD constants in this class
+   * @param options      storage options for how to save the file in Filestack
+   * @return             new filelink
+   * @throws HttpResponseException on error response from backend
+   * @throws IOException           on network failure
+   */
+  public FileLink storeCloudItem(String providerName, String path, StorageOptions options)
+      throws IOException {
+
+    if (options == null) {
+      options = new StorageOptions();
+    }
+
+    JsonObject params = makeCloudParams(providerName, path);
+    params.add("store", options.getAsJson());
+    Response<JsonObject> response = fsService.cloud().store(params).execute();
+    Util.checkResponseAndThrow(response);
+    JsonElement responseJson = response.body().get(providerName);
+    System.out.println("DEBUG JSON: " + params.toString() + "\n");
+    System.out.println("DEBUG JSON: " + response.body().toString() + "\n");
+    Gson gson = new Gson();
+    CloudStoreResponse storeInfo = gson.fromJson(responseJson, CloudStoreResponse.class);
+    return new FileLink(apiKey, storeInfo.getHandle(), security);
+  }
+
   // Async methods
 
   /**
@@ -192,6 +230,34 @@ public class FilestackClient {
       @Override
       public CloudContents call() throws Exception {
         return getCloudContents(providerName, path);
+      }
+    })
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.single());
+  }
+
+  /**
+   * Asynchronously transfers file from a user's cloud "drive" to Filestack.
+   * Uses default storage options.
+   *
+   * @see #storeCloudItem(String, String, StorageOptions)
+   */
+  public Single<FileLink> storeCloudItemAsync(final String providerName, final String path) {
+    return storeCloudItemAsync(providerName, path, null);
+  }
+
+  /**
+   * Asynchronously transfers file from a user's cloud "drive" to Filestack.
+   *
+   * @see #storeCloudItem(String, String, StorageOptions)
+   */
+  public Single<FileLink> storeCloudItemAsync(final String providerName, final String path,
+                                              final StorageOptions options) {
+
+    return Single.fromCallable(new Callable<FileLink>() {
+      @Override
+      public FileLink call() throws Exception {
+        return storeCloudItem(providerName, path, options);
       }
     })
         .subscribeOn(Schedulers.io())

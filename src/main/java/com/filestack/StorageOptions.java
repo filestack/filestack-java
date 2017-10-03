@@ -2,6 +2,7 @@ package com.filestack;
 
 import com.filestack.transforms.TransformTask;
 import com.filestack.util.Util;
+import com.google.gson.JsonObject;
 import java.util.HashMap;
 import java.util.Map;
 import okhttp3.MediaType;
@@ -51,6 +52,18 @@ public class StorageOptions {
     return map;
   }
 
+  /** Get these options as JSON to use for cloud integrations. */
+  public JsonObject getAsJson() {
+    JsonObject json = new JsonObject();
+    addToJson(json, "access", access);
+    addToJson(json, "container", container);
+    addToJson(json, "filename", filename);
+    addToJson(json, "location", location);
+    addToJson(json, "path", path);
+    addToJson(json, "region", region);
+    return json;
+  }
+
   public MediaType getMediaType() {
     return MediaType.parse(contentType);
   }
@@ -66,6 +79,12 @@ public class StorageOptions {
   private static void addToMap(Map<String, RequestBody> map, String key, String value) {
     if (value != null) {
       map.put(key, Util.createStringPart(value));
+    }
+  }
+
+  private static void addToJson(JsonObject json, String key, String value) {
+    if (value != null) {
+      json.addProperty(key, value);
     }
   }
 
