@@ -4,6 +4,8 @@ import com.filestack.transforms.ImageTransform;
 import com.filestack.util.FsService;
 import com.filestack.util.Upload;
 import com.filestack.util.Util;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
@@ -14,6 +16,22 @@ import retrofit2.Response;
 
 /** Uploads new files. */
 public class FilestackClient {
+  // public static final String CLOUD_IMAGE_SEARCH = "imagesearch";
+  public static final String CLOUD_FACEBOOK = "facebook";
+  public static final String CLOUD_INSTAGRAM = "instagram";
+  public static final String CLOUD_GOOGLE_DRIVE = "googledrive";
+  public static final String CLOUD_DROPBOX = "dropbox";
+  public static final String CLOUD_EVERNOTE = "evernote";
+  public static final String CLOUD_FLICKR = "flickr";
+  public static final String CLOUD_BOX = "box";
+  public static final String CLOUD_GITHUB = "github";
+  public static final String CLOUD_GMAIL = "gmail";
+  public static final String CLOUD_GOOGLE_PHOTOS = "picasa";
+  public static final String CLOUD_ONEDRIVE = "onedrive";
+  public static final String CLOUD_AMAZON_DRIVE = "clouddrive";
+  // public static final String CLOUD_CUSTOM_SOURCE = "customsource";
+  // public static final String CLOUD_VIDEO = "video";
+
   private String apiKey;
   private Security security;
   private FsService fsService;
@@ -81,16 +99,35 @@ public class FilestackClient {
   }
 
   /**
-   * Get basic account info for this client's API key.
+   * Gets basic account info for this client's API key.
    *
    * @throws HttpResponseException on error response from backend
    * @throws IOException           on network failure
    */
   public AccountInfo getAccountInfo() throws IOException {
-    JsonObject params = getConfigJson();
+    JsonObject params = makeCloudParams();
     Response<AccountInfo> response = fsService.cloud().prefetch(params).execute();
     Util.checkResponseAndThrow(response);
     return response.body();
+  }
+
+  /**
+   * Gets contents of a user's cloud "drive". If the user has not authorized for the provider, the
+   * response will contain an OAuth URL that should be opened in a browser.
+   *
+   * @param providerName one of the static CLOUD constants in this class
+   *
+   * @throws HttpResponseException on error response from backend
+   * @throws IOException           on network failure
+   */
+  public CloudContents getCloudContents(String providerName, String path) throws IOException {
+    JsonObject params = makeCloudParams(providerName, path);
+    Response<JsonObject> response = fsService.cloud().list(params).execute();
+    Util.checkResponseAndThrow(response);
+    JsonObject base = response.body();
+    JsonElement provider = base.get(providerName);
+    Gson gson = new Gson();
+    return gson.fromJson(provider, CloudContents.class);
   }
 
   // Async methods
@@ -146,6 +183,22 @@ public class FilestackClient {
   }
 
   /**
+   * Asynchronously gets contents of a user's cloud "drive".
+   *
+   * @see #getCloudContents(String, String)
+   */
+  public Single<CloudContents> getCloudContentsAsync(final String providerName, final String path) {
+    return Single.fromCallable(new Callable<CloudContents>() {
+      @Override
+      public CloudContents call() throws Exception {
+        return getCloudContents(providerName, path);
+      }
+    })
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.single());
+  }
+
+  /**
    * Creates an {@link ImageTransform} object for this file. A transformation call isn't made
    * directly by this method.
    *
@@ -160,9 +213,9 @@ public class FilestackClient {
   }
 
   /**
-   * Creates a {@link JsonObject} with this client's API key, policy, and signature.
+   * Creates a {@link JsonObject} with this client's config.
    */
-  protected JsonObject getConfigJson() {
+  protected JsonObject makeCloudParams() {
     JsonObject json = new JsonObject();
     json.addProperty("apikey", apiKey);
     if (security != null) {
@@ -170,6 +223,19 @@ public class FilestackClient {
       json.addProperty("signature", security.getSignature());
     }
     return json;
+  }
+
+  /**
+   * Creates a {@link JsonObject} with this client's config. Adds provider info.
+   */
+  protected JsonObject makeCloudParams(String providerName, String path) {
+    JsonObject provider = new JsonObject();
+    provider.addProperty("path", path);
+    JsonObject clouds = new JsonObject();
+    clouds.add(providerName, provider);
+    JsonObject base = makeCloudParams();
+    base.add("clouds", clouds);
+    return base;
   }
 
   public String getApiKey() {
