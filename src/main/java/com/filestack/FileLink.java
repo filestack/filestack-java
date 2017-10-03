@@ -1,12 +1,12 @@
 package com.filestack;
 
-import com.filestack.util.responses.ImageTagResponse;
 import com.filestack.transforms.AvTransform;
 import com.filestack.transforms.ImageTransform;
 import com.filestack.transforms.ImageTransformTask;
 import com.filestack.transforms.tasks.AvTransformOptions;
 import com.filestack.util.FsService;
 import com.filestack.util.Util;
+import com.filestack.util.responses.ImageTagResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.reactivex.Completable;
