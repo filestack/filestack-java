@@ -8,8 +8,10 @@ import com.filestack.util.responses.CloudStoreResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
+import io.reactivex.functions.Action;
 import io.reactivex.schedulers.Schedulers;
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -168,6 +170,19 @@ public class FilestackClient {
     return new FileLink(apiKey, storeInfo.getHandle(), security);
   }
 
+  /**
+   * Logs out from specified cloud.
+   *
+   * @param providerName one of the static CLOUD constants in this class
+   * @throws HttpResponseException on error response from backend
+   * @throws IOException           on network failure
+   */
+  public void logoutCloud(String providerName) throws IOException {
+    JsonObject params = makeCloudParams(providerName, "/");
+    Response response = fsService.cloud().logout(params).execute();
+    Util.checkResponseAndThrow(response);
+  }
+
   // Async methods
 
   /**
@@ -258,6 +273,22 @@ public class FilestackClient {
       @Override
       public FileLink call() throws Exception {
         return storeCloudItem(providerName, path, options);
+      }
+    })
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.single());
+  }
+
+  /**
+   * Asynchronously logs out from specified cloud.
+   *
+   * @see #logoutCloud(String)
+   */
+  public Completable logoutCloudAsync(final String providerName) {
+    return Completable.fromAction(new Action() {
+      @Override
+      public void run() throws Exception {
+        logoutCloud(providerName);
       }
     })
         .subscribeOn(Schedulers.io())
