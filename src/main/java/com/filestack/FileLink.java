@@ -124,7 +124,7 @@ public class FileLink {
     String policy = security != null ? security.getPolicy() : null;
     String signature = security != null ? security.getSignature() : null;
 
-    Response<ResponseBody> response = fsService.get(this.handle, policy, signature).execute();
+    Response<ResponseBody> response = fsService.cdn().get(this.handle, policy, signature).execute();
 
     Util.checkResponseAndThrow(response);
 
@@ -161,7 +161,7 @@ public class FileLink {
     String policy = security != null ? security.getPolicy() : null;
     String signature = security != null ? security.getSignature() : null;
 
-    Response<ResponseBody> response = fsService.get(this.handle, policy, signature).execute();
+    Response<ResponseBody> response = fsService.cdn().get(this.handle, policy, signature).execute();
 
     Util.checkResponseAndThrow(response);
 
@@ -213,7 +213,7 @@ public class FileLink {
     String policy = security.getPolicy();
     String signature = security.getSignature();
 
-    Response response = fsService.overwrite(handle, policy, signature, body).execute();
+    Response response = fsService.api().overwrite(handle, policy, signature, body).execute();
 
     Util.checkResponseAndThrow(response);
   }
@@ -239,7 +239,7 @@ public class FileLink {
     String policy = security.getPolicy();
     String signature = security.getSignature();
 
-    Response response = fsService.delete(handle, apiKey, policy, signature).execute();
+    Response response = fsService.api().delete(handle, apiKey, policy, signature).execute();
 
     Util.checkResponseAndThrow(response);
   }

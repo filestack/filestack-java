@@ -5,6 +5,7 @@ import com.filestack.StorageOptions;
 import com.filestack.errors.InternalException;
 import com.filestack.errors.InvalidArgumentException;
 import com.filestack.transforms.tasks.AvTransformOptions;
+import com.filestack.util.FsCdnService;
 import com.filestack.util.FsService;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
@@ -54,7 +55,8 @@ public class TestAvTransform {
 
   @Test
   public void testGetFilelink() throws Exception {
-    FsService mockFsService = Mockito.mock(FsService.class);
+    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
+    FsService mockFsService = new FsService(null, mockCdnService, null, null);
 
     Mockito
         .doAnswer(new Answer() {
@@ -67,7 +69,7 @@ public class TestAvTransform {
             return Calls.response(ResponseBody.create(mediaType, json));
           }
         })
-        .when(mockFsService)
+        .when(mockCdnService)
         .transform(Mockito.anyString(), Mockito.anyString());
 
     FileLink.Builder builder = new FileLink.Builder().apiKey("apiKey").service(mockFsService);
@@ -84,7 +86,8 @@ public class TestAvTransform {
 
   @Test(expected = InternalException.class)
   public void testGetFilelinkFail() throws Exception {
-    FsService mockFsService = Mockito.mock(FsService.class);
+    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
+    FsService mockFsService = new FsService(null, mockCdnService, null, null);
 
     String json = "{'status':'failed'}";
     MediaType mediaType = MediaType.parse("application/json");
@@ -92,7 +95,7 @@ public class TestAvTransform {
 
     Mockito
         .doReturn(Calls.response(responseBody))
-        .when(mockFsService)
+        .when(mockCdnService)
         .transform("video_convert=preset:mp4", "handle");
 
     FileLink fileLink = new FileLink.Builder()

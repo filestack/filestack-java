@@ -91,13 +91,14 @@ public class TestTransform {
 
   @Test
   public void testGetContentExt() throws Exception {
-    FsService mockFsService = Mockito.mock(FsService.class);
+    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
+    FsService mockFsService = new FsService(null, mockCdnService, null, null);
 
     MediaType mediaType = MediaType.parse("application/octet-stream");
     ResponseBody responseBody = ResponseBody.create(mediaType, "Test Response");
     Call call = Calls.response(responseBody);
     Mockito.doReturn(call)
-        .when(mockFsService)
+        .when(mockCdnService)
         .transformExt("apiKey", "task", "https://example.com/");
 
     FilestackClient client = new FilestackClient("apiKey", null, mockFsService);
@@ -110,13 +111,14 @@ public class TestTransform {
 
   @Test
   public void testGetContentHandle() throws Exception {
-    FsService mockFsService = Mockito.mock(FsService.class);
+    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
+    FsService mockFsService = new FsService(null, mockCdnService, null, null);
 
     MediaType mediaType = MediaType.parse("application/octet-stream");
     ResponseBody responseBody = ResponseBody.create(mediaType, "Test Response");
     Call call = Calls.response(responseBody);
     Mockito.doReturn(call)
-        .when(mockFsService)
+        .when(mockCdnService)
         .transform("task", "handle");
 
     FileLink fileLink = new FileLink.Builder()
@@ -133,7 +135,8 @@ public class TestTransform {
 
   @Test
   public void testGetContentJson() throws Exception {
-    FsService mockFsService = Mockito.mock(FsService.class);
+    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
+    FsService mockFsService = new FsService(null, mockCdnService, null, null);
 
     String jsonString = "{"
         + "'key': 'value'"
@@ -143,7 +146,7 @@ public class TestTransform {
     ResponseBody responseBody = ResponseBody.create(mediaType, jsonString);
     Call call = Calls.response(responseBody);
     Mockito.doReturn(call)
-        .when(mockFsService)
+        .when(mockCdnService)
         .transform("task", "handle");
 
     FileLink fileLink = new FileLink.Builder()

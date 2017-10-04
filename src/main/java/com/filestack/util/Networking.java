@@ -15,6 +15,7 @@ public class Networking {
   private static FsApiService fsApiService;
   private static FsCdnService fsCdnService;
   private static FsUploadService fsUploadService;
+  private static FsCloudService fsCloudService;
 
   /** Get http client singleton. */
   public static OkHttpClient getHttpClient() {
@@ -63,6 +64,17 @@ public class Networking {
     return fsUploadService;
   }
 
+  /**
+   * Get {@link FsCloudService} singleton.
+   */
+  public static FsCloudService getFsCloudService() {
+    if (fsCloudService == null) {
+      Retrofit retrofit = getRetrofitBuilder().baseUrl(FsCloudService.URL).build();
+      fsCloudService = retrofit.create(FsCloudService.class);
+    }
+    return fsCloudService;
+  }
+
   /** Set a custom http client. */
   public static void setCustomClient(OkHttpClient client) {
     if (client == null) {
@@ -89,5 +101,6 @@ public class Networking {
     fsApiService = null;
     fsCdnService = null;
     fsUploadService = null;
+    fsCloudService = null;
   }
 }
