@@ -1,18 +1,12 @@
 package com.filestack.util;
 
-import com.filestack.errors.FilestackException;
-import com.filestack.errors.InternalException;
-import com.filestack.errors.InvalidParameterException;
-import com.filestack.errors.PolicySignatureException;
-import com.filestack.errors.ResourceNotFoundException;
-import com.filestack.errors.ValidationException;
-import java.io.File;
-import java.io.IOException;
+import com.filestack.HttpResponseException;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import okhttp3.MediaType;
-import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,89 +19,25 @@ public class TestUtil extends Util {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void testCheckResponseAndThrow400() throws FilestackException {
+  public void testCheckResponseAndThrow() {
+    int code = 400;
+    String message = "Error message...";
     MediaType mediaType = MediaType.parse("text/plain");
-    Response response = Response.error(400, ResponseBody.create(mediaType, "test"));
-    thrown.expect(InvalidParameterException.class);
-    Util.checkResponseAndThrow(response);
+    Response response = Response.error(code, ResponseBody.create(mediaType, message));
+
+    try {
+      Util.checkResponseAndThrow(response);
+      Assert.fail("Should have thrown exception");
+    } catch (HttpResponseException e) {
+      Assert.assertEquals(code, e.getCode());
+      Assert.assertEquals(message, e.getMessage());
+    } catch (IOException e) {
+      Assert.fail("Threw wrong exception");
+    }
   }
 
   @Test
-  public void testCheckResponseAndThrow403() throws FilestackException {
-    MediaType mediaType = MediaType.parse("text/plain");
-    Response response = Response.error(403, ResponseBody.create(mediaType, "test"));
-    thrown.expect(PolicySignatureException.class);
-    Util.checkResponseAndThrow(response);
-  }
-
-  @Test
-  public void testCheckResponseAndThrow404() throws FilestackException {
-    MediaType mediaType = MediaType.parse("text/plain");
-    Response response = Response.error(404, ResponseBody.create(mediaType, "test"));
-    thrown.expect(ResourceNotFoundException.class);
-    Util.checkResponseAndThrow(response);
-  }
-
-  @Test
-  public void testCheckResponseAndThrow500() throws FilestackException {
-    MediaType mediaType = MediaType.parse("text/plain");
-    Response response = Response.error(500, ResponseBody.create(mediaType, "test"));
-    thrown.expect(InternalException.class);
-    Util.checkResponseAndThrow(response);
-  }
-
-  @Test
-  public void testCastExceptionAndThrowInvalid() throws FilestackException, IOException {
-    Exception e = new InvalidParameterException();
-    thrown.expect(InvalidParameterException.class);
-    Util.castExceptionAndThrow(e);
-  }
-
-  @Test
-  public void testCastExceptionAndThrowIo() throws FilestackException, IOException {
-    Exception e = new IOException();
-    thrown.expect(IOException.class);
-    Util.castExceptionAndThrow(e);
-  }
-
-  @Test
-  public void testCastExceptionAndThrowPolicy() throws FilestackException, IOException {
-    Exception e = new PolicySignatureException();
-    thrown.expect(PolicySignatureException.class);
-    Util.castExceptionAndThrow(e);
-  }
-
-  @Test
-  public void testCastExceptionAndThrowResource() throws FilestackException, IOException {
-    Exception e = new ResourceNotFoundException();
-    thrown.expect(ResourceNotFoundException.class);
-    Util.castExceptionAndThrow(e);
-  }
-
-  @Test
-  public void testCastExceptionAndThrowValidation() throws FilestackException, IOException {
-    Exception e = new ValidationException();
-    thrown.expect(ValidationException.class);
-    Util.castExceptionAndThrow(e);
-  }
-
-  @Test
-  public void testCastExceptionAndThrowInternal() throws FilestackException, IOException {
-    Exception e = new InternalException();
-    thrown.expect(InternalException.class);
-    Util.castExceptionAndThrow(e);
-  }
-
-  @Test
-  public void testCastExceptionAndThrowUnknown() throws FilestackException, IOException {
-    Exception e = new Exception();
-    thrown.expect(InternalException.class);
-    thrown.expectCause(CoreMatchers.is(e));
-    Util.castExceptionAndThrow(e);
-  }
-
-  @Test
-  public void testCreateWriteFileSuccess() throws ValidationException {
+  public void testCreateWriteFileSuccess() throws Exception {
     File file = Util.createWriteFile("/tmp/filestack_test_create_write_file.txt");
     if (!file.delete()) {
       Assert.fail("Unable to cleanup file");
@@ -115,55 +45,54 @@ public class TestUtil extends Util {
   }
 
   @Test
-  public void testCreateWriteFileFailUnable() throws ValidationException {
-    thrown.expect(ValidationException.class);
-    thrown.expectMessage("Unable to create file");
+  public void testCreateWriteFileFailAccessNew() throws Exception {
+    thrown.expect(IOException.class);
     Util.createWriteFile("/need_root_access.txt");
   }
 
   @Test
-  public void testCreateWriteFileFailDirectory() throws ValidationException {
-    thrown.expect(ValidationException.class);
+  public void testCreateWriteFileFailDirectory() throws Exception {
+    thrown.expect(FileNotFoundException.class);
     thrown.expectMessage("Can't write to directory");
     Util.createWriteFile("/tmp");
   }
 
   @Test
-  public void testCreateWriteFileFailSpecial() throws ValidationException {
-    thrown.expect(ValidationException.class);
+  public void testCreateWriteFileFailSpecial() throws Exception {
+    thrown.expect(FileNotFoundException.class);
     thrown.expectMessage("Can't write to special file");
     Util.createWriteFile("/dev/null");
   }
 
   @Test
-  public void testCreateWriteFileFailAccess() throws ValidationException {
-    thrown.expect(ValidationException.class);
+  public void testCreateWriteFileFailAccessExisting() throws Exception {
+    thrown.expect(FileNotFoundException.class);
     thrown.expectMessage("No write access");
     Util.createWriteFile("/etc/hosts");
   }
 
   @Test
-  public void testCreateReadFileSuccess() throws ValidationException {
+  public void testCreateReadFileSuccess() throws Exception {
     Util.createReadFile("/etc/hosts");
   }
 
   @Test
-  public void testCreateReadFileFailExists() throws ValidationException {
-    thrown.expect(ValidationException.class);
-    thrown.expectMessage("File doesn't exist");
+  public void testCreateReadFileFailExists() throws Exception {
+    thrown.expect(FileNotFoundException.class);
+    thrown.expectMessage("/does_not_exist.txt");
     Util.createReadFile("/does_not_exist.txt");
   }
 
   @Test
-  public void testCreateReadFileFailDirectory() throws ValidationException {
-    thrown.expect(ValidationException.class);
+  public void testCreateReadFileFailDirectory() throws Exception {
+    thrown.expect(FileNotFoundException.class);
     thrown.expectMessage("Can't read from directory");
     Util.createReadFile("/tmp");
   }
 
   @Test
-  public void testCreateReadFileFailSpecial() throws ValidationException {
-    thrown.expect(ValidationException.class);
+  public void testCreateReadFileFailSpecial() throws Exception {
+    thrown.expect(FileNotFoundException.class);
     thrown.expectMessage("Can't read from special file");
     Util.createReadFile("/dev/null");
   }

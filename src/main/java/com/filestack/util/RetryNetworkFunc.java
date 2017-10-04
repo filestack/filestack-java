@@ -1,8 +1,5 @@
 package com.filestack.util;
 
-import com.filestack.errors.InternalException;
-import com.filestack.errors.InvalidParameterException;
-import com.filestack.errors.PolicySignatureException;
 import retrofit2.Response;
 
 /**
@@ -67,7 +64,7 @@ public abstract class RetryNetworkFunc<T> {
     if (networkRetries > maxNetworkRetries) {
       throw exception;
     } else if (serverRetries > maxServerRetries) {
-      throw new InternalException();
+      Util.throwHttpResponseException(response);
     }
 
     return response;
@@ -119,14 +116,12 @@ public abstract class RetryNetworkFunc<T> {
   private boolean responseOkay(Response response) throws Exception {
     int code = response.code();
 
-    if (code == 206) {
-      throw new InternalException();
-    } else if (code == 400) {
-      throw new InvalidParameterException();
-    } else if (code == 403) {
-      throw new PolicySignatureException();
+    // Immediately stop and throw exception for these codes
+    if (code == 206 || code == 400 || code == 403) {
+      Util.throwHttpResponseException(response);
     }
 
+    // Possibly return false but don't throw exception so we keep retrying
     return code == 200;
   }
 

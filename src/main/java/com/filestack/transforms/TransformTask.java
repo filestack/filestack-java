@@ -1,6 +1,5 @@
 package com.filestack.transforms;
 
-import com.filestack.errors.InvalidArgumentException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,7 +37,7 @@ public class TransformTask {
   public void addOption(String key, Object value) {
     // Passing an empty key is a mistake, shouldn't happen
     if (key == null || key.length() == 0) {
-      throw new InvalidArgumentException("Task option key cannot be empty");
+      throw new IllegalArgumentException("Task option key cannot be empty");
     }
     // Allowing the passing of a null value however, is for convenience
     // If we're leaving out an option for a transform task, we only need to check for that here

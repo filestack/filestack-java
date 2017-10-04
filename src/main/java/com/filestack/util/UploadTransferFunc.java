@@ -1,7 +1,7 @@
 package com.filestack.util;
 
 import com.filestack.FileLink;
-import com.filestack.responses.UploadResponse;
+import com.filestack.util.responses.UploadResponse;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;

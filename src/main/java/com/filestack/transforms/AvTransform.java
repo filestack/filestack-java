@@ -1,12 +1,8 @@
 package com.filestack.transforms;
 
 import com.filestack.FileLink;
+import com.filestack.HttpResponseException;
 import com.filestack.StorageOptions;
-import com.filestack.errors.InternalException;
-import com.filestack.errors.InvalidArgumentException;
-import com.filestack.errors.InvalidParameterException;
-import com.filestack.errors.PolicySignatureException;
-import com.filestack.errors.ResourceNotFoundException;
 import com.filestack.transforms.tasks.AvTransformOptions;
 import com.filestack.util.Util;
 import com.google.gson.JsonObject;
@@ -32,7 +28,7 @@ public class AvTransform extends Transform {
     super(fileLink);
 
     if (avOps == null) {
-      throw new InvalidArgumentException("AvTransform can't be created without options");
+      throw new IllegalArgumentException("AvTransform can't be created without options");
     }
 
     if (storeOpts != null) {
@@ -48,16 +44,10 @@ public class AvTransform extends Transform {
    * If you need other data, such as thumbnails, use {@link Transform#getContentJson()}.
    *
    * @return null if processing, new {@link FileLink} if complete
-   * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if security is missing or invalid or tagging isn't enabled
-   * @throws ResourceNotFoundException if handle isn't found
-   * @throws InvalidParameterException if handle is malformed
-   * @throws InternalException         if unexpected error occurs
+   * @throws HttpResponseException on error response from backend
+   * @throws IOException           on network failure
    */
-  public FileLink getFileLink()
-      throws IOException, PolicySignatureException, ResourceNotFoundException,
-             InvalidParameterException, InternalException {
-
+  public FileLink getFileLink() throws IOException {
     JsonObject json = getContentJson();
     String status = json.get("status").getAsString();
 
@@ -75,7 +65,7 @@ public class AvTransform extends Transform {
         String handle = url.split("/")[3];
         return new FileLink(apiKey, handle, security);
       default:
-        throw new InternalException();
+        throw new IOException("Unexpected transform error: " + json.toString());
     }
   }
 

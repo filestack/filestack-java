@@ -2,13 +2,10 @@ package com.filestack.transforms;
 
 import com.filestack.FileLink;
 import com.filestack.FilestackClient;
+import com.filestack.HttpResponseException;
 import com.filestack.StorageOptions;
-import com.filestack.errors.InternalException;
-import com.filestack.errors.InvalidParameterException;
-import com.filestack.errors.PolicySignatureException;
-import com.filestack.errors.ResourceNotFoundException;
-import com.filestack.responses.StoreResponse;
 import com.filestack.util.Util;
+import com.filestack.util.responses.StoreResponse;
 import com.google.gson.JsonObject;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
@@ -34,16 +31,10 @@ public class ImageTransform extends Transform {
    * @see <a href="https://www.filestack.com/docs/image-transformations/debug"></a>
    *
    * @return {@link JsonObject JSON} report for transformation
-   * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if security is missing or invalid
-   * @throws ResourceNotFoundException if API key, handle, or external URL are not found
-   * @throws InvalidParameterException if a request parameter is missing or invalid
-   * @throws InternalException         if unexpected error occurs
+   * @throws HttpResponseException on error response from backend
+   * @throws IOException           on network failure
    */
-  public JsonObject debug()
-      throws IOException, PolicySignatureException, ResourceNotFoundException,
-             InvalidParameterException, InternalException {
-
+  public JsonObject debug() throws IOException {
     String tasksString = getTasksString();
 
     Response<JsonObject> response;
@@ -68,16 +59,10 @@ public class ImageTransform extends Transform {
    * @see <a href="https://www.filestack.com/docs/image-transformations/store"></a>
    *
    * @return new {@link FileLink FileLink} pointing to the file
-   * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if security is missing or invalid
-   * @throws ResourceNotFoundException if API key, handle, or external URL are not found
-   * @throws InvalidParameterException if a request parameter is missing or invalid
-   * @throws InternalException         if unexpected error occurs
+   * @throws HttpResponseException on error response from backend
+   * @throws IOException           on network failure
    */
-  public FileLink store()
-      throws IOException, PolicySignatureException, ResourceNotFoundException,
-             InvalidParameterException, InternalException {
-
+  public FileLink store() throws IOException {
     return store(null);
   }
 
@@ -87,16 +72,10 @@ public class ImageTransform extends Transform {
    *
    * @param storageOptions configure where and how your file is stored
    * @return new {@link FileLink FileLink} pointing to the file
-   * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if security is missing or invalid
-   * @throws ResourceNotFoundException if API key, handle, or external URL are not found
-   * @throws InvalidParameterException if a request parameter is missing or invalid
-   * @throws InternalException         if unexpected error occurs
+   * @throws HttpResponseException on error response from backend
+   * @throws IOException           on network failure
    */
-  public FileLink store(StorageOptions storageOptions)
-      throws IOException, PolicySignatureException, ResourceNotFoundException,
-             InvalidParameterException, InternalException {
-
+  public FileLink store(StorageOptions storageOptions) throws IOException {
     if (storageOptions == null) {
       storageOptions = new StorageOptions();
     }
