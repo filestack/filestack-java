@@ -7,7 +7,6 @@ public class CloudContents {
   private CloudItem[] contents;
   private String client;
   private String filename;
-  private String name;
   private String next;
 
   /** Returns an OAuth URL or null if the user has already authorized. */
@@ -19,28 +18,13 @@ public class CloudContents {
     return contents;
   }
 
-  public String getProviderId() {
+  public String getProvider() {
     return client;
   }
 
-  // There's possibly an issue with the filename and name values
-  // "filename" contains a proper title for the provider, "name" is empty
-
-  public String getProviderName() {
+  public String getDirectory() {
     return filename;
   }
-
-  /*
-  public String getFilename() {
-    return filename;
-  }
-  */
-
-  /*
-  public String getName() {
-    return name;
-  }
-  */
 
   public String getNextToken() {
     return next;
