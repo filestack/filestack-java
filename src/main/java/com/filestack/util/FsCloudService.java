@@ -8,7 +8,7 @@ import retrofit2.http.Body;
 import retrofit2.http.POST;
 
 public interface FsCloudService {
-  String URL = "https://cloud.filestackapi.com/";
+  String URL = "https://cloud.rc.filepickerapp.com/";
 
   @POST("prefetch")
   Call<AccountInfo> prefetch(@Body JsonObject body);

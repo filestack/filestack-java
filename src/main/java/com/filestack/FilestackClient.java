@@ -38,6 +38,8 @@ public class FilestackClient {
   private String apiKey;
   private Security security;
   private FsService fsService;
+  private String returnUrl;
+  private String sessionToken;
 
   /**
    * Constructs a client without security.
@@ -128,6 +130,11 @@ public class FilestackClient {
     Response<JsonObject> response = fsService.cloud().list(params).execute();
     Util.checkResponseAndThrow(response);
     JsonObject base = response.body();
+
+    if (base.has("token")) {
+      sessionToken = base.get("token").getAsString();
+    }
+
     JsonElement provider = base.get(providerName);
     Gson gson = new Gson();
     return gson.fromJson(provider, CloudContents.class);
@@ -163,8 +170,6 @@ public class FilestackClient {
     Response<JsonObject> response = fsService.cloud().store(params).execute();
     Util.checkResponseAndThrow(response);
     JsonElement responseJson = response.body().get(providerName);
-    System.out.println("DEBUG JSON: " + params.toString() + "\n");
-    System.out.println("DEBUG JSON: " + response.body().toString() + "\n");
     Gson gson = new Gson();
     CloudStoreResponse storeInfo = gson.fromJson(responseJson, CloudStoreResponse.class);
     return new FileLink(apiKey, storeInfo.getHandle(), security);
@@ -319,6 +324,11 @@ public class FilestackClient {
       json.addProperty("policy", security.getPolicy());
       json.addProperty("signature", security.getSignature());
     }
+    json.addProperty("flow", "mobile");
+    json.addProperty("appurl", returnUrl);
+    if (sessionToken != null) {
+      json.addProperty("token", sessionToken);
+    }
     return json;
   }
 
@@ -345,5 +355,10 @@ public class FilestackClient {
 
   public FsService getFsService() {
     return fsService;
+  }
+
+  // TODO remove this and setup builder
+  public void setReturnUrl(String returnUrl) {
+    this.returnUrl = returnUrl;
   }
 }
