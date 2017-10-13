@@ -361,4 +361,12 @@ public class FilestackClient {
   public void setReturnUrl(String returnUrl) {
     this.returnUrl = returnUrl;
   }
+
+  public String getSessionToken() {
+    return sessionToken;
+  }
+
+  public void setSessionToken(String sessionToken) {
+    this.sessionToken = sessionToken;
+  }
 }
