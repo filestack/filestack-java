@@ -27,6 +27,10 @@ public class CloudContents {
   }
 
   public String getNextToken() {
+    // An empty string token is confusing, just return null
+    if (next == null || next.equals("")) {
+      return null;
+    }
     return next;
   }
 }

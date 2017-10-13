@@ -117,16 +117,28 @@ public class FilestackClient {
   }
 
   /**
+   * Gets contents of a user's cloud "drive".
+   *
+   * @see #getCloudContents(String, String, String)
+   */
+  public CloudContents getCloudContents(String providerName, String path) throws IOException {
+    return getCloudContents(providerName, path, null);
+  }
+
+  /**
    * Gets contents of a user's cloud "drive". If the user has not authorized for the provider, the
    * response will contain an OAuth URL that should be opened in a browser.
    *
    * @param providerName one of the static CLOUD constants in this class
+   * @param next         pagination token returned in previous response
    *
    * @throws HttpResponseException on error response from backend
    * @throws IOException           on network failure
    */
-  public CloudContents getCloudContents(String providerName, String path) throws IOException {
-    JsonObject params = makeCloudParams(providerName, path);
+  public CloudContents getCloudContents(String providerName, String path, String next)
+      throws IOException {
+
+    JsonObject params = makeCloudParams(providerName, path, next);
     Response<JsonObject> response = fsService.cloud().list(params).execute();
     Util.checkResponseAndThrow(response);
     JsonObject base = response.body();
@@ -243,13 +255,24 @@ public class FilestackClient {
   /**
    * Asynchronously gets contents of a user's cloud "drive".
    *
-   * @see #getCloudContents(String, String)
+   * @see #getCloudContents(String, String, String)
    */
-  public Single<CloudContents> getCloudContentsAsync(final String providerName, final String path) {
+  public Single<CloudContents> getCloudContentsAsync(String providerName, String path) {
+    return getCloudContentsAsync(providerName, path, null);
+  }
+
+  /**
+   * Asynchronously gets contents of a user's cloud "drive".
+   *
+   * @see #getCloudContents(String, String, String)
+   */
+  public Single<CloudContents> getCloudContentsAsync(final String providerName, final String path,
+                                                     final String next) {
+
     return Single.fromCallable(new Callable<CloudContents>() {
       @Override
       public CloudContents call() throws Exception {
-        return getCloudContents(providerName, path);
+        return getCloudContents(providerName, path, next);
       }
     })
         .subscribeOn(Schedulers.io())
@@ -336,8 +359,18 @@ public class FilestackClient {
    * Creates a {@link JsonObject} with this client's config. Adds provider info.
    */
   protected JsonObject makeCloudParams(String providerName, String path) {
+    return makeCloudParams(providerName, path, null);
+  }
+
+  /**
+   * Creates a {@link JsonObject} with this client's config. Adds provider info with next token.
+   */
+  protected JsonObject makeCloudParams(String providerName, String path, String next) {
     JsonObject provider = new JsonObject();
     provider.addProperty("path", path);
+    if (next != null) {
+      provider.addProperty("next", next);
+    }
     JsonObject clouds = new JsonObject();
     clouds.add(providerName, provider);
     JsonObject base = makeCloudParams();
