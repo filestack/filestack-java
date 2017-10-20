@@ -19,22 +19,6 @@ import retrofit2.Response;
 
 /** Uploads new files. */
 public class FilestackClient {
-  // public static final String CLOUD_IMAGE_SEARCH = "imagesearch";
-  public static final String CLOUD_FACEBOOK = "facebook";
-  public static final String CLOUD_INSTAGRAM = "instagram";
-  public static final String CLOUD_GOOGLE_DRIVE = "googledrive";
-  public static final String CLOUD_DROPBOX = "dropbox";
-  public static final String CLOUD_EVERNOTE = "evernote";
-  public static final String CLOUD_FLICKR = "flickr";
-  public static final String CLOUD_BOX = "box";
-  public static final String CLOUD_GITHUB = "github";
-  public static final String CLOUD_GMAIL = "gmail";
-  public static final String CLOUD_GOOGLE_PHOTOS = "picasa";
-  public static final String CLOUD_ONEDRIVE = "onedrive";
-  public static final String CLOUD_AMAZON_DRIVE = "clouddrive";
-  // public static final String CLOUD_CUSTOM_SOURCE = "customsource";
-  // public static final String CLOUD_VIDEO = "video";
-
   private String apiKey;
   private Security security;
   private FsService fsService;
