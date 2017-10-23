@@ -103,10 +103,10 @@ public class FilestackClient {
   /**
    * Gets contents of a user's cloud "drive".
    *
-   * @see #getCloudContents(String, String, String)
+   * @see #getCloudItems(String, String, String)
    */
-  public CloudContents getCloudContents(String providerName, String path) throws IOException {
-    return getCloudContents(providerName, path, null);
+  public CloudResponse getCloudItems(String providerName, String path) throws IOException {
+    return getCloudItems(providerName, path, null);
   }
 
   /**
@@ -119,7 +119,7 @@ public class FilestackClient {
    * @throws HttpResponseException on error response from backend
    * @throws IOException           on network failure
    */
-  public CloudContents getCloudContents(String providerName, String path, String next)
+  public CloudResponse getCloudItems(String providerName, String path, String next)
       throws IOException {
 
     JsonObject params = makeCloudParams(providerName, path, next);
@@ -133,7 +133,7 @@ public class FilestackClient {
 
     JsonElement provider = base.get(providerName);
     Gson gson = new Gson();
-    return gson.fromJson(provider, CloudContents.class);
+    return gson.fromJson(provider, CloudResponse.class);
   }
 
   /**
@@ -239,24 +239,24 @@ public class FilestackClient {
   /**
    * Asynchronously gets contents of a user's cloud "drive".
    *
-   * @see #getCloudContents(String, String, String)
+   * @see #getCloudItems(String, String, String)
    */
-  public Single<CloudContents> getCloudContentsAsync(String providerName, String path) {
-    return getCloudContentsAsync(providerName, path, null);
+  public Single<CloudResponse> getCloudItemsAsync(String providerName, String path) {
+    return getCloudItemsAsync(providerName, path, null);
   }
 
   /**
    * Asynchronously gets contents of a user's cloud "drive".
    *
-   * @see #getCloudContents(String, String, String)
+   * @see #getCloudItems(String, String, String)
    */
-  public Single<CloudContents> getCloudContentsAsync(final String providerName, final String path,
+  public Single<CloudResponse> getCloudItemsAsync(final String providerName, final String path,
                                                      final String next) {
 
-    return Single.fromCallable(new Callable<CloudContents>() {
+    return Single.fromCallable(new Callable<CloudResponse>() {
       @Override
-      public CloudContents call() throws Exception {
-        return getCloudContents(providerName, path, next);
+      public CloudResponse call() throws Exception {
+        return getCloudItems(providerName, path, next);
       }
     })
         .subscribeOn(Schedulers.io())

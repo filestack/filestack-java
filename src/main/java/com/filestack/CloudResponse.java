@@ -2,9 +2,9 @@ package com.filestack;
 
 import com.filestack.util.responses.CloudAuthHolder;
 
-public class CloudContents {
+public class CloudResponse {
   private CloudAuthHolder auth;
-  private CloudItem[] contents;
+  private CloudItem[] items;
   private String client;
   private String filename;
   private String next;
@@ -15,7 +15,7 @@ public class CloudContents {
   }
 
   public CloudItem[] getItems() {
-    return contents;
+    return items;
   }
 
   public String getProvider() {
@@ -26,6 +26,7 @@ public class CloudContents {
     return filename;
   }
 
+  /** Returns a pagination token if all items can't be returned at once. */
   public String getNextToken() {
     // An empty string token is confusing, just return null
     if (next == null || next.equals("")) {
