@@ -1,6 +1,6 @@
 package com.filestack.util;
 
-import com.filestack.FileLink;
+import com.filestack.FsFile;
 import com.filestack.FilestackClient;
 import com.filestack.Progress;
 import com.filestack.Security;
@@ -70,23 +70,23 @@ public class Upload {
    *
    * @return {@link Flowable} that emits {@link Progress} events
    */
-  public Flowable<Progress<FileLink>> runAsync() {
-    Flowable<Prog<FileLink>> startFlow = Flowable
+  public Flowable<Progress<FsFile>> runAsync() {
+    Flowable<Prog<FsFile>> startFlow = Flowable
         .fromCallable(new UploadStartFunc(this))
         .subscribeOn(Schedulers.io());
 
     // Create multiple func instances to each upload a subrange of parts from the file
     // Merge each of these together into one so they're executed concurrently
-    Flowable<Prog<FileLink>> transferFlow = Flowable.empty();
+    Flowable<Prog<FsFile>> transferFlow = Flowable.empty();
     for (int i = 0; i < CONCURRENCY; i++) {
       UploadTransferFunc func = new UploadTransferFunc(this, i);
-      Flowable<Prog<FileLink>> temp = Flowable
+      Flowable<Prog<FsFile>> temp = Flowable
           .create(func, BackpressureStrategy.BUFFER)
           .subscribeOn(Schedulers.io());
       transferFlow = transferFlow.mergeWith(temp);
     }
 
-    Flowable<Prog<FileLink>> completeFlow = Flowable
+    Flowable<Prog<FsFile>> completeFlow = Flowable
         .fromCallable(new UploadCompleteFunc(this))
         .subscribeOn(Schedulers.io());
 

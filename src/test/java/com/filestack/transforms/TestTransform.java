@@ -1,12 +1,11 @@
 package com.filestack.transforms;
 
-import com.filestack.FileLink;
+import com.filestack.FsFile;
 import com.filestack.FilestackClient;
 import com.filestack.Policy;
 import com.filestack.Security;
 import com.filestack.util.FsCdnService;
 import com.filestack.util.FsService;
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
@@ -33,9 +32,9 @@ public class TestTransform {
 
   @Test
   public void testUrlHandle() {
-    FileLink fileLink = new FileLink("apiKey", "handle");
+    FsFile fsFile = new FsFile("apiKey", "handle");
 
-    Transform transform = new Transform(fileLink);
+    Transform transform = new Transform(fsFile);
     transform.tasks.add(TASK);
 
     String correctUrl = FsCdnService.URL + TASK_STRING + "/" + "handle";
@@ -56,9 +55,9 @@ public class TestTransform {
 
   @Test
   public void testUrlSecurity() {
-    FileLink fileLink = new FileLink("apikey", "handle", SECURITY);
+    FsFile fsFile = new FsFile("apikey", "handle", SECURITY);
 
-    Transform transform = new Transform(fileLink);
+    Transform transform = new Transform(fsFile);
     transform.tasks.add(TASK);
 
     String correctUrl = FsCdnService.URL + "security=policy:" + SECURITY.getPolicy() + ","
@@ -68,9 +67,9 @@ public class TestTransform {
 
   @Test
   public void testUrlMultipleTasks() {
-    FileLink fileLink = new FileLink("apikey", "handle");
+    FsFile fsFile = new FsFile("apikey", "handle");
 
-    Transform transform = new Transform(fileLink);
+    Transform transform = new Transform(fsFile);
     transform.tasks.add(TASK);
     transform.tasks.add(TASK);
 
@@ -80,9 +79,9 @@ public class TestTransform {
 
   @Test
   public void testUrlTaskWithoutOptions() {
-    FileLink fileLink = new FileLink("apikey", "handle");
+    FsFile fsFile = new FsFile("apikey", "handle");
 
-    Transform transform = new Transform(fileLink);
+    Transform transform = new Transform(fsFile);
     transform.tasks.add(new TransformTask("task"));
 
     String correctUrl = FsCdnService.URL + "task/handle";
@@ -121,13 +120,13 @@ public class TestTransform {
         .when(mockCdnService)
         .transform("task", "handle");
 
-    FileLink fileLink = new FileLink.Builder()
+    FsFile fsFile = new FsFile.Builder()
         .apiKey("apiKey")
         .handle("handle")
         .service(mockFsService)
         .build();
 
-    Transform transform = new Transform(fileLink);
+    Transform transform = new Transform(fsFile);
     transform.tasks.add(new TransformTask("task"));
 
     Assert.assertEquals("Test Response", transform.getContent().string());
@@ -149,13 +148,13 @@ public class TestTransform {
         .when(mockCdnService)
         .transform("task", "handle");
 
-    FileLink fileLink = new FileLink.Builder()
+    FsFile fsFile = new FsFile.Builder()
         .apiKey("apiKey")
         .handle("handle")
         .service(mockFsService)
         .build();
 
-    Transform transform = new Transform(fileLink);
+    Transform transform = new Transform(fsFile);
     transform.tasks.add(new TransformTask("task"));
 
     JsonObject jsonObject = transform.getContentJson();

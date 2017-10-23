@@ -175,9 +175,9 @@ public class TestFilestackClient {
 
     Path path = createRandomFile(10 * 1024 * 1024);
 
-    FileLink fileLink = client.upload(path.toString(), false);
+    FsFile fsFile = client.upload(path.toString(), false);
 
-    Assert.assertEquals("handle", fileLink.getHandle());
+    Assert.assertEquals("handle", fsFile.getHandle());
 
     Files.delete(path);
   }

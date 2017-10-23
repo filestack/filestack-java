@@ -19,17 +19,17 @@ import retrofit2.Call;
 import retrofit2.mock.Calls;
 
 /**
- * Tests {@link FileLink FileLink} class.
+ * Tests {@link FsFile FsFile} class.
  */
-public class TestFileLink {
+public class TestFsFile {
 
   @Test
   public void testConstructors() {
     Policy policy = new Policy.Builder().giveFullAccess().build();
     Security security = Security.createNew(policy, "app_secret");
 
-    FileLink fileLink1 = new FileLink("apiKey", "handle");
-    FileLink fileLink2 = new FileLink("apiKey", "handle", security);
+    FsFile fsFile1 = new FsFile("apiKey", "handle");
+    FsFile fsFile2 = new FsFile("apiKey", "handle", security);
   }
 
   @Test
@@ -45,13 +45,13 @@ public class TestFileLink {
         .when(mockCdnService)
         .get("handle", null, null);
 
-    FileLink fileLink = new FileLink.Builder()
+    FsFile fsFile = new FsFile.Builder()
         .apiKey("apiKey")
         .handle("handle")
         .service(mockFsService)
         .build();
 
-    ResponseBody content = fileLink.getContent();
+    ResponseBody content = fsFile.getContent();
     Assert.assertEquals("Test content", content.string());
   }
 
@@ -68,13 +68,13 @@ public class TestFileLink {
         .when(mockCdnService)
         .get("handle", null, null);
 
-    FileLink fileLink = new FileLink.Builder()
+    FsFile fsFile = new FsFile.Builder()
         .apiKey("apiKey")
         .handle("handle")
         .service(mockFsService)
         .build();
 
-    File file = fileLink.download("/tmp/");
+    File file = fsFile.download("/tmp/");
     Assert.assertTrue(file.isFile());
     if (!file.delete()) {
       Assert.fail("Unable to cleanup resource");
@@ -94,13 +94,13 @@ public class TestFileLink {
         .when(mockCdnService)
         .get("handle", null, null);
 
-    FileLink fileLink = new FileLink.Builder()
+    FsFile fsFile = new FsFile.Builder()
         .apiKey("apiKey")
         .handle("handle")
         .service(mockFsService)
         .build();
 
-    File file = fileLink.download("/tmp/", "filestack_test_filelink_download.txt");
+    File file = fsFile.download("/tmp/", "filestack_test_filelink_download.txt");
     Assert.assertTrue(file.isFile());
     if (!file.delete()) {
       Assert.fail("Unable to cleanup resource");
@@ -135,14 +135,14 @@ public class TestFileLink {
 
     FsService mockFsService = new FsService(mockApiService, null, null, null);
 
-    FileLink fileLink = new FileLink.Builder()
+    FsFile fsFile = new FsFile.Builder()
         .apiKey("apiKey")
         .handle("handle")
         .security(security)
         .service(mockFsService)
         .build();
 
-    fileLink.overwrite(pathname);
+    fsFile.overwrite(pathname);
 
     if (!file.delete()) {
       Assert.fail("Unable to cleanup resource");
@@ -165,41 +165,41 @@ public class TestFileLink {
         .when(mockApiService)
         .delete("handle", "apiKey", security.getPolicy(), security.getSignature());
 
-    FileLink fileLink = new FileLink.Builder()
+    FsFile fsFile = new FsFile.Builder()
         .apiKey("apiKey")
         .handle("handle")
         .security(security)
         .service(mockFsService)
         .build();
 
-    fileLink.delete();
+    fsFile.delete();
   }
 
   @Test(expected = IllegalStateException.class)
   public void testOverwriteWithoutSecurity() throws Exception {
-    FileLink fileLink = new FileLink("apiKey", "handle");
-    fileLink.overwrite("");
+    FsFile fsFile = new FsFile("apiKey", "handle");
+    fsFile.overwrite("");
   }
 
   @Test(expected = FileNotFoundException.class)
   public void testOverwriteNoFile() throws Exception {
     Policy policy = new Policy.Builder().giveFullAccess().build();
     Security security = Security.createNew(policy, "appSecret");
-    FileLink fileLink = new FileLink("apiKey", "handle", security);
+    FsFile fsFile = new FsFile("apiKey", "handle", security);
 
-    fileLink.overwrite("/tmp/filestack_test_overwrite_no_file.txt");
+    fsFile.overwrite("/tmp/filestack_test_overwrite_no_file.txt");
   }
 
   @Test(expected = IllegalStateException.class)
   public void testDeleteWithoutSecurity() throws Exception {
-    FileLink fileLink = new FileLink("apiKey", "handle");
-    fileLink.delete();
+    FsFile fsFile = new FsFile("apiKey", "handle");
+    fsFile.delete();
   }
 
   @Test(expected = IllegalStateException.class)
   public void testImageTagNoSecurity() throws Exception {
-    FileLink fileLink = new FileLink("apiKey", "handle");
-    fileLink.imageTags();
+    FsFile fsFile = new FsFile("apiKey", "handle");
+    fsFile.imageTags();
   }
 
   @Test
@@ -231,22 +231,22 @@ public class TestFileLink {
         .when(mockCdnService)
         .transform(tasksString, "handle");
 
-    FileLink fileLink = new FileLink.Builder()
+    FsFile fsFile = new FsFile.Builder()
         .apiKey("apiKey")
         .handle("handle")
         .security(security)
         .service(mockFsService)
         .build();
 
-    Map<String, Integer> tags = fileLink.imageTags();
+    Map<String, Integer> tags = fsFile.imageTags();
 
     Assert.assertEquals((Integer) 100, tags.get("giraffe"));
   }
 
   @Test(expected = IllegalStateException.class)
   public void testImageSfwNoSecurity() throws Exception {
-    FileLink fileLink = new FileLink("apiKey", "handle");
-    fileLink.imageSfw();
+    FsFile fsFile = new FsFile("apiKey", "handle");
+    fsFile.imageSfw();
   }
 
   @Test
@@ -269,13 +269,13 @@ public class TestFileLink {
     Policy policy = new Policy.Builder().giveFullAccess().build();
     Security security = Security.createNew(policy, "appSecret");
 
-    FileLink.Builder builder = new FileLink.Builder()
+    FsFile.Builder builder = new FsFile.Builder()
         .apiKey("apiKey")
         .security(security)
         .service(mockFsService);
 
-    FileLink safe = builder.handle("safe").build();
-    FileLink notSafe = builder.handle("notSafe").build();
+    FsFile safe = builder.handle("safe").build();
+    FsFile notSafe = builder.handle("notSafe").build();
 
     Assert.assertTrue(safe.imageSfw());
     Assert.assertFalse(notSafe.imageSfw());

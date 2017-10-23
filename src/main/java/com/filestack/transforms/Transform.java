@@ -1,6 +1,6 @@
 package com.filestack.transforms;
 
-import com.filestack.FileLink;
+import com.filestack.FsFile;
 import com.filestack.FilestackClient;
 import com.filestack.HttpResponseException;
 import com.filestack.Security;
@@ -33,23 +33,23 @@ public class Transform {
     this(fsClient, null, url);
   }
 
-  Transform(FileLink fileLink) {
-    this(null, fileLink, null);
+  Transform(FsFile fsFile) {
+    this(null, fsFile, null);
   }
 
-  Transform(FilestackClient fsClient, FileLink fileLink, String url) {
+  Transform(FilestackClient fsClient, FsFile fsFile, String url) {
     if (fsClient != null) {
       this.apiKey = fsClient.getApiKey();
       this.source = url;
       this.fsService = fsClient.getFsService();
     } else {
-      this.source = fileLink.getHandle();
-      this.fsService = fileLink.getFsService();
+      this.source = fsFile.getHandle();
+      this.fsService = fsFile.getFsService();
     }
 
     this.tasks = new ArrayList<>();
 
-    Security security = fsClient != null ? fsClient.getSecurity() : fileLink.getSecurity();
+    Security security = fsClient != null ? fsClient.getSecurity() : fsFile.getSecurity();
     this.security = security;
     if (security != null) {
       TransformTask securityTask = new TransformTask("security");
@@ -77,7 +77,7 @@ public class Transform {
 
   /**
    * Generates a URL of the transformation.
-   * Includes the related {@link FileLink FileLink's} policy and signature.
+   * Includes the related {@link FsFile FsFile's} policy and signature.
    *
    * @return transformation URL
    */

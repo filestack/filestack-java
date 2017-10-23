@@ -27,7 +27,7 @@ import okio.Okio;
 import retrofit2.Response;
 
 /** References and performs operations on an individual file. */
-public class FileLink {
+public class FsFile {
   private String apiKey;
   private String handle;
   private Security security;
@@ -37,9 +37,9 @@ public class FileLink {
   /**
    * Constructs an instance without security.
    *
-   * @see #FileLink(String, String, Security)
+   * @see #FsFile(String, String, Security)
    */
-  public FileLink(String apiKey, String handle) {
+  public FsFile(String apiKey, String handle) {
     this(apiKey, handle, null);
   }
 
@@ -50,7 +50,7 @@ public class FileLink {
    * @param handle   id for a file, first path segment in dev portal urls
    * @param security needs required permissions for your intended actions
    */
-  public FileLink(String apiKey, String handle, Security security) {
+  public FsFile(String apiKey, String handle, Security security) {
     this.apiKey = apiKey;
     this.handle = handle;
     this.security = security;
@@ -58,7 +58,7 @@ public class FileLink {
     this.fsService = new FsService();
   }
 
-  FileLink() {}
+  FsFile() {}
 
   /**
    * Builds new {@link FilestackClient}.
@@ -90,15 +90,15 @@ public class FileLink {
     }
 
     /**
-     * Create the {@link FileLink} using the configured values.
+     * Create the {@link FsFile} using the configured values.
      */
-    public FileLink build() {
-      FileLink fileLink = new FileLink();
-      fileLink.apiKey = apiKey;
-      fileLink.handle = handle;
-      fileLink.security = security;
-      fileLink.fsService = fsService != null ? fsService : new FsService();
-      return fileLink;
+    public FsFile build() {
+      FsFile fsFile = new FsFile();
+      fsFile.apiKey = apiKey;
+      fsFile.handle = handle;
+      fsFile.security = security;
+      fsFile.fsService = fsService != null ? fsService : new FsService();
+      return fsFile;
     }
   }
 
@@ -243,7 +243,7 @@ public class FileLink {
   }
 
   /**
-   * Determines if an image FileLink is "safe for work" using the Google Vision API.
+   * Determines if an image FsFile is "safe for work" using the Google Vision API.
    *
    * @throws HttpResponseException on error response from backend
    * @throws IOException           on network failure
@@ -378,7 +378,7 @@ public class FileLink {
   }
 
   /**
-   * Asynchronously determines if an image FileLink is "safe for work" using the Google Vision API.
+   * Asynchronously determines if an image FsFile is "safe for work" using the Google Vision API.
    *
    * @see #imageSfw()
    */

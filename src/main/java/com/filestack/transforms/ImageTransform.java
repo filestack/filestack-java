@@ -1,6 +1,6 @@
 package com.filestack.transforms;
 
-import com.filestack.FileLink;
+import com.filestack.FsFile;
 import com.filestack.FilestackClient;
 import com.filestack.HttpResponseException;
 import com.filestack.StorageOptions;
@@ -22,8 +22,8 @@ public class ImageTransform extends Transform {
     super(fsClient, source);
   }
 
-  public ImageTransform(FileLink fileLink) {
-    super(fileLink);
+  public ImageTransform(FsFile fsFile) {
+    super(fsFile);
   }
 
   /**
@@ -58,11 +58,11 @@ public class ImageTransform extends Transform {
    * Stores the result of a transformation into a new file. Uses default storage options.
    * @see <a href="https://www.filestack.com/docs/image-transformations/store"></a>
    *
-   * @return new {@link FileLink FileLink} pointing to the file
+   * @return new {@link FsFile FsFile} pointing to the file
    * @throws HttpResponseException on error response from backend
    * @throws IOException           on network failure
    */
-  public FileLink store() throws IOException {
+  public FsFile store() throws IOException {
     return store(null);
   }
 
@@ -71,11 +71,11 @@ public class ImageTransform extends Transform {
    * @see <a href="https://www.filestack.com/docs/image-transformations/store"></a>
    *
    * @param storageOptions configure where and how your file is stored
-   * @return new {@link FileLink FileLink} pointing to the file
+   * @return new {@link FsFile FsFile} pointing to the file
    * @throws HttpResponseException on error response from backend
    * @throws IOException           on network failure
    */
-  public FileLink store(StorageOptions storageOptions) throws IOException {
+  public FsFile store(StorageOptions storageOptions) throws IOException {
     if (storageOptions == null) {
       storageOptions = new StorageOptions();
     }
@@ -98,7 +98,7 @@ public class ImageTransform extends Transform {
     }
 
     String handle = body.getUrl().split("/")[3];
-    return new FileLink(apiKey, handle, security);
+    return new FsFile(apiKey, handle, security);
   }
 
   /**
@@ -135,7 +135,7 @@ public class ImageTransform extends Transform {
    * Async, observable version of {@link #store()}.
    * Same exceptions are passed through observable.
    */
-  public Single<FileLink> storeAsync() {
+  public Single<FsFile> storeAsync() {
     return storeAsync(null);
   }
 
@@ -143,10 +143,10 @@ public class ImageTransform extends Transform {
    * Async, observable version of {@link #store(StorageOptions)}.
    * Same exceptions are passed through observable.
    */
-  public Single<FileLink> storeAsync(final StorageOptions storageOptions) {
-    return Single.fromCallable(new Callable<FileLink>() {
+  public Single<FsFile> storeAsync(final StorageOptions storageOptions) {
+    return Single.fromCallable(new Callable<FsFile>() {
       @Override
-      public FileLink call() throws Exception {
+      public FsFile call() throws Exception {
         return store(storageOptions);
       }
     })

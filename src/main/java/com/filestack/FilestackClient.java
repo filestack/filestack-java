@@ -62,7 +62,7 @@ public class FilestackClient {
    *
    * @see #upload(String, boolean, StorageOptions)
    */
-  public FileLink upload(String path, boolean intelligent) throws IOException {
+  public FsFile upload(String path, boolean intelligent) throws IOException {
     return upload(path, intelligent, null);
   }
 
@@ -73,11 +73,11 @@ public class FilestackClient {
    * @param options     storage options, https://www.filestack.com/docs/rest-api/store
    * @param intelligent intelligent ingestion, setting to true to will decrease failures in very
    *                    poor network conditions at the expense of upload speed
-   * @return new {@link FileLink} referencing file
+   * @return new {@link FsFile} referencing file
    * @throws HttpResponseException on error response from backend
    * @throws IOException           on error reading file or network failure
    */
-  public FileLink upload(String path, boolean intelligent, StorageOptions options)
+  public FsFile upload(String path, boolean intelligent, StorageOptions options)
       throws IOException {
 
     try {
@@ -141,7 +141,7 @@ public class FilestackClient {
    *
    * @see #storeCloudItem(String, String, StorageOptions)
    */
-  public FileLink storeCloudItem(String providerName, String path) throws IOException {
+  public FsFile storeCloudItem(String providerName, String path) throws IOException {
     return storeCloudItem(providerName, path, null);
   }
 
@@ -154,7 +154,7 @@ public class FilestackClient {
    * @throws HttpResponseException on error response from backend
    * @throws IOException           on network failure
    */
-  public FileLink storeCloudItem(String providerName, String path, StorageOptions options)
+  public FsFile storeCloudItem(String providerName, String path, StorageOptions options)
       throws IOException {
 
     if (options == null) {
@@ -168,7 +168,7 @@ public class FilestackClient {
     JsonElement responseJson = response.body().get(providerName);
     Gson gson = new Gson();
     CloudStoreResponse storeInfo = gson.fromJson(responseJson, CloudStoreResponse.class);
-    return new FileLink(apiKey, storeInfo.getHandle(), security);
+    return new FsFile(apiKey, storeInfo.getHandle(), security);
   }
 
   /**
@@ -192,20 +192,20 @@ public class FilestackClient {
    * @see #upload(String, boolean, StorageOptions)
    * @see #uploadAsync(String, boolean, StorageOptions)
    */
-  public Flowable<Progress<FileLink>> uploadAsync(String path, boolean intelligent) {
+  public Flowable<Progress<FsFile>> uploadAsync(String path, boolean intelligent) {
     return uploadAsync(path, intelligent, null);
   }
 
   /**
    * Asynchronously uploads local file. A stream of {@link Progress} objects are emitted by the
    * returned {@link Flowable}. The final {@link Progress} object will return a new
-   * {@link FileLink} from {@link Progress#getData()}. The upload is not done until
+   * {@link FsFile} from {@link Progress#getData()}. The upload is not done until
    * {@link Progress#getData()} returns non-null.
    *
    * @see #upload(String, boolean, StorageOptions)
    */
-  public Flowable<Progress<FileLink>> uploadAsync(String path, boolean intelligent,
-                                                  StorageOptions options) {
+  public Flowable<Progress<FsFile>> uploadAsync(String path, boolean intelligent,
+                                                StorageOptions options) {
 
     if (options == null) {
       options = new StorageOptions();
@@ -269,7 +269,7 @@ public class FilestackClient {
    *
    * @see #storeCloudItem(String, String, StorageOptions)
    */
-  public Single<FileLink> storeCloudItemAsync(final String providerName, final String path) {
+  public Single<FsFile> storeCloudItemAsync(final String providerName, final String path) {
     return storeCloudItemAsync(providerName, path, null);
   }
 
@@ -278,12 +278,12 @@ public class FilestackClient {
    *
    * @see #storeCloudItem(String, String, StorageOptions)
    */
-  public Single<FileLink> storeCloudItemAsync(final String providerName, final String path,
-                                              final StorageOptions options) {
+  public Single<FsFile> storeCloudItemAsync(final String providerName, final String path,
+                                            final StorageOptions options) {
 
-    return Single.fromCallable(new Callable<FileLink>() {
+    return Single.fromCallable(new Callable<FsFile>() {
       @Override
-      public FileLink call() throws Exception {
+      public FsFile call() throws Exception {
         return storeCloudItem(providerName, path, options);
       }
     })

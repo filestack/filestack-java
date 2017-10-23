@@ -1,6 +1,6 @@
 package com.filestack.transforms;
 
-import com.filestack.FileLink;
+import com.filestack.FsFile;
 import com.filestack.FilestackClient;
 import com.filestack.util.FsCdnService;
 import com.filestack.util.FsService;
@@ -50,7 +50,7 @@ public class TestImageTransform {
   public void testDebugHandle() throws Exception {
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
     FsService mockFsService = new FsService(null, mockCdnService, null, null);
-    FileLink fileLink = new FileLink.Builder()
+    FsFile fsFile = new FsFile.Builder()
         .apiKey("apiKey")
         .handle("handle")
         .service(mockFsService)
@@ -60,7 +60,7 @@ public class TestImageTransform {
         .when(mockCdnService)
         .transformDebug("", "handle");
 
-    Assert.assertNotNull(fileLink.imageTransform().debug());
+    Assert.assertNotNull(fsFile.imageTransform().debug());
   }
 
   @Test
@@ -82,7 +82,7 @@ public class TestImageTransform {
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
     FsService mockFsService = new FsService(null, mockCdnService, null, null);
 
-    FileLink fileLink = new FileLink.Builder()
+    FsFile fsFile = new FsFile.Builder()
         .apiKey("apiKey")
         .handle("handle")
         .service(mockFsService)
@@ -96,7 +96,7 @@ public class TestImageTransform {
         .when(mockCdnService)
         .transformStore("store", "handle");
 
-    Assert.assertNotNull(fileLink.imageTransform().store());
+    Assert.assertNotNull(fsFile.imageTransform().store());
   }
 
   @Test
@@ -121,7 +121,7 @@ public class TestImageTransform {
 
   @Test(expected = NullPointerException.class)
   public void testAddNullTask() throws Exception {
-    FileLink filelink = new FileLink("apiKey", "handle");
+    FsFile filelink = new FsFile("apiKey", "handle");
     ImageTransform transform = filelink.imageTransform();
     transform.addTask(null);
   }

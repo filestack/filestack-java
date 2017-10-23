@@ -1,6 +1,6 @@
 package com.filestack.transforms;
 
-import com.filestack.FileLink;
+import com.filestack.FsFile;
 import com.filestack.HttpResponseException;
 import com.filestack.StorageOptions;
 import com.filestack.transforms.tasks.AvTransformOptions;
@@ -19,13 +19,13 @@ public class AvTransform extends Transform {
   /**
    * Constructs a new instance.
    *
-   * @param fileLink  must point to an existing audio or video resource
+   * @param fsFile  must point to an existing audio or video resource
    * @param storeOpts sets how the resulting file(s) are stored, uses defaults if null
    * @param avOps     sets conversion options
    */
-  public AvTransform(FileLink fileLink, StorageOptions storeOpts, AvTransformOptions avOps) {
+  public AvTransform(FsFile fsFile, StorageOptions storeOpts, AvTransformOptions avOps) {
 
-    super(fileLink);
+    super(fsFile);
 
     if (avOps == null) {
       throw new IllegalArgumentException("AvTransform can't be created without options");
@@ -39,15 +39,15 @@ public class AvTransform extends Transform {
   }
 
   /**
-   * Gets converted content as a new {@link FileLink}. Starts processing on first call.
+   * Gets converted content as a new {@link FsFile}. Starts processing on first call.
    * Returns null if still processing. Poll this method or use {@link #getFileLinkAsync()}.
    * If you need other data, such as thumbnails, use {@link Transform#getContentJson()}.
    *
-   * @return null if processing, new {@link FileLink} if complete
+   * @return null if processing, new {@link FsFile} if complete
    * @throws HttpResponseException on error response from backend
    * @throws IOException           on network failure
    */
-  public FileLink getFileLink() throws IOException {
+  public FsFile getFileLink() throws IOException {
     JsonObject json = getContentJson();
     String status = json.get("status").getAsString();
 
@@ -63,7 +63,7 @@ public class AvTransform extends Transform {
           return null;
         }
         String handle = url.split("/")[3];
-        return new FileLink(apiKey, handle, security);
+        return new FsFile(apiKey, handle, security);
       default:
         throw new IOException("Unexpected transform error: " + json.toString());
     }
@@ -72,33 +72,33 @@ public class AvTransform extends Transform {
   // Async method wrappers
 
   /**
-   * Asynchronously gets converted content as a new {@link FileLink}.
+   * Asynchronously gets converted content as a new {@link FsFile}.
    * Uses default 10 second polling. Use {@link #getFileLinkAsync(int)} to adjust interval.
    *
    * @see #getFileLink()
    */
-  public Single<FileLink> getFileLinkAsync() {
+  public Single<FsFile> getFileLinkAsync() {
     return getFileLinkAsync(10);
   }
 
   /**
-   * Asynchronously gets converted content as a new {@link FileLink}.
+   * Asynchronously gets converted content as a new {@link FsFile}.
    *
    * @param pollInterval how frequently to poll (in seconds)
    * @see #getFileLink()
    */
-  public Single<FileLink> getFileLinkAsync(final int pollInterval) {
-    return Single.fromCallable(new Callable<FileLink>() {
+  public Single<FsFile> getFileLinkAsync(final int pollInterval) {
+    return Single.fromCallable(new Callable<FsFile>() {
       @Override
-      public FileLink call() throws Exception {
-        FileLink fileLink = null;
-        while (fileLink == null) {
-          fileLink = getFileLink();
+      public FsFile call() throws Exception {
+        FsFile fsFile = null;
+        while (fsFile == null) {
+          fsFile = getFileLink();
           if (!Util.isUnitTest()) {
             Thread.sleep(pollInterval * 1000);
           }
         }
-        return fileLink;
+        return fsFile;
       }
     })
         .subscribeOn(Schedulers.io())

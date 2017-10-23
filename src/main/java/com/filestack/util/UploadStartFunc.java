@@ -1,6 +1,6 @@
 package com.filestack.util;
 
-import com.filestack.FileLink;
+import com.filestack.FsFile;
 import com.filestack.util.responses.StartResponse;
 import io.reactivex.Flowable;
 import java.io.File;
@@ -11,7 +11,7 @@ import retrofit2.Response;
  * Function to be passed to {@link Flowable#fromCallable(Callable)}.
  * Handles initiating a multipart upload.
  */
-public class UploadStartFunc implements Callable<Prog<FileLink>> {
+public class UploadStartFunc implements Callable<Prog<FsFile>> {
   private final Upload upload;
   
   UploadStartFunc(Upload upload) {
@@ -19,7 +19,7 @@ public class UploadStartFunc implements Callable<Prog<FileLink>> {
   }
 
   @Override
-  public Prog<FileLink> call() throws Exception {
+  public Prog<FsFile> call() throws Exception {
     // Open the file here so that any exceptions with it get passed through the observable
     // Otherwise we'd have an async method that directly throws exceptions
     File file = Util.createReadFile(upload.path);
