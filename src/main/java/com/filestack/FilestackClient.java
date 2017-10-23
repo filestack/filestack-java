@@ -93,9 +93,9 @@ public class FilestackClient {
    * @throws HttpResponseException on error response from backend
    * @throws IOException           on network failure
    */
-  public AccountInfo getAccountInfo() throws IOException {
+  public AppInfo getAppInfo() throws IOException {
     JsonObject params = makeCloudParams();
-    Response<AccountInfo> response = fsService.cloud().prefetch(params).execute();
+    Response<AppInfo> response = fsService.cloud().prefetch(params).execute();
     Util.checkResponseAndThrow(response);
     return response.body();
   }
@@ -223,13 +223,13 @@ public class FilestackClient {
   /**
    * Asynchronously get basic account info for this client's API key.
    *
-   * @see #getAccountInfo()
+   * @see #getAppInfo()
    */
-  public Single<AccountInfo> getAccountInfoAsync() {
-    return Single.fromCallable(new Callable<AccountInfo>() {
+  public Single<AppInfo> getAppInfoAsync() {
+    return Single.fromCallable(new Callable<AppInfo>() {
       @Override
-      public AccountInfo call() throws Exception {
-        return getAccountInfo();
+      public AppInfo call() throws Exception {
+        return getAppInfo();
       }
     })
         .subscribeOn(Schedulers.io())
