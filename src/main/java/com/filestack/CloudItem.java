@@ -9,6 +9,21 @@ public class CloudItem {
   private long bytes;
   private boolean folder;
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+
+    if (!(obj instanceof CloudItem)) {
+      return false;
+    }
+
+    CloudItem item = (CloudItem) obj;
+
+    return this.getPath().equals(item.getPath());
+  }
+
   public String getName() {
     return name;
   }
