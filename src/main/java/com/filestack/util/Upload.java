@@ -1,7 +1,7 @@
 package com.filestack.util;
 
+import com.filestack.FsClient;
 import com.filestack.FsFile;
-import com.filestack.FilestackClient;
 import com.filestack.Progress;
 import com.filestack.Security;
 import com.filestack.StorageOptions;
@@ -38,7 +38,7 @@ public class Upload {
 
   /** Constructs new instance. */
   public Upload(String path, boolean intelligent, StorageOptions options,
-                FilestackClient fsClient, FsService fsService) {
+                FsClient fsClient, FsService fsService) {
 
     this.path = path;
     mediaType = options.getMediaType();

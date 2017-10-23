@@ -18,7 +18,7 @@ import java.util.concurrent.Callable;
 import retrofit2.Response;
 
 /** Uploads new files. */
-public class FilestackClient {
+public class FsClient {
   private String apiKey;
   private Security security;
   private FsService fsService;
@@ -30,7 +30,7 @@ public class FilestackClient {
    *
    * @param apiKey account key from the dev portal
    */
-  public FilestackClient(String apiKey) {
+  public FsClient(String apiKey) {
     this(apiKey, null);
   }
 
@@ -40,7 +40,7 @@ public class FilestackClient {
    * @param apiKey   account key from the dev portal
    * @param security configured security object
    */
-  public FilestackClient(String apiKey, Security security) {
+  public FsClient(String apiKey, Security security) {
     this(apiKey, security, null);
   }
 
@@ -51,7 +51,7 @@ public class FilestackClient {
    * @param security  configured security object
    * @param fsService service to use for API calls, overrides default singleton
    */
-  public FilestackClient(String apiKey, Security security, FsService fsService) {
+  public FsClient(String apiKey, Security security, FsService fsService) {
     this.apiKey = apiKey;
     this.security = security;
     this.fsService = fsService != null ? fsService : new FsService();

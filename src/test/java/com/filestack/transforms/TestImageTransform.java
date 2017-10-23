@@ -1,7 +1,7 @@
 package com.filestack.transforms;
 
+import com.filestack.FsClient;
 import com.filestack.FsFile;
-import com.filestack.FilestackClient;
 import com.filestack.util.FsCdnService;
 import com.filestack.util.FsService;
 import com.filestack.util.responses.StoreResponse;
@@ -68,7 +68,7 @@ public class TestImageTransform {
     String url = "https://example.com/image.jpg";
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
     FsService mockFsService = new FsService(null, mockCdnService, null, null);
-    FilestackClient client = new FilestackClient("apiKey", null, mockFsService);
+    FsClient client = new FsClient("apiKey", null, mockFsService);
 
     Mockito.doReturn(Calls.response(new JsonObject()))
         .when(mockCdnService)
@@ -104,7 +104,7 @@ public class TestImageTransform {
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
     FsService mockFsService = new FsService(null, mockCdnService, null, null);
 
-    FilestackClient client = new FilestackClient("apiKey", null, mockFsService);
+    FsClient client = new FsClient("apiKey", null, mockFsService);
 
     String jsonString = "{'url': 'https://cdn.filestackcontent.com/handle'}";
     Gson gson = new Gson();

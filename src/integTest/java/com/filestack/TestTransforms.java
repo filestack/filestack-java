@@ -23,7 +23,7 @@ public class TestTransforms {
 
   @Test
   public void testImageTransform() throws Exception {
-    FilestackClient client = new FilestackClient(API_KEY, SECURITY);
+    FsClient client = new FsClient(API_KEY, SECURITY);
 
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     String origPath = loader.getResource("com/filestack/sample_image.jpg").getPath();
@@ -47,7 +47,7 @@ public class TestTransforms {
 
   @Test
   public void testAvTransform() throws Exception {
-    FilestackClient client = new FilestackClient(API_KEY, SECURITY);
+    FsClient client = new FsClient(API_KEY, SECURITY);
 
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     String oggPath = loader.getResource("com/filestack/sample_music.ogg").getPath();

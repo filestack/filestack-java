@@ -41,7 +41,7 @@ public class TestBasicFunctions {
 
   @Test
   public void testUpload() throws Exception {
-    FilestackClient client = new FilestackClient(API_KEY, SECURITY);
+    FsClient client = new FsClient(API_KEY, SECURITY);
 
     String uuid = UUID.randomUUID().toString();
     File file = createRandomFile(uuid, 15L * 1024 * 1024);
@@ -56,7 +56,7 @@ public class TestBasicFunctions {
 
   @Test
   public void testGetContent() throws Exception {
-    FilestackClient client = new FilestackClient(API_KEY, SECURITY);
+    FsClient client = new FsClient(API_KEY, SECURITY);
 
     String uuid = UUID.randomUUID().toString();
     File file = createRandomFile(uuid);
@@ -73,7 +73,7 @@ public class TestBasicFunctions {
 
   @Test
   public void testDownload() throws Exception {
-    FilestackClient client = new FilestackClient(API_KEY, SECURITY);
+    FsClient client = new FsClient(API_KEY, SECURITY);
 
     String uploadUuid = UUID.randomUUID().toString();
     File uploadFile = createRandomFile(uploadUuid);
@@ -96,7 +96,7 @@ public class TestBasicFunctions {
 
   @Test
   public void testOverwrite() throws Exception {
-    FilestackClient client = new FilestackClient(API_KEY, SECURITY);
+    FsClient client = new FsClient(API_KEY, SECURITY);
 
     String uploadUuid = UUID.randomUUID().toString();
     File uploadFile = createRandomFile(uploadUuid);
@@ -119,7 +119,7 @@ public class TestBasicFunctions {
 
   @Test
   public void testDelete() throws Exception {
-    FilestackClient client = new FilestackClient(API_KEY, SECURITY);
+    FsClient client = new FsClient(API_KEY, SECURITY);
 
     String uploadUuid = UUID.randomUUID().toString();
     File uploadFile = createRandomFile(uploadUuid);

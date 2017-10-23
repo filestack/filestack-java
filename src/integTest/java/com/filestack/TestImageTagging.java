@@ -18,7 +18,7 @@ public class TestImageTagging {
 
   @Test
   public void testImageTags() throws Exception {
-    FilestackClient client = new FilestackClient(API_KEY, SECURITY);
+    FsClient client = new FsClient(API_KEY, SECURITY);
 
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     String origPath = loader.getResource("com/filestack/sample_image.jpg").getPath();
@@ -33,7 +33,7 @@ public class TestImageTagging {
 
   @Test
   public void testImageSfw() throws Exception {
-    FilestackClient client = new FilestackClient(API_KEY, SECURITY);
+    FsClient client = new FsClient(API_KEY, SECURITY);
 
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     String origPath = loader.getResource("com/filestack/sample_image.jpg").getPath();

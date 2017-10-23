@@ -61,7 +61,7 @@ public class FsFile {
   FsFile() {}
 
   /**
-   * Builds new {@link FilestackClient}.
+   * Builds new {@link FsClient}.
    */
   public static class Builder {
     private String apiKey;

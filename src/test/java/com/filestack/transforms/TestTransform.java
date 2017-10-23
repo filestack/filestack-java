@@ -1,7 +1,7 @@
 package com.filestack.transforms;
 
+import com.filestack.FsClient;
 import com.filestack.FsFile;
-import com.filestack.FilestackClient;
 import com.filestack.Policy;
 import com.filestack.Security;
 import com.filestack.util.FsCdnService;
@@ -43,7 +43,7 @@ public class TestTransform {
 
   @Test
   public void testUrlExternal() {
-    FilestackClient client = new FilestackClient("apiKey");
+    FsClient client = new FsClient("apiKey");
 
     String sourceUrl = "https://example.com/image.jpg";
     Transform transform = new Transform(client, sourceUrl);
@@ -100,7 +100,7 @@ public class TestTransform {
         .when(mockCdnService)
         .transformExt("apiKey", "task", "https://example.com/");
 
-    FilestackClient client = new FilestackClient("apiKey", null, mockFsService);
+    FsClient client = new FsClient("apiKey", null, mockFsService);
 
     Transform transform = new Transform(client, "https://example.com/");
     transform.tasks.add(new TransformTask("task"));

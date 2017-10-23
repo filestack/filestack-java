@@ -1,7 +1,7 @@
 package com.filestack.transforms;
 
+import com.filestack.FsClient;
 import com.filestack.FsFile;
-import com.filestack.FilestackClient;
 import com.filestack.HttpResponseException;
 import com.filestack.Security;
 import com.filestack.util.FsService;
@@ -29,7 +29,7 @@ public class Transform {
 
   FsService fsService;
 
-  Transform(FilestackClient fsClient, String url) {
+  Transform(FsClient fsClient, String url) {
     this(fsClient, null, url);
   }
 
@@ -37,7 +37,7 @@ public class Transform {
     this(null, fsFile, null);
   }
 
-  Transform(FilestackClient fsClient, FsFile fsFile, String url) {
+  Transform(FsClient fsClient, FsFile fsFile, String url) {
     if (fsClient != null) {
       this.apiKey = fsClient.getApiKey();
       this.source = url;

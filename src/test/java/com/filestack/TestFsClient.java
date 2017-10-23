@@ -29,9 +29,9 @@ import retrofit2.Response;
 import retrofit2.mock.Calls;
 
 /**
- * Tests {@link FilestackClient FilestackClient} class.
+ * Tests {@link FsClient FsClient} class.
  */
-public class TestFilestackClient {
+public class TestFsClient {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -143,8 +143,8 @@ public class TestFilestackClient {
     Policy policy = new Policy.Builder().giveFullAccess().build();
     Security security = Security.createNew(policy, "app_secret");
 
-    FilestackClient client1 = new FilestackClient("apiKey");
-    FilestackClient client2 = new FilestackClient("apiKey", security);
+    FsClient client1 = new FsClient("apiKey");
+    FsClient client2 = new FsClient("apiKey", security);
   }
 
   @Test
@@ -152,7 +152,7 @@ public class TestFilestackClient {
     Policy policy = new Policy.Builder().giveFullAccess().build();
     Security security = Security.createNew(policy, "app_secret");
 
-    FilestackClient client = new FilestackClient("apiKey", security);
+    FsClient client = new FsClient("apiKey", security);
     thrown.expect(FileNotFoundException.class);
     client.upload("/does_not_exist.txt", true);
   }
@@ -171,7 +171,7 @@ public class TestFilestackClient {
     Security security = Security.createNew(policy, "app_secret");
 
     FsService mockFsService = new FsService(null, null, mockUploadService, null);
-    FilestackClient client = new FilestackClient("apiKey", security, mockFsService);
+    FsClient client = new FsClient("apiKey", security, mockFsService);
 
     Path path = createRandomFile(10 * 1024 * 1024);
 

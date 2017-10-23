@@ -1,7 +1,7 @@
 package com.filestack.transforms;
 
+import com.filestack.FsClient;
 import com.filestack.FsFile;
-import com.filestack.FilestackClient;
 import com.filestack.HttpResponseException;
 import com.filestack.StorageOptions;
 import com.filestack.util.Util;
@@ -18,7 +18,7 @@ import retrofit2.Response;
  */
 public class ImageTransform extends Transform {
 
-  public ImageTransform(FilestackClient fsClient, String source) {
+  public ImageTransform(FsClient fsClient, String source) {
     super(fsClient, source);
   }
 
