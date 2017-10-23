@@ -106,7 +106,7 @@ public class FsFile {
    * Returns the content of a file.
    *
    * @return byte[] of file content
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
   public ResponseBody getContent() throws IOException {
@@ -135,7 +135,7 @@ public class FsFile {
    *
    * @param directory location to save the file in
    * @param filename  local name for the file
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on error creating file or network failure
    */
   public File download(String directory, String filename) throws IOException {
@@ -171,7 +171,7 @@ public class FsFile {
    * Does not update the filename or MIME type.
    *
    * @param pathname path to the file, can be local or absolute
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on error reading file or network failure
    */
   public void overwrite(String pathname) throws IOException {
@@ -195,7 +195,7 @@ public class FsFile {
   /**
    * Deletes a file handle. Requires security to be set.
    *
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
   public void delete() throws IOException {
@@ -224,7 +224,7 @@ public class FsFile {
   /**
    * Returns tags from the Google Vision API for image FileLinks.
    *
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    *
    * @see <a href="https://www.filestack.com/docs/tagging"></a>
@@ -245,7 +245,7 @@ public class FsFile {
   /**
    * Determines if an image FsFile is "safe for work" using the Google Vision API.
    *
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    *
    * @see <a href="https://www.filestack.com/docs/tagging"></a>

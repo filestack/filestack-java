@@ -74,7 +74,7 @@ public class FsClient {
    * @param intelligent intelligent ingestion, setting to true to will decrease failures in very
    *                    poor network conditions at the expense of upload speed
    * @return new {@link FsFile} referencing file
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on error reading file or network failure
    */
   public FsFile upload(String path, boolean intelligent, StorageOptions options)
@@ -90,7 +90,7 @@ public class FsClient {
   /**
    * Gets basic account info for this client's API key.
    *
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
   public AppInfo getAppInfo() throws IOException {
@@ -116,7 +116,7 @@ public class FsClient {
    * @param providerName one of the static CLOUD constants in this class
    * @param next         pagination token returned in previous response
    *
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
   public CloudResponse getCloudItems(String providerName, String path, String next)
@@ -151,7 +151,7 @@ public class FsClient {
    * @param providerName one of the static CLOUD constants in this class
    * @param options      storage options for how to save the file in Filestack
    * @return             new filelink
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
   public FsFile storeCloudItem(String providerName, String path, StorageOptions options)
@@ -175,7 +175,7 @@ public class FsClient {
    * Logs out from specified cloud.
    *
    * @param providerName one of the static CLOUD constants in this class
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
   public void logoutCloud(String providerName) throws IOException {

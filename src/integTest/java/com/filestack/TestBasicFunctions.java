@@ -129,7 +129,7 @@ public class TestBasicFunctions {
 
     fsFile.delete();
 
-    thrown.expect(HttpResponseException.class);
+    thrown.expect(HttpException.class);
     fsFile.getContent();
   }
 

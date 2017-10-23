@@ -1,7 +1,7 @@
 package com.filestack.transforms;
 
 import com.filestack.FsFile;
-import com.filestack.HttpResponseException;
+import com.filestack.HttpException;
 import com.filestack.StorageOptions;
 import com.filestack.transforms.tasks.AvTransformOptions;
 import com.filestack.util.Util;
@@ -44,7 +44,7 @@ public class AvTransform extends Transform {
    * If you need other data, such as thumbnails, use {@link Transform#getContentJson()}.
    *
    * @return null if processing, new {@link FsFile} if complete
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
   public FsFile getFileLink() throws IOException {

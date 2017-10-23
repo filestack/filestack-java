@@ -2,7 +2,7 @@ package com.filestack.transforms;
 
 import com.filestack.FsClient;
 import com.filestack.FsFile;
-import com.filestack.HttpResponseException;
+import com.filestack.HttpException;
 import com.filestack.Security;
 import com.filestack.util.FsService;
 import com.filestack.util.Util;
@@ -101,7 +101,7 @@ public class Transform {
    * Returns the content of a transformation.
    *
    * @return raw transformation content, streamable
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
   public ResponseBody getContent() throws IOException {

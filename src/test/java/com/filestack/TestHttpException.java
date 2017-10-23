@@ -3,12 +3,12 @@ package com.filestack;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestHttpResponseException {
+public class TestHttpException {
 
   @Test
   public void testCode() {
     int code = 400;
-    HttpResponseException exception = new HttpResponseException(code);
+    HttpException exception = new HttpException(code);
     Assert.assertEquals(400, exception.getCode());
     Assert.assertNull(exception.getMessage());
   }
@@ -17,7 +17,7 @@ public class TestHttpResponseException {
   public void testCodeMessage() {
     int code = 400;
     String message = "Error description... ";
-    HttpResponseException exception = new HttpResponseException(code, message);
+    HttpException exception = new HttpException(code, message);
     Assert.assertEquals(400, exception.getCode());
     Assert.assertEquals(message, exception.getMessage());
   }

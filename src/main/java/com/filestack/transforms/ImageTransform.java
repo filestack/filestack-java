@@ -2,7 +2,7 @@ package com.filestack.transforms;
 
 import com.filestack.FsClient;
 import com.filestack.FsFile;
-import com.filestack.HttpResponseException;
+import com.filestack.HttpException;
 import com.filestack.StorageOptions;
 import com.filestack.util.Util;
 import com.filestack.util.responses.StoreResponse;
@@ -31,7 +31,7 @@ public class ImageTransform extends Transform {
    * @see <a href="https://www.filestack.com/docs/image-transformations/debug"></a>
    *
    * @return {@link JsonObject JSON} report for transformation
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
   public JsonObject debug() throws IOException {
@@ -59,7 +59,7 @@ public class ImageTransform extends Transform {
    * @see <a href="https://www.filestack.com/docs/image-transformations/store"></a>
    *
    * @return new {@link FsFile FsFile} pointing to the file
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
   public FsFile store() throws IOException {
@@ -72,7 +72,7 @@ public class ImageTransform extends Transform {
    *
    * @param storageOptions configure where and how your file is stored
    * @return new {@link FsFile FsFile} pointing to the file
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
   public FsFile store(StorageOptions storageOptions) throws IOException {

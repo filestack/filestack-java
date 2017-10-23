@@ -1,6 +1,6 @@
 package com.filestack.util;
 
-import com.filestack.HttpResponseException;
+import com.filestack.HttpException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -28,7 +28,7 @@ public class TestUtil extends Util {
     try {
       Util.checkResponseAndThrow(response);
       Assert.fail("Should have thrown exception");
-    } catch (HttpResponseException e) {
+    } catch (HttpException e) {
       Assert.assertEquals(code, e.getCode());
       Assert.assertEquals(message, e.getMessage());
     } catch (IOException e) {
