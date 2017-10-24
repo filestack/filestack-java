@@ -32,62 +32,65 @@ public class FsClient {
   /**
    * Builds new {@link FsFile}.
    */
-  public static class Builder {
-    private FsService fsService;
-    private Scheduler subScheduler;
-    private Scheduler obsScheduler;
-    private Security security;
-    private String apiKey;
-    private String sessionToken;
-    private String returnUrl;
+  @SuppressWarnings("unchecked")
+  public static class Builder<T extends Builder<T>> {
+    protected FsService fsService;
+    protected Scheduler subScheduler;
+    protected Scheduler obsScheduler;
+    protected Security security;
+    protected String apiKey;
+    protected String sessionToken;
+    protected String returnUrl;
 
-    public Builder fsService(FsService fsService) {
+    public T fsService(FsService fsService) {
       this.fsService = fsService;
-      return this;
+      return (T) this;
     }
 
-    public Builder subScheduler(Scheduler subScheduler) {
+    public T subScheduler(Scheduler subScheduler) {
       this.subScheduler = subScheduler;
-      return this;
+      return (T) this;
     }
 
-    public Builder obsScheduler(Scheduler obsScheduler) {
+    public T obsScheduler(Scheduler obsScheduler) {
       this.obsScheduler = obsScheduler;
-      return this;
+      return (T) this;
     }
 
-    public Builder security(Security security) {
+    public T security(Security security) {
       this.security = security;
-      return this;
+      return (T) this;
     }
 
-    public Builder apiKey(String apiKey) {
+    public T apiKey(String apiKey) {
       this.apiKey = apiKey;
-      return this;
+      return (T) this;
     }
 
-    public Builder sessionToken(String sessionToken) {
+    public T sessionToken(String sessionToken) {
       this.sessionToken = sessionToken;
-      return this;
+      return (T) this;
     }
 
-    public Builder returnUrl(String returnUrl) {
+    public T returnUrl(String returnUrl) {
       this.returnUrl = returnUrl;
-      return this;
+      return (T) this;
     }
 
     /**
      * Create the {@link FsFile} using the configured values.
      */
     public FsClient build() {
+      subScheduler = subScheduler != null ? subScheduler : Schedulers.io();
+      obsScheduler = obsScheduler != null ? obsScheduler : Schedulers.single();
       return new FsClient(this);
     }
   }
 
-  protected FsClient(Builder builder) {
+  protected FsClient(Builder<?> builder) {
     fsService = builder.fsService != null ? builder.fsService : new FsService();
-    subScheduler = builder.subScheduler != null ? builder.subScheduler : Schedulers.io();
-    obsScheduler = builder.obsScheduler != null ? builder.obsScheduler : Schedulers.single();
+    subScheduler = builder.subScheduler;
+    obsScheduler = builder.obsScheduler;
     security = builder.security;
     apiKey = builder.apiKey;
     sessionToken = builder.sessionToken;
