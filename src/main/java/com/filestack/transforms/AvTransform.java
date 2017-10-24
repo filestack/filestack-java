@@ -16,23 +16,15 @@ import java.util.concurrent.Callable;
  */
 public class AvTransform extends Transform {
 
-  /**
-   * Constructs a new instance.
-   *
-   * @param fsFile  must point to an existing audio or video resource
-   * @param storeOpts sets how the resulting file(s) are stored, uses defaults if null
-   * @param avOps     sets conversion options
-   */
-  public AvTransform(FsFile fsFile, StorageOptions storeOpts, AvTransformOptions avOps) {
-
+  public AvTransform(FsFile fsFile, StorageOptions storeOps, AvTransformOptions avOps) {
     super(fsFile);
 
     if (avOps == null) {
       throw new IllegalArgumentException("AvTransform can't be created without options");
     }
 
-    if (storeOpts != null) {
-      tasks.add(TransformTask.merge("video_convert", storeOpts.getAsTask(), avOps));
+    if (storeOps != null) {
+      tasks.add(TransformTask.merge("video_convert", storeOps.getAsTask(), avOps));
     } else {
       tasks.add(avOps);
     }
@@ -63,7 +55,7 @@ public class AvTransform extends Transform {
           return null;
         }
         String handle = url.split("/")[3];
-        return new FsFile(apiKey, handle, security);
+        return new FsFile(fsClient, handle);
       default:
         throw new IOException("Unexpected transform error: " + json.toString());
     }
@@ -101,7 +93,7 @@ public class AvTransform extends Transform {
         return fsFile;
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(fsClient.getSubScheduler())
+        .observeOn(fsClient.getObsScheduler());
   }
 }

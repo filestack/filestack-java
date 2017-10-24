@@ -32,8 +32,8 @@ public class TestTransform {
 
   @Test
   public void testUrlHandle() {
-    FsFile fsFile = new FsFile("apiKey", "handle");
-
+    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").build();
+    FsFile fsFile = new FsFile(fsClient, "handle");
     Transform transform = new Transform(fsFile);
     transform.tasks.add(TASK);
 
@@ -43,10 +43,9 @@ public class TestTransform {
 
   @Test
   public void testUrlExternal() {
-    FsClient client = new FsClient("apiKey");
-
+    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").build();
     String sourceUrl = "https://example.com/image.jpg";
-    Transform transform = new Transform(client, sourceUrl);
+    Transform transform = new Transform(fsClient, sourceUrl);
     transform.tasks.add(TASK);
 
     String correctUrl = FsCdnService.URL + "apiKey/" + TASK_STRING + "/" + sourceUrl;
@@ -55,8 +54,8 @@ public class TestTransform {
 
   @Test
   public void testUrlSecurity() {
-    FsFile fsFile = new FsFile("apikey", "handle", SECURITY);
-
+    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").security(SECURITY).build();
+    FsFile fsFile = new FsFile(fsClient, "handle");
     Transform transform = new Transform(fsFile);
     transform.tasks.add(TASK);
 
@@ -67,8 +66,8 @@ public class TestTransform {
 
   @Test
   public void testUrlMultipleTasks() {
-    FsFile fsFile = new FsFile("apikey", "handle");
-
+    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").build();
+    FsFile fsFile = new FsFile(fsClient, "handle");
     Transform transform = new Transform(fsFile);
     transform.tasks.add(TASK);
     transform.tasks.add(TASK);
@@ -79,8 +78,8 @@ public class TestTransform {
 
   @Test
   public void testUrlTaskWithoutOptions() {
-    FsFile fsFile = new FsFile("apikey", "handle");
-
+    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").build();
+    FsFile fsFile = new FsFile(fsClient, "handle");
     Transform transform = new Transform(fsFile);
     transform.tasks.add(new TransformTask("task"));
 
@@ -100,9 +99,12 @@ public class TestTransform {
         .when(mockCdnService)
         .transformExt("apiKey", "task", "https://example.com/");
 
-    FsClient client = new FsClient("apiKey", null, mockFsService);
+    FsClient fsClient = new FsClient.Builder()
+        .apiKey("apiKey")
+        .fsService(mockFsService)
+        .build();
+    Transform transform = new Transform(fsClient, "https://example.com/");
 
-    Transform transform = new Transform(client, "https://example.com/");
     transform.tasks.add(new TransformTask("task"));
 
     Assert.assertEquals("Test Response", transform.getContent().string());
@@ -120,13 +122,13 @@ public class TestTransform {
         .when(mockCdnService)
         .transform("task", "handle");
 
-    FsFile fsFile = new FsFile.Builder()
+    FsClient fsClient = new FsClient.Builder()
         .apiKey("apiKey")
-        .handle("handle")
-        .service(mockFsService)
+        .fsService(mockFsService)
         .build();
-
+    FsFile fsFile = new FsFile(fsClient, "handle");
     Transform transform = new Transform(fsFile);
+
     transform.tasks.add(new TransformTask("task"));
 
     Assert.assertEquals("Test Response", transform.getContent().string());
@@ -148,11 +150,11 @@ public class TestTransform {
         .when(mockCdnService)
         .transform("task", "handle");
 
-    FsFile fsFile = new FsFile.Builder()
+    FsClient fsClient = new FsClient.Builder()
         .apiKey("apiKey")
-        .handle("handle")
-        .service(mockFsService)
+        .fsService(mockFsService)
         .build();
+    FsFile fsFile = new FsFile(fsClient, "handle");
 
     Transform transform = new Transform(fsFile);
     transform.tasks.add(new TransformTask("task"));

@@ -18,12 +18,12 @@ import retrofit2.Response;
  */
 public class ImageTransform extends Transform {
 
-  public ImageTransform(FsClient fsClient, String source) {
-    super(fsClient, source);
-  }
-
   public ImageTransform(FsFile fsFile) {
     super(fsFile);
+  }
+
+  public ImageTransform(FsClient fsClient, String url) {
+    super(fsClient, url);
   }
 
   /**
@@ -38,10 +38,16 @@ public class ImageTransform extends Transform {
     String tasksString = getTasksString();
 
     Response<JsonObject> response;
-    if (apiKey != null) {
-      response = fsService.cdn().transformDebugExt(apiKey, tasksString, source).execute();
+    if (isExternal) {
+      response = fsClient.getFsService()
+          .cdn()
+          .transformDebugExt(fsClient.getApiKey(), tasksString, source)
+          .execute();
     } else {
-      response = fsService.cdn().transformDebug(tasksString, source).execute();
+      response = fsClient.getFsService()
+          .cdn()
+          .transformDebug(tasksString, source)
+          .execute();
     }
 
     Util.checkResponseAndThrow(response);
@@ -84,10 +90,16 @@ public class ImageTransform extends Transform {
 
     Response<StoreResponse> response;
     String tasksString = getTasksString();
-    if (apiKey != null) {
-      response = fsService.cdn().transformStoreExt(apiKey, tasksString, source).execute();
+    if (isExternal) {
+      response = fsClient.getFsService()
+          .cdn()
+          .transformStoreExt(fsClient.getApiKey(), tasksString, source)
+          .execute();
     } else {
-      response = fsService.cdn().transformStore(tasksString, source).execute();
+      response = fsClient.getFsService()
+          .cdn()
+          .transformStore(tasksString, source)
+          .execute();
     }
 
     Util.checkResponseAndThrow(response);
@@ -98,7 +110,7 @@ public class ImageTransform extends Transform {
     }
 
     String handle = body.getUrl().split("/")[3];
-    return new FsFile(apiKey, handle, security);
+    return new FsFile(fsClient, handle);
   }
 
   /**
@@ -127,8 +139,8 @@ public class ImageTransform extends Transform {
         return debug();
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(fsClient.getSubScheduler())
+        .observeOn(fsClient.getObsScheduler());
   }
 
   /**
@@ -150,7 +162,7 @@ public class ImageTransform extends Transform {
         return store(storageOptions);
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(fsClient.getSubScheduler())
+        .observeOn(fsClient.getObsScheduler());
   }
 }

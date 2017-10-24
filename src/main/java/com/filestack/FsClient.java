@@ -10,6 +10,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.functions.Action;
 import io.reactivex.schedulers.Schedulers;
@@ -19,42 +20,78 @@ import retrofit2.Response;
 
 /** Uploads new files. */
 public class FsClient {
-  private String apiKey;
-  private Security security;
-  private FsService fsService;
-  private String returnUrl;
+  protected final FsService fsService;
+  protected final Scheduler subScheduler;
+  protected final Scheduler obsScheduler;
+  protected final Security security;
+  protected final String apiKey;
+  protected final String returnUrl;
+  
   private String sessionToken;
 
   /**
-   * Constructs a client without security.
-   *
-   * @param apiKey account key from the dev portal
+   * Builds new {@link FsFile}.
    */
-  public FsClient(String apiKey) {
-    this(apiKey, null);
+  public static class Builder {
+    private FsService fsService;
+    private Scheduler subScheduler;
+    private Scheduler obsScheduler;
+    private Security security;
+    private String apiKey;
+    private String sessionToken;
+    private String returnUrl;
+
+    public Builder fsService(FsService fsService) {
+      this.fsService = fsService;
+      return this;
+    }
+
+    public Builder subScheduler(Scheduler subScheduler) {
+      this.subScheduler = subScheduler;
+      return this;
+    }
+
+    public Builder obsScheduler(Scheduler obsScheduler) {
+      this.obsScheduler = obsScheduler;
+      return this;
+    }
+
+    public Builder security(Security security) {
+      this.security = security;
+      return this;
+    }
+
+    public Builder apiKey(String apiKey) {
+      this.apiKey = apiKey;
+      return this;
+    }
+
+    public Builder sessionToken(String sessionToken) {
+      this.sessionToken = sessionToken;
+      return this;
+    }
+
+    public Builder returnUrl(String returnUrl) {
+      this.returnUrl = returnUrl;
+      return this;
+    }
+
+    /**
+     * Create the {@link FsFile} using the configured values.
+     */
+    public FsClient build() {
+      return new FsClient(this);
+    }
   }
 
-  /**
-   * Constructs a client with security.
-   *
-   * @param apiKey   account key from the dev portal
-   * @param security configured security object
-   */
-  public FsClient(String apiKey, Security security) {
-    this(apiKey, security, null);
-  }
-
-  /**
-   * Constructs a client using custom {@link FsService}. For internal use.
-   *
-   * @param apiKey    account key from the dev portal
-   * @param security  configured security object
-   * @param fsService service to use for API calls, overrides default singleton
-   */
-  public FsClient(String apiKey, Security security, FsService fsService) {
-    this.apiKey = apiKey;
-    this.security = security;
-    this.fsService = fsService != null ? fsService : new FsService();
+  protected FsClient(Builder builder) {
+    fsService = builder.fsService != null ? builder.fsService : new FsService();
+    subScheduler = builder.subScheduler != null ? builder.subScheduler : Schedulers.io();
+    obsScheduler = builder.obsScheduler != null ? builder.obsScheduler : Schedulers.single();
+    security = builder.security;
+    apiKey = builder.apiKey;
+    sessionToken = builder.sessionToken;
+    returnUrl = builder.returnUrl;
   }
 
   /**
@@ -88,7 +125,7 @@ public class FsClient {
   }
 
   /**
-   * Gets basic account info for this client's API key.
+   * Gets basic account info for this fsClient's API key.
    *
    * @throws HttpException on error response from backend
    * @throws IOException           on network failure
@@ -168,7 +205,7 @@ public class FsClient {
     JsonElement responseJson = response.body().get(providerName);
     Gson gson = new Gson();
     CloudStoreResponse storeInfo = gson.fromJson(responseJson, CloudStoreResponse.class);
-    return new FsFile(apiKey, storeInfo.getHandle(), security);
+    return new FsFile(this, storeInfo.getHandle());
   }
 
   /**
@@ -216,12 +253,12 @@ public class FsClient {
       options = options.newBuilder().contentType(contentType).build();
     }
 
-    Upload upload = new Upload(path, intelligent, options, this, fsService);
+    Upload upload = new Upload(this, path, intelligent, options);
     return upload.runAsync();
   }
 
   /**
-   * Asynchronously get basic account info for this client's API key.
+   * Asynchronously get basic account info for this fsClient's API key.
    *
    * @see #getAppInfo()
    */
@@ -232,8 +269,8 @@ public class FsClient {
         return getAppInfo();
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(subScheduler)
+        .observeOn(obsScheduler);
   }
 
   /**
@@ -259,8 +296,8 @@ public class FsClient {
         return getCloudItems(providerName, path, next);
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(subScheduler)
+        .observeOn(obsScheduler);
   }
 
   /**
@@ -287,8 +324,8 @@ public class FsClient {
         return storeCloudItem(providerName, path, options);
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(subScheduler)
+        .observeOn(obsScheduler);
   }
 
   /**
@@ -303,8 +340,8 @@ public class FsClient {
         logoutCloud(providerName);
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(subScheduler)
+        .observeOn(obsScheduler);
   }
 
   /**
@@ -322,7 +359,7 @@ public class FsClient {
   }
 
   /**
-   * Creates a {@link JsonObject} with this client's config.
+   * Creates a {@link JsonObject} with this fsClient's config.
    */
   protected JsonObject makeCloudParams() {
     JsonObject json = new JsonObject();
@@ -340,14 +377,14 @@ public class FsClient {
   }
 
   /**
-   * Creates a {@link JsonObject} with this client's config. Adds provider info.
+   * Creates a {@link JsonObject} with this fsClient's config. Adds provider info.
    */
   protected JsonObject makeCloudParams(String providerName, String path) {
     return makeCloudParams(providerName, path, null);
   }
 
   /**
-   * Creates a {@link JsonObject} with this client's config. Adds provider info with next token.
+   * Creates a {@link JsonObject} with this fsClient's config. Adds provider info with next token.
    */
   protected JsonObject makeCloudParams(String providerName, String path, String next) {
     JsonObject provider = new JsonObject();
@@ -362,6 +399,18 @@ public class FsClient {
     return base;
   }
 
+  public FsService getFsService() {
+    return fsService;
+  }
+
+  public Scheduler getSubScheduler() {
+    return subScheduler;
+  }
+
+  public Scheduler getObsScheduler() {
+    return obsScheduler;
+  }
+
   public String getApiKey() {
     return apiKey;
   }
@@ -370,17 +419,12 @@ public class FsClient {
     return security;
   }
 
-  public FsService getFsService() {
-    return fsService;
-  }
-
-  // TODO remove this and setup builder
-  public void setReturnUrl(String returnUrl) {
-    this.returnUrl = returnUrl;
-  }
-
   public String getSessionToken() {
     return sessionToken;
+  }
+
+  public String getReturnUrl() {
+    return returnUrl;
   }
 
   public void setSessionToken(String sessionToken) {

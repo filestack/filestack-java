@@ -13,6 +13,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
+
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -139,12 +141,28 @@ public class TestFsClient {
   }
 
   @Test
-  public void testConstructors() {
+  public void testBuilder() {
     Policy policy = new Policy.Builder().giveFullAccess().build();
     Security security = Security.createNew(policy, "app_secret");
+    FsService fsService = new FsService();
 
-    FsClient client1 = new FsClient("apiKey");
-    FsClient client2 = new FsClient("apiKey", security);
+    FsClient fsClient = new FsClient.Builder()
+        .fsService(fsService)
+        .subScheduler(Schedulers.io())
+        .obsScheduler(Schedulers.single())
+        .security(security)
+        .apiKey("apiKey")
+        .sessionToken("sessionToken")
+        .returnUrl("returnUrl")
+        .build();
+
+    Assert.assertSame(fsService, fsClient.fsService);
+    Assert.assertSame(Schedulers.io(), fsClient.getSubScheduler());
+    Assert.assertSame(Schedulers.single(), fsClient.getObsScheduler());
+    Assert.assertSame(security, fsClient.getSecurity());
+    Assert.assertEquals("apiKey", fsClient.getApiKey());
+    Assert.assertEquals("sessionToken", fsClient.getSessionToken());
+    Assert.assertEquals("returnUrl", fsClient.getReturnUrl());
   }
 
   @Test
@@ -152,9 +170,9 @@ public class TestFsClient {
     Policy policy = new Policy.Builder().giveFullAccess().build();
     Security security = Security.createNew(policy, "app_secret");
 
-    FsClient client = new FsClient("apiKey", security);
+    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").security(security).build();
     thrown.expect(FileNotFoundException.class);
-    client.upload("/does_not_exist.txt", true);
+    fsClient.upload("/does_not_exist.txt", true);
   }
 
   @Test
@@ -171,11 +189,15 @@ public class TestFsClient {
     Security security = Security.createNew(policy, "app_secret");
 
     FsService mockFsService = new FsService(null, null, mockUploadService, null);
-    FsClient client = new FsClient("apiKey", security, mockFsService);
+    FsClient fsClient = new FsClient.Builder()
+        .apiKey("apiKey")
+        .security(security)
+        .fsService(mockFsService)
+        .build();
 
     Path path = createRandomFile(10 * 1024 * 1024);
 
-    FsFile fsFile = client.upload(path.toString(), false);
+    FsFile fsFile = fsClient.upload(path.toString(), false);
 
     Assert.assertEquals("handle", fsFile.getHandle());
 

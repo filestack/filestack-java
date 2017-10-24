@@ -1,5 +1,6 @@
 package com.filestack.transforms;
 
+import com.filestack.FsClient;
 import com.filestack.FsFile;
 import com.filestack.StorageOptions;
 import com.filestack.transforms.tasks.AvTransformOptions;
@@ -20,7 +21,8 @@ public class TestAvTransform {
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorException() {
-    FsFile fsFile = new FsFile("apiKey", "handle");
+    FsClient fsClient = new FsClient.Builder().apiKey("apikey").build();
+    FsFile fsFile = new FsFile(fsClient, "handle");
     fsFile.avTransform(null);
   }
 
@@ -30,7 +32,8 @@ public class TestAvTransform {
         .preset("mp4")
         .build();
 
-    FsFile fsFile = new FsFile("apiKey", "handle");
+    FsClient fsClient = new FsClient.Builder().apiKey("apikey").build();
+    FsFile fsFile = new FsFile(fsClient, "handle");
     TransformTask task = fsFile.avTransform(avOptions).tasks.get(0);
 
     Assert.assertEquals("video_convert=preset:mp4", task.toString());
@@ -46,7 +49,8 @@ public class TestAvTransform {
         .preset("mp4")
         .build();
 
-    FsFile fsFile = new FsFile("apiKey", "handle");
+    FsClient fsClient = new FsClient.Builder().apiKey("apikey").build();
+    FsFile fsFile = new FsFile(fsClient, "handle");
     TransformTask task = fsFile.avTransform(storageOptions, avOptions).tasks.get(0);
 
     Assert.assertEquals("video_convert=container:some-bucket,preset:mp4", task.toString());
@@ -71,10 +75,13 @@ public class TestAvTransform {
         .when(mockCdnService)
         .transform(Mockito.anyString(), Mockito.anyString());
 
-    FsFile.Builder builder = new FsFile.Builder().apiKey("apiKey").service(mockFsService);
+    FsClient fsClient = new FsClient.Builder()
+        .apiKey("apikey")
+        .fsService(mockFsService)
+        .build();
 
-    FsFile ready = builder.handle("ready").build();
-    FsFile pending = builder.handle("pending").build();
+    FsFile ready = new FsFile(fsClient, "ready");
+    FsFile pending = new FsFile(fsClient, "pending");
 
     AvTransformOptions avOptions = new AvTransformOptions.Builder().preset("mp4").build();
 
@@ -97,11 +104,12 @@ public class TestAvTransform {
         .when(mockCdnService)
         .transform("video_convert=preset:mp4", "handle");
 
-    FsFile fsFile = new FsFile.Builder()
-        .apiKey("apiKey")
-        .handle("handle")
-        .service(mockFsService)
+    FsClient fsClient = new FsClient.Builder()
+        .apiKey("apikey")
+        .fsService(mockFsService)
         .build();
+
+    FsFile fsFile = new FsFile(fsClient, "handle");
 
     AvTransformOptions avOptions = new AvTransformOptions.Builder().preset("mp4").build();
 

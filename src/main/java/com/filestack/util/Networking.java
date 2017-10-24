@@ -17,7 +17,7 @@ public class Networking {
   private static FsUploadService fsUploadService;
   private static FsCloudService fsCloudService;
 
-  /** Get http client singleton. */
+  /** Get http fsClient singleton. */
   public static OkHttpClient getHttpClient() {
     if (httpClient == null) {
       httpClient = new OkHttpClient.Builder()
@@ -75,7 +75,7 @@ public class Networking {
     return fsCloudService;
   }
 
-  /** Set a custom http client. */
+  /** Set a custom http fsClient. */
   public static void setCustomClient(OkHttpClient client) {
     if (client == null) {
       return;

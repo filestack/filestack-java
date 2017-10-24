@@ -41,13 +41,13 @@ public class TestBasicFunctions {
 
   @Test
   public void testUpload() throws Exception {
-    FsClient client = new FsClient(API_KEY, SECURITY);
+    FsClient fsClient = new FsClient.Builder().apiKey(API_KEY).security(SECURITY).build();
 
     String uuid = UUID.randomUUID().toString();
     File file = createRandomFile(uuid, 15L * 1024 * 1024);
     files.add(file);
 
-    FsFile fsFile = client.upload(file.getPath(), false);
+    FsFile fsFile = fsClient.upload(file.getPath(), false);
     String handle = fsFile.getHandle();
     handles.add(handle);
 
@@ -56,13 +56,13 @@ public class TestBasicFunctions {
 
   @Test
   public void testGetContent() throws Exception {
-    FsClient client = new FsClient(API_KEY, SECURITY);
+    FsClient fsClient = new FsClient.Builder().apiKey(API_KEY).security(SECURITY).build();
 
     String uuid = UUID.randomUUID().toString();
     File file = createRandomFile(uuid);
     files.add(file);
 
-    FsFile fsFile = client.upload(file.getPath(), false);
+    FsFile fsFile = fsClient.upload(file.getPath(), false);
     String handle = fsFile.getHandle();
     handles.add(handle);
     byte[] bytes = fsFile.getContent().bytes();
@@ -73,13 +73,13 @@ public class TestBasicFunctions {
 
   @Test
   public void testDownload() throws Exception {
-    FsClient client = new FsClient(API_KEY, SECURITY);
+    FsClient fsClient = new FsClient.Builder().apiKey(API_KEY).security(SECURITY).build();
 
     String uploadUuid = UUID.randomUUID().toString();
     File uploadFile = createRandomFile(uploadUuid);
     files.add(uploadFile);
 
-    FsFile fsFile = client.upload(uploadFile.getPath(), false);
+    FsFile fsFile = fsClient.upload(uploadFile.getPath(), false);
     String handle = fsFile.getHandle();
     handles.add(handle);
 
@@ -96,7 +96,7 @@ public class TestBasicFunctions {
 
   @Test
   public void testOverwrite() throws Exception {
-    FsClient client = new FsClient(API_KEY, SECURITY);
+    FsClient fsClient = new FsClient.Builder().apiKey(API_KEY).security(SECURITY).build();
 
     String uploadUuid = UUID.randomUUID().toString();
     File uploadFile = createRandomFile(uploadUuid);
@@ -106,7 +106,7 @@ public class TestBasicFunctions {
     File overwriteFile = createRandomFile(overwriteUuid);
     files.add(overwriteFile);
 
-    FsFile fsFile = client.upload(uploadFile.getPath(), false);
+    FsFile fsFile = fsClient.upload(uploadFile.getPath(), false);
     String handle = fsFile.getHandle();
     handles.add(handle);
 
@@ -119,13 +119,13 @@ public class TestBasicFunctions {
 
   @Test
   public void testDelete() throws Exception {
-    FsClient client = new FsClient(API_KEY, SECURITY);
+    FsClient fsClient = new FsClient.Builder().apiKey(API_KEY).security(SECURITY).build();
 
     String uploadUuid = UUID.randomUUID().toString();
     File uploadFile = createRandomFile(uploadUuid);
     files.add(uploadFile);
 
-    FsFile fsFile = client.upload(uploadFile.getPath(), false);
+    FsFile fsFile = fsClient.upload(uploadFile.getPath(), false);
 
     fsFile.delete();
 
@@ -136,8 +136,10 @@ public class TestBasicFunctions {
   /** Deletes any files uploaded during tests. */
   @AfterClass
   public static void cleanupHandles() {
+    FsClient fsClient = new FsClient.Builder().apiKey(API_KEY).security(SECURITY).build();
+
     for (String handle : handles) {
-      FsFile fsFile = new FsFile(API_KEY, handle, SECURITY);
+      FsFile fsFile = new FsFile(fsClient, handle);
       try {
         fsFile.delete();
       } catch (Exception e) {

@@ -43,12 +43,15 @@ public class UploadCompleteFunc implements Callable<Prog<FsFile>> {
 
       @Override
       Response<CompleteResponse> work() throws Exception {
-        return upload.fsService.upload().complete(params).execute();
+        return upload.fsClient.getFsService()
+            .upload()
+            .complete(params)
+            .execute();
       }
     };
 
     CompleteResponse response = func.call();
-    FsFile fsFile = new FsFile(upload.apiKey, response.getHandle(), upload.security);
+    FsFile fsFile = new FsFile(upload.fsClient, response.getHandle());
 
     return new Prog<>(fsFile);
   }

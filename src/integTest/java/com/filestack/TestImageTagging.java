@@ -18,13 +18,13 @@ public class TestImageTagging {
 
   @Test
   public void testImageTags() throws Exception {
-    FsClient client = new FsClient(API_KEY, SECURITY);
+    FsClient fsClient = new FsClient.Builder().apiKey(API_KEY).security(SECURITY).build();
 
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     String origPath = loader.getResource("com/filestack/sample_image.jpg").getPath();
     File origFile = new File(origPath);
 
-    FsFile fsFile = client.upload(origPath, true);
+    FsFile fsFile = fsClient.upload(origPath, true);
     handles.add(fsFile.getHandle());
 
     Map<String, Integer> tags = fsFile.imageTags();
@@ -33,13 +33,13 @@ public class TestImageTagging {
 
   @Test
   public void testImageSfw() throws Exception {
-    FsClient client = new FsClient(API_KEY, SECURITY);
+    FsClient fsClient = new FsClient.Builder().apiKey(API_KEY).security(SECURITY).build();
 
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     String origPath = loader.getResource("com/filestack/sample_image.jpg").getPath();
     File origFile = new File(origPath);
 
-    FsFile fsFile = client.upload(origPath, false);
+    FsFile fsFile = fsClient.upload(origPath, false);
     handles.add(fsFile.getHandle());
 
     Assert.assertTrue(fsFile.imageSfw());
@@ -48,8 +48,10 @@ public class TestImageTagging {
   /** Deletes any files uploaded during tests. */
   @AfterClass
   public static void cleanupHandles() {
+    FsClient fsClient = new FsClient.Builder().apiKey(API_KEY).security(SECURITY).build();
+    
     for (String handle : handles) {
-      FsFile fsFile = new FsFile(API_KEY, handle, SECURITY);
+      FsFile fsFile = new FsFile(fsClient, handle);
       try {
         fsFile.delete();
       } catch (Exception e) {

@@ -23,13 +23,13 @@ public class TestTransforms {
 
   @Test
   public void testImageTransform() throws Exception {
-    FsClient client = new FsClient(API_KEY, SECURITY);
+    FsClient fsClient = new FsClient.Builder().apiKey(API_KEY).security(SECURITY).build();
 
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     String origPath = loader.getResource("com/filestack/sample_image.jpg").getPath();
     File origFile = new File(origPath);
 
-    FsFile fsFile = client.upload(origPath, false);
+    FsFile fsFile = fsClient.upload(origPath, false);
     handles.add(fsFile.getHandle());
 
     ImageTransform transform = fsFile.imageTransform();
@@ -47,13 +47,13 @@ public class TestTransforms {
 
   @Test
   public void testAvTransform() throws Exception {
-    FsClient client = new FsClient(API_KEY, SECURITY);
+    FsClient fsClient = new FsClient.Builder().apiKey(API_KEY).security(SECURITY).build();
 
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     String oggPath = loader.getResource("com/filestack/sample_music.ogg").getPath();
     File oggFile = new File(oggPath);
 
-    FsFile oggFsFile = client.upload(oggPath, false);
+    FsFile oggFsFile = fsClient.upload(oggPath, false);
     handles.add(oggFsFile.getHandle());
 
     AvTransformOptions options = new AvTransformOptions.Builder()
@@ -81,8 +81,10 @@ public class TestTransforms {
   /** Deletes any files uploaded during tests. */
   @AfterClass
   public static void cleanupHandles() {
+    FsClient fsClient = new FsClient.Builder().apiKey(API_KEY).security(SECURITY).build();
+
     for (String handle : handles) {
-      FsFile fsFile = new FsFile(API_KEY, handle, SECURITY);
+      FsFile fsFile = new FsFile(fsClient, handle);
       try {
         fsFile.delete();
       } catch (Exception e) {

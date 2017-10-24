@@ -4,7 +4,6 @@ import com.filestack.transforms.AvTransform;
 import com.filestack.transforms.ImageTransform;
 import com.filestack.transforms.ImageTransformTask;
 import com.filestack.transforms.tasks.AvTransformOptions;
-import com.filestack.util.FsService;
 import com.filestack.util.Util;
 import com.filestack.util.responses.ImageTagResponse;
 import com.google.gson.Gson;
@@ -28,78 +27,12 @@ import retrofit2.Response;
 
 /** References and performs operations on an individual file. */
 public class FsFile {
-  private String apiKey;
-  private String handle;
-  private Security security;
+  protected final FsClient fsClient;
+  protected final String handle;
 
-  private FsService fsService;
-
-  /**
-   * Constructs an instance without security.
-   *
-   * @see #FsFile(String, String, Security)
-   */
-  public FsFile(String apiKey, String handle) {
-    this(apiKey, handle, null);
-  }
-
-  /**
-   * Constructs an instance with security.
-   *
-   * @param apiKey   account key from the dev portal
-   * @param handle   id for a file, first path segment in dev portal urls
-   * @param security needs required permissions for your intended actions
-   */
-  public FsFile(String apiKey, String handle, Security security) {
-    this.apiKey = apiKey;
+  public FsFile(FsClient fsClient, String handle) {
+    this.fsClient = fsClient;
     this.handle = handle;
-    this.security = security;
-
-    this.fsService = new FsService();
-  }
-
-  FsFile() {}
-
-  /**
-   * Builds new {@link FsClient}.
-   */
-  public static class Builder {
-    private String apiKey;
-    private String handle;
-    private Security security;
-    private FsService fsService;
-
-    public Builder apiKey(String apiKey) {
-      this.apiKey = apiKey;
-      return this;
-    }
-
-    public Builder handle(String handle) {
-      this.handle = handle;
-      return this;
-    }
-
-    public Builder security(Security security) {
-      this.security = security;
-      return this;
-    }
-
-    public Builder service(FsService fsService) {
-      this.fsService = fsService;
-      return this;
-    }
-
-    /**
-     * Create the {@link FsFile} using the configured values.
-     */
-    public FsFile build() {
-      FsFile fsFile = new FsFile();
-      fsFile.apiKey = apiKey;
-      fsFile.handle = handle;
-      fsFile.security = security;
-      fsFile.fsService = fsService != null ? fsService : new FsService();
-      return fsFile;
-    }
   }
 
   /**
@@ -110,11 +43,14 @@ public class FsFile {
    * @throws IOException           on network failure
    */
   public ResponseBody getContent() throws IOException {
-
+    Security security = fsClient.getSecurity();
     String policy = security != null ? security.getPolicy() : null;
     String signature = security != null ? security.getSignature() : null;
 
-    Response<ResponseBody> response = fsService.cdn().get(this.handle, policy, signature).execute();
+    Response<ResponseBody> response = fsClient.getFsService()
+        .cdn()
+        .get(this.handle, policy, signature)
+        .execute();
 
     Util.checkResponseAndThrow(response);
 
@@ -139,10 +75,14 @@ public class FsFile {
    * @throws IOException           on error creating file or network failure
    */
   public File download(String directory, String filename) throws IOException {
+    Security security = fsClient.getSecurity();
     String policy = security != null ? security.getPolicy() : null;
     String signature = security != null ? security.getSignature() : null;
 
-    Response<ResponseBody> response = fsService.cdn().get(this.handle, policy, signature).execute();
+    Response<ResponseBody> response = fsClient.getFsService()
+        .cdn()
+        .get(this.handle, policy, signature)
+        .execute();
 
     Util.checkResponseAndThrow(response);
 
@@ -175,6 +115,8 @@ public class FsFile {
    * @throws IOException           on error reading file or network failure
    */
   public void overwrite(String pathname) throws IOException {
+    Security security = fsClient.getSecurity();
+
     if (security == null) {
       throw new IllegalStateException("Security must be set in order to overwrite");
     }
@@ -187,7 +129,10 @@ public class FsFile {
     String policy = security.getPolicy();
     String signature = security.getSignature();
 
-    Response response = fsService.api().overwrite(handle, policy, signature, body).execute();
+    Response response = fsClient.getFsService()
+        .api()
+        .overwrite(handle, policy, signature, body)
+        .execute();
 
     Util.checkResponseAndThrow(response);
   }
@@ -199,6 +144,8 @@ public class FsFile {
    * @throws IOException           on network failure
    */
   public void delete() throws IOException {
+    Security security = fsClient.getSecurity();
+
     if (security == null) {
       throw new IllegalStateException("Security must be set in order to delete");
     }
@@ -206,7 +153,10 @@ public class FsFile {
     String policy = security.getPolicy();
     String signature = security.getSignature();
 
-    Response response = fsService.api().delete(handle, apiKey, policy, signature).execute();
+    Response response = fsClient.getFsService()
+        .api()
+        .delete(handle, fsClient.getApiKey(), policy, signature)
+        .execute();
 
     Util.checkResponseAndThrow(response);
   }
@@ -230,7 +180,7 @@ public class FsFile {
    * @see <a href="https://www.filestack.com/docs/tagging"></a>
    */
   public Map<String, Integer> imageTags() throws IOException {
-    if (security == null) {
+    if (fsClient.getSecurity() == null) {
       throw new IllegalStateException("Security must be set in order to tag an image");
     }
 
@@ -251,7 +201,7 @@ public class FsFile {
    * @see <a href="https://www.filestack.com/docs/tagging"></a>
    */
   public boolean imageSfw() throws IOException {
-    if (security == null) {
+    if (fsClient.getSecurity() == null) {
       throw new IllegalStateException("Security must be set in order to tag an image");
     }
 
@@ -299,8 +249,8 @@ public class FsFile {
         return getContent();
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(fsClient.getSubScheduler())
+        .observeOn(fsClient.getObsScheduler());
   }
 
   /**
@@ -324,8 +274,8 @@ public class FsFile {
         return download(directory, filename);
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(fsClient.getSubScheduler())
+        .observeOn(fsClient.getObsScheduler());
   }
 
   /**
@@ -341,8 +291,8 @@ public class FsFile {
         overwrite(pathname);
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(fsClient.getSubScheduler())
+        .observeOn(fsClient.getObsScheduler());
   }
 
   /**
@@ -357,8 +307,8 @@ public class FsFile {
         delete();
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(fsClient.getSubScheduler())
+        .observeOn(fsClient.getObsScheduler());
   }
 
   /**
@@ -373,8 +323,8 @@ public class FsFile {
         return imageTags();
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(fsClient.getSubScheduler())
+        .observeOn(fsClient.getObsScheduler());
   }
 
   /**
@@ -389,19 +339,15 @@ public class FsFile {
         return imageSfw();
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(fsClient.getSubScheduler())
+        .observeOn(fsClient.getObsScheduler());
+  }
+
+  public FsClient getFsClient() {
+    return fsClient;
   }
 
   public String getHandle() {
     return handle;
-  }
-
-  public Security getSecurity() {
-    return security;
-  }
-
-  public FsService getFsService() {
-    return fsService;
   }
 }

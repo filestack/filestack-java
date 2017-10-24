@@ -28,8 +28,8 @@ public class TestFsFile {
     Policy policy = new Policy.Builder().giveFullAccess().build();
     Security security = Security.createNew(policy, "app_secret");
 
-    FsFile fsFile1 = new FsFile("apiKey", "handle");
-    FsFile fsFile2 = new FsFile("apiKey", "handle", security);
+    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").build();
+    FsFile fsFile = new FsFile(fsClient, "handle");
   }
 
   @Test
@@ -45,11 +45,12 @@ public class TestFsFile {
         .when(mockCdnService)
         .get("handle", null, null);
 
-    FsFile fsFile = new FsFile.Builder()
+    FsClient fsClient = new FsClient.Builder()
         .apiKey("apiKey")
-        .handle("handle")
-        .service(mockFsService)
+        .fsService(mockFsService)
         .build();
+
+    FsFile fsFile = new FsFile(fsClient, "handle");
 
     ResponseBody content = fsFile.getContent();
     Assert.assertEquals("Test content", content.string());
@@ -68,11 +69,12 @@ public class TestFsFile {
         .when(mockCdnService)
         .get("handle", null, null);
 
-    FsFile fsFile = new FsFile.Builder()
+    FsClient fsClient = new FsClient.Builder()
         .apiKey("apiKey")
-        .handle("handle")
-        .service(mockFsService)
+        .fsService(mockFsService)
         .build();
+
+    FsFile fsFile = new FsFile(fsClient, "handle");
 
     File file = fsFile.download("/tmp/");
     Assert.assertTrue(file.isFile());
@@ -94,11 +96,12 @@ public class TestFsFile {
         .when(mockCdnService)
         .get("handle", null, null);
 
-    FsFile fsFile = new FsFile.Builder()
+    FsClient fsClient = new FsClient.Builder()
         .apiKey("apiKey")
-        .handle("handle")
-        .service(mockFsService)
+        .fsService(mockFsService)
         .build();
+
+    FsFile fsFile = new FsFile(fsClient, "handle");
 
     File file = fsFile.download("/tmp/", "filestack_test_filelink_download.txt");
     Assert.assertTrue(file.isFile());
@@ -135,12 +138,13 @@ public class TestFsFile {
 
     FsService mockFsService = new FsService(mockApiService, null, null, null);
 
-    FsFile fsFile = new FsFile.Builder()
+    FsClient fsClient = new FsClient.Builder()
         .apiKey("apiKey")
-        .handle("handle")
         .security(security)
-        .service(mockFsService)
+        .fsService(mockFsService)
         .build();
+
+    FsFile fsFile = new FsFile(fsClient, "handle");
 
     fsFile.overwrite(pathname);
 
@@ -165,19 +169,21 @@ public class TestFsFile {
         .when(mockApiService)
         .delete("handle", "apiKey", security.getPolicy(), security.getSignature());
 
-    FsFile fsFile = new FsFile.Builder()
+    FsClient fsClient = new FsClient.Builder()
         .apiKey("apiKey")
-        .handle("handle")
         .security(security)
-        .service(mockFsService)
+        .fsService(mockFsService)
         .build();
+
+    FsFile fsFile = new FsFile(fsClient, "handle");
 
     fsFile.delete();
   }
 
   @Test(expected = IllegalStateException.class)
   public void testOverwriteWithoutSecurity() throws Exception {
-    FsFile fsFile = new FsFile("apiKey", "handle");
+    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").build();
+    FsFile fsFile = new FsFile(fsClient, "handle");
     fsFile.overwrite("");
   }
 
@@ -185,20 +191,24 @@ public class TestFsFile {
   public void testOverwriteNoFile() throws Exception {
     Policy policy = new Policy.Builder().giveFullAccess().build();
     Security security = Security.createNew(policy, "appSecret");
-    FsFile fsFile = new FsFile("apiKey", "handle", security);
+
+    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").security(security).build();
+    FsFile fsFile = new FsFile(fsClient, "handle");
 
     fsFile.overwrite("/tmp/filestack_test_overwrite_no_file.txt");
   }
 
   @Test(expected = IllegalStateException.class)
   public void testDeleteWithoutSecurity() throws Exception {
-    FsFile fsFile = new FsFile("apiKey", "handle");
+    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").build();
+    FsFile fsFile = new FsFile(fsClient, "handle");
     fsFile.delete();
   }
 
   @Test(expected = IllegalStateException.class)
   public void testImageTagNoSecurity() throws Exception {
-    FsFile fsFile = new FsFile("apiKey", "handle");
+    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").build();
+    FsFile fsFile = new FsFile(fsClient, "handle");
     fsFile.imageTags();
   }
 
@@ -231,12 +241,13 @@ public class TestFsFile {
         .when(mockCdnService)
         .transform(tasksString, "handle");
 
-    FsFile fsFile = new FsFile.Builder()
+    FsClient fsClient = new FsClient.Builder()
         .apiKey("apiKey")
-        .handle("handle")
         .security(security)
-        .service(mockFsService)
+        .fsService(mockFsService)
         .build();
+
+    FsFile fsFile = new FsFile(fsClient, "handle");
 
     Map<String, Integer> tags = fsFile.imageTags();
 
@@ -245,7 +256,8 @@ public class TestFsFile {
 
   @Test(expected = IllegalStateException.class)
   public void testImageSfwNoSecurity() throws Exception {
-    FsFile fsFile = new FsFile("apiKey", "handle");
+    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").build();
+    FsFile fsFile = new FsFile(fsClient, "handle");
     fsFile.imageSfw();
   }
 
@@ -269,13 +281,16 @@ public class TestFsFile {
     Policy policy = new Policy.Builder().giveFullAccess().build();
     Security security = Security.createNew(policy, "appSecret");
 
-    FsFile.Builder builder = new FsFile.Builder()
+    FsClient fsClient = new FsClient.Builder()
         .apiKey("apiKey")
         .security(security)
-        .service(mockFsService);
+        .fsService(mockFsService)
+        .build();
 
-    FsFile safe = builder.handle("safe").build();
-    FsFile notSafe = builder.handle("notSafe").build();
+    FsFile fsFile = new FsFile(fsClient, "handle");
+
+    FsFile safe = new FsFile(fsClient, "safe");
+    FsFile notSafe = new FsFile(fsClient, "notSafe");
 
     Assert.assertTrue(safe.imageSfw());
     Assert.assertFalse(notSafe.imageSfw());

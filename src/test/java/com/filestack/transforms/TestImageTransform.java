@@ -50,11 +50,12 @@ public class TestImageTransform {
   public void testDebugHandle() throws Exception {
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
     FsService mockFsService = new FsService(null, mockCdnService, null, null);
-    FsFile fsFile = new FsFile.Builder()
+    FsClient fsClient = new FsClient.Builder()
         .apiKey("apiKey")
-        .handle("handle")
-        .service(mockFsService)
+        .fsService(mockFsService)
         .build();
+
+    FsFile fsFile = new FsFile(fsClient, "handle");
 
     Mockito.doReturn(Calls.response(new JsonObject()))
         .when(mockCdnService)
@@ -68,13 +69,13 @@ public class TestImageTransform {
     String url = "https://example.com/image.jpg";
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
     FsService mockFsService = new FsService(null, mockCdnService, null, null);
-    FsClient client = new FsClient("apiKey", null, mockFsService);
+    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").fsService(mockFsService).build();
 
     Mockito.doReturn(Calls.response(new JsonObject()))
         .when(mockCdnService)
         .transformDebugExt("apiKey", "", url);
 
-    Assert.assertNotNull(client.imageTransform(url).debug());
+    Assert.assertNotNull(fsClient.imageTransform(url).debug());
   }
 
   @Test
@@ -82,11 +83,12 @@ public class TestImageTransform {
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
     FsService mockFsService = new FsService(null, mockCdnService, null, null);
 
-    FsFile fsFile = new FsFile.Builder()
+    FsClient fsClient = new FsClient.Builder()
         .apiKey("apiKey")
-        .handle("handle")
-        .service(mockFsService)
+        .fsService(mockFsService)
         .build();
+
+    FsFile fsFile = new FsFile(fsClient, "handle");
 
     String jsonString = "{'url': 'https://cdn.filestackcontent.com/handle'}";
     Gson gson = new Gson();
@@ -104,7 +106,12 @@ public class TestImageTransform {
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
     FsService mockFsService = new FsService(null, mockCdnService, null, null);
 
-    FsClient client = new FsClient("apiKey", null, mockFsService);
+    FsClient fsClient = new FsClient.Builder()
+        .apiKey("apiKey")
+        .fsService(mockFsService)
+        .build();
+
+    FsFile fsFile = new FsFile(fsClient, "handle");
 
     String jsonString = "{'url': 'https://cdn.filestackcontent.com/handle'}";
     Gson gson = new Gson();
@@ -116,13 +123,14 @@ public class TestImageTransform {
         .when(mockCdnService)
         .transformStoreExt("apiKey", "store", url);
 
-    Assert.assertNotNull(client.imageTransform(url).store());
+    Assert.assertNotNull(fsClient.imageTransform(url).store());
   }
 
   @Test(expected = NullPointerException.class)
   public void testAddNullTask() throws Exception {
-    FsFile filelink = new FsFile("apiKey", "handle");
-    ImageTransform transform = filelink.imageTransform();
+    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").build();
+    FsFile fsFile = new FsFile(fsClient, "handle");
+    ImageTransform transform = fsFile.imageTransform();
     transform.addTask(null);
   }
 }
