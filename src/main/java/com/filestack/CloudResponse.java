@@ -1,13 +1,18 @@
 package com.filestack;
 
 import com.filestack.util.responses.CloudAuthHolder;
+import com.google.gson.annotations.SerializedName;
 
 public class CloudResponse {
   private CloudAuthHolder auth;
+  @SerializedName("contents")
   private CloudItem[] items;
-  private String client;
-  private String filename;
-  private String next;
+  @SerializedName("client")
+  private String provider;
+  @SerializedName("filename")
+  private String directory;
+  @SerializedName("next")
+  private String nextToken;
 
   /** Returns an OAuth URL or null if the user has already authorized. */
   public String getAuthUrl() {
@@ -19,19 +24,19 @@ public class CloudResponse {
   }
 
   public String getProvider() {
-    return client;
+    return provider;
   }
 
   public String getDirectory() {
-    return filename;
+    return directory;
   }
 
   /** Returns a pagination token if all items can't be returned at once. */
   public String getNextToken() {
     // An empty string token is confusing, just return null
-    if (next == null || next.equals("")) {
+    if (nextToken == null || nextToken.equals("")) {
       return null;
     }
-    return next;
+    return nextToken;
   }
 }
