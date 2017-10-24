@@ -7,7 +7,7 @@ import com.filestack.transforms.tasks.AvTransformOptions;
 import com.filestack.util.Util;
 import com.google.gson.JsonObject;
 import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
+
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
@@ -16,6 +16,9 @@ import java.util.concurrent.Callable;
  */
 public class AvTransform extends Transform {
 
+  /**
+   * Constructs new instance from a {@link FsFile} and options.
+   */
   public AvTransform(FsFile fsFile, StorageOptions storeOps, AvTransformOptions avOps) {
     super(fsFile);
 

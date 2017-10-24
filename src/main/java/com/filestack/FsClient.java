@@ -30,7 +30,7 @@ public class FsClient {
   private String sessionToken;
 
   /**
-   * Builds new {@link FsFile}.
+   * Builds new {@link FsClient}.
    */
   @SuppressWarnings("unchecked")
   public static class Builder<T extends Builder<T>> {
@@ -78,7 +78,7 @@ public class FsClient {
     }
 
     /**
-     * Create the {@link FsFile} using the configured values.
+     * Create the {@link FsClient} using the configured values.
      */
     public FsClient build() {
       subScheduler = subScheduler != null ? subScheduler : Schedulers.io();
