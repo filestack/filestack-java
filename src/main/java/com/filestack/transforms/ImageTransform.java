@@ -8,10 +8,10 @@ import com.filestack.util.Util;
 import com.filestack.util.responses.StoreResponse;
 import com.google.gson.JsonObject;
 import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
+import retrofit2.Response;
+
 import java.io.IOException;
 import java.util.concurrent.Callable;
-import retrofit2.Response;
 
 /**
  * {@link Transform Transform} subclass for image transformations.
@@ -38,15 +38,15 @@ public class ImageTransform extends Transform {
     String tasksString = getTasksString();
 
     Response<JsonObject> response;
-    if (isExternal) {
+    if (url != null) {
       response = fsClient.getFsService()
           .cdn()
-          .transformDebugExt(fsClient.getApiKey(), tasksString, source)
+          .transformDebugExt(fsClient.getApiKey(), tasksString, url)
           .execute();
     } else {
       response = fsClient.getFsService()
           .cdn()
-          .transformDebug(tasksString, source)
+          .transformDebug(tasksString, fsFile.getHandle())
           .execute();
     }
 
@@ -90,15 +90,15 @@ public class ImageTransform extends Transform {
 
     Response<StoreResponse> response;
     String tasksString = getTasksString();
-    if (isExternal) {
+    if (url != null) {
       response = fsClient.getFsService()
           .cdn()
-          .transformStoreExt(fsClient.getApiKey(), tasksString, source)
+          .transformStoreExt(fsClient.getApiKey(), tasksString, url)
           .execute();
     } else {
       response = fsClient.getFsService()
           .cdn()
-          .transformStore(tasksString, source)
+          .transformStore(tasksString, fsFile.getHandle())
           .execute();
     }
 

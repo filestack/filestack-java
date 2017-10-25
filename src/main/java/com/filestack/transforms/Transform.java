@@ -3,6 +3,7 @@ package com.filestack.transforms;
 import com.filestack.FsClient;
 import com.filestack.FsFile;
 import com.filestack.HttpException;
+import com.filestack.Security;
 import com.filestack.util.Util;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -10,6 +11,7 @@ import io.reactivex.Single;
 import okhttp3.HttpUrl;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
@@ -19,30 +21,38 @@ import java.util.concurrent.Callable;
  */
 public class Transform {
   protected final FsClient fsClient;
-  protected final String source;
-  protected final boolean isExternal;
+  protected final String url;
+  protected final FsFile fsFile;
 
-  protected final ArrayList<TransformTask> tasks;
+  protected final ArrayList<TransformTask> tasks = new ArrayList<>();
 
   protected Transform(FsFile fsFile) {
-    this(fsFile.getFsClient(), fsFile.getHandle(), false);
+    this.fsClient = fsFile.getFsClient();
+    this.fsFile = fsFile;
+    this.url = null;
+    setupSecurity();
   }
 
   protected Transform(FsClient fsClient, String url) {
-    this(fsClient, url, true);
+    this.fsClient = fsClient;
+    this.url = url;
+    this.fsFile = null;
+    setupSecurity();
   }
 
-  protected Transform(FsClient fsClient, String source, boolean isExternal) {
-    this.fsClient = fsClient;
-    this.source = source;
-    this.isExternal = isExternal;
+  protected void setupSecurity() {
+    Security security;
 
-    this.tasks = new ArrayList<>();
+    if (fsFile != null && fsFile.getSecurity() != null) {
+      security = fsFile.getSecurity();
+    } else {
+      security = fsClient.getSecurity();
+    }
 
-    if (fsClient.getSecurity() != null) {
+    if (security != null) {
       TransformTask securityTask = new TransformTask("security");
-      securityTask.addOption("policy", fsClient.getSecurity().getPolicy());
-      securityTask.addOption("signature", fsClient.getSecurity().getSignature());
+      securityTask.addOption("policy", security.getPolicy());
+      securityTask.addOption("signature", security.getSignature());
       this.tasks.add(securityTask);
     }
   }
@@ -73,16 +83,16 @@ public class Transform {
     String tasksString = getTasksString();
     HttpUrl httpUrl;
 
-    if (isExternal) {
+    if (url != null) {
       httpUrl = fsClient.getFsService()
           .cdn()
-          .transformExt(fsClient.getApiKey(), tasksString, source)
+          .transformExt(fsClient.getApiKey(), tasksString, url)
           .request()
           .url();
     } else {
       httpUrl = fsClient.getFsService()
           .cdn()
-          .transform(tasksString, source)
+          .transform(tasksString, fsFile.getHandle())
           .request()
           .url();
     }
@@ -104,15 +114,15 @@ public class Transform {
     String tasksString = getTasksString();
     Response<ResponseBody> response;
 
-    if (isExternal) {
+    if (url != null) {
       response = fsClient.getFsService()
           .cdn()
-          .transformExt(fsClient.getApiKey(), tasksString, source)
+          .transformExt(fsClient.getApiKey(), tasksString, url)
           .execute();
     } else {
       response = fsClient.getFsService()
           .cdn()
-          .transform(tasksString, source)
+          .transform(tasksString, fsFile.getHandle())
           .execute();
     }
 

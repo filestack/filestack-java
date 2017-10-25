@@ -11,12 +11,6 @@ import com.google.gson.JsonObject;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.functions.Action;
-import io.reactivex.schedulers.Schedulers;
-import java.io.File;
-import java.io.IOException;
-import java.net.URLConnection;
-import java.util.Map;
-import java.util.concurrent.Callable;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -25,14 +19,28 @@ import okio.BufferedSource;
 import okio.Okio;
 import retrofit2.Response;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URLConnection;
+import java.util.Map;
+import java.util.concurrent.Callable;
+
 /** References and performs operations on an individual file. */
 public class FsFile {
   protected final FsClient fsClient;
   protected final String handle;
+  protected final Security security;
 
+  /** Create instance using client security (or none). */
   public FsFile(FsClient fsClient, String handle) {
+    this(fsClient, handle, null);
+  }
+
+  /** Create instance using file-specific security. */
+  public FsFile(FsClient fsClient, String handle, Security security) {
     this.fsClient = fsClient;
     this.handle = handle;
+    this.security = security != null ? security : fsClient.getSecurity();
   }
 
   /**
@@ -43,7 +51,6 @@ public class FsFile {
    * @throws IOException           on network failure
    */
   public ResponseBody getContent() throws IOException {
-    Security security = fsClient.getSecurity();
     String policy = security != null ? security.getPolicy() : null;
     String signature = security != null ? security.getSignature() : null;
 
@@ -75,7 +82,6 @@ public class FsFile {
    * @throws IOException           on error creating file or network failure
    */
   public File download(String directory, String filename) throws IOException {
-    Security security = fsClient.getSecurity();
     String policy = security != null ? security.getPolicy() : null;
     String signature = security != null ? security.getSignature() : null;
 
@@ -115,8 +121,6 @@ public class FsFile {
    * @throws IOException           on error reading file or network failure
    */
   public void overwrite(String pathname) throws IOException {
-    Security security = fsClient.getSecurity();
-
     if (security == null) {
       throw new IllegalStateException("Security must be set in order to overwrite");
     }
@@ -144,8 +148,6 @@ public class FsFile {
    * @throws IOException           on network failure
    */
   public void delete() throws IOException {
-    Security security = fsClient.getSecurity();
-
     if (security == null) {
       throw new IllegalStateException("Security must be set in order to delete");
     }
@@ -180,7 +182,7 @@ public class FsFile {
    * @see <a href="https://www.filestack.com/docs/tagging"></a>
    */
   public Map<String, Integer> imageTags() throws IOException {
-    if (fsClient.getSecurity() == null) {
+    if (security == null) {
       throw new IllegalStateException("Security must be set in order to tag an image");
     }
 
@@ -201,7 +203,7 @@ public class FsFile {
    * @see <a href="https://www.filestack.com/docs/tagging"></a>
    */
   public boolean imageSfw() throws IOException {
-    if (fsClient.getSecurity() == null) {
+    if (security == null) {
       throw new IllegalStateException("Security must be set in order to tag an image");
     }
 
@@ -349,5 +351,9 @@ public class FsFile {
 
   public String getHandle() {
     return handle;
+  }
+
+  public Security getSecurity() {
+    return security;
   }
 }
