@@ -1,6 +1,6 @@
 package com.filestack.util;
 
-import com.filestack.FileLink;
+import com.filestack.FsFile;
 import com.filestack.util.responses.UploadResponse;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
@@ -23,7 +23,7 @@ import retrofit2.Response;
  * An upload should be divided between multiple instances, with each uploading a subrange of parts.
  * We take a sectionIndex that tells us what area of the file to be responsible for.
  */
-public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FileLink>> {
+public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FsFile>> {
   private Upload upload;
   private int sectionIndex;
 
@@ -33,7 +33,7 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FileLink>> {
   }
 
   @Override
-  public void subscribe(FlowableEmitter<Prog<FileLink>> e) throws Exception {
+  public void subscribe(FlowableEmitter<Prog<FsFile>> e) throws Exception {
     int start = sectionIndex * upload.partsPerFunc;
     int count = Math.min(upload.partsPerFunc, upload.numParts - start);
 
@@ -80,7 +80,7 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FileLink>> {
         }
 
         bytesSent = uploadToS3(upload, part, offset, bytesRead, bytes);
-        e.onNext(new Prog<FileLink>(bytesSent));
+        e.onNext(new Prog<FsFile>(bytesSent));
 
         if (bytesSent < bytesRead) {
           if (bytesSent < Upload.MIN_CHUNK_SIZE) {
@@ -127,7 +127,10 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FileLink>> {
     func = new RetryNetworkFunc<UploadResponse>(5, 5, Upload.DELAY_BASE) {
       @Override
       Response<UploadResponse> work() throws Exception {
-        return upload.fsService.upload().upload(params).execute();
+        return upload.fsClient.getFsService()
+            .upload()
+            .upload(params)
+            .execute();
       }
     };
 
@@ -150,7 +153,10 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FileLink>> {
         String url = params.getUrl();
 
         RequestBody requestBody = RequestBody.create(upload.mediaType, bytes, 0, attemptSize);
-        return upload.fsService.upload().uploadS3(headers, url, requestBody).execute();
+        return upload.fsClient.getFsService()
+            .upload()
+            .uploadS3(headers, url, requestBody)
+            .execute();
       }
 
       @Override
@@ -184,7 +190,10 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FileLink>> {
     func = new RetryNetworkFunc<ResponseBody>(5, 5, Upload.DELAY_BASE) {
       @Override
       Response<ResponseBody> work() throws Exception {
-        return upload.fsService.upload().commit(params).execute();
+        return upload.fsClient.getFsService()
+            .upload()
+            .commit(params)
+            .execute();
       }
     };
 

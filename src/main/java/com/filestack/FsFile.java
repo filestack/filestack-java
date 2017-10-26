@@ -4,7 +4,6 @@ import com.filestack.transforms.AvTransform;
 import com.filestack.transforms.ImageTransform;
 import com.filestack.transforms.ImageTransformTask;
 import com.filestack.transforms.tasks.AvTransformOptions;
-import com.filestack.util.FsService;
 import com.filestack.util.Util;
 import com.filestack.util.responses.ImageTagResponse;
 import com.google.gson.Gson;
@@ -12,12 +11,6 @@ import com.google.gson.JsonObject;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.functions.Action;
-import io.reactivex.schedulers.Schedulers;
-import java.io.File;
-import java.io.IOException;
-import java.net.URLConnection;
-import java.util.Map;
-import java.util.concurrent.Callable;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -26,95 +19,45 @@ import okio.BufferedSource;
 import okio.Okio;
 import retrofit2.Response;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URLConnection;
+import java.util.Map;
+import java.util.concurrent.Callable;
+
 /** References and performs operations on an individual file. */
-public class FileLink {
-  private String apiKey;
-  private String handle;
-  private Security security;
+public class FsFile {
+  protected final FsClient fsClient;
+  protected final String handle;
+  protected final Security security;
 
-  private FsService fsService;
-
-  /**
-   * Constructs an instance without security.
-   *
-   * @see #FileLink(String, String, Security)
-   */
-  public FileLink(String apiKey, String handle) {
-    this(apiKey, handle, null);
+  /** Create instance using client security (or none). */
+  public FsFile(FsClient fsClient, String handle) {
+    this(fsClient, handle, null);
   }
 
-  /**
-   * Constructs an instance with security.
-   *
-   * @param apiKey   account key from the dev portal
-   * @param handle   id for a file, first path segment in dev portal urls
-   * @param security needs required permissions for your intended actions
-   */
-  public FileLink(String apiKey, String handle, Security security) {
-    this.apiKey = apiKey;
+  /** Create instance using file-specific security. */
+  public FsFile(FsClient fsClient, String handle, Security security) {
+    this.fsClient = fsClient;
     this.handle = handle;
-    this.security = security;
-
-    this.fsService = new FsService();
-  }
-
-  FileLink() {}
-
-  /**
-   * Builds new {@link FilestackClient}.
-   */
-  public static class Builder {
-    private String apiKey;
-    private String handle;
-    private Security security;
-    private FsService fsService;
-
-    public Builder apiKey(String apiKey) {
-      this.apiKey = apiKey;
-      return this;
-    }
-
-    public Builder handle(String handle) {
-      this.handle = handle;
-      return this;
-    }
-
-    public Builder security(Security security) {
-      this.security = security;
-      return this;
-    }
-
-    public Builder service(FsService fsService) {
-      this.fsService = fsService;
-      return this;
-    }
-
-    /**
-     * Create the {@link FileLink} using the configured values.
-     */
-    public FileLink build() {
-      FileLink fileLink = new FileLink();
-      fileLink.apiKey = apiKey;
-      fileLink.handle = handle;
-      fileLink.security = security;
-      fileLink.fsService = fsService != null ? fsService : new FsService();
-      return fileLink;
-    }
+    this.security = security != null ? security : fsClient.getSecurity();
   }
 
   /**
    * Returns the content of a file.
    *
    * @return byte[] of file content
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
   public ResponseBody getContent() throws IOException {
-
     String policy = security != null ? security.getPolicy() : null;
     String signature = security != null ? security.getSignature() : null;
 
-    Response<ResponseBody> response = fsService.cdn().get(this.handle, policy, signature).execute();
+    Response<ResponseBody> response = fsClient.getFsService()
+        .cdn()
+        .get(this.handle, policy, signature)
+        .execute();
 
     Util.checkResponseAndThrow(response);
 
@@ -135,14 +78,17 @@ public class FileLink {
    *
    * @param directory location to save the file in
    * @param filename  local name for the file
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on error creating file or network failure
    */
   public File download(String directory, String filename) throws IOException {
     String policy = security != null ? security.getPolicy() : null;
     String signature = security != null ? security.getSignature() : null;
 
-    Response<ResponseBody> response = fsService.cdn().get(this.handle, policy, signature).execute();
+    Response<ResponseBody> response = fsClient.getFsService()
+        .cdn()
+        .get(this.handle, policy, signature)
+        .execute();
 
     Util.checkResponseAndThrow(response);
 
@@ -171,7 +117,7 @@ public class FileLink {
    * Does not update the filename or MIME type.
    *
    * @param pathname path to the file, can be local or absolute
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on error reading file or network failure
    */
   public void overwrite(String pathname) throws IOException {
@@ -187,7 +133,10 @@ public class FileLink {
     String policy = security.getPolicy();
     String signature = security.getSignature();
 
-    Response response = fsService.api().overwrite(handle, policy, signature, body).execute();
+    Response response = fsClient.getFsService()
+        .api()
+        .overwrite(handle, policy, signature, body)
+        .execute();
 
     Util.checkResponseAndThrow(response);
   }
@@ -195,7 +144,7 @@ public class FileLink {
   /**
    * Deletes a file handle. Requires security to be set.
    *
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
   public void delete() throws IOException {
@@ -206,7 +155,10 @@ public class FileLink {
     String policy = security.getPolicy();
     String signature = security.getSignature();
 
-    Response response = fsService.api().delete(handle, apiKey, policy, signature).execute();
+    Response response = fsClient.getFsService()
+        .api()
+        .delete(handle, fsClient.getApiKey(), policy, signature)
+        .execute();
 
     Util.checkResponseAndThrow(response);
   }
@@ -224,7 +176,7 @@ public class FileLink {
   /**
    * Returns tags from the Google Vision API for image FileLinks.
    *
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    *
    * @see <a href="https://www.filestack.com/docs/tagging"></a>
@@ -243,9 +195,9 @@ public class FileLink {
   }
 
   /**
-   * Determines if an image FileLink is "safe for work" using the Google Vision API.
+   * Determines if an image FsFile is "safe for work" using the Google Vision API.
    *
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    *
    * @see <a href="https://www.filestack.com/docs/tagging"></a>
@@ -299,8 +251,8 @@ public class FileLink {
         return getContent();
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(fsClient.getSubScheduler())
+        .observeOn(fsClient.getObsScheduler());
   }
 
   /**
@@ -324,8 +276,8 @@ public class FileLink {
         return download(directory, filename);
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(fsClient.getSubScheduler())
+        .observeOn(fsClient.getObsScheduler());
   }
 
   /**
@@ -341,8 +293,8 @@ public class FileLink {
         overwrite(pathname);
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(fsClient.getSubScheduler())
+        .observeOn(fsClient.getObsScheduler());
   }
 
   /**
@@ -357,8 +309,8 @@ public class FileLink {
         delete();
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(fsClient.getSubScheduler())
+        .observeOn(fsClient.getObsScheduler());
   }
 
   /**
@@ -373,12 +325,12 @@ public class FileLink {
         return imageTags();
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(fsClient.getSubScheduler())
+        .observeOn(fsClient.getObsScheduler());
   }
 
   /**
-   * Asynchronously determines if an image FileLink is "safe for work" using the Google Vision API.
+   * Asynchronously determines if an image FsFile is "safe for work" using the Google Vision API.
    *
    * @see #imageSfw()
    */
@@ -389,8 +341,12 @@ public class FileLink {
         return imageSfw();
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(fsClient.getSubScheduler())
+        .observeOn(fsClient.getObsScheduler());
+  }
+
+  public FsClient getFsClient() {
+    return fsClient;
   }
 
   public String getHandle() {
@@ -399,9 +355,5 @@ public class FileLink {
 
   public Security getSecurity() {
     return security;
-  }
-
-  public FsService getFsService() {
-    return fsService;
   }
 }

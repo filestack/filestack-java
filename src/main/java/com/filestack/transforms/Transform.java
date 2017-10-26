@@ -1,56 +1,54 @@
 package com.filestack.transforms;
 
-import com.filestack.FileLink;
-import com.filestack.FilestackClient;
-import com.filestack.HttpResponseException;
+import com.filestack.FsClient;
+import com.filestack.FsFile;
+import com.filestack.HttpException;
 import com.filestack.Security;
-import com.filestack.util.FsService;
 import com.filestack.util.Util;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.concurrent.Callable;
 import okhttp3.HttpUrl;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.concurrent.Callable;
 
 /**
  * Base class for file transformations and conversions.
  */
 public class Transform {
-  String apiKey;
-  String source;
-  Security security;
+  protected final FsClient fsClient;
+  protected final String url;
+  protected final FsFile fsFile;
 
-  ArrayList<TransformTask> tasks;
+  protected final ArrayList<TransformTask> tasks = new ArrayList<>();
 
-  FsService fsService;
-
-  Transform(FilestackClient fsClient, String url) {
-    this(fsClient, null, url);
+  protected Transform(FsFile fsFile) {
+    this.fsClient = fsFile.getFsClient();
+    this.fsFile = fsFile;
+    this.url = null;
+    setupSecurity();
   }
 
-  Transform(FileLink fileLink) {
-    this(null, fileLink, null);
+  protected Transform(FsClient fsClient, String url) {
+    this.fsClient = fsClient;
+    this.url = url;
+    this.fsFile = null;
+    setupSecurity();
   }
 
-  Transform(FilestackClient fsClient, FileLink fileLink, String url) {
-    if (fsClient != null) {
-      this.apiKey = fsClient.getApiKey();
-      this.source = url;
-      this.fsService = fsClient.getFsService();
+  protected void setupSecurity() {
+    Security security;
+
+    if (fsFile != null && fsFile.getSecurity() != null) {
+      security = fsFile.getSecurity();
     } else {
-      this.source = fileLink.getHandle();
-      this.fsService = fileLink.getFsService();
+      security = fsClient.getSecurity();
     }
 
-    this.tasks = new ArrayList<>();
-
-    Security security = fsClient != null ? fsClient.getSecurity() : fileLink.getSecurity();
-    this.security = security;
     if (security != null) {
       TransformTask securityTask = new TransformTask("security");
       securityTask.addOption("policy", security.getPolicy());
@@ -77,7 +75,7 @@ public class Transform {
 
   /**
    * Generates a URL of the transformation.
-   * Includes the related {@link FileLink FileLink's} policy and signature.
+   * Includes the related {@link FsFile FsFile's} policy and signature.
    *
    * @return transformation URL
    */
@@ -85,10 +83,18 @@ public class Transform {
     String tasksString = getTasksString();
     HttpUrl httpUrl;
 
-    if (apiKey != null) {
-      httpUrl = fsService.cdn().transformExt(apiKey, tasksString, source).request().url();
+    if (url != null) {
+      httpUrl = fsClient.getFsService()
+          .cdn()
+          .transformExt(fsClient.getApiKey(), tasksString, url)
+          .request()
+          .url();
     } else {
-      httpUrl = fsService.cdn().transform(tasksString, source).request().url();
+      httpUrl = fsClient.getFsService()
+          .cdn()
+          .transform(tasksString, fsFile.getHandle())
+          .request()
+          .url();
     }
 
     // When building the request we add a / between tasks
@@ -101,17 +107,23 @@ public class Transform {
    * Returns the content of a transformation.
    *
    * @return raw transformation content, streamable
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
   public ResponseBody getContent() throws IOException {
     String tasksString = getTasksString();
     Response<ResponseBody> response;
 
-    if (apiKey != null) {
-      response = fsService.cdn().transformExt(apiKey, tasksString, source).execute();
+    if (url != null) {
+      response = fsClient.getFsService()
+          .cdn()
+          .transformExt(fsClient.getApiKey(), tasksString, url)
+          .execute();
     } else {
-      response = fsService.cdn().transform(tasksString, source).execute();
+      response = fsClient.getFsService()
+          .cdn()
+          .transform(tasksString, fsFile.getHandle())
+          .execute();
     }
 
     Util.checkResponseAndThrow(response);
@@ -145,8 +157,8 @@ public class Transform {
         return getContent();
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(fsClient.getSubScheduler())
+        .observeOn(fsClient.getObsScheduler());
   }
 
   /**
@@ -161,7 +173,7 @@ public class Transform {
         return getContentJson();
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(fsClient.getSubScheduler())
+        .observeOn(fsClient.getObsScheduler());
   }
 }

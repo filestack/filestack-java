@@ -1,6 +1,6 @@
 package com.filestack.util;
 
-import com.filestack.HttpResponseException;
+import com.filestack.HttpException;
 import java.io.IOException;
 import okhttp3.MediaType;
 import okhttp3.Protocol;
@@ -42,7 +42,7 @@ public class TestRetryNetworkFunc {
       }
     };
 
-    thrown.expect(HttpResponseException.class);
+    thrown.expect(HttpException.class);
     retryNetworkFunc.call();
   }
 
@@ -67,7 +67,7 @@ public class TestRetryNetworkFunc {
       }
     };
 
-    thrown.expect(HttpResponseException.class);
+    thrown.expect(HttpException.class);
     retryNetworkFunc.call();
   }
 
@@ -82,7 +82,7 @@ public class TestRetryNetworkFunc {
       }
     };
 
-    thrown.expect(HttpResponseException.class);
+    thrown.expect(HttpException.class);
     retryNetworkFunc.call();
   }
 
@@ -97,7 +97,7 @@ public class TestRetryNetworkFunc {
       }
     };
 
-    thrown.expect(HttpResponseException.class);
+    thrown.expect(HttpException.class);
     retryNetworkFunc.call();
   }
 

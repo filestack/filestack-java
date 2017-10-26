@@ -2,7 +2,7 @@ package com.filestack;
 
 import com.google.gson.annotations.SerializedName;
 
-public class AccountInfo {
+public class AppInfo {
   @SerializedName("intelligent_ingestion") private boolean intelligent;
   private boolean blocked;
   @SerializedName("whitelabel") private boolean whiteLabel;

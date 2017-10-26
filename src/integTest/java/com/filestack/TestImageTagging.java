@@ -18,42 +18,44 @@ public class TestImageTagging {
 
   @Test
   public void testImageTags() throws Exception {
-    FilestackClient client = new FilestackClient(API_KEY, SECURITY);
+    FsClient fsClient = new FsClient.Builder().apiKey(API_KEY).security(SECURITY).build();
 
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     String origPath = loader.getResource("com/filestack/sample_image.jpg").getPath();
     File origFile = new File(origPath);
 
-    FileLink fileLink = client.upload(origPath, true);
-    handles.add(fileLink.getHandle());
+    FsFile fsFile = fsClient.upload(origPath, true);
+    handles.add(fsFile.getHandle());
 
-    Map<String, Integer> tags = fileLink.imageTags();
+    Map<String, Integer> tags = fsFile.imageTags();
     Assert.assertNotNull(tags.get("nebula"));
   }
 
   @Test
   public void testImageSfw() throws Exception {
-    FilestackClient client = new FilestackClient(API_KEY, SECURITY);
+    FsClient fsClient = new FsClient.Builder().apiKey(API_KEY).security(SECURITY).build();
 
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     String origPath = loader.getResource("com/filestack/sample_image.jpg").getPath();
     File origFile = new File(origPath);
 
-    FileLink fileLink = client.upload(origPath, false);
-    handles.add(fileLink.getHandle());
+    FsFile fsFile = fsClient.upload(origPath, false);
+    handles.add(fsFile.getHandle());
 
-    Assert.assertTrue(fileLink.imageSfw());
+    Assert.assertTrue(fsFile.imageSfw());
   }
 
   /** Deletes any files uploaded during tests. */
   @AfterClass
   public static void cleanupHandles() {
+    FsClient fsClient = new FsClient.Builder().apiKey(API_KEY).security(SECURITY).build();
+    
     for (String handle : handles) {
-      FileLink fileLink = new FileLink(API_KEY, handle, SECURITY);
+      FsFile fsFile = new FsFile(fsClient, handle);
       try {
-        fileLink.delete();
+        fsFile.delete();
       } catch (Exception e) {
-        Assert.fail("FileLink delete failed");
+        Assert.fail("FsFile delete failed");
       }
     }
   }

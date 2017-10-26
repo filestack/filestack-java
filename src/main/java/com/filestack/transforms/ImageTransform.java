@@ -1,29 +1,29 @@
 package com.filestack.transforms;
 
-import com.filestack.FileLink;
-import com.filestack.FilestackClient;
-import com.filestack.HttpResponseException;
+import com.filestack.FsClient;
+import com.filestack.FsFile;
+import com.filestack.HttpException;
 import com.filestack.StorageOptions;
 import com.filestack.util.Util;
 import com.filestack.util.responses.StoreResponse;
 import com.google.gson.JsonObject;
 import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
+import retrofit2.Response;
+
 import java.io.IOException;
 import java.util.concurrent.Callable;
-import retrofit2.Response;
 
 /**
  * {@link Transform Transform} subclass for image transformations.
  */
 public class ImageTransform extends Transform {
 
-  public ImageTransform(FilestackClient fsClient, String source) {
-    super(fsClient, source);
+  public ImageTransform(FsFile fsFile) {
+    super(fsFile);
   }
 
-  public ImageTransform(FileLink fileLink) {
-    super(fileLink);
+  public ImageTransform(FsClient fsClient, String url) {
+    super(fsClient, url);
   }
 
   /**
@@ -31,17 +31,23 @@ public class ImageTransform extends Transform {
    * @see <a href="https://www.filestack.com/docs/image-transformations/debug"></a>
    *
    * @return {@link JsonObject JSON} report for transformation
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
   public JsonObject debug() throws IOException {
     String tasksString = getTasksString();
 
     Response<JsonObject> response;
-    if (apiKey != null) {
-      response = fsService.cdn().transformDebugExt(apiKey, tasksString, source).execute();
+    if (url != null) {
+      response = fsClient.getFsService()
+          .cdn()
+          .transformDebugExt(fsClient.getApiKey(), tasksString, url)
+          .execute();
     } else {
-      response = fsService.cdn().transformDebug(tasksString, source).execute();
+      response = fsClient.getFsService()
+          .cdn()
+          .transformDebug(tasksString, fsFile.getHandle())
+          .execute();
     }
 
     Util.checkResponseAndThrow(response);
@@ -58,11 +64,11 @@ public class ImageTransform extends Transform {
    * Stores the result of a transformation into a new file. Uses default storage options.
    * @see <a href="https://www.filestack.com/docs/image-transformations/store"></a>
    *
-   * @return new {@link FileLink FileLink} pointing to the file
-   * @throws HttpResponseException on error response from backend
+   * @return new {@link FsFile FsFile} pointing to the file
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
-  public FileLink store() throws IOException {
+  public FsFile store() throws IOException {
     return store(null);
   }
 
@@ -71,11 +77,11 @@ public class ImageTransform extends Transform {
    * @see <a href="https://www.filestack.com/docs/image-transformations/store"></a>
    *
    * @param storageOptions configure where and how your file is stored
-   * @return new {@link FileLink FileLink} pointing to the file
-   * @throws HttpResponseException on error response from backend
+   * @return new {@link FsFile FsFile} pointing to the file
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
-  public FileLink store(StorageOptions storageOptions) throws IOException {
+  public FsFile store(StorageOptions storageOptions) throws IOException {
     if (storageOptions == null) {
       storageOptions = new StorageOptions();
     }
@@ -84,10 +90,16 @@ public class ImageTransform extends Transform {
 
     Response<StoreResponse> response;
     String tasksString = getTasksString();
-    if (apiKey != null) {
-      response = fsService.cdn().transformStoreExt(apiKey, tasksString, source).execute();
+    if (url != null) {
+      response = fsClient.getFsService()
+          .cdn()
+          .transformStoreExt(fsClient.getApiKey(), tasksString, url)
+          .execute();
     } else {
-      response = fsService.cdn().transformStore(tasksString, source).execute();
+      response = fsClient.getFsService()
+          .cdn()
+          .transformStore(tasksString, fsFile.getHandle())
+          .execute();
     }
 
     Util.checkResponseAndThrow(response);
@@ -98,7 +110,7 @@ public class ImageTransform extends Transform {
     }
 
     String handle = body.getUrl().split("/")[3];
-    return new FileLink(apiKey, handle, security);
+    return new FsFile(fsClient, handle);
   }
 
   /**
@@ -127,15 +139,15 @@ public class ImageTransform extends Transform {
         return debug();
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(fsClient.getSubScheduler())
+        .observeOn(fsClient.getObsScheduler());
   }
 
   /**
    * Async, observable version of {@link #store()}.
    * Same exceptions are passed through observable.
    */
-  public Single<FileLink> storeAsync() {
+  public Single<FsFile> storeAsync() {
     return storeAsync(null);
   }
 
@@ -143,14 +155,14 @@ public class ImageTransform extends Transform {
    * Async, observable version of {@link #store(StorageOptions)}.
    * Same exceptions are passed through observable.
    */
-  public Single<FileLink> storeAsync(final StorageOptions storageOptions) {
-    return Single.fromCallable(new Callable<FileLink>() {
+  public Single<FsFile> storeAsync(final StorageOptions storageOptions) {
+    return Single.fromCallable(new Callable<FsFile>() {
       @Override
-      public FileLink call() throws Exception {
+      public FsFile call() throws Exception {
         return store(storageOptions);
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(fsClient.getSubScheduler())
+        .observeOn(fsClient.getObsScheduler());
   }
 }

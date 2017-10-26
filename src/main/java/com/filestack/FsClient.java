@@ -10,6 +10,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.functions.Action;
 import io.reactivex.schedulers.Schedulers;
@@ -18,59 +19,82 @@ import java.util.concurrent.Callable;
 import retrofit2.Response;
 
 /** Uploads new files. */
-public class FilestackClient {
-  // public static final String CLOUD_IMAGE_SEARCH = "imagesearch";
-  public static final String CLOUD_FACEBOOK = "facebook";
-  public static final String CLOUD_INSTAGRAM = "instagram";
-  public static final String CLOUD_GOOGLE_DRIVE = "googledrive";
-  public static final String CLOUD_DROPBOX = "dropbox";
-  public static final String CLOUD_EVERNOTE = "evernote";
-  public static final String CLOUD_FLICKR = "flickr";
-  public static final String CLOUD_BOX = "box";
-  public static final String CLOUD_GITHUB = "github";
-  public static final String CLOUD_GMAIL = "gmail";
-  public static final String CLOUD_GOOGLE_PHOTOS = "picasa";
-  public static final String CLOUD_ONEDRIVE = "onedrive";
-  public static final String CLOUD_AMAZON_DRIVE = "clouddrive";
-  // public static final String CLOUD_CUSTOM_SOURCE = "customsource";
-  // public static final String CLOUD_VIDEO = "video";
-
-  private String apiKey;
-  private Security security;
-  private FsService fsService;
-  private String returnUrl;
+public class FsClient {
+  protected final FsService fsService;
+  protected final Scheduler subScheduler;
+  protected final Scheduler obsScheduler;
+  protected final Security security;
+  protected final String apiKey;
+  protected final String returnUrl;
+  
   private String sessionToken;
 
   /**
-   * Constructs a client without security.
-   *
-   * @param apiKey account key from the dev portal
+   * Builds new {@link FsClient}.
    */
-  public FilestackClient(String apiKey) {
-    this(apiKey, null);
+  @SuppressWarnings("unchecked")
+  public static class Builder<T extends Builder<T>> {
+    protected FsService fsService;
+    protected Scheduler subScheduler;
+    protected Scheduler obsScheduler;
+    protected Security security;
+    protected String apiKey;
+    protected String sessionToken;
+    protected String returnUrl;
+
+    public T fsService(FsService fsService) {
+      this.fsService = fsService;
+      return (T) this;
+    }
+
+    public T subScheduler(Scheduler subScheduler) {
+      this.subScheduler = subScheduler;
+      return (T) this;
+    }
+
+    public T obsScheduler(Scheduler obsScheduler) {
+      this.obsScheduler = obsScheduler;
+      return (T) this;
+    }
+
+    public T security(Security security) {
+      this.security = security;
+      return (T) this;
+    }
+
+    public T apiKey(String apiKey) {
+      this.apiKey = apiKey;
+      return (T) this;
+    }
+
+    public T sessionToken(String sessionToken) {
+      this.sessionToken = sessionToken;
+      return (T) this;
+    }
+
+    public T returnUrl(String returnUrl) {
+      this.returnUrl = returnUrl;
+      return (T) this;
+    }
+
+    /**
+     * Create the {@link FsClient} using the configured values.
+     */
+    public FsClient build() {
+      subScheduler = subScheduler != null ? subScheduler : Schedulers.io();
+      obsScheduler = obsScheduler != null ? obsScheduler : Schedulers.single();
+      return new FsClient(this);
+    }
   }
 
-  /**
-   * Constructs a client with security.
-   *
-   * @param apiKey   account key from the dev portal
-   * @param security configured security object
-   */
-  public FilestackClient(String apiKey, Security security) {
-    this(apiKey, security, null);
-  }
-
-  /**
-   * Constructs a client using custom {@link FsService}. For internal use.
-   *
-   * @param apiKey    account key from the dev portal
-   * @param security  configured security object
-   * @param fsService service to use for API calls, overrides default singleton
-   */
-  public FilestackClient(String apiKey, Security security, FsService fsService) {
-    this.apiKey = apiKey;
-    this.security = security;
-    this.fsService = fsService != null ? fsService : new FsService();
+  protected FsClient(Builder<?> builder) {
+    fsService = builder.fsService != null ? builder.fsService : new FsService();
+    subScheduler = builder.subScheduler;
+    obsScheduler = builder.obsScheduler;
+    security = builder.security;
+    apiKey = builder.apiKey;
+    sessionToken = builder.sessionToken;
+    returnUrl = builder.returnUrl;
   }
 
   /**
@@ -78,7 +102,7 @@ public class FilestackClient {
    *
    * @see #upload(String, boolean, StorageOptions)
    */
-  public FileLink upload(String path, boolean intelligent) throws IOException {
+  public FsFile upload(String path, boolean intelligent) throws IOException {
     return upload(path, intelligent, null);
   }
 
@@ -89,11 +113,11 @@ public class FilestackClient {
    * @param options     storage options, https://www.filestack.com/docs/rest-api/store
    * @param intelligent intelligent ingestion, setting to true to will decrease failures in very
    *                    poor network conditions at the expense of upload speed
-   * @return new {@link FileLink} referencing file
-   * @throws HttpResponseException on error response from backend
+   * @return new {@link FsFile} referencing file
+   * @throws HttpException on error response from backend
    * @throws IOException           on error reading file or network failure
    */
-  public FileLink upload(String path, boolean intelligent, StorageOptions options)
+  public FsFile upload(String path, boolean intelligent, StorageOptions options)
       throws IOException {
 
     try {
@@ -104,16 +128,25 @@ public class FilestackClient {
   }
 
   /**
-   * Gets basic account info for this client's API key.
+   * Gets basic account info for this fsClient's API key.
    *
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
-  public AccountInfo getAccountInfo() throws IOException {
+  public AppInfo getAppInfo() throws IOException {
     JsonObject params = makeCloudParams();
-    Response<AccountInfo> response = fsService.cloud().prefetch(params).execute();
+    Response<AppInfo> response = fsService.cloud().prefetch(params).execute();
     Util.checkResponseAndThrow(response);
     return response.body();
+  }
+
+  /**
+   * Gets contents of a user's cloud "drive".
+   *
+   * @see #getCloudItems(String, String, String)
+   */
+  public CloudResponse getCloudItems(String providerName, String path) throws IOException {
+    return getCloudItems(providerName, path, null);
   }
 
   /**
@@ -121,12 +154,15 @@ public class FilestackClient {
    * response will contain an OAuth URL that should be opened in a browser.
    *
    * @param providerName one of the static CLOUD constants in this class
+   * @param next         pagination token returned in previous response
    *
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
-  public CloudContents getCloudContents(String providerName, String path) throws IOException {
-    JsonObject params = makeCloudParams(providerName, path);
+  public CloudResponse getCloudItems(String providerName, String path, String next)
+      throws IOException {
+
+    JsonObject params = makeCloudParams(providerName, path, next);
     Response<JsonObject> response = fsService.cloud().list(params).execute();
     Util.checkResponseAndThrow(response);
     JsonObject base = response.body();
@@ -137,7 +173,7 @@ public class FilestackClient {
 
     JsonElement provider = base.get(providerName);
     Gson gson = new Gson();
-    return gson.fromJson(provider, CloudContents.class);
+    return gson.fromJson(provider, CloudResponse.class);
   }
 
   /**
@@ -145,7 +181,7 @@ public class FilestackClient {
    *
    * @see #storeCloudItem(String, String, StorageOptions)
    */
-  public FileLink storeCloudItem(String providerName, String path) throws IOException {
+  public FsFile storeCloudItem(String providerName, String path) throws IOException {
     return storeCloudItem(providerName, path, null);
   }
 
@@ -155,10 +191,10 @@ public class FilestackClient {
    * @param providerName one of the static CLOUD constants in this class
    * @param options      storage options for how to save the file in Filestack
    * @return             new filelink
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
-  public FileLink storeCloudItem(String providerName, String path, StorageOptions options)
+  public FsFile storeCloudItem(String providerName, String path, StorageOptions options)
       throws IOException {
 
     if (options == null) {
@@ -172,14 +208,14 @@ public class FilestackClient {
     JsonElement responseJson = response.body().get(providerName);
     Gson gson = new Gson();
     CloudStoreResponse storeInfo = gson.fromJson(responseJson, CloudStoreResponse.class);
-    return new FileLink(apiKey, storeInfo.getHandle(), security);
+    return new FsFile(this, storeInfo.getHandle());
   }
 
   /**
    * Logs out from specified cloud.
    *
    * @param providerName one of the static CLOUD constants in this class
-   * @throws HttpResponseException on error response from backend
+   * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
   public void logoutCloud(String providerName) throws IOException {
@@ -196,20 +232,20 @@ public class FilestackClient {
    * @see #upload(String, boolean, StorageOptions)
    * @see #uploadAsync(String, boolean, StorageOptions)
    */
-  public Flowable<Progress<FileLink>> uploadAsync(String path, boolean intelligent) {
+  public Flowable<Progress<FsFile>> uploadAsync(String path, boolean intelligent) {
     return uploadAsync(path, intelligent, null);
   }
 
   /**
    * Asynchronously uploads local file. A stream of {@link Progress} objects are emitted by the
    * returned {@link Flowable}. The final {@link Progress} object will return a new
-   * {@link FileLink} from {@link Progress#getData()}. The upload is not done until
+   * {@link FsFile} from {@link Progress#getData()}. The upload is not done until
    * {@link Progress#getData()} returns non-null.
    *
    * @see #upload(String, boolean, StorageOptions)
    */
-  public Flowable<Progress<FileLink>> uploadAsync(String path, boolean intelligent,
-                                                  StorageOptions options) {
+  public Flowable<Progress<FsFile>> uploadAsync(String path, boolean intelligent,
+                                                StorageOptions options) {
 
     if (options == null) {
       options = new StorageOptions();
@@ -220,40 +256,51 @@ public class FilestackClient {
       options = options.newBuilder().contentType(contentType).build();
     }
 
-    Upload upload = new Upload(path, intelligent, options, this, fsService);
+    Upload upload = new Upload(this, path, intelligent, options);
     return upload.runAsync();
   }
 
   /**
-   * Asynchronously get basic account info for this client's API key.
+   * Asynchronously get basic account info for this fsClient's API key.
    *
-   * @see #getAccountInfo()
+   * @see #getAppInfo()
    */
-  public Single<AccountInfo> getAccountInfoAsync() {
-    return Single.fromCallable(new Callable<AccountInfo>() {
+  public Single<AppInfo> getAppInfoAsync() {
+    return Single.fromCallable(new Callable<AppInfo>() {
       @Override
-      public AccountInfo call() throws Exception {
-        return getAccountInfo();
+      public AppInfo call() throws Exception {
+        return getAppInfo();
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(subScheduler)
+        .observeOn(obsScheduler);
   }
 
   /**
    * Asynchronously gets contents of a user's cloud "drive".
    *
-   * @see #getCloudContents(String, String)
+   * @see #getCloudItems(String, String, String)
    */
-  public Single<CloudContents> getCloudContentsAsync(final String providerName, final String path) {
-    return Single.fromCallable(new Callable<CloudContents>() {
+  public Single<CloudResponse> getCloudItemsAsync(String providerName, String path) {
+    return getCloudItemsAsync(providerName, path, null);
+  }
+
+  /**
+   * Asynchronously gets contents of a user's cloud "drive".
+   *
+   * @see #getCloudItems(String, String, String)
+   */
+  public Single<CloudResponse> getCloudItemsAsync(final String providerName, final String path,
+                                                     final String next) {
+
+    return Single.fromCallable(new Callable<CloudResponse>() {
       @Override
-      public CloudContents call() throws Exception {
-        return getCloudContents(providerName, path);
+      public CloudResponse call() throws Exception {
+        return getCloudItems(providerName, path, next);
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(subScheduler)
+        .observeOn(obsScheduler);
   }
 
   /**
@@ -262,7 +309,7 @@ public class FilestackClient {
    *
    * @see #storeCloudItem(String, String, StorageOptions)
    */
-  public Single<FileLink> storeCloudItemAsync(final String providerName, final String path) {
+  public Single<FsFile> storeCloudItemAsync(final String providerName, final String path) {
     return storeCloudItemAsync(providerName, path, null);
   }
 
@@ -271,17 +318,17 @@ public class FilestackClient {
    *
    * @see #storeCloudItem(String, String, StorageOptions)
    */
-  public Single<FileLink> storeCloudItemAsync(final String providerName, final String path,
-                                              final StorageOptions options) {
+  public Single<FsFile> storeCloudItemAsync(final String providerName, final String path,
+                                            final StorageOptions options) {
 
-    return Single.fromCallable(new Callable<FileLink>() {
+    return Single.fromCallable(new Callable<FsFile>() {
       @Override
-      public FileLink call() throws Exception {
+      public FsFile call() throws Exception {
         return storeCloudItem(providerName, path, options);
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(subScheduler)
+        .observeOn(obsScheduler);
   }
 
   /**
@@ -296,8 +343,8 @@ public class FilestackClient {
         logoutCloud(providerName);
       }
     })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+        .subscribeOn(subScheduler)
+        .observeOn(obsScheduler);
   }
 
   /**
@@ -315,7 +362,7 @@ public class FilestackClient {
   }
 
   /**
-   * Creates a {@link JsonObject} with this client's config.
+   * Creates a {@link JsonObject} with this fsClient's config.
    */
   protected JsonObject makeCloudParams() {
     JsonObject json = new JsonObject();
@@ -333,16 +380,38 @@ public class FilestackClient {
   }
 
   /**
-   * Creates a {@link JsonObject} with this client's config. Adds provider info.
+   * Creates a {@link JsonObject} with this fsClient's config. Adds provider info.
    */
   protected JsonObject makeCloudParams(String providerName, String path) {
+    return makeCloudParams(providerName, path, null);
+  }
+
+  /**
+   * Creates a {@link JsonObject} with this fsClient's config. Adds provider info with next token.
+   */
+  protected JsonObject makeCloudParams(String providerName, String path, String next) {
     JsonObject provider = new JsonObject();
     provider.addProperty("path", path);
+    if (next != null) {
+      provider.addProperty("next", next);
+    }
     JsonObject clouds = new JsonObject();
     clouds.add(providerName, provider);
     JsonObject base = makeCloudParams();
     base.add("clouds", clouds);
     return base;
+  }
+
+  public FsService getFsService() {
+    return fsService;
+  }
+
+  public Scheduler getSubScheduler() {
+    return subScheduler;
+  }
+
+  public Scheduler getObsScheduler() {
+    return obsScheduler;
   }
 
   public String getApiKey() {
@@ -353,12 +422,15 @@ public class FilestackClient {
     return security;
   }
 
-  public FsService getFsService() {
-    return fsService;
+  public String getSessionToken() {
+    return sessionToken;
   }
 
-  // TODO remove this and setup builder
-  public void setReturnUrl(String returnUrl) {
-    this.returnUrl = returnUrl;
+  public String getReturnUrl() {
+    return returnUrl;
+  }
+
+  public void setSessionToken(String sessionToken) {
+    this.sessionToken = sessionToken;
   }
 }

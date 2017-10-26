@@ -1,6 +1,7 @@
 package com.filestack.transforms;
 
-import com.filestack.FileLink;
+import com.filestack.FsClient;
+import com.filestack.FsFile;
 import com.filestack.StorageOptions;
 import com.filestack.transforms.tasks.AvTransformOptions;
 import com.filestack.util.FsCdnService;
@@ -20,8 +21,9 @@ public class TestAvTransform {
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorException() {
-    FileLink fileLink = new FileLink("apiKey", "handle");
-    fileLink.avTransform(null);
+    FsClient fsClient = new FsClient.Builder().apiKey("apikey").build();
+    FsFile fsFile = new FsFile(fsClient, "handle");
+    fsFile.avTransform(null);
   }
 
   @Test
@@ -30,8 +32,9 @@ public class TestAvTransform {
         .preset("mp4")
         .build();
 
-    FileLink fileLink = new FileLink("apiKey", "handle");
-    TransformTask task = fileLink.avTransform(avOptions).tasks.get(0);
+    FsClient fsClient = new FsClient.Builder().apiKey("apikey").build();
+    FsFile fsFile = new FsFile(fsClient, "handle");
+    TransformTask task = fsFile.avTransform(avOptions).tasks.get(0);
 
     Assert.assertEquals("video_convert=preset:mp4", task.toString());
   }
@@ -46,8 +49,9 @@ public class TestAvTransform {
         .preset("mp4")
         .build();
 
-    FileLink fileLink = new FileLink("apiKey", "handle");
-    TransformTask task = fileLink.avTransform(storageOptions, avOptions).tasks.get(0);
+    FsClient fsClient = new FsClient.Builder().apiKey("apikey").build();
+    FsFile fsFile = new FsFile(fsClient, "handle");
+    TransformTask task = fsFile.avTransform(storageOptions, avOptions).tasks.get(0);
 
     Assert.assertEquals("video_convert=container:some-bucket,preset:mp4", task.toString());
   }
@@ -71,14 +75,17 @@ public class TestAvTransform {
         .when(mockCdnService)
         .transform(Mockito.anyString(), Mockito.anyString());
 
-    FileLink.Builder builder = new FileLink.Builder().apiKey("apiKey").service(mockFsService);
+    FsClient fsClient = new FsClient.Builder()
+        .apiKey("apikey")
+        .fsService(mockFsService)
+        .build();
 
-    FileLink ready = builder.handle("ready").build();
-    FileLink pending = builder.handle("pending").build();
+    FsFile ready = new FsFile(fsClient, "ready");
+    FsFile pending = new FsFile(fsClient, "pending");
 
     AvTransformOptions avOptions = new AvTransformOptions.Builder().preset("mp4").build();
 
-    FileLink converted = ready.avTransform(avOptions).getFileLink();
+    FsFile converted = ready.avTransform(avOptions).getFileLink();
     Assert.assertEquals("handle", converted.getHandle());
     Assert.assertNull(pending.avTransform(avOptions).getFileLink());
   }
@@ -97,14 +104,15 @@ public class TestAvTransform {
         .when(mockCdnService)
         .transform("video_convert=preset:mp4", "handle");
 
-    FileLink fileLink = new FileLink.Builder()
-        .apiKey("apiKey")
-        .handle("handle")
-        .service(mockFsService)
+    FsClient fsClient = new FsClient.Builder()
+        .apiKey("apikey")
+        .fsService(mockFsService)
         .build();
+
+    FsFile fsFile = new FsFile(fsClient, "handle");
 
     AvTransformOptions avOptions = new AvTransformOptions.Builder().preset("mp4").build();
 
-    fileLink.avTransform(avOptions).getFileLink();
+    fsFile.avTransform(avOptions).getFileLink();
   }
 }
