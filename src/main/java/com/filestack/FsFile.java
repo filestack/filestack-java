@@ -27,20 +27,12 @@ import java.util.concurrent.Callable;
 
 /** References and performs operations on an individual file. */
 public class FsFile {
-  protected final FsClient fsClient;
+  protected final FsConfig config;
   protected final String handle;
-  protected final Security security;
 
-  /** Create instance using client security (or none). */
-  public FsFile(FsClient fsClient, String handle) {
-    this(fsClient, handle, null);
-  }
-
-  /** Create instance using file-specific security. */
-  public FsFile(FsClient fsClient, String handle, Security security) {
-    this.fsClient = fsClient;
+  public FsFile(FsConfig config, String handle) {
+    this.config = config;
     this.handle = handle;
-    this.security = security != null ? security : fsClient.getSecurity();
   }
 
   /**
@@ -51,12 +43,8 @@ public class FsFile {
    * @throws IOException           on network failure
    */
   public ResponseBody getContent() throws IOException {
-    String policy = security != null ? security.getPolicy() : null;
-    String signature = security != null ? security.getSignature() : null;
-
-    Response<ResponseBody> response = fsClient.getFsService()
-        .cdn()
-        .get(this.handle, policy, signature)
+    Response<ResponseBody> response = config.getService().cdn()
+        .get(this.handle, config.getPolicy(), config.getSignature())
         .execute();
 
     Util.checkResponseAndThrow(response);
@@ -82,12 +70,8 @@ public class FsFile {
    * @throws IOException           on error creating file or network failure
    */
   public File download(String directory, String filename) throws IOException {
-    String policy = security != null ? security.getPolicy() : null;
-    String signature = security != null ? security.getSignature() : null;
-
-    Response<ResponseBody> response = fsClient.getFsService()
-        .cdn()
-        .get(this.handle, policy, signature)
+    Response<ResponseBody> response = config.getService().cdn()
+        .get(this.handle, config.getPolicy(), config.getSignature())
         .execute();
 
     Util.checkResponseAndThrow(response);
@@ -121,7 +105,7 @@ public class FsFile {
    * @throws IOException           on error reading file or network failure
    */
   public void overwrite(String pathname) throws IOException {
-    if (security == null) {
+    if (!config.hasSecurity()) {
       throw new IllegalStateException("Security must be set in order to overwrite");
     }
 
@@ -130,12 +114,8 @@ public class FsFile {
     String mimeType = URLConnection.guessContentTypeFromName(file.getName());
     RequestBody body = RequestBody.create(MediaType.parse(mimeType), file);
 
-    String policy = security.getPolicy();
-    String signature = security.getSignature();
-
-    Response response = fsClient.getFsService()
-        .api()
-        .overwrite(handle, policy, signature, body)
+    Response response = config.getService().api()
+        .overwrite(handle, config.getPolicy(), config.getSignature(), body)
         .execute();
 
     Util.checkResponseAndThrow(response);
@@ -148,16 +128,12 @@ public class FsFile {
    * @throws IOException           on network failure
    */
   public void delete() throws IOException {
-    if (security == null) {
+    if (!config.hasSecurity()) {
       throw new IllegalStateException("Security must be set in order to delete");
     }
-
-    String policy = security.getPolicy();
-    String signature = security.getSignature();
-
-    Response response = fsClient.getFsService()
-        .api()
-        .delete(handle, fsClient.getApiKey(), policy, signature)
+    
+    Response response = config.getService().api()
+        .delete(handle, config.getApiKey(), config.getPolicy(), config.getSignature())
         .execute();
 
     Util.checkResponseAndThrow(response);
@@ -170,7 +146,7 @@ public class FsFile {
    * @return {@link ImageTransform ImageTransform} instance configured for this file
    */
   public ImageTransform imageTransform() {
-    return new ImageTransform(this);
+    return new ImageTransform(config, handle, false);
   }
 
   /**
@@ -182,11 +158,11 @@ public class FsFile {
    * @see <a href="https://www.filestack.com/docs/tagging"></a>
    */
   public Map<String, Integer> imageTags() throws IOException {
-    if (security == null) {
+    if (!config.hasSecurity()) {
       throw new IllegalStateException("Security must be set in order to tag an image");
     }
 
-    ImageTransform transform = new ImageTransform(this);
+    ImageTransform transform = new ImageTransform(config, handle, false);
     transform.addTask(new ImageTransformTask("tags"));
     JsonObject json = transform.getContentJson();
     Gson gson = new Gson();
@@ -203,11 +179,11 @@ public class FsFile {
    * @see <a href="https://www.filestack.com/docs/tagging"></a>
    */
   public boolean imageSfw() throws IOException {
-    if (security == null) {
+    if (!config.hasSecurity()) {
       throw new IllegalStateException("Security must be set in order to tag an image");
     }
 
-    ImageTransform transform = new ImageTransform(this);
+    ImageTransform transform = new ImageTransform(config, handle, false);
     transform.addTask(new ImageTransformTask("sfw"));
     JsonObject json = transform.getContentJson();
 
@@ -233,7 +209,7 @@ public class FsFile {
    * @return {@link AvTransform ImageTransform} instance configured for this file
    */
   public AvTransform avTransform(StorageOptions storeOptions, AvTransformOptions avOptions) {
-    return new AvTransform(this, storeOptions, avOptions);
+    return new AvTransform(config, handle, storeOptions, avOptions);
   }
 
   // Async methods
@@ -251,8 +227,8 @@ public class FsFile {
         return getContent();
       }
     })
-        .subscribeOn(fsClient.getSubScheduler())
-        .observeOn(fsClient.getObsScheduler());
+        .subscribeOn(config.getSubScheduler())
+        .observeOn(config.getObsScheduler());
   }
 
   /**
@@ -276,8 +252,8 @@ public class FsFile {
         return download(directory, filename);
       }
     })
-        .subscribeOn(fsClient.getSubScheduler())
-        .observeOn(fsClient.getObsScheduler());
+        .subscribeOn(config.getSubScheduler())
+        .observeOn(config.getObsScheduler());
   }
 
   /**
@@ -293,8 +269,8 @@ public class FsFile {
         overwrite(pathname);
       }
     })
-        .subscribeOn(fsClient.getSubScheduler())
-        .observeOn(fsClient.getObsScheduler());
+        .subscribeOn(config.getSubScheduler())
+        .observeOn(config.getObsScheduler());
   }
 
   /**
@@ -309,8 +285,8 @@ public class FsFile {
         delete();
       }
     })
-        .subscribeOn(fsClient.getSubScheduler())
-        .observeOn(fsClient.getObsScheduler());
+        .subscribeOn(config.getSubScheduler())
+        .observeOn(config.getObsScheduler());
   }
 
   /**
@@ -325,8 +301,8 @@ public class FsFile {
         return imageTags();
       }
     })
-        .subscribeOn(fsClient.getSubScheduler())
-        .observeOn(fsClient.getObsScheduler());
+        .subscribeOn(config.getSubScheduler())
+        .observeOn(config.getObsScheduler());
   }
 
   /**
@@ -341,19 +317,15 @@ public class FsFile {
         return imageSfw();
       }
     })
-        .subscribeOn(fsClient.getSubScheduler())
-        .observeOn(fsClient.getObsScheduler());
+        .subscribeOn(config.getSubScheduler())
+        .observeOn(config.getObsScheduler());
   }
 
-  public FsClient getFsClient() {
-    return fsClient;
+  public FsConfig getConfig() {
+    return config;
   }
 
   public String getHandle() {
     return handle;
-  }
-
-  public Security getSecurity() {
-    return security;
   }
 }
