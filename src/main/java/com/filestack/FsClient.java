@@ -1,7 +1,6 @@
 package com.filestack;
 
 import com.filestack.transforms.ImageTransform;
-import com.filestack.util.FsService;
 import com.filestack.util.Upload;
 import com.filestack.util.Util;
 import com.filestack.util.responses.CloudStoreResponse;
@@ -10,91 +9,28 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
-import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.functions.Action;
-import io.reactivex.schedulers.Schedulers;
+import retrofit2.Response;
+
 import java.io.IOException;
 import java.util.concurrent.Callable;
-import retrofit2.Response;
 
 /** Uploads new files. */
 public class FsClient {
-  protected final FsService fsService;
-  protected final Scheduler subScheduler;
-  protected final Scheduler obsScheduler;
-  protected final Security security;
-  protected final String apiKey;
+  protected final FsConfig config;
   protected final String returnUrl;
   
   private String sessionToken;
 
-  /**
-   * Builds new {@link FsClient}.
-   */
-  @SuppressWarnings("unchecked")
-  public static class Builder<T extends Builder<T>> {
-    protected FsService fsService;
-    protected Scheduler subScheduler;
-    protected Scheduler obsScheduler;
-    protected Security security;
-    protected String apiKey;
-    protected String sessionToken;
-    protected String returnUrl;
-
-    public T fsService(FsService fsService) {
-      this.fsService = fsService;
-      return (T) this;
-    }
-
-    public T subScheduler(Scheduler subScheduler) {
-      this.subScheduler = subScheduler;
-      return (T) this;
-    }
-
-    public T obsScheduler(Scheduler obsScheduler) {
-      this.obsScheduler = obsScheduler;
-      return (T) this;
-    }
-
-    public T security(Security security) {
-      this.security = security;
-      return (T) this;
-    }
-
-    public T apiKey(String apiKey) {
-      this.apiKey = apiKey;
-      return (T) this;
-    }
-
-    public T sessionToken(String sessionToken) {
-      this.sessionToken = sessionToken;
-      return (T) this;
-    }
-
-    public T returnUrl(String returnUrl) {
-      this.returnUrl = returnUrl;
-      return (T) this;
-    }
-
-    /**
-     * Create the {@link FsClient} using the configured values.
-     */
-    public FsClient build() {
-      subScheduler = subScheduler != null ? subScheduler : Schedulers.io();
-      obsScheduler = obsScheduler != null ? obsScheduler : Schedulers.single();
-      return new FsClient(this);
-    }
+  public FsClient(FsConfig config) {
+    this.config = config;
+    this.returnUrl = null;
   }
-
-  protected FsClient(Builder<?> builder) {
-    fsService = builder.fsService != null ? builder.fsService : new FsService();
-    subScheduler = builder.subScheduler;
-    obsScheduler = builder.obsScheduler;
-    security = builder.security;
-    apiKey = builder.apiKey;
-    sessionToken = builder.sessionToken;
-    returnUrl = builder.returnUrl;
+  
+  public FsClient(FsConfig config, String returnUrl) {
+    this.config = config;
+    this.returnUrl = null;
   }
 
   /**
@@ -135,7 +71,7 @@ public class FsClient {
    */
   public AppInfo getAppInfo() throws IOException {
     JsonObject params = makeCloudParams();
-    Response<AppInfo> response = fsService.cloud().prefetch(params).execute();
+    Response<AppInfo> response = config.getService().cloud().prefetch(params).execute();
     Util.checkResponseAndThrow(response);
     return response.body();
   }
@@ -159,11 +95,12 @@ public class FsClient {
    * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
+  @SuppressWarnings("ConstantConditions")
   public CloudResponse getCloudItems(String providerName, String path, String next)
       throws IOException {
 
     JsonObject params = makeCloudParams(providerName, path, next);
-    Response<JsonObject> response = fsService.cloud().list(params).execute();
+    Response<JsonObject> response = config.getService().cloud().list(params).execute();
     Util.checkResponseAndThrow(response);
     JsonObject base = response.body();
 
@@ -194,6 +131,7 @@ public class FsClient {
    * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
+  @SuppressWarnings("ConstantConditions")
   public FsFile storeCloudItem(String providerName, String path, StorageOptions options)
       throws IOException {
 
@@ -203,12 +141,12 @@ public class FsClient {
 
     JsonObject params = makeCloudParams(providerName, path);
     params.add("store", options.getAsJson());
-    Response<JsonObject> response = fsService.cloud().store(params).execute();
+    Response<JsonObject> response = config.getService().cloud().store(params).execute();
     Util.checkResponseAndThrow(response);
     JsonElement responseJson = response.body().get(providerName);
     Gson gson = new Gson();
     CloudStoreResponse storeInfo = gson.fromJson(responseJson, CloudStoreResponse.class);
-    return new FsFile(this, storeInfo.getHandle());
+    return new FsFile(config, storeInfo.getHandle());
   }
 
   /**
@@ -220,7 +158,7 @@ public class FsClient {
    */
   public void logoutCloud(String providerName) throws IOException {
     JsonObject params = makeCloudParams(providerName, "/");
-    Response response = fsService.cloud().logout(params).execute();
+    Response response = config.getService().cloud().logout(params).execute();
     Util.checkResponseAndThrow(response);
   }
 
@@ -256,8 +194,10 @@ public class FsClient {
       options = options.newBuilder().contentType(contentType).build();
     }
 
-    Upload upload = new Upload(this, path, intelligent, options);
-    return upload.runAsync();
+    Upload upload = new Upload(config, path, intelligent, options);
+    return upload.runAsync()
+        .subscribeOn(config.getSubScheduler())
+        .observeOn(config.getObsScheduler());
   }
 
   /**
@@ -272,8 +212,8 @@ public class FsClient {
         return getAppInfo();
       }
     })
-        .subscribeOn(subScheduler)
-        .observeOn(obsScheduler);
+        .subscribeOn(config.getSubScheduler())
+        .observeOn(config.getObsScheduler());
   }
 
   /**
@@ -299,8 +239,8 @@ public class FsClient {
         return getCloudItems(providerName, path, next);
       }
     })
-        .subscribeOn(subScheduler)
-        .observeOn(obsScheduler);
+        .subscribeOn(config.getSubScheduler())
+        .observeOn(config.getObsScheduler());
   }
 
   /**
@@ -327,8 +267,8 @@ public class FsClient {
         return storeCloudItem(providerName, path, options);
       }
     })
-        .subscribeOn(subScheduler)
-        .observeOn(obsScheduler);
+        .subscribeOn(config.getSubScheduler())
+        .observeOn(config.getObsScheduler());
   }
 
   /**
@@ -343,8 +283,8 @@ public class FsClient {
         logoutCloud(providerName);
       }
     })
-        .subscribeOn(subScheduler)
-        .observeOn(obsScheduler);
+        .subscribeOn(config.getSubScheduler())
+        .observeOn(config.getObsScheduler());
   }
 
   /**
@@ -354,7 +294,7 @@ public class FsClient {
    * @return {@link ImageTransform ImageTransform} instance configured for this file
    */
   public ImageTransform imageTransform(String url) {
-    return new ImageTransform(this, url);
+    return new ImageTransform(config, url, true);
   }
 
   protected static String guessContentType(String path) {
@@ -366,10 +306,10 @@ public class FsClient {
    */
   protected JsonObject makeCloudParams() {
     JsonObject json = new JsonObject();
-    json.addProperty("apikey", apiKey);
-    if (security != null) {
-      json.addProperty("policy", security.getPolicy());
-      json.addProperty("signature", security.getSignature());
+    json.addProperty("apikey", config.getApiKey());
+    if (config.hasSecurity()) {
+      json.addProperty("policy", config.getPolicy());
+      json.addProperty("signature", config.getSignature());
     }
     json.addProperty("flow", "mobile");
     json.addProperty("appurl", returnUrl);
@@ -402,32 +342,12 @@ public class FsClient {
     return base;
   }
 
-  public FsService getFsService() {
-    return fsService;
-  }
-
-  public Scheduler getSubScheduler() {
-    return subScheduler;
-  }
-
-  public Scheduler getObsScheduler() {
-    return obsScheduler;
-  }
-
-  public String getApiKey() {
-    return apiKey;
-  }
-
-  public Security getSecurity() {
-    return security;
+  public FsConfig getConfig() {
+    return config;
   }
 
   public String getSessionToken() {
     return sessionToken;
-  }
-
-  public String getReturnUrl() {
-    return returnUrl;
   }
 
   public void setSessionToken(String sessionToken) {
