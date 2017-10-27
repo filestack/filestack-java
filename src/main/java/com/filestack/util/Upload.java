@@ -1,17 +1,18 @@
 package com.filestack.util;
 
-import com.filestack.FsClient;
+import com.filestack.FsConfig;
 import com.filestack.FsFile;
 import com.filestack.Progress;
 import com.filestack.StorageOptions;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
 
 /** Holds upload state and request logic. */
 public class Upload {
@@ -20,7 +21,7 @@ public class Upload {
   static final int MIN_CHUNK_SIZE = 32 * 1024;
   static final int DELAY_BASE = 2;
 
-  final FsClient fsClient;
+  final FsConfig config;
   final MediaType mediaType;
   final String path;
 
@@ -34,8 +35,8 @@ public class Upload {
   String[] etags;
 
   /** Constructs new instance. */
-  public Upload(FsClient fsClient, String path, boolean intelligent, StorageOptions options) {
-    this.fsClient = fsClient;
+  public Upload(FsConfig config, String path, boolean intelligent, StorageOptions options) {
+    this.config = config;
     this.path = path;
     mediaType = options.getMediaType();
 
@@ -47,11 +48,11 @@ public class Upload {
       baseParams.put("multipart", Util.createStringPart("true"));
     }
 
-    baseParams.put("apikey", Util.createStringPart(fsClient.getApiKey()));
+    baseParams.put("apikey", Util.createStringPart(config.getApiKey()));
 
-    if (fsClient.getSecurity() != null) {
-      baseParams.put("policy", Util.createStringPart(fsClient.getSecurity().getPolicy()));
-      baseParams.put("signature", Util.createStringPart(fsClient.getSecurity().getSignature()));
+    if (config.hasSecurity()) {
+      baseParams.put("policy", Util.createStringPart(config.getPolicy()));
+      baseParams.put("signature", Util.createStringPart(config.getSignature()));
     }
 
     // Don't open the file here so that any exceptions with it get passed through the observable
@@ -66,7 +67,7 @@ public class Upload {
   public Flowable<Progress<FsFile>> runAsync() {
     Flowable<Prog<FsFile>> startFlow = Flowable
         .fromCallable(new UploadStartFunc(this))
-        .subscribeOn(fsClient.getSubScheduler());
+        .subscribeOn(Schedulers.io());
 
     // Create multiple func instances to each upload a subrange of parts from the file
     // Merge each of these together into one so they're executed concurrently
@@ -75,20 +76,18 @@ public class Upload {
       UploadTransferFunc func = new UploadTransferFunc(this, i);
       Flowable<Prog<FsFile>> temp = Flowable
           .create(func, BackpressureStrategy.BUFFER)
-          .subscribeOn(fsClient.getSubScheduler());
+          .subscribeOn(Schedulers.io());
       transferFlow = transferFlow.mergeWith(temp);
     }
 
     Flowable<Prog<FsFile>> completeFlow = Flowable
         .fromCallable(new UploadCompleteFunc(this))
-        .subscribeOn(fsClient.getSubScheduler());
+        .subscribeOn(Schedulers.io());
 
     return startFlow
         .concatWith(transferFlow)
         .concatWith(completeFlow)
         .buffer(PROG_INTERVAL, TimeUnit.SECONDS)
-        .flatMap(new ProgMapFunc(this))
-        .subscribeOn(fsClient.getSubScheduler())
-        .observeOn(fsClient.getObsScheduler());
+        .flatMap(new ProgMapFunc(this));
   }
 }

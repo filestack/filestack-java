@@ -9,13 +9,14 @@ import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
 import io.reactivex.FlowableOnSubscribe;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Response;
+
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.Map;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import retrofit2.Response;
 
 /**
  * Function to be passed to {@link Flowable#create(FlowableOnSubscribe, BackpressureStrategy)}.
@@ -127,8 +128,7 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FsFile>> {
     func = new RetryNetworkFunc<UploadResponse>(5, 5, Upload.DELAY_BASE) {
       @Override
       Response<UploadResponse> work() throws Exception {
-        return upload.fsClient.getFsService()
-            .upload()
+        return upload.config.getService().upload()
             .upload(params)
             .execute();
       }
@@ -153,8 +153,7 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FsFile>> {
         String url = params.getUrl();
 
         RequestBody requestBody = RequestBody.create(upload.mediaType, bytes, 0, attemptSize);
-        return upload.fsClient.getFsService()
-            .upload()
+        return upload.config.getService().upload()
             .uploadS3(headers, url, requestBody)
             .execute();
       }
@@ -190,8 +189,7 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FsFile>> {
     func = new RetryNetworkFunc<ResponseBody>(5, 5, Upload.DELAY_BASE) {
       @Override
       Response<ResponseBody> work() throws Exception {
-        return upload.fsClient.getFsService()
-            .upload()
+        return upload.config.getService().upload()
             .commit(params)
             .execute();
       }

@@ -3,9 +3,10 @@ package com.filestack.util;
 import com.filestack.FsFile;
 import com.filestack.util.responses.StartResponse;
 import io.reactivex.Flowable;
+import retrofit2.Response;
+
 import java.io.File;
 import java.util.concurrent.Callable;
-import retrofit2.Response;
 
 /**
  * Function to be passed to {@link Flowable#fromCallable(Callable)}.
@@ -34,8 +35,7 @@ public class UploadStartFunc implements Callable<Prog<FsFile>> {
     func = new RetryNetworkFunc<StartResponse>(0, 5, Upload.DELAY_BASE) {
       @Override
       Response<StartResponse> work() throws Exception {
-        return upload.fsClient.getFsService()
-            .upload()
+        return upload.config.getService().upload()
             .start(upload.baseParams)
             .execute();
       }

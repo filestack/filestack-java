@@ -3,11 +3,12 @@ package com.filestack.util;
 import com.filestack.FsFile;
 import com.filestack.util.responses.CompleteResponse;
 import io.reactivex.Flowable;
+import okhttp3.RequestBody;
+import retrofit2.Response;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import okhttp3.RequestBody;
-import retrofit2.Response;
 
 /**
  * Function to be passed to {@link Flowable#fromCallable(Callable)}.
@@ -43,15 +44,14 @@ public class UploadCompleteFunc implements Callable<Prog<FsFile>> {
 
       @Override
       Response<CompleteResponse> work() throws Exception {
-        return upload.fsClient.getFsService()
-            .upload()
+        return upload.config.getService().upload()
             .complete(params)
             .execute();
       }
     };
 
     CompleteResponse response = func.call();
-    FsFile fsFile = new FsFile(upload.fsClient, response.getHandle());
+    FsFile fsFile = new FsFile(upload.config, response.getHandle());
 
     return new Prog<>(fsFile);
   }
