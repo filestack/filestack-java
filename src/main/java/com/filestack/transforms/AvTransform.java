@@ -1,5 +1,6 @@
 package com.filestack.transforms;
 
+import com.filestack.FsConfig;
 import com.filestack.FsFile;
 import com.filestack.HttpException;
 import com.filestack.StorageOptions;
@@ -16,11 +17,10 @@ import java.util.concurrent.Callable;
  */
 public class AvTransform extends Transform {
 
-  /**
-   * Constructs new instance from a {@link FsFile} and options.
-   */
-  public AvTransform(FsFile fsFile, StorageOptions storeOps, AvTransformOptions avOps) {
-    super(fsFile);
+  public AvTransform(FsConfig config, String handle, StorageOptions storeOps,
+                     AvTransformOptions avOps) {
+
+    super(config, handle, false);
 
     if (avOps == null) {
       throw new IllegalArgumentException("AvTransform can't be created without options");
@@ -58,7 +58,7 @@ public class AvTransform extends Transform {
           return null;
         }
         String handle = url.split("/")[3];
-        return new FsFile(fsClient, handle);
+        return new FsFile(config, handle);
       default:
         throw new IOException("Unexpected transform error: " + json.toString());
     }
@@ -96,7 +96,7 @@ public class AvTransform extends Transform {
         return fsFile;
       }
     })
-        .subscribeOn(fsClient.getSubScheduler())
-        .observeOn(fsClient.getObsScheduler());
+        .subscribeOn(config.getSubScheduler())
+        .observeOn(config.getObsScheduler());
   }
 }

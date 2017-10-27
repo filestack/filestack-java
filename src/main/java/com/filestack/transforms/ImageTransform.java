@@ -1,6 +1,6 @@
 package com.filestack.transforms;
 
-import com.filestack.FsClient;
+import com.filestack.FsConfig;
 import com.filestack.FsFile;
 import com.filestack.HttpException;
 import com.filestack.StorageOptions;
@@ -18,12 +18,8 @@ import java.util.concurrent.Callable;
  */
 public class ImageTransform extends Transform {
 
-  public ImageTransform(FsFile fsFile) {
-    super(fsFile);
-  }
-
-  public ImageTransform(FsClient fsClient, String url) {
-    super(fsClient, url);
+  public ImageTransform(FsConfig config, String source, boolean isExternal) {
+    super(config, source, isExternal);
   }
 
   /**
@@ -38,15 +34,13 @@ public class ImageTransform extends Transform {
     String tasksString = getTasksString();
 
     Response<JsonObject> response;
-    if (url != null) {
-      response = fsClient.getFsService()
-          .cdn()
-          .transformDebugExt(fsClient.getApiKey(), tasksString, url)
+    if (isExternal) {
+      response = config.getService().cdn()
+          .transformDebugExt(config.getApiKey(), tasksString, source)
           .execute();
     } else {
-      response = fsClient.getFsService()
-          .cdn()
-          .transformDebug(tasksString, fsFile.getHandle())
+      response = config.getService().cdn()
+          .transformDebug(tasksString, source)
           .execute();
     }
 
@@ -90,15 +84,13 @@ public class ImageTransform extends Transform {
 
     Response<StoreResponse> response;
     String tasksString = getTasksString();
-    if (url != null) {
-      response = fsClient.getFsService()
-          .cdn()
-          .transformStoreExt(fsClient.getApiKey(), tasksString, url)
+    if (isExternal) {
+      response = config.getService().cdn()
+          .transformStoreExt(config.getApiKey(), tasksString, source)
           .execute();
     } else {
-      response = fsClient.getFsService()
-          .cdn()
-          .transformStore(tasksString, fsFile.getHandle())
+      response = config.getService().cdn()
+          .transformStore(tasksString, source)
           .execute();
     }
 
@@ -110,7 +102,7 @@ public class ImageTransform extends Transform {
     }
 
     String handle = body.getUrl().split("/")[3];
-    return new FsFile(fsClient, handle);
+    return new FsFile(config, handle);
   }
 
   /**
@@ -139,8 +131,8 @@ public class ImageTransform extends Transform {
         return debug();
       }
     })
-        .subscribeOn(fsClient.getSubScheduler())
-        .observeOn(fsClient.getObsScheduler());
+        .subscribeOn(config.getSubScheduler())
+        .observeOn(config.getObsScheduler());
   }
 
   /**
@@ -162,7 +154,7 @@ public class ImageTransform extends Transform {
         return store(storageOptions);
       }
     })
-        .subscribeOn(fsClient.getSubScheduler())
-        .observeOn(fsClient.getObsScheduler());
+        .subscribeOn(config.getSubScheduler())
+        .observeOn(config.getObsScheduler());
   }
 }
