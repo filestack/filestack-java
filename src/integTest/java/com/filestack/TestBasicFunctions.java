@@ -1,25 +1,27 @@
 package com.filestack;
 
 import com.google.common.io.Files;
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.util.ArrayList;
-import java.util.UUID;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class TestBasicFunctions {
-  private static final String API_KEY = System.getenv("API_KEY");
-  private static final String POLICY = System.getenv("POLICY");
-  private static final String SIGNATURE = System.getenv("SIGNATURE");
-  private static final Security SECURITY = Security.fromExisting(POLICY, SIGNATURE);
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.UUID;
 
-  private static ArrayList<String> handles = new ArrayList<>();
-  private static ArrayList<File> files = new ArrayList<>();
+public class TestBasicFunctions {
+  private static final FsConfig config = new FsConfig.Builder()
+      .apiKey(System.getenv("API_KEY"))
+      .security(System.getenv("POLICY"), System.getenv("SIGNATURE"))
+      .build();
+  private static final FsClient client = new FsClient(config);
+
+  private static final ArrayList<String> HANDLES = new ArrayList<>();
+  private static final ArrayList<File> FILES = new ArrayList<>();
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -41,30 +43,26 @@ public class TestBasicFunctions {
 
   @Test
   public void testUpload() throws Exception {
-    FsClient fsClient = new FsClient.Builder().apiKey(API_KEY).security(SECURITY).build();
-
     String uuid = UUID.randomUUID().toString();
     File file = createRandomFile(uuid, 15L * 1024 * 1024);
-    files.add(file);
+    FILES.add(file);
 
-    FsFile fsFile = fsClient.upload(file.getPath(), false);
+    FsFile fsFile = client.upload(file.getPath(), false);
     String handle = fsFile.getHandle();
-    handles.add(handle);
+    HANDLES.add(handle);
 
     Assert.assertNotNull(handle);
   }
 
   @Test
   public void testGetContent() throws Exception {
-    FsClient fsClient = new FsClient.Builder().apiKey(API_KEY).security(SECURITY).build();
-
     String uuid = UUID.randomUUID().toString();
     File file = createRandomFile(uuid);
-    files.add(file);
+    FILES.add(file);
 
-    FsFile fsFile = fsClient.upload(file.getPath(), false);
+    FsFile fsFile = client.upload(file.getPath(), false);
     String handle = fsFile.getHandle();
-    handles.add(handle);
+    HANDLES.add(handle);
     byte[] bytes = fsFile.getContent().bytes();
     String content = new String(bytes, "utf-16");
 
@@ -73,19 +71,17 @@ public class TestBasicFunctions {
 
   @Test
   public void testDownload() throws Exception {
-    FsClient fsClient = new FsClient.Builder().apiKey(API_KEY).security(SECURITY).build();
-
     String uploadUuid = UUID.randomUUID().toString();
     File uploadFile = createRandomFile(uploadUuid);
-    files.add(uploadFile);
+    FILES.add(uploadFile);
 
-    FsFile fsFile = fsClient.upload(uploadFile.getPath(), false);
+    FsFile fsFile = client.upload(uploadFile.getPath(), false);
     String handle = fsFile.getHandle();
-    handles.add(handle);
+    HANDLES.add(handle);
 
     String downloadUuid = UUID.randomUUID().toString();
     File downloadFile = new File("/tmp/" + downloadUuid + ".txt");
-    files.add(downloadFile);
+    FILES.add(downloadFile);
     fsFile.download("/tmp/", downloadFile.getName());
 
     Assert.assertTrue(downloadFile.isFile());
@@ -96,19 +92,17 @@ public class TestBasicFunctions {
 
   @Test
   public void testOverwrite() throws Exception {
-    FsClient fsClient = new FsClient.Builder().apiKey(API_KEY).security(SECURITY).build();
-
     String uploadUuid = UUID.randomUUID().toString();
     File uploadFile = createRandomFile(uploadUuid);
-    files.add(uploadFile);
+    FILES.add(uploadFile);
 
     String overwriteUuid = UUID.randomUUID().toString();
     File overwriteFile = createRandomFile(overwriteUuid);
-    files.add(overwriteFile);
+    FILES.add(overwriteFile);
 
-    FsFile fsFile = fsClient.upload(uploadFile.getPath(), false);
+    FsFile fsFile = client.upload(uploadFile.getPath(), false);
     String handle = fsFile.getHandle();
-    handles.add(handle);
+    HANDLES.add(handle);
 
     fsFile.overwrite(overwriteFile.getPath());
 
@@ -119,27 +113,22 @@ public class TestBasicFunctions {
 
   @Test
   public void testDelete() throws Exception {
-    FsClient fsClient = new FsClient.Builder().apiKey(API_KEY).security(SECURITY).build();
-
     String uploadUuid = UUID.randomUUID().toString();
     File uploadFile = createRandomFile(uploadUuid);
-    files.add(uploadFile);
+    FILES.add(uploadFile);
 
-    FsFile fsFile = fsClient.upload(uploadFile.getPath(), false);
-
+    FsFile fsFile = client.upload(uploadFile.getPath(), false);
     fsFile.delete();
 
     thrown.expect(HttpException.class);
     fsFile.getContent();
   }
 
-  /** Deletes any files uploaded during tests. */
+  /** Deletes any FILES uploaded during tests. */
   @AfterClass
   public static void cleanupHandles() {
-    FsClient fsClient = new FsClient.Builder().apiKey(API_KEY).security(SECURITY).build();
-
-    for (String handle : handles) {
-      FsFile fsFile = new FsFile(fsClient, handle);
+    for (String handle : HANDLES) {
+      FsFile fsFile = new FsFile(config, handle);
       try {
         fsFile.delete();
       } catch (Exception e) {
@@ -148,10 +137,10 @@ public class TestBasicFunctions {
     }
   }
 
-  /** Deletes any local files created during tests. */
+  /** Deletes any local FILES created during tests. */
   @AfterClass
   public static void cleanupFiles() {
-    for (File file : files) {
+    for (File file : FILES) {
       if (!file.delete()) {
         Assert.fail("Unable to cleanup resource");
       }

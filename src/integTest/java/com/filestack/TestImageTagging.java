@@ -1,31 +1,31 @@
 package com.filestack;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestImageTagging {
-  private static final String API_KEY = System.getenv("API_KEY");
-  private static final String POLICY = System.getenv("POLICY");
-  private static final String SIGNATURE = System.getenv("SIGNATURE");
-  private static final Security SECURITY = Security.fromExisting(POLICY, SIGNATURE);
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Map;
 
-  private static ArrayList<String> handles = new ArrayList<>();
-  private static ArrayList<File> files = new ArrayList<>();
+public class TestImageTagging {
+  private static final FsConfig config = new FsConfig.Builder()
+      .apiKey(System.getenv("API_KEY"))
+      .security(System.getenv("POLICY"), System.getenv("SIGNATURE"))
+      .build();
+  private static final FsClient client = new FsClient(config);
+
+  private static ArrayList<String> HANDLES = new ArrayList<>();
+  private static ArrayList<File> FILES = new ArrayList<>();
 
   @Test
   public void testImageTags() throws Exception {
-    FsClient fsClient = new FsClient.Builder().apiKey(API_KEY).security(SECURITY).build();
-
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     String origPath = loader.getResource("com/filestack/sample_image.jpg").getPath();
     File origFile = new File(origPath);
 
-    FsFile fsFile = fsClient.upload(origPath, true);
-    handles.add(fsFile.getHandle());
+    FsFile fsFile = client.upload(origPath, true);
+    HANDLES.add(fsFile.getHandle());
 
     Map<String, Integer> tags = fsFile.imageTags();
     Assert.assertNotNull(tags.get("nebula"));
@@ -33,25 +33,21 @@ public class TestImageTagging {
 
   @Test
   public void testImageSfw() throws Exception {
-    FsClient fsClient = new FsClient.Builder().apiKey(API_KEY).security(SECURITY).build();
-
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     String origPath = loader.getResource("com/filestack/sample_image.jpg").getPath();
     File origFile = new File(origPath);
 
-    FsFile fsFile = fsClient.upload(origPath, false);
-    handles.add(fsFile.getHandle());
+    FsFile fsFile = client.upload(origPath, false);
+    HANDLES.add(fsFile.getHandle());
 
     Assert.assertTrue(fsFile.imageSfw());
   }
 
-  /** Deletes any files uploaded during tests. */
+  /** Deletes any FILES uploaded during tests. */
   @AfterClass
   public static void cleanupHandles() {
-    FsClient fsClient = new FsClient.Builder().apiKey(API_KEY).security(SECURITY).build();
-    
-    for (String handle : handles) {
-      FsFile fsFile = new FsFile(fsClient, handle);
+    for (String handle : HANDLES) {
+      FsFile fsFile = new FsFile(config, handle);
       try {
         fsFile.delete();
       } catch (Exception e) {
@@ -60,10 +56,10 @@ public class TestImageTagging {
     }
   }
 
-  /** Deletes any local files created during tests. */
+  /** Deletes any local FILES created during tests. */
   @AfterClass
   public static void cleanupFiles() {
-    for (File file : files) {
+    for (File file : FILES) {
       if (!file.delete()) {
         Assert.fail("Unable to cleanup resource");
       }
