@@ -109,9 +109,6 @@ public class TestFileLink {
     MediaType textType = MediaType.parse("text/plain");
     RequestBody body = RequestBody.create(textType, file);
 
-    Policy policy = new Policy.Builder().giveFullAccess().build();
-    Security security = Security.createNew(policy, "appSecret");
-
     BaseService mockApiService = Mockito.mock(BaseService.class);
     Mockito.doReturn(call)
         .when(mockApiService)
