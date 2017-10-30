@@ -12,9 +12,6 @@ import org.mockito.Mockito;
 import retrofit2.mock.Calls;
 
 public class TestImageTransform {
-  private static final FsConfig.Builder configBuilder = new FsConfig.Builder().apiKey("apikey");
-  private static final FsConfig defaultConfig = configBuilder.build();
-
   @Test
   public void testDebugUrl() throws Exception {
     FsService fsService = new FsService();
@@ -50,7 +47,10 @@ public class TestImageTransform {
   @Test
   public void testDebugHandle() throws Exception {
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsConfig config = configBuilder.cdnService(mockCdnService).build();
+    FsConfig config = new FsConfig.Builder()
+        .apiKey("apiKey")
+        .cdnService(mockCdnService)
+        .build();
 
     ImageTransform transform = new ImageTransform(config, "handle", false);
 
@@ -65,7 +65,10 @@ public class TestImageTransform {
   public void testDebugExternal() throws Exception {
     String url = "https://example.com/image.jpg";
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsConfig config = configBuilder.cdnService(mockCdnService).build();
+    FsConfig config = new FsConfig.Builder()
+        .apiKey("apiKey")
+        .cdnService(mockCdnService)
+        .build();
 
     ImageTransform transform = new ImageTransform(config, url, true);
 
@@ -79,7 +82,10 @@ public class TestImageTransform {
   @Test
   public void testStoreHandle() throws Exception {
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsConfig config = configBuilder.cdnService(mockCdnService).build();
+    FsConfig config = new FsConfig.Builder()
+        .apiKey("apiKey")
+        .cdnService(mockCdnService)
+        .build();
 
     ImageTransform transform = new ImageTransform(config, "handle", false);
 
@@ -97,7 +103,10 @@ public class TestImageTransform {
   @Test
   public void testStoreExternal() throws Exception {
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsConfig config = configBuilder.cdnService(mockCdnService).build();
+    FsConfig config = new FsConfig.Builder()
+        .apiKey("apiKey")
+        .cdnService(mockCdnService)
+        .build();
 
     ImageTransform transform = new ImageTransform(config, "handle", false);
 
@@ -116,7 +125,8 @@ public class TestImageTransform {
 
   @Test(expected = NullPointerException.class)
   public void testAddNullTask() throws Exception {
-    ImageTransform transform = new ImageTransform(defaultConfig, "handle", false);
+    FsConfig config = new FsConfig.Builder().apiKey("apiKey").build();
+    ImageTransform transform = new ImageTransform(config, "handle", false);
     transform.addTask(null);
   }
 }

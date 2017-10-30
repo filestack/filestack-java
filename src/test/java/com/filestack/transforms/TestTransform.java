@@ -12,9 +12,6 @@ import retrofit2.Call;
 import retrofit2.mock.Calls;
 
 public class TestTransform {
-  private static final FsConfig.Builder configBuilder = new FsConfig.Builder().apiKey("apikey");
-  private static final FsConfig defaultConfig = configBuilder.build();
-  
   private static final TransformTask task = new TransformTask("task");
   private static final String TASK_STRING = "task=option1:1,option2:1.0,option3:value,"
       + "option4:[1,1,1,1]";
@@ -28,7 +25,8 @@ public class TestTransform {
 
   @Test
   public void testUrlHandle() {
-    Transform transform = new Transform(defaultConfig, "handle", false);
+    FsConfig config = new FsConfig.Builder().apiKey("apiKey").build();
+    Transform transform = new Transform(config, "handle", false);
     transform.tasks.add(task);
 
     String correctUrl = FsCdnService.URL + TASK_STRING + "/" + "handle";
@@ -37,8 +35,9 @@ public class TestTransform {
 
   @Test
   public void testUrlExternal() {
+    FsConfig config = new FsConfig.Builder().apiKey("apiKey").build();
     String sourceUrl = "https://example.com/image.jpg";
-    Transform transform = new Transform(defaultConfig, sourceUrl, true);
+    Transform transform = new Transform(config, sourceUrl, true);
     transform.tasks.add(task);
 
     String correctUrl = FsCdnService.URL + "apiKey/" + TASK_STRING + "/" + sourceUrl;
@@ -47,7 +46,10 @@ public class TestTransform {
 
   @Test
   public void testUrlSecurity() {
-    FsConfig config = configBuilder.security("policy", "signature").build();
+    FsConfig config = new FsConfig.Builder()
+        .security("policy", "signature")
+        .apiKey("apiKey")
+        .build();
     Transform transform = new Transform(config, "handle", false);
     transform.tasks.add(task);
 
@@ -58,7 +60,8 @@ public class TestTransform {
 
   @Test
   public void testUrlMultipleTasks() {
-    Transform transform = new Transform(defaultConfig, "handle", false);
+    FsConfig config = new FsConfig.Builder().apiKey("apiKey").build();
+    Transform transform = new Transform(config, "handle", false);
     transform.tasks.add(task);
     transform.tasks.add(task);
 
@@ -68,7 +71,8 @@ public class TestTransform {
 
   @Test
   public void testUrlTaskWithoutOptions() {
-    Transform transform = new Transform(defaultConfig, "handle", false);
+    FsConfig config = new FsConfig.Builder().apiKey("apiKey").build();
+    Transform transform = new Transform(config, "handle", false);
     transform.tasks.add(new TransformTask("task"));
 
     String correctUrl = FsCdnService.URL + "task/handle";
@@ -78,7 +82,10 @@ public class TestTransform {
   @Test
   public void testGetContentExt() throws Exception {
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsConfig config = configBuilder.cdnService(mockCdnService).build();
+    FsConfig config = new FsConfig.Builder()
+        .apiKey("apiKey")
+        .cdnService(mockCdnService)
+        .build();
 
     MediaType mediaType = MediaType.parse("application/octet-stream");
     ResponseBody responseBody = ResponseBody.create(mediaType, "Test Response");
@@ -97,7 +104,10 @@ public class TestTransform {
   @Test
   public void testGetContentHandle() throws Exception {
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsConfig config = configBuilder.cdnService(mockCdnService).build();
+    FsConfig config = new FsConfig.Builder()
+        .apiKey("apiKey")
+        .cdnService(mockCdnService)
+        .build();
 
     MediaType mediaType = MediaType.parse("application/octet-stream");
     ResponseBody responseBody = ResponseBody.create(mediaType, "Test Response");
@@ -114,7 +124,10 @@ public class TestTransform {
   @Test
   public void testGetContentJson() throws Exception {
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsConfig config = configBuilder.cdnService(mockCdnService).build();
+    FsConfig config = new FsConfig.Builder()
+        .apiKey("apiKey")
+        .cdnService(mockCdnService)
+        .build();
 
     String jsonString = "{"
         + "'key': 'value'"

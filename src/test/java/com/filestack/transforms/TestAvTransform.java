@@ -18,12 +18,10 @@ import retrofit2.mock.Calls;
 import java.io.IOException;
 
 public class TestAvTransform {
-  private static final FsConfig.Builder configBuilder = new FsConfig.Builder().apiKey("apikey");
-  private static final FsConfig defaultConfig = configBuilder.build();
-
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorException() {
-    AvTransform transform = new AvTransform(defaultConfig, "handle", null, null);
+    FsConfig config = new FsConfig.Builder().apiKey("apiKey").build();
+    AvTransform transform = new AvTransform(config, "handle", null, null);
   }
 
   @Test
@@ -32,7 +30,8 @@ public class TestAvTransform {
         .preset("mp4")
         .build();
 
-    TransformTask task = new AvTransform(defaultConfig, "handle", null, avOpts).tasks.get(0);
+    FsConfig config = new FsConfig.Builder().apiKey("apiKey").build();
+    TransformTask task = new AvTransform(config, "handle", null, avOpts).tasks.get(0);
 
     Assert.assertEquals("video_convert=preset:mp4", task.toString());
   }
@@ -47,7 +46,8 @@ public class TestAvTransform {
         .preset("mp4")
         .build();
 
-    TransformTask task = new AvTransform(defaultConfig, "handle", storeOpts, avOpts).tasks.get(0);
+    FsConfig config = new FsConfig.Builder().apiKey("apiKey").build();
+    TransformTask task = new AvTransform(config, "handle", storeOpts, avOpts).tasks.get(0);
 
     Assert.assertEquals("video_convert=container:some-bucket,preset:mp4", task.toString());
   }
@@ -55,7 +55,10 @@ public class TestAvTransform {
   @Test
   public void testGetFilelink() throws Exception {
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsConfig config = configBuilder.cdnService(mockCdnService).build();
+    FsConfig config = new FsConfig.Builder()
+        .apiKey("apiKey")
+        .cdnService(mockCdnService)
+        .build();
 
     Mockito
         .doAnswer(new Answer() {
@@ -84,7 +87,10 @@ public class TestAvTransform {
   @Test(expected = IOException.class)
   public void testGetFilelinkFail() throws Exception {
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsConfig config = configBuilder.cdnService(mockCdnService).build();
+    FsConfig config = new FsConfig.Builder()
+        .apiKey("apiKey")
+        .cdnService(mockCdnService)
+        .build();
 
     String json = "{'status':'failed'}";
     MediaType mediaType = MediaType.parse("application/json");

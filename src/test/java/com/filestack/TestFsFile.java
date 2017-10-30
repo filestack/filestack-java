@@ -22,12 +22,10 @@ import java.util.Map;
  * Tests {@link FsFile FsFile} class.
  */
 public class TestFsFile {
-  private static final FsConfig.Builder configBuilder = new FsConfig.Builder().apiKey("apikey");
-  private static final FsConfig defaultConfig = configBuilder.build();
-
   @Test
   public void testConstructors() {
-    FsFile fsFile = new FsFile(defaultConfig, "handle");
+    FsConfig config = new FsConfig.Builder().apiKey("apiKey").build();
+    FsFile fsFile = new FsFile(config, "handle");
   }
 
   @Test
@@ -39,7 +37,10 @@ public class TestFsFile {
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
     Mockito.doReturn(call).when(mockCdnService).get("handle", null, null);
 
-    FsConfig config = configBuilder.cdnService(mockCdnService).build();
+    FsConfig config = new FsConfig.Builder()
+        .apiKey("apiKey")
+        .cdnService(mockCdnService)
+        .build();
     FsFile fsFile = new FsFile(config, "handle");
 
     ResponseBody content = fsFile.getContent();
@@ -57,7 +58,10 @@ public class TestFsFile {
         .when(mockCdnService)
         .get("handle", null, null);
 
-    FsConfig config = configBuilder.cdnService(mockCdnService).build();
+    FsConfig config = new FsConfig.Builder()
+        .apiKey("apiKey")
+        .cdnService(mockCdnService)
+        .build();
     FsFile fsFile = new FsFile(config, "handle");
 
     File file = fsFile.download("/tmp/");
@@ -76,7 +80,10 @@ public class TestFsFile {
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
     Mockito.doReturn(call).when(mockCdnService).get("handle", null, null);
 
-    FsConfig config = configBuilder.cdnService(mockCdnService).build();
+    FsConfig config = new FsConfig.Builder()
+        .apiKey("apiKey")
+        .cdnService(mockCdnService)
+        .build();
     FsFile fsFile = new FsFile(config, "handle");
 
     File file = fsFile.download("/tmp/", "filestack_test_filelink_download.txt");
@@ -111,8 +118,9 @@ public class TestFsFile {
         .overwrite(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
             Mockito.any(RequestBody.class));
 
-    FsConfig config = configBuilder
-        .security("policy","signature")
+    FsConfig config = new FsConfig.Builder()
+        .apiKey("apiKey")
+        .security("policy", "signature")
         .apiService(mockApiService)
         .build();
     FsFile fsFile = new FsFile(config, "handle");
@@ -130,16 +138,14 @@ public class TestFsFile {
     ResponseBody response = ResponseBody.create(mediaType, "");
     Call call = Calls.response(response);
 
-    Policy policy = new Policy.Builder().giveFullAccess().build();
-    Security security = Security.createNew(policy, "appSecret");
-
     FsApiService mockApiService = Mockito.mock(FsApiService.class);
     Mockito.doReturn(call)
         .when(mockApiService)
-        .delete("handle", "apiKey", security.getPolicy(), security.getSignature());
+        .delete("handle", "apiKey", "policy", "signature");
 
-    FsConfig config = configBuilder
-        .security("policy","signature")
+    FsConfig config = new FsConfig.Builder()
+        .apiKey("apiKey")
+        .security("policy", "signature")
         .apiService(mockApiService)
         .build();
     FsFile fsFile = new FsFile(config, "handle");
@@ -149,13 +155,17 @@ public class TestFsFile {
 
   @Test(expected = IllegalStateException.class)
   public void testOverwriteWithoutSecurity() throws Exception {
-    FsFile fsFile = new FsFile(defaultConfig, "handle");
+    FsConfig config = new FsConfig.Builder().apiKey("apiKey").build();
+    FsFile fsFile = new FsFile(config, "handle");
     fsFile.overwrite("");
   }
 
   @Test(expected = FileNotFoundException.class)
   public void testOverwriteNoFile() throws Exception {
-    FsConfig config = configBuilder.security("policy","signature").build();
+    FsConfig config = new FsConfig.Builder()
+        .apiKey("apiKey")
+        .security("policy", "signature")
+        .build();
     FsFile fsFile = new FsFile(config, "handle");
 
     fsFile.overwrite("/tmp/filestack_test_overwrite_no_file.txt");
@@ -163,13 +173,15 @@ public class TestFsFile {
 
   @Test(expected = IllegalStateException.class)
   public void testDeleteWithoutSecurity() throws Exception {
-    FsFile fsFile = new FsFile(defaultConfig, "handle");
+    FsConfig config = new FsConfig.Builder().apiKey("apiKey").build();
+    FsFile fsFile = new FsFile(config, "handle");
     fsFile.delete();
   }
 
   @Test(expected = IllegalStateException.class)
   public void testImageTagNoSecurity() throws Exception {
-    FsFile fsFile = new FsFile(defaultConfig, "handle");
+    FsConfig config = new FsConfig.Builder().apiKey("apiKey").build();
+    FsFile fsFile = new FsFile(config, "handle");
     fsFile.imageTags();
   }
 
@@ -188,19 +200,15 @@ public class TestFsFile {
     ResponseBody responseBody = ResponseBody.create(mediaType, jsonString);
     Call call = Calls.response(responseBody);
 
-    Policy policy = new Policy.Builder().giveFullAccess().build();
-    Security security = Security.createNew(policy, "appSecret");
-
-    String tasksString = "security=policy:" + security.getPolicy()
-        + ",signature:" + security.getSignature()
-        + "/tags";
+    String tasksString = "security=policy:policy,signature:signature/tags";
 
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
     Mockito.doReturn(call)
         .when(mockCdnService)
         .transform(tasksString, "handle");
 
-    FsConfig config = configBuilder
+    FsConfig config = new FsConfig.Builder()
+        .apiKey("apiKey")
         .security("policy", "signature")
         .cdnService(mockCdnService)
         .build();
@@ -213,7 +221,8 @@ public class TestFsFile {
 
   @Test(expected = IllegalStateException.class)
   public void testImageSfwNoSecurity() throws Exception {
-    FsFile fsFile = new FsFile(defaultConfig, "handle");
+    FsConfig config = new FsConfig.Builder().apiKey("apiKey").build();
+    FsFile fsFile = new FsFile(config, "handle");
     fsFile.imageSfw();
   }
 
@@ -232,7 +241,8 @@ public class TestFsFile {
         .when(mockCdnService)
         .transform(Mockito.anyString(), Mockito.anyString());
 
-    FsConfig config = configBuilder
+    FsConfig config = new FsConfig.Builder()
+        .apiKey("apiKey")
         .security("policy", "signature")
         .cdnService(mockCdnService)
         .build();
