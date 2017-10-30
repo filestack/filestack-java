@@ -1,7 +1,7 @@
 package com.filestack;
 
 import com.filestack.transforms.TransformTask;
-import com.filestack.util.Util;
+import com.filestack.internal.Util;
 import com.google.gson.JsonObject;
 import java.util.HashMap;
 import java.util.Map;

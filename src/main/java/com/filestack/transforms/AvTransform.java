@@ -1,10 +1,11 @@
 package com.filestack.transforms;
 
-import com.filestack.FsFile;
+import com.filestack.Config;
+import com.filestack.FileLink;
 import com.filestack.HttpException;
 import com.filestack.StorageOptions;
 import com.filestack.transforms.tasks.AvTransformOptions;
-import com.filestack.util.Util;
+import com.filestack.internal.Util;
 import com.google.gson.JsonObject;
 import io.reactivex.Single;
 
@@ -17,10 +18,17 @@ import java.util.concurrent.Callable;
 public class AvTransform extends Transform {
 
   /**
-   * Constructs new instance from a {@link FsFile} and options.
+   * Constructs new instance.
+   *
+   * @param config   should be from parent {@link FileLink}
+   * @param handle   should be from parent {@link FileLink}
+   * @param storeOps options for how to store the converted file
+   * @param avOps    options for how to convert the file
    */
-  public AvTransform(FsFile fsFile, StorageOptions storeOps, AvTransformOptions avOps) {
-    super(fsFile);
+  public AvTransform(Config config, String handle, StorageOptions storeOps,
+                     AvTransformOptions avOps) {
+
+    super(config, handle, false);
 
     if (avOps == null) {
       throw new IllegalArgumentException("AvTransform can't be created without options");
@@ -34,15 +42,15 @@ public class AvTransform extends Transform {
   }
 
   /**
-   * Gets converted content as a new {@link FsFile}. Starts processing on first call.
+   * Gets converted content as a new {@link FileLink}. Starts processing on first call.
    * Returns null if still processing. Poll this method or use {@link #getFileLinkAsync()}.
    * If you need other data, such as thumbnails, use {@link Transform#getContentJson()}.
    *
-   * @return null if processing, new {@link FsFile} if complete
+   * @return null if processing, new {@link FileLink} if complete
    * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
-  public FsFile getFileLink() throws IOException {
+  public FileLink getFileLink() throws IOException {
     JsonObject json = getContentJson();
     String status = json.get("status").getAsString();
 
@@ -58,7 +66,7 @@ public class AvTransform extends Transform {
           return null;
         }
         String handle = url.split("/")[3];
-        return new FsFile(fsClient, handle);
+        return new FileLink(config, handle);
       default:
         throw new IOException("Unexpected transform error: " + json.toString());
     }
@@ -67,36 +75,36 @@ public class AvTransform extends Transform {
   // Async method wrappers
 
   /**
-   * Asynchronously gets converted content as a new {@link FsFile}.
+   * Asynchronously gets converted content as a new {@link FileLink}.
    * Uses default 10 second polling. Use {@link #getFileLinkAsync(int)} to adjust interval.
    *
    * @see #getFileLink()
    */
-  public Single<FsFile> getFileLinkAsync() {
+  public Single<FileLink> getFileLinkAsync() {
     return getFileLinkAsync(10);
   }
 
   /**
-   * Asynchronously gets converted content as a new {@link FsFile}.
+   * Asynchronously gets converted content as a new {@link FileLink}.
    *
    * @param pollInterval how frequently to poll (in seconds)
    * @see #getFileLink()
    */
-  public Single<FsFile> getFileLinkAsync(final int pollInterval) {
-    return Single.fromCallable(new Callable<FsFile>() {
+  public Single<FileLink> getFileLinkAsync(final int pollInterval) {
+    return Single.fromCallable(new Callable<FileLink>() {
       @Override
-      public FsFile call() throws Exception {
-        FsFile fsFile = null;
-        while (fsFile == null) {
-          fsFile = getFileLink();
+      public FileLink call() throws Exception {
+        FileLink fileLink = null;
+        while (fileLink == null) {
+          fileLink = getFileLink();
           if (!Util.isUnitTest()) {
             Thread.sleep(pollInterval * 1000);
           }
         }
-        return fsFile;
+        return fileLink;
       }
     })
-        .subscribeOn(fsClient.getSubScheduler())
-        .observeOn(fsClient.getObsScheduler());
+        .subscribeOn(config.getSubScheduler())
+        .observeOn(config.getObsScheduler());
   }
 }

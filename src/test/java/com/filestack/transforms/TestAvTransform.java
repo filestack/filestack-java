@@ -1,12 +1,10 @@
 package com.filestack.transforms;
 
-import com.filestack.FsClient;
-import com.filestack.FsFile;
+import com.filestack.Config;
+import com.filestack.FileLink;
 import com.filestack.StorageOptions;
 import com.filestack.transforms.tasks.AvTransformOptions;
-import com.filestack.util.FsCdnService;
-import com.filestack.util.FsService;
-import java.io.IOException;
+import com.filestack.internal.CdnService;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import org.junit.Assert;
@@ -17,49 +15,50 @@ import org.mockito.stubbing.Answer;
 import retrofit2.Call;
 import retrofit2.mock.Calls;
 
-public class TestAvTransform {
+import java.io.IOException;
 
+public class TestAvTransform {
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorException() {
-    FsClient fsClient = new FsClient.Builder().apiKey("apikey").build();
-    FsFile fsFile = new FsFile(fsClient, "handle");
-    fsFile.avTransform(null);
+    Config config = new Config.Builder().apiKey("apiKey").build();
+    AvTransform transform = new AvTransform(config, "handle", null, null);
   }
 
   @Test
   public void testConstructorNoStoreOpts() {
-    AvTransformOptions avOptions = new AvTransformOptions.Builder()
+    AvTransformOptions avOpts = new AvTransformOptions.Builder()
         .preset("mp4")
         .build();
 
-    FsClient fsClient = new FsClient.Builder().apiKey("apikey").build();
-    FsFile fsFile = new FsFile(fsClient, "handle");
-    TransformTask task = fsFile.avTransform(avOptions).tasks.get(0);
+    Config config = new Config.Builder().apiKey("apiKey").build();
+    TransformTask task = new AvTransform(config, "handle", null, avOpts).tasks.get(0);
 
     Assert.assertEquals("video_convert=preset:mp4", task.toString());
   }
 
   @Test
   public void testConstructorStoreOpts() {
-    StorageOptions storageOptions = new StorageOptions.Builder()
+    StorageOptions storeOpts = new StorageOptions.Builder()
         .container("some-bucket")
         .build();
 
-    AvTransformOptions avOptions = new AvTransformOptions.Builder()
+    AvTransformOptions avOpts = new AvTransformOptions.Builder()
         .preset("mp4")
         .build();
 
-    FsClient fsClient = new FsClient.Builder().apiKey("apikey").build();
-    FsFile fsFile = new FsFile(fsClient, "handle");
-    TransformTask task = fsFile.avTransform(storageOptions, avOptions).tasks.get(0);
+    Config config = new Config.Builder().apiKey("apiKey").build();
+    TransformTask task = new AvTransform(config, "handle", storeOpts, avOpts).tasks.get(0);
 
     Assert.assertEquals("video_convert=container:some-bucket,preset:mp4", task.toString());
   }
 
   @Test
   public void testGetFilelink() throws Exception {
-    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsService mockFsService = new FsService(null, mockCdnService, null, null);
+    CdnService mockCdnService = Mockito.mock(CdnService.class);
+    Config config = new Config.Builder()
+        .apiKey("apiKey")
+        .cdnService(mockCdnService)
+        .build();
 
     Mockito
         .doAnswer(new Answer() {
@@ -75,25 +74,23 @@ public class TestAvTransform {
         .when(mockCdnService)
         .transform(Mockito.anyString(), Mockito.anyString());
 
-    FsClient fsClient = new FsClient.Builder()
-        .apiKey("apikey")
-        .fsService(mockFsService)
-        .build();
-
-    FsFile ready = new FsFile(fsClient, "ready");
-    FsFile pending = new FsFile(fsClient, "pending");
+    FileLink ready = new FileLink(config, "ready");
+    FileLink pending = new FileLink(config, "pending");
 
     AvTransformOptions avOptions = new AvTransformOptions.Builder().preset("mp4").build();
 
-    FsFile converted = ready.avTransform(avOptions).getFileLink();
+    FileLink converted = ready.avTransform(avOptions).getFileLink();
     Assert.assertEquals("handle", converted.getHandle());
     Assert.assertNull(pending.avTransform(avOptions).getFileLink());
   }
 
   @Test(expected = IOException.class)
   public void testGetFilelinkFail() throws Exception {
-    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsService mockFsService = new FsService(null, mockCdnService, null, null);
+    CdnService mockCdnService = Mockito.mock(CdnService.class);
+    Config config = new Config.Builder()
+        .apiKey("apiKey")
+        .cdnService(mockCdnService)
+        .build();
 
     String json = "{'status':'failed'}";
     MediaType mediaType = MediaType.parse("application/json");
@@ -104,15 +101,10 @@ public class TestAvTransform {
         .when(mockCdnService)
         .transform("video_convert=preset:mp4", "handle");
 
-    FsClient fsClient = new FsClient.Builder()
-        .apiKey("apikey")
-        .fsService(mockFsService)
-        .build();
-
-    FsFile fsFile = new FsFile(fsClient, "handle");
+    FileLink fileLink = new FileLink(config, "handle");
 
     AvTransformOptions avOptions = new AvTransformOptions.Builder().preset("mp4").build();
 
-    fsFile.avTransform(avOptions).getFileLink();
+    fileLink.avTransform(avOptions).getFileLink();
   }
 }
