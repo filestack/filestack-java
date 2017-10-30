@@ -71,7 +71,7 @@ public class FsClient {
    */
   public AppInfo getAppInfo() throws IOException {
     JsonObject params = makeCloudParams();
-    Response<AppInfo> response = config.getService().cloud().prefetch(params).execute();
+    Response<AppInfo> response = config.getCloudService().prefetch(params).execute();
     Util.checkResponseAndThrow(response);
     return response.body();
   }
@@ -100,7 +100,7 @@ public class FsClient {
       throws IOException {
 
     JsonObject params = makeCloudParams(providerName, path, next);
-    Response<JsonObject> response = config.getService().cloud().list(params).execute();
+    Response<JsonObject> response = config.getCloudService().list(params).execute();
     Util.checkResponseAndThrow(response);
     JsonObject base = response.body();
 
@@ -141,7 +141,7 @@ public class FsClient {
 
     JsonObject params = makeCloudParams(providerName, path);
     params.add("store", options.getAsJson());
-    Response<JsonObject> response = config.getService().cloud().store(params).execute();
+    Response<JsonObject> response = config.getCloudService().store(params).execute();
     Util.checkResponseAndThrow(response);
     JsonElement responseJson = response.body().get(providerName);
     Gson gson = new Gson();
@@ -158,7 +158,7 @@ public class FsClient {
    */
   public void logoutCloud(String providerName) throws IOException {
     JsonObject params = makeCloudParams(providerName, "/");
-    Response response = config.getService().cloud().logout(params).execute();
+    Response response = config.getCloudService().logout(params).execute();
     Util.checkResponseAndThrow(response);
   }
 

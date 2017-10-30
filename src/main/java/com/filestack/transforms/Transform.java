@@ -65,12 +65,12 @@ public class Transform {
     HttpUrl httpUrl;
 
     if (isExternal) {
-      httpUrl = config.getService().cdn()
+      httpUrl = config.getCdnService()
           .transformExt(config.getApiKey(), tasksString, source)
           .request()
           .url();
     } else {
-      httpUrl = config.getService().cdn()
+      httpUrl = config.getCdnService()
           .transform(tasksString, source)
           .request()
           .url();
@@ -94,11 +94,11 @@ public class Transform {
     Response<ResponseBody> response;
 
     if (isExternal) {
-      response =config.getService().cdn()
+      response =config.getCdnService()
           .transformExt(config.getApiKey(), tasksString, source)
           .execute();
     } else {
-      response = config.getService().cdn()
+      response = config.getCdnService()
           .transform(tasksString, source)
           .execute();
     }

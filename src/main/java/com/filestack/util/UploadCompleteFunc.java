@@ -44,7 +44,7 @@ public class UploadCompleteFunc implements Callable<Prog<FsFile>> {
 
       @Override
       Response<CompleteResponse> work() throws Exception {
-        return upload.config.getService().upload()
+        return upload.config.getUploadService()
             .complete(params)
             .execute();
       }

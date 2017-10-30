@@ -1,7 +1,11 @@
 package com.filestack;
 
 import com.filestack.transforms.Transform;
-import com.filestack.util.FsService;
+import com.filestack.util.FsApiService;
+import com.filestack.util.FsCdnService;
+import com.filestack.util.FsCloudService;
+import com.filestack.util.FsUploadService;
+import com.filestack.util.Networking;
 import io.reactivex.Scheduler;
 import io.reactivex.schedulers.Schedulers;
 
@@ -9,7 +13,10 @@ import io.reactivex.schedulers.Schedulers;
  * Holds config common to {@link FsClient}, {@link FsFile}, and {@link Transform} classes.
  */
 public class FsConfig {
-  protected final FsService service;
+  protected FsApiService apiService;
+  protected FsCdnService cdnService;
+  protected FsCloudService cloudService;
+  protected FsUploadService uploadService;
   protected final Scheduler subScheduler;
   protected final Scheduler obsScheduler;
   protected final String apiKey;
@@ -19,15 +26,33 @@ public class FsConfig {
   /** Configures and builds new immutable instance. */
   @SuppressWarnings("unchecked")
   public static class Builder<T extends Builder<T>> {
-    protected FsService fsService;
+    protected FsApiService apiService;
+    protected FsCdnService cdnService;
+    protected FsCloudService cloudService;
+    protected FsUploadService uploadService;
     protected Scheduler subScheduler;
     protected Scheduler obsScheduler;
     protected String apiKey;
     protected String policy;
     protected String signature;
 
-    public T fsService(FsService fsService) {
-      this.fsService = fsService;
+    public T apiService(FsApiService apiService) {
+      this.apiService = apiService;
+      return (T) this;
+    }
+
+    public T cdnService(FsCdnService cdnService) {
+      this.cdnService = cdnService;
+      return (T) this;
+    }
+
+    public T cloudService(FsCloudService cloudService) {
+      this.cloudService = cloudService;
+      return (T) this;
+    }
+
+    public T uploadService(FsUploadService uploadService) {
+      this.uploadService = uploadService;
       return (T) this;
     }
 
@@ -54,8 +79,17 @@ public class FsConfig {
 
     /** Builds new instance, setting defaults for any null requirements. */
     public FsConfig build() {
-      if (fsService == null) {
-        fsService = new FsService();
+      if (apiService == null) {
+        apiService = Networking.getFsApiService();
+      }
+      if (cdnService == null) {
+        cdnService = Networking.getFsCdnService();
+      }
+      if (cloudService == null) {
+        cloudService = Networking.getFsCloudService();
+      }
+      if (uploadService == null) {
+        uploadService = Networking.getFsUploadService();
       }
       if (subScheduler == null) {
         subScheduler = Schedulers.io();
@@ -68,7 +102,10 @@ public class FsConfig {
   }
 
   protected FsConfig(Builder<?> builder) {
-    service = builder.fsService;
+    apiService = builder.apiService;
+    cdnService = builder.cdnService;
+    cloudService = builder.cloudService;
+    uploadService = builder.uploadService;
     subScheduler = builder.subScheduler;
     obsScheduler = builder.obsScheduler;
     apiKey = builder.apiKey;
@@ -76,8 +113,20 @@ public class FsConfig {
     signature = builder.signature;
   }
 
-  public FsService getService() {
-    return service;
+  public FsApiService getApiService() {
+    return apiService;
+  }
+
+  public FsCdnService getCdnService() {
+    return cdnService;
+  }
+
+  public FsCloudService getCloudService() {
+    return cloudService;
+  }
+
+  public FsUploadService getUploadService() {
+    return uploadService;
   }
 
   public Scheduler getSubScheduler() {

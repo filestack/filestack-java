@@ -43,7 +43,7 @@ public class FsFile {
    * @throws IOException           on network failure
    */
   public ResponseBody getContent() throws IOException {
-    Response<ResponseBody> response = config.getService().cdn()
+    Response<ResponseBody> response = config.getCdnService()
         .get(this.handle, config.getPolicy(), config.getSignature())
         .execute();
 
@@ -70,7 +70,7 @@ public class FsFile {
    * @throws IOException           on error creating file or network failure
    */
   public File download(String directory, String filename) throws IOException {
-    Response<ResponseBody> response = config.getService().cdn()
+    Response<ResponseBody> response = config.getCdnService()
         .get(this.handle, config.getPolicy(), config.getSignature())
         .execute();
 
@@ -114,7 +114,7 @@ public class FsFile {
     String mimeType = URLConnection.guessContentTypeFromName(file.getName());
     RequestBody body = RequestBody.create(MediaType.parse(mimeType), file);
 
-    Response response = config.getService().api()
+    Response response = config.getApiService()
         .overwrite(handle, config.getPolicy(), config.getSignature(), body)
         .execute();
 
@@ -132,7 +132,7 @@ public class FsFile {
       throw new IllegalStateException("Security must be set in order to delete");
     }
     
-    Response response = config.getService().api()
+    Response response = config.getApiService()
         .delete(handle, config.getApiKey(), config.getPolicy(), config.getSignature())
         .execute();
 

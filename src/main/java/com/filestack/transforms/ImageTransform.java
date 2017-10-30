@@ -35,11 +35,11 @@ public class ImageTransform extends Transform {
 
     Response<JsonObject> response;
     if (isExternal) {
-      response = config.getService().cdn()
+      response = config.getCdnService()
           .transformDebugExt(config.getApiKey(), tasksString, source)
           .execute();
     } else {
-      response = config.getService().cdn()
+      response = config.getCdnService()
           .transformDebug(tasksString, source)
           .execute();
     }
@@ -85,11 +85,11 @@ public class ImageTransform extends Transform {
     Response<StoreResponse> response;
     String tasksString = getTasksString();
     if (isExternal) {
-      response = config.getService().cdn()
+      response = config.getCdnService()
           .transformStoreExt(config.getApiKey(), tasksString, source)
           .execute();
     } else {
-      response = config.getService().cdn()
+      response = config.getCdnService()
           .transformStore(tasksString, source)
           .execute();
     }
