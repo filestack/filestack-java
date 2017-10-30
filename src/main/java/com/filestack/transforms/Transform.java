@@ -94,7 +94,7 @@ public class Transform {
     Response<ResponseBody> response;
 
     if (isExternal) {
-      response =config.getCdnService()
+      response = config.getCdnService()
           .transformExt(config.getApiKey(), tasksString, source)
           .execute();
     } else {

@@ -17,6 +17,14 @@ import java.util.concurrent.Callable;
  */
 public class AvTransform extends Transform {
 
+  /**
+   * Constructs new instance.
+   *
+   * @param config   should be from parent {@link FsFile}
+   * @param handle   should be from parent {@link FsFile}
+   * @param storeOps options for how to store the converted file
+   * @param avOps    options for how to convert the file
+   */
   public AvTransform(FsConfig config, String handle, StorageOptions storeOps,
                      AvTransformOptions avOps) {
 

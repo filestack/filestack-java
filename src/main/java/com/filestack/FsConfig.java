@@ -66,6 +66,7 @@ public class FsConfig {
       return (T) this;
     }
 
+    /** Sets policy and signature to be used for all requests. */
     public T security(String policy, String signature) {
       this.policy = policy;
       this.signature = signature;

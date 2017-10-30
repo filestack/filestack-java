@@ -47,7 +47,7 @@ public class TestAvTransform {
         .preset("mp4")
         .build();
 
-    TransformTask task =new AvTransform(defaultConfig, "handle", storeOpts, avOpts).tasks.get(0);
+    TransformTask task = new AvTransform(defaultConfig, "handle", storeOpts, avOpts).tasks.get(0);
 
     Assert.assertEquals("video_convert=container:some-bucket,preset:mp4", task.toString());
   }
