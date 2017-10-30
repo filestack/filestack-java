@@ -1,9 +1,9 @@
 package com.filestack.transforms;
 
 import com.filestack.Config;
-import com.filestack.util.CdnService;
-import com.filestack.util.FsService;
-import com.filestack.util.responses.StoreResponse;
+import com.filestack.internal.CdnService;
+import com.filestack.internal.FsService;
+import com.filestack.internal.responses.StoreResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.junit.Assert;

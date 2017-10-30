@@ -4,7 +4,7 @@ import com.filestack.Config;
 import com.filestack.FileLink;
 import com.filestack.StorageOptions;
 import com.filestack.transforms.tasks.AvTransformOptions;
-import com.filestack.util.CdnService;
+import com.filestack.internal.CdnService;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import org.junit.Assert;

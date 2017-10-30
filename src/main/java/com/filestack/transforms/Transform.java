@@ -3,7 +3,7 @@ package com.filestack.transforms;
 import com.filestack.Config;
 import com.filestack.FileLink;
 import com.filestack.HttpException;
-import com.filestack.util.Util;
+import com.filestack.internal.Util;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.reactivex.Single;

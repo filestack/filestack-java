@@ -1,11 +1,11 @@
 package com.filestack;
 
 import com.filestack.transforms.Transform;
-import com.filestack.util.BaseService;
-import com.filestack.util.CdnService;
-import com.filestack.util.CloudService;
-import com.filestack.util.UploadService;
-import com.filestack.util.Networking;
+import com.filestack.internal.BaseService;
+import com.filestack.internal.CdnService;
+import com.filestack.internal.CloudService;
+import com.filestack.internal.UploadService;
+import com.filestack.internal.Networking;
 import io.reactivex.Scheduler;
 import io.reactivex.schedulers.Schedulers;
 

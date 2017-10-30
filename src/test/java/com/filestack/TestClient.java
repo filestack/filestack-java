@@ -1,9 +1,9 @@
 package com.filestack;
 
-import com.filestack.util.UploadService;
-import com.filestack.util.responses.CompleteResponse;
-import com.filestack.util.responses.StartResponse;
-import com.filestack.util.responses.UploadResponse;
+import com.filestack.internal.UploadService;
+import com.filestack.internal.responses.CompleteResponse;
+import com.filestack.internal.responses.StartResponse;
+import com.filestack.internal.responses.UploadResponse;
 import com.google.gson.Gson;
 import java.io.FileNotFoundException;
 import java.io.IOException;

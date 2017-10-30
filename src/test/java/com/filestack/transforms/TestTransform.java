@@ -1,7 +1,7 @@
 package com.filestack.transforms;
 
 import com.filestack.Config;
-import com.filestack.util.CdnService;
+import com.filestack.internal.CdnService;
 import com.google.gson.JsonObject;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;

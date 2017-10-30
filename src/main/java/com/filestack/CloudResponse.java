@@ -1,6 +1,6 @@
 package com.filestack;
 
-import com.filestack.util.responses.CloudAuthHolder;
+import com.filestack.internal.responses.CloudAuthHolder;
 import com.google.gson.annotations.SerializedName;
 
 public class CloudResponse {

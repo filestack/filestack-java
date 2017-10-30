@@ -5,7 +5,7 @@ import com.filestack.FileLink;
 import com.filestack.HttpException;
 import com.filestack.StorageOptions;
 import com.filestack.transforms.tasks.AvTransformOptions;
-import com.filestack.util.Util;
+import com.filestack.internal.Util;
 import com.google.gson.JsonObject;
 import io.reactivex.Single;
 

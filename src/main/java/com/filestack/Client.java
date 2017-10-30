@@ -1,9 +1,9 @@
 package com.filestack;
 
 import com.filestack.transforms.ImageTransform;
-import com.filestack.util.Upload;
-import com.filestack.util.Util;
-import com.filestack.util.responses.CloudStoreResponse;
+import com.filestack.internal.Upload;
+import com.filestack.internal.Util;
+import com.filestack.internal.responses.CloudStoreResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

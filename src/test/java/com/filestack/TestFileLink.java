@@ -1,7 +1,7 @@
 package com.filestack;
 
-import com.filestack.util.BaseService;
-import com.filestack.util.CdnService;
+import com.filestack.internal.BaseService;
+import com.filestack.internal.CdnService;
 import com.google.common.io.Files;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
