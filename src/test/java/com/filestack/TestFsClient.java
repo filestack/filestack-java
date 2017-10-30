@@ -141,36 +141,12 @@ public class TestFsClient {
   }
 
   @Test
-  public void testBuilder() {
-    Policy policy = new Policy.Builder().giveFullAccess().build();
-    Security security = Security.createNew(policy, "app_secret");
-    FsService fsService = new FsService();
-
-    FsClient fsClient = new FsClient.Builder()
-        .fsService(fsService)
-        .subScheduler(Schedulers.io())
-        .obsScheduler(Schedulers.single())
-        .security(security)
-        .apiKey("apiKey")
-        .sessionToken("sessionToken")
-        .returnUrl("returnUrl")
-        .build();
-
-    Assert.assertSame(fsService, fsClient.fsService);
-    Assert.assertSame(Schedulers.io(), fsClient.getSubScheduler());
-    Assert.assertSame(Schedulers.single(), fsClient.getObsScheduler());
-    Assert.assertSame(security, fsClient.getSecurity());
-    Assert.assertEquals("apiKey", fsClient.getApiKey());
-    Assert.assertEquals("sessionToken", fsClient.getSessionToken());
-    Assert.assertEquals("returnUrl", fsClient.getReturnUrl());
-  }
-
-  @Test
   public void testExceptionPassing() throws Exception {
-    Policy policy = new Policy.Builder().giveFullAccess().build();
-    Security security = Security.createNew(policy, "app_secret");
-
-    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").security(security).build();
+    FsConfig config = new FsConfig.Builder()
+        .apiKey("apiKey")
+        .security("policy", "signature")
+        .build();
+    FsClient fsClient = new FsClient(config);
     thrown.expect(FileNotFoundException.class);
     fsClient.upload("/does_not_exist.txt", true);
   }
@@ -185,15 +161,12 @@ public class TestFsClient {
     setupCommitMock(mockUploadService);
     setupCompleteMock(mockUploadService);
 
-    Policy policy = new Policy.Builder().giveFullAccess().build();
-    Security security = Security.createNew(policy, "app_secret");
-
-    FsService mockFsService = new FsService(null, null, mockUploadService, null);
-    FsClient fsClient = new FsClient.Builder()
+    FsConfig config = new FsConfig.Builder()
         .apiKey("apiKey")
-        .security(security)
-        .fsService(mockFsService)
+        .security("policy", "signature")
+        .uploadService(mockUploadService)
         .build();
+    FsClient fsClient = new FsClient(config);
 
     Path path = createRandomFile(10 * 1024 * 1024);
 

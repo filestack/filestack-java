@@ -2,11 +2,7 @@ package com.filestack;
 
 import com.filestack.util.FsApiService;
 import com.filestack.util.FsCdnService;
-import com.filestack.util.FsService;
 import com.google.common.io.Files;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Map;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -18,39 +14,33 @@ import org.mockito.stubbing.Answer;
 import retrofit2.Call;
 import retrofit2.mock.Calls;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Map;
+
 /**
  * Tests {@link FsFile FsFile} class.
  */
 public class TestFsFile {
+  private static final FsConfig.Builder configBuilder = new FsConfig.Builder().apiKey("apikey");
+  private static final FsConfig defaultConfig = configBuilder.build();
 
   @Test
   public void testConstructors() {
-    Policy policy = new Policy.Builder().giveFullAccess().build();
-    Security security = Security.createNew(policy, "app_secret");
-
-    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").build();
-    FsFile fsFile = new FsFile(fsClient, "handle");
+    FsFile fsFile = new FsFile(defaultConfig, "handle");
   }
 
   @Test
   public void testGetContent() throws Exception {
-    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsService mockFsService = new FsService(null, mockCdnService, null, null);
-
     MediaType mediaType = MediaType.parse("text/plain");
     ResponseBody response = ResponseBody.create(mediaType, "Test content");
     Call call = Calls.response(response);
 
-    Mockito.doReturn(call)
-        .when(mockCdnService)
-        .get("handle", null, null);
+    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
+    Mockito.doReturn(call).when(mockCdnService).get("handle", null, null);
 
-    FsClient fsClient = new FsClient.Builder()
-        .apiKey("apiKey")
-        .fsService(mockFsService)
-        .build();
-
-    FsFile fsFile = new FsFile(fsClient, "handle");
+    FsConfig config = configBuilder.cdnService(mockCdnService).build();
+    FsFile fsFile = new FsFile(config, "handle");
 
     ResponseBody content = fsFile.getContent();
     Assert.assertEquals("Test content", content.string());
@@ -58,23 +48,17 @@ public class TestFsFile {
 
   @Test
   public void testDownload() throws Exception {
-    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsService mockFsService = new FsService(null, mockCdnService, null, null);
-
     MediaType mediaType = MediaType.parse("text/plain");
     ResponseBody response = ResponseBody.create(mediaType, "Test content");
     Call call = Calls.response(response);
 
+    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
     Mockito.doReturn(call)
         .when(mockCdnService)
         .get("handle", null, null);
 
-    FsClient fsClient = new FsClient.Builder()
-        .apiKey("apiKey")
-        .fsService(mockFsService)
-        .build();
-
-    FsFile fsFile = new FsFile(fsClient, "handle");
+    FsConfig config = configBuilder.cdnService(mockCdnService).build();
+    FsFile fsFile = new FsFile(config, "handle");
 
     File file = fsFile.download("/tmp/");
     Assert.assertTrue(file.isFile());
@@ -85,23 +69,15 @@ public class TestFsFile {
 
   @Test
   public void testDownloadCustomFilename() throws Exception {
-    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsService mockFsService = new FsService(null, mockCdnService, null, null);
-
     MediaType mediaType = MediaType.parse("text/plain");
     ResponseBody response = ResponseBody.create(mediaType, "Test content");
     Call call = Calls.response(response);
 
-    Mockito.doReturn(call)
-        .when(mockCdnService)
-        .get("handle", null, null);
+    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
+    Mockito.doReturn(call).when(mockCdnService).get("handle", null, null);
 
-    FsClient fsClient = new FsClient.Builder()
-        .apiKey("apiKey")
-        .fsService(mockFsService)
-        .build();
-
-    FsFile fsFile = new FsFile(fsClient, "handle");
+    FsConfig config = configBuilder.cdnService(mockCdnService).build();
+    FsFile fsFile = new FsFile(config, "handle");
 
     File file = fsFile.download("/tmp/", "filestack_test_filelink_download.txt");
     Assert.assertTrue(file.isFile());
@@ -130,21 +106,16 @@ public class TestFsFile {
     Security security = Security.createNew(policy, "appSecret");
 
     FsApiService mockApiService = Mockito.mock(FsApiService.class);
-
     Mockito.doReturn(call)
         .when(mockApiService)
         .overwrite(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
             Mockito.any(RequestBody.class));
 
-    FsService mockFsService = new FsService(mockApiService, null, null, null);
-
-    FsClient fsClient = new FsClient.Builder()
-        .apiKey("apiKey")
-        .security(security)
-        .fsService(mockFsService)
+    FsConfig config = configBuilder
+        .security("policy","signature")
+        .apiService(mockApiService)
         .build();
-
-    FsFile fsFile = new FsFile(fsClient, "handle");
+    FsFile fsFile = new FsFile(config, "handle");
 
     fsFile.overwrite(pathname);
 
@@ -155,9 +126,6 @@ public class TestFsFile {
 
   @Test
   public void testDelete() throws Exception {
-    FsApiService mockApiService = Mockito.mock(FsApiService.class);
-    FsService mockFsService = new FsService(mockApiService, null, null, null);
-
     MediaType mediaType = MediaType.parse("application/json");
     ResponseBody response = ResponseBody.create(mediaType, "");
     Call call = Calls.response(response);
@@ -165,58 +133,48 @@ public class TestFsFile {
     Policy policy = new Policy.Builder().giveFullAccess().build();
     Security security = Security.createNew(policy, "appSecret");
 
+    FsApiService mockApiService = Mockito.mock(FsApiService.class);
     Mockito.doReturn(call)
         .when(mockApiService)
         .delete("handle", "apiKey", security.getPolicy(), security.getSignature());
 
-    FsClient fsClient = new FsClient.Builder()
-        .apiKey("apiKey")
-        .security(security)
-        .fsService(mockFsService)
+    FsConfig config = configBuilder
+        .security("policy","signature")
+        .apiService(mockApiService)
         .build();
-
-    FsFile fsFile = new FsFile(fsClient, "handle");
+    FsFile fsFile = new FsFile(config, "handle");
 
     fsFile.delete();
   }
 
   @Test(expected = IllegalStateException.class)
   public void testOverwriteWithoutSecurity() throws Exception {
-    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").build();
-    FsFile fsFile = new FsFile(fsClient, "handle");
+    FsFile fsFile = new FsFile(defaultConfig, "handle");
     fsFile.overwrite("");
   }
 
   @Test(expected = FileNotFoundException.class)
   public void testOverwriteNoFile() throws Exception {
-    Policy policy = new Policy.Builder().giveFullAccess().build();
-    Security security = Security.createNew(policy, "appSecret");
-
-    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").security(security).build();
-    FsFile fsFile = new FsFile(fsClient, "handle");
+    FsConfig config = configBuilder.security("policy","signature").build();
+    FsFile fsFile = new FsFile(config, "handle");
 
     fsFile.overwrite("/tmp/filestack_test_overwrite_no_file.txt");
   }
 
   @Test(expected = IllegalStateException.class)
   public void testDeleteWithoutSecurity() throws Exception {
-    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").build();
-    FsFile fsFile = new FsFile(fsClient, "handle");
+    FsFile fsFile = new FsFile(defaultConfig, "handle");
     fsFile.delete();
   }
 
   @Test(expected = IllegalStateException.class)
   public void testImageTagNoSecurity() throws Exception {
-    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").build();
-    FsFile fsFile = new FsFile(fsClient, "handle");
+    FsFile fsFile = new FsFile(defaultConfig, "handle");
     fsFile.imageTags();
   }
 
   @Test
   public void testImageTag() throws Exception {
-    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsService mockFsService = new FsService(null, mockCdnService, null, null);
-
     String jsonString = "{"
         + "'tags': {"
         + "'auto': {"
@@ -237,17 +195,16 @@ public class TestFsFile {
         + ",signature:" + security.getSignature()
         + "/tags";
 
+    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
     Mockito.doReturn(call)
         .when(mockCdnService)
         .transform(tasksString, "handle");
 
-    FsClient fsClient = new FsClient.Builder()
-        .apiKey("apiKey")
-        .security(security)
-        .fsService(mockFsService)
+    FsConfig config = configBuilder
+        .security("policy", "signature")
+        .cdnService(mockCdnService)
         .build();
-
-    FsFile fsFile = new FsFile(fsClient, "handle");
+    FsFile fsFile = new FsFile(config, "handle");
 
     Map<String, Integer> tags = fsFile.imageTags();
 
@@ -256,16 +213,13 @@ public class TestFsFile {
 
   @Test(expected = IllegalStateException.class)
   public void testImageSfwNoSecurity() throws Exception {
-    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").build();
-    FsFile fsFile = new FsFile(fsClient, "handle");
+    FsFile fsFile = new FsFile(defaultConfig, "handle");
     fsFile.imageSfw();
   }
 
   @Test
   public void testImageSfw() throws Exception {
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsService mockFsService = new FsService(null, mockCdnService, null, null);
-
     Mockito.doAnswer(new Answer() {
       @Override
       public Call<ResponseBody> answer(InvocationOnMock invocation) throws Throwable {
@@ -278,19 +232,13 @@ public class TestFsFile {
         .when(mockCdnService)
         .transform(Mockito.anyString(), Mockito.anyString());
 
-    Policy policy = new Policy.Builder().giveFullAccess().build();
-    Security security = Security.createNew(policy, "appSecret");
-
-    FsClient fsClient = new FsClient.Builder()
-        .apiKey("apiKey")
-        .security(security)
-        .fsService(mockFsService)
+    FsConfig config = configBuilder
+        .security("policy", "signature")
+        .cdnService(mockCdnService)
         .build();
 
-    FsFile fsFile = new FsFile(fsClient, "handle");
-
-    FsFile safe = new FsFile(fsClient, "safe");
-    FsFile notSafe = new FsFile(fsClient, "notSafe");
+    FsFile safe = new FsFile(config, "safe");
+    FsFile notSafe = new FsFile(config, "notSafe");
 
     Assert.assertTrue(safe.imageSfw());
     Assert.assertFalse(notSafe.imageSfw());
