@@ -1,11 +1,7 @@
 package com.filestack.transforms;
 
-import com.filestack.FsClient;
-import com.filestack.FsFile;
-import com.filestack.Policy;
-import com.filestack.Security;
+import com.filestack.FsConfig;
 import com.filestack.util.FsCdnService;
-import com.filestack.util.FsService;
 import com.google.gson.JsonObject;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
@@ -16,26 +12,24 @@ import retrofit2.Call;
 import retrofit2.mock.Calls;
 
 public class TestTransform {
-  private static final TransformTask TASK = new TransformTask("task");
+  private static final FsConfig.Builder configBuilder = new FsConfig.Builder().apiKey("apikey");
+  private static final FsConfig defaultConfig = configBuilder.build();
+  
+  private static final TransformTask task = new TransformTask("task");
   private static final String TASK_STRING = "task=option1:1,option2:1.0,option3:value,"
       + "option4:[1,1,1,1]";
 
   static {
-    TASK.addOption("option1", 1);
-    TASK.addOption("option2", 1.0);
-    TASK.addOption("option3", "value");
-    TASK.addOption("option4", new Integer[] {1, 1, 1, 1});
+    task.addOption("option1", 1);
+    task.addOption("option2", 1.0);
+    task.addOption("option3", "value");
+    task.addOption("option4", new Integer[] {1, 1, 1, 1});
   }
-
-  private static final Policy POLICY = new Policy.Builder().giveFullAccess().build();
-  private static final Security SECURITY = Security.createNew(POLICY, "appSecret");
 
   @Test
   public void testUrlHandle() {
-    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").build();
-    FsFile fsFile = new FsFile(fsClient, "handle");
-    Transform transform = new Transform(fsFile);
-    transform.tasks.add(TASK);
+    Transform transform = new Transform(defaultConfig, "handle", false);
+    transform.tasks.add(task);
 
     String correctUrl = FsCdnService.URL + TASK_STRING + "/" + "handle";
     Assert.assertEquals(correctUrl, transform.url());
@@ -43,10 +37,9 @@ public class TestTransform {
 
   @Test
   public void testUrlExternal() {
-    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").build();
     String sourceUrl = "https://example.com/image.jpg";
-    Transform transform = new Transform(fsClient, sourceUrl);
-    transform.tasks.add(TASK);
+    Transform transform = new Transform(defaultConfig, sourceUrl, true);
+    transform.tasks.add(task);
 
     String correctUrl = FsCdnService.URL + "apiKey/" + TASK_STRING + "/" + sourceUrl;
     Assert.assertEquals(correctUrl, transform.url());
@@ -54,23 +47,20 @@ public class TestTransform {
 
   @Test
   public void testUrlSecurity() {
-    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").security(SECURITY).build();
-    FsFile fsFile = new FsFile(fsClient, "handle");
-    Transform transform = new Transform(fsFile);
-    transform.tasks.add(TASK);
+    FsConfig config = configBuilder.security("policy", "signature").build();
+    Transform transform = new Transform(config, "handle", false);
+    transform.tasks.add(task);
 
-    String correctUrl = FsCdnService.URL + "security=policy:" + SECURITY.getPolicy() + ","
-        + "signature:" + SECURITY.getSignature() + "/" + TASK_STRING + "/handle";
+    String correctUrl = FsCdnService.URL + "security=policy:policy,signature:signature/"
+        + TASK_STRING + "/handle";
     Assert.assertEquals(correctUrl, transform.url());
   }
 
   @Test
   public void testUrlMultipleTasks() {
-    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").build();
-    FsFile fsFile = new FsFile(fsClient, "handle");
-    Transform transform = new Transform(fsFile);
-    transform.tasks.add(TASK);
-    transform.tasks.add(TASK);
+    Transform transform = new Transform(defaultConfig, "handle", false);
+    transform.tasks.add(task);
+    transform.tasks.add(task);
 
     String correctUrl = FsCdnService.URL + TASK_STRING + "/" + TASK_STRING + "/handle";
     Assert.assertEquals(correctUrl, transform.url());
@@ -78,9 +68,7 @@ public class TestTransform {
 
   @Test
   public void testUrlTaskWithoutOptions() {
-    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").build();
-    FsFile fsFile = new FsFile(fsClient, "handle");
-    Transform transform = new Transform(fsFile);
+    Transform transform = new Transform(defaultConfig, "handle", false);
     transform.tasks.add(new TransformTask("task"));
 
     String correctUrl = FsCdnService.URL + "task/handle";
@@ -90,7 +78,7 @@ public class TestTransform {
   @Test
   public void testGetContentExt() throws Exception {
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsService mockFsService = new FsService(null, mockCdnService, null, null);
+    FsConfig config = configBuilder.cdnService(mockCdnService).build();
 
     MediaType mediaType = MediaType.parse("application/octet-stream");
     ResponseBody responseBody = ResponseBody.create(mediaType, "Test Response");
@@ -99,11 +87,7 @@ public class TestTransform {
         .when(mockCdnService)
         .transformExt("apiKey", "task", "https://example.com/");
 
-    FsClient fsClient = new FsClient.Builder()
-        .apiKey("apiKey")
-        .fsService(mockFsService)
-        .build();
-    Transform transform = new Transform(fsClient, "https://example.com/");
+    Transform transform = new Transform(config, "https://example.com/", true);
 
     transform.tasks.add(new TransformTask("task"));
 
@@ -113,21 +97,14 @@ public class TestTransform {
   @Test
   public void testGetContentHandle() throws Exception {
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsService mockFsService = new FsService(null, mockCdnService, null, null);
+    FsConfig config = configBuilder.cdnService(mockCdnService).build();
 
     MediaType mediaType = MediaType.parse("application/octet-stream");
     ResponseBody responseBody = ResponseBody.create(mediaType, "Test Response");
     Call call = Calls.response(responseBody);
-    Mockito.doReturn(call)
-        .when(mockCdnService)
-        .transform("task", "handle");
+    Mockito.doReturn(call).when(mockCdnService).transform("task", "handle");
 
-    FsClient fsClient = new FsClient.Builder()
-        .apiKey("apiKey")
-        .fsService(mockFsService)
-        .build();
-    FsFile fsFile = new FsFile(fsClient, "handle");
-    Transform transform = new Transform(fsFile);
+    Transform transform = new Transform(config, "handle", false);
 
     transform.tasks.add(new TransformTask("task"));
 
@@ -137,7 +114,7 @@ public class TestTransform {
   @Test
   public void testGetContentJson() throws Exception {
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsService mockFsService = new FsService(null, mockCdnService, null, null);
+    FsConfig config = configBuilder.cdnService(mockCdnService).build();
 
     String jsonString = "{"
         + "'key': 'value'"
@@ -146,17 +123,9 @@ public class TestTransform {
     MediaType mediaType = MediaType.parse("application/json");
     ResponseBody responseBody = ResponseBody.create(mediaType, jsonString);
     Call call = Calls.response(responseBody);
-    Mockito.doReturn(call)
-        .when(mockCdnService)
-        .transform("task", "handle");
+    Mockito.doReturn(call).when(mockCdnService).transform("task", "handle");
 
-    FsClient fsClient = new FsClient.Builder()
-        .apiKey("apiKey")
-        .fsService(mockFsService)
-        .build();
-    FsFile fsFile = new FsFile(fsClient, "handle");
-
-    Transform transform = new Transform(fsFile);
+    Transform transform = new Transform(config, "handle", false);
     transform.tasks.add(new TransformTask("task"));
 
     JsonObject jsonObject = transform.getContentJson();
