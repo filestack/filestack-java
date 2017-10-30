@@ -102,23 +102,21 @@ public class TestImageTransform {
 
   @Test
   public void testStoreExternal() throws Exception {
+    String jsonString = "{'url': 'https://cdn.filestackcontent.com/handle'}";
+    Gson gson = new Gson();
+    StoreResponse storeResponse = gson.fromJson(jsonString, StoreResponse.class);
+    String url = "https://example.com/image.jpg";
+
     FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
+    Mockito.doReturn(Calls.response(storeResponse))
+        .when(mockCdnService)
+        .transformStoreExt("apiKey", "store", url);
+
     FsConfig config = new FsConfig.Builder()
         .apiKey("apiKey")
         .cdnService(mockCdnService)
         .build();
-
-    ImageTransform transform = new ImageTransform(config, "handle", false);
-
-    String jsonString = "{'url': 'https://cdn.filestackcontent.com/handle'}";
-    Gson gson = new Gson();
-    StoreResponse storeResponse = gson.fromJson(jsonString, StoreResponse.class);
-
-    String url = "https://example.com/image.jpg";
-
-    Mockito.doReturn(Calls.response(storeResponse))
-        .when(mockCdnService)
-        .transformStoreExt("apiKey", "store", url);
+    ImageTransform transform = new ImageTransform(config, url, true);
 
     Assert.assertNotNull(transform.store());
   }
