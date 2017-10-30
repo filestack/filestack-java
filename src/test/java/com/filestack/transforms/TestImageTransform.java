@@ -2,7 +2,7 @@ package com.filestack.transforms;
 
 import com.filestack.Config;
 import com.filestack.internal.CdnService;
-import com.filestack.internal.FsService;
+import com.filestack.internal.Networking;
 import com.filestack.internal.responses.StoreResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -14,11 +14,9 @@ import retrofit2.mock.Calls;
 public class TestImageTransform {
   @Test
   public void testDebugUrl() throws Exception {
-    FsService fsService = new FsService();
-
     String taskString = "resize=width:100,height:100";
     String correctUrl = CdnService.URL + "debug/" + taskString + "/handle";
-    String outputUrl = fsService.cdn().transformDebug(taskString, "handle")
+    String outputUrl = Networking.getCdnService().transformDebug(taskString, "handle")
         .request()
         .url()
         .toString();
@@ -28,15 +26,13 @@ public class TestImageTransform {
 
   @Test
   public void testDebugUrlExternal() throws Exception {
-    FsService fsService = new FsService();
-
     String taskString = "resize=width:100,height:100";
     String url = "https://example.com/image.jpg";
     String encodedUrl = "https:%2F%2Fexample.com%2Fimage.jpg";
 
     // Retrofit will return the URL with some characters escaped, so check for encoded version
     String correctUrl = CdnService.URL + "apiKey/debug/" + taskString + "/" + encodedUrl;
-    String outputUrl = fsService.cdn().transformDebugExt("apiKey", taskString, url)
+    String outputUrl = Networking.getCdnService().transformDebugExt("apiKey", taskString, url)
         .request()
         .url()
         .toString();
