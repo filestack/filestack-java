@@ -16,7 +16,7 @@ import retrofit2.http.PartMap;
 import retrofit2.http.Url;
 
 /** Wraps endpoints that run on upload.filestackapi.com. */
-public interface FsUploadService {
+public interface UploadService {
   String URL = "https://upload.filestackapi.com/";
 
   @Multipart

@@ -10,7 +10,7 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 /** Wraps endpoints that run on www.filestackapi.com. */
-public interface FsApiService {
+public interface BaseService {
   String URL = "https://www.filestackapi.com/api/file/";
 
   @POST("{handle}")

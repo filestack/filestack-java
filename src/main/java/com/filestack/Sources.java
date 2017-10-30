@@ -1,6 +1,6 @@
 package com.filestack;
 
-public class FsSources {
+public class Sources {
   public static final String FACEBOOK      = "facebook";
   public static final String INSTAGRAM     = "instagram";
   public static final String GOOGLE_DRIVE  = "googledrive";

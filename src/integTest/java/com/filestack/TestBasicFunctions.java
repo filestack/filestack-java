@@ -14,11 +14,11 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 public class TestBasicFunctions {
-  private static final FsConfig config = new FsConfig.Builder()
+  private static final Config config = new Config.Builder()
       .apiKey(System.getenv("API_KEY"))
       .security(System.getenv("POLICY"), System.getenv("SIGNATURE"))
       .build();
-  private static final FsClient client = new FsClient(config);
+  private static final Client client = new Client(config);
 
   private static final ArrayList<String> HANDLES = new ArrayList<>();
   private static final ArrayList<File> FILES = new ArrayList<>();
@@ -47,8 +47,8 @@ public class TestBasicFunctions {
     File file = createRandomFile(uuid, 15L * 1024 * 1024);
     FILES.add(file);
 
-    FsFile fsFile = client.upload(file.getPath(), false);
-    String handle = fsFile.getHandle();
+    FileLink fileLink = client.upload(file.getPath(), false);
+    String handle = fileLink.getHandle();
     HANDLES.add(handle);
 
     Assert.assertNotNull(handle);
@@ -60,10 +60,10 @@ public class TestBasicFunctions {
     File file = createRandomFile(uuid);
     FILES.add(file);
 
-    FsFile fsFile = client.upload(file.getPath(), false);
-    String handle = fsFile.getHandle();
+    FileLink fileLink = client.upload(file.getPath(), false);
+    String handle = fileLink.getHandle();
     HANDLES.add(handle);
-    byte[] bytes = fsFile.getContent().bytes();
+    byte[] bytes = fileLink.getContent().bytes();
     String content = new String(bytes, "utf-16");
 
     Assert.assertEquals(uuid, content);
@@ -75,14 +75,14 @@ public class TestBasicFunctions {
     File uploadFile = createRandomFile(uploadUuid);
     FILES.add(uploadFile);
 
-    FsFile fsFile = client.upload(uploadFile.getPath(), false);
-    String handle = fsFile.getHandle();
+    FileLink fileLink = client.upload(uploadFile.getPath(), false);
+    String handle = fileLink.getHandle();
     HANDLES.add(handle);
 
     String downloadUuid = UUID.randomUUID().toString();
     File downloadFile = new File("/tmp/" + downloadUuid + ".txt");
     FILES.add(downloadFile);
-    fsFile.download("/tmp/", downloadFile.getName());
+    fileLink.download("/tmp/", downloadFile.getName());
 
     Assert.assertTrue(downloadFile.isFile());
     byte[] bytes = Files.asByteSource(downloadFile).read();
@@ -100,13 +100,13 @@ public class TestBasicFunctions {
     File overwriteFile = createRandomFile(overwriteUuid);
     FILES.add(overwriteFile);
 
-    FsFile fsFile = client.upload(uploadFile.getPath(), false);
-    String handle = fsFile.getHandle();
+    FileLink fileLink = client.upload(uploadFile.getPath(), false);
+    String handle = fileLink.getHandle();
     HANDLES.add(handle);
 
-    fsFile.overwrite(overwriteFile.getPath());
+    fileLink.overwrite(overwriteFile.getPath());
 
-    byte[] bytes = fsFile.getContent().bytes();
+    byte[] bytes = fileLink.getContent().bytes();
     String content = new String(bytes, "utf-16");
     Assert.assertEquals(overwriteUuid, content);
   }
@@ -117,22 +117,22 @@ public class TestBasicFunctions {
     File uploadFile = createRandomFile(uploadUuid);
     FILES.add(uploadFile);
 
-    FsFile fsFile = client.upload(uploadFile.getPath(), false);
-    fsFile.delete();
+    FileLink fileLink = client.upload(uploadFile.getPath(), false);
+    fileLink.delete();
 
     thrown.expect(HttpException.class);
-    fsFile.getContent();
+    fileLink.getContent();
   }
 
   /** Deletes any FILES uploaded during tests. */
   @AfterClass
   public static void cleanupHandles() {
     for (String handle : HANDLES) {
-      FsFile fsFile = new FsFile(config, handle);
+      FileLink fileLink = new FileLink(config, handle);
       try {
-        fsFile.delete();
+        fileLink.delete();
       } catch (Exception e) {
-        Assert.fail("FsFile delete failed");
+        Assert.fail("FileLink delete failed");
       }
     }
   }

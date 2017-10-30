@@ -17,18 +17,18 @@ import java.io.IOException;
 import java.util.concurrent.Callable;
 
 /** Uploads new files. */
-public class FsClient {
-  protected final FsConfig config;
+public class Client {
+  protected final Config config;
   protected final String returnUrl;
   
   private String sessionToken;
 
-  public FsClient(FsConfig config) {
+  public Client(Config config) {
     this.config = config;
     this.returnUrl = null;
   }
   
-  public FsClient(FsConfig config, String returnUrl) {
+  public Client(Config config, String returnUrl) {
     this.config = config;
     this.returnUrl = null;
   }
@@ -38,7 +38,7 @@ public class FsClient {
    *
    * @see #upload(String, boolean, StorageOptions)
    */
-  public FsFile upload(String path, boolean intelligent) throws IOException {
+  public FileLink upload(String path, boolean intelligent) throws IOException {
     return upload(path, intelligent, null);
   }
 
@@ -49,11 +49,11 @@ public class FsClient {
    * @param options     storage options, https://www.filestack.com/docs/rest-api/store
    * @param intelligent intelligent ingestion, setting to true to will decrease failures in very
    *                    poor network conditions at the expense of upload speed
-   * @return new {@link FsFile} referencing file
+   * @return new {@link FileLink} referencing file
    * @throws HttpException on error response from backend
    * @throws IOException           on error reading file or network failure
    */
-  public FsFile upload(String path, boolean intelligent, StorageOptions options)
+  public FileLink upload(String path, boolean intelligent, StorageOptions options)
       throws IOException {
 
     try {
@@ -118,7 +118,7 @@ public class FsClient {
    *
    * @see #storeCloudItem(String, String, StorageOptions)
    */
-  public FsFile storeCloudItem(String providerName, String path) throws IOException {
+  public FileLink storeCloudItem(String providerName, String path) throws IOException {
     return storeCloudItem(providerName, path, null);
   }
 
@@ -132,7 +132,7 @@ public class FsClient {
    * @throws IOException           on network failure
    */
   @SuppressWarnings("ConstantConditions")
-  public FsFile storeCloudItem(String providerName, String path, StorageOptions options)
+  public FileLink storeCloudItem(String providerName, String path, StorageOptions options)
       throws IOException {
 
     if (options == null) {
@@ -146,7 +146,7 @@ public class FsClient {
     JsonElement responseJson = response.body().get(providerName);
     Gson gson = new Gson();
     CloudStoreResponse storeInfo = gson.fromJson(responseJson, CloudStoreResponse.class);
-    return new FsFile(config, storeInfo.getHandle());
+    return new FileLink(config, storeInfo.getHandle());
   }
 
   /**
@@ -170,20 +170,20 @@ public class FsClient {
    * @see #upload(String, boolean, StorageOptions)
    * @see #uploadAsync(String, boolean, StorageOptions)
    */
-  public Flowable<Progress<FsFile>> uploadAsync(String path, boolean intelligent) {
+  public Flowable<Progress<FileLink>> uploadAsync(String path, boolean intelligent) {
     return uploadAsync(path, intelligent, null);
   }
 
   /**
    * Asynchronously uploads local file. A stream of {@link Progress} objects are emitted by the
    * returned {@link Flowable}. The final {@link Progress} object will return a new
-   * {@link FsFile} from {@link Progress#getData()}. The upload is not done until
+   * {@link FileLink} from {@link Progress#getData()}. The upload is not done until
    * {@link Progress#getData()} returns non-null.
    *
    * @see #upload(String, boolean, StorageOptions)
    */
-  public Flowable<Progress<FsFile>> uploadAsync(String path, boolean intelligent,
-                                                StorageOptions options) {
+  public Flowable<Progress<FileLink>> uploadAsync(String path, boolean intelligent,
+                                                  StorageOptions options) {
 
     if (options == null) {
       options = new StorageOptions();
@@ -249,7 +249,7 @@ public class FsClient {
    *
    * @see #storeCloudItem(String, String, StorageOptions)
    */
-  public Single<FsFile> storeCloudItemAsync(final String providerName, final String path) {
+  public Single<FileLink> storeCloudItemAsync(final String providerName, final String path) {
     return storeCloudItemAsync(providerName, path, null);
   }
 
@@ -258,12 +258,12 @@ public class FsClient {
    *
    * @see #storeCloudItem(String, String, StorageOptions)
    */
-  public Single<FsFile> storeCloudItemAsync(final String providerName, final String path,
-                                            final StorageOptions options) {
+  public Single<FileLink> storeCloudItemAsync(final String providerName, final String path,
+                                              final StorageOptions options) {
 
-    return Single.fromCallable(new Callable<FsFile>() {
+    return Single.fromCallable(new Callable<FileLink>() {
       @Override
-      public FsFile call() throws Exception {
+      public FileLink call() throws Exception {
         return storeCloudItem(providerName, path, options);
       }
     })
@@ -342,7 +342,7 @@ public class FsClient {
     return base;
   }
 
-  public FsConfig getConfig() {
+  public Config getConfig() {
     return config;
   }
 

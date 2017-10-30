@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class TestImageTagging {
-  private static final FsConfig config = new FsConfig.Builder()
+  private static final Config config = new Config.Builder()
       .apiKey(System.getenv("API_KEY"))
       .security(System.getenv("POLICY"), System.getenv("SIGNATURE"))
       .build();
-  private static final FsClient client = new FsClient(config);
+  private static final Client client = new Client(config);
 
   private static ArrayList<String> HANDLES = new ArrayList<>();
   private static ArrayList<File> FILES = new ArrayList<>();
@@ -24,10 +24,10 @@ public class TestImageTagging {
     String origPath = loader.getResource("com/filestack/sample_image.jpg").getPath();
     File origFile = new File(origPath);
 
-    FsFile fsFile = client.upload(origPath, true);
-    HANDLES.add(fsFile.getHandle());
+    FileLink fileLink = client.upload(origPath, true);
+    HANDLES.add(fileLink.getHandle());
 
-    Map<String, Integer> tags = fsFile.imageTags();
+    Map<String, Integer> tags = fileLink.imageTags();
     Assert.assertNotNull(tags.get("nebula"));
   }
 
@@ -37,21 +37,21 @@ public class TestImageTagging {
     String origPath = loader.getResource("com/filestack/sample_image.jpg").getPath();
     File origFile = new File(origPath);
 
-    FsFile fsFile = client.upload(origPath, false);
-    HANDLES.add(fsFile.getHandle());
+    FileLink fileLink = client.upload(origPath, false);
+    HANDLES.add(fileLink.getHandle());
 
-    Assert.assertTrue(fsFile.imageSfw());
+    Assert.assertTrue(fileLink.imageSfw());
   }
 
   /** Deletes any FILES uploaded during tests. */
   @AfterClass
   public static void cleanupHandles() {
     for (String handle : HANDLES) {
-      FsFile fsFile = new FsFile(config, handle);
+      FileLink fileLink = new FileLink(config, handle);
       try {
-        fsFile.delete();
+        fileLink.delete();
       } catch (Exception e) {
-        Assert.fail("FsFile delete failed");
+        Assert.fail("FileLink delete failed");
       }
     }
   }

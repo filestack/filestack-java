@@ -1,7 +1,7 @@
 package com.filestack.transforms;
 
-import com.filestack.FsConfig;
-import com.filestack.util.FsCdnService;
+import com.filestack.Config;
+import com.filestack.util.CdnService;
 import com.google.gson.JsonObject;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
@@ -25,64 +25,64 @@ public class TestTransform {
 
   @Test
   public void testUrlHandle() {
-    FsConfig config = new FsConfig.Builder().apiKey("apiKey").build();
+    Config config = new Config.Builder().apiKey("apiKey").build();
     Transform transform = new Transform(config, "handle", false);
     transform.tasks.add(task);
 
-    String correctUrl = FsCdnService.URL + TASK_STRING + "/" + "handle";
+    String correctUrl = CdnService.URL + TASK_STRING + "/" + "handle";
     Assert.assertEquals(correctUrl, transform.url());
   }
 
   @Test
   public void testUrlExternal() {
-    FsConfig config = new FsConfig.Builder().apiKey("apiKey").build();
+    Config config = new Config.Builder().apiKey("apiKey").build();
     String sourceUrl = "https://example.com/image.jpg";
     Transform transform = new Transform(config, sourceUrl, true);
     transform.tasks.add(task);
 
-    String correctUrl = FsCdnService.URL + "apiKey/" + TASK_STRING + "/" + sourceUrl;
+    String correctUrl = CdnService.URL + "apiKey/" + TASK_STRING + "/" + sourceUrl;
     Assert.assertEquals(correctUrl, transform.url());
   }
 
   @Test
   public void testUrlSecurity() {
-    FsConfig config = new FsConfig.Builder()
+    Config config = new Config.Builder()
         .security("policy", "signature")
         .apiKey("apiKey")
         .build();
     Transform transform = new Transform(config, "handle", false);
     transform.tasks.add(task);
 
-    String correctUrl = FsCdnService.URL + "security=policy:policy,signature:signature/"
+    String correctUrl = CdnService.URL + "security=policy:policy,signature:signature/"
         + TASK_STRING + "/handle";
     Assert.assertEquals(correctUrl, transform.url());
   }
 
   @Test
   public void testUrlMultipleTasks() {
-    FsConfig config = new FsConfig.Builder().apiKey("apiKey").build();
+    Config config = new Config.Builder().apiKey("apiKey").build();
     Transform transform = new Transform(config, "handle", false);
     transform.tasks.add(task);
     transform.tasks.add(task);
 
-    String correctUrl = FsCdnService.URL + TASK_STRING + "/" + TASK_STRING + "/handle";
+    String correctUrl = CdnService.URL + TASK_STRING + "/" + TASK_STRING + "/handle";
     Assert.assertEquals(correctUrl, transform.url());
   }
 
   @Test
   public void testUrlTaskWithoutOptions() {
-    FsConfig config = new FsConfig.Builder().apiKey("apiKey").build();
+    Config config = new Config.Builder().apiKey("apiKey").build();
     Transform transform = new Transform(config, "handle", false);
     transform.tasks.add(new TransformTask("task"));
 
-    String correctUrl = FsCdnService.URL + "task/handle";
+    String correctUrl = CdnService.URL + "task/handle";
     Assert.assertEquals(correctUrl, transform.url());
   }
 
   @Test
   public void testGetContentExt() throws Exception {
-    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsConfig config = new FsConfig.Builder()
+    CdnService mockCdnService = Mockito.mock(CdnService.class);
+    Config config = new Config.Builder()
         .apiKey("apiKey")
         .cdnService(mockCdnService)
         .build();
@@ -103,8 +103,8 @@ public class TestTransform {
 
   @Test
   public void testGetContentHandle() throws Exception {
-    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsConfig config = new FsConfig.Builder()
+    CdnService mockCdnService = Mockito.mock(CdnService.class);
+    Config config = new Config.Builder()
         .apiKey("apiKey")
         .cdnService(mockCdnService)
         .build();
@@ -123,8 +123,8 @@ public class TestTransform {
 
   @Test
   public void testGetContentJson() throws Exception {
-    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsConfig config = new FsConfig.Builder()
+    CdnService mockCdnService = Mockito.mock(CdnService.class);
+    Config config = new Config.Builder()
         .apiKey("apiKey")
         .cdnService(mockCdnService)
         .build();

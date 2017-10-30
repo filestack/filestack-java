@@ -14,11 +14,11 @@ import java.io.File;
 import java.util.ArrayList;
 
 public class TestTransforms {
-  private static final FsConfig config = new FsConfig.Builder()
+  private static final Config config = new Config.Builder()
       .apiKey(System.getenv("API_KEY"))
       .security(System.getenv("POLICY"), System.getenv("SIGNATURE"))
       .build();
-  private static final FsClient client = new FsClient(config);
+  private static final Client client = new Client(config);
 
   private static ArrayList<String> HANDLES = new ArrayList<>();
   private static ArrayList<File> FILES = new ArrayList<>();
@@ -29,10 +29,10 @@ public class TestTransforms {
     String origPath = loader.getResource("com/filestack/sample_image.jpg").getPath();
     File origFile = new File(origPath);
 
-    FsFile fsFile = client.upload(origPath, false);
-    HANDLES.add(fsFile.getHandle());
+    FileLink fileLink = client.upload(origPath, false);
+    HANDLES.add(fileLink.getHandle());
 
-    ImageTransform transform = fsFile.imageTransform();
+    ImageTransform transform = fileLink.imageTransform();
     transform.addTask(new CropTask(0, 0, 500, 500));
 
     String cropPath = loader.getResource("com/filestack/sample_image_cropped.jpg").getPath();
@@ -51,26 +51,26 @@ public class TestTransforms {
     String oggPath = loader.getResource("com/filestack/sample_music.ogg").getPath();
     File oggFile = new File(oggPath);
 
-    FsFile oggFsFile = client.upload(oggPath, false);
-    HANDLES.add(oggFsFile.getHandle());
+    FileLink oggFileLink = client.upload(oggPath, false);
+    HANDLES.add(oggFileLink.getHandle());
 
     AvTransformOptions options = new AvTransformOptions.Builder()
         .preset("mp3")
         .build();
 
-    AvTransform transform = oggFsFile.avTransform(options);
+    AvTransform transform = oggFileLink.avTransform(options);
 
-    FsFile mp3FsFile;
-    while ((mp3FsFile = transform.getFileLink()) == null) {
+    FileLink mp3FileLink;
+    while ((mp3FileLink = transform.getFileLink()) == null) {
       Thread.sleep(5 * 1000);
     }
-    HANDLES.add(mp3FsFile.getHandle());
+    HANDLES.add(mp3FileLink.getHandle());
 
     String mp3Path = loader.getResource("com/filestack/sample_music.mp3").getPath();
     File mp3File = new File(mp3Path);
 
     String correct = Files.asByteSource(mp3File).hash(Hashing.sha256()).toString();
-    byte[] bytes = mp3FsFile.getContent().bytes();
+    byte[] bytes = mp3FileLink.getContent().bytes();
     String output = Hashing.sha256().hashBytes(bytes).toString();
 
     Assert.assertEquals(correct, output);
@@ -80,11 +80,11 @@ public class TestTransforms {
   @AfterClass
   public static void cleanupHandles() {
     for (String handle : HANDLES) {
-      FsFile fsFile = new FsFile(config, handle);
+      FileLink fileLink = new FileLink(config, handle);
       try {
-        fsFile.delete();
+        fileLink.delete();
       } catch (Exception e) {
-        Assert.fail("FsFile delete failed");
+        Assert.fail("FileLink delete failed");
       }
     }
   }

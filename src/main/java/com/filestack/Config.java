@@ -1,22 +1,22 @@
 package com.filestack;
 
 import com.filestack.transforms.Transform;
-import com.filestack.util.FsApiService;
-import com.filestack.util.FsCdnService;
-import com.filestack.util.FsCloudService;
-import com.filestack.util.FsUploadService;
+import com.filestack.util.BaseService;
+import com.filestack.util.CdnService;
+import com.filestack.util.CloudService;
+import com.filestack.util.UploadService;
 import com.filestack.util.Networking;
 import io.reactivex.Scheduler;
 import io.reactivex.schedulers.Schedulers;
 
 /**
- * Holds config common to {@link FsClient}, {@link FsFile}, and {@link Transform} classes.
+ * Holds config common to {@link Client}, {@link FileLink}, and {@link Transform} classes.
  */
-public class FsConfig {
-  protected FsApiService apiService;
-  protected FsCdnService cdnService;
-  protected FsCloudService cloudService;
-  protected FsUploadService uploadService;
+public class Config {
+  protected BaseService baseService;
+  protected CdnService cdnService;
+  protected CloudService cloudService;
+  protected UploadService uploadService;
   protected final Scheduler subScheduler;
   protected final Scheduler obsScheduler;
   protected final String apiKey;
@@ -26,32 +26,32 @@ public class FsConfig {
   /** Configures and builds new immutable instance. */
   @SuppressWarnings("unchecked")
   public static class Builder<T extends Builder<T>> {
-    protected FsApiService apiService;
-    protected FsCdnService cdnService;
-    protected FsCloudService cloudService;
-    protected FsUploadService uploadService;
+    protected BaseService apiService;
+    protected CdnService cdnService;
+    protected CloudService cloudService;
+    protected UploadService uploadService;
     protected Scheduler subScheduler;
     protected Scheduler obsScheduler;
     protected String apiKey;
     protected String policy;
     protected String signature;
 
-    public T apiService(FsApiService apiService) {
+    public T apiService(BaseService apiService) {
       this.apiService = apiService;
       return (T) this;
     }
 
-    public T cdnService(FsCdnService cdnService) {
+    public T cdnService(CdnService cdnService) {
       this.cdnService = cdnService;
       return (T) this;
     }
 
-    public T cloudService(FsCloudService cloudService) {
+    public T cloudService(CloudService cloudService) {
       this.cloudService = cloudService;
       return (T) this;
     }
 
-    public T uploadService(FsUploadService uploadService) {
+    public T uploadService(UploadService uploadService) {
       this.uploadService = uploadService;
       return (T) this;
     }
@@ -79,18 +79,18 @@ public class FsConfig {
     }
 
     /** Builds new instance, setting defaults for any null requirements. */
-    public FsConfig build() {
+    public Config build() {
       if (apiService == null) {
-        apiService = Networking.getFsApiService();
+        apiService = Networking.getBaseService();
       }
       if (cdnService == null) {
-        cdnService = Networking.getFsCdnService();
+        cdnService = Networking.getCdnService();
       }
       if (cloudService == null) {
-        cloudService = Networking.getFsCloudService();
+        cloudService = Networking.getCloudService();
       }
       if (uploadService == null) {
-        uploadService = Networking.getFsUploadService();
+        uploadService = Networking.getUploadService();
       }
       if (subScheduler == null) {
         subScheduler = Schedulers.io();
@@ -98,12 +98,12 @@ public class FsConfig {
       if (obsScheduler == null) {
         obsScheduler = Schedulers.computation();
       }
-      return new FsConfig(this);
+      return new Config(this);
     }
   }
 
-  protected FsConfig(Builder<?> builder) {
-    apiService = builder.apiService;
+  protected Config(Builder<?> builder) {
+    baseService = builder.apiService;
     cdnService = builder.cdnService;
     cloudService = builder.cloudService;
     uploadService = builder.uploadService;
@@ -114,19 +114,19 @@ public class FsConfig {
     signature = builder.signature;
   }
 
-  public FsApiService getApiService() {
-    return apiService;
+  public BaseService getBaseService() {
+    return baseService;
   }
 
-  public FsCdnService getCdnService() {
+  public CdnService getCdnService() {
     return cdnService;
   }
 
-  public FsCloudService getCloudService() {
+  public CloudService getCloudService() {
     return cloudService;
   }
 
-  public FsUploadService getUploadService() {
+  public UploadService getUploadService() {
     return uploadService;
   }
 

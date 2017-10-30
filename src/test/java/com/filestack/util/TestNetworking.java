@@ -11,11 +11,11 @@ public class TestNetworking extends Networking {
     Networking.invalidate();
     Assert.assertNotNull(Networking.getHttpClient());
     Networking.invalidate();
-    Assert.assertNotNull(Networking.getFsApiService());
+    Assert.assertNotNull(Networking.getBaseService());
     Networking.invalidate();
-    Assert.assertNotNull(Networking.getFsCdnService());
+    Assert.assertNotNull(Networking.getCdnService());
     Networking.invalidate();
-    Assert.assertNotNull(Networking.getFsUploadService());
+    Assert.assertNotNull(Networking.getUploadService());
   }
 
   @Test
@@ -24,17 +24,17 @@ public class TestNetworking extends Networking {
     Networking.invalidate();
     Assert.assertNotSame(okHttpClient, Networking.getHttpClient());
 
-    FsApiService fsApiService = Networking.getFsApiService();
+    BaseService baseService = Networking.getBaseService();
     Networking.invalidate();
-    Assert.assertNotSame(fsApiService, Networking.getFsApiService());
+    Assert.assertNotSame(baseService, Networking.getBaseService());
 
-    FsCdnService fsCdnService = Networking.getFsCdnService();
+    CdnService cdnService = Networking.getCdnService();
     Networking.invalidate();
-    Assert.assertNotSame(fsCdnService, Networking.getFsCdnService());
+    Assert.assertNotSame(cdnService, Networking.getCdnService());
 
-    FsUploadService fsUploadService = Networking.getFsUploadService();
+    UploadService uploadService = Networking.getUploadService();
     Networking.invalidate();
-    Assert.assertNotSame(fsUploadService, Networking.getFsUploadService());
+    Assert.assertNotSame(uploadService, Networking.getUploadService());
   }
 
   @Test

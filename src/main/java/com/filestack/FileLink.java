@@ -26,11 +26,11 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 /** References and performs operations on an individual file. */
-public class FsFile {
-  protected final FsConfig config;
+public class FileLink {
+  protected final Config config;
   protected final String handle;
 
-  public FsFile(FsConfig config, String handle) {
+  public FileLink(Config config, String handle) {
     this.config = config;
     this.handle = handle;
   }
@@ -114,7 +114,7 @@ public class FsFile {
     String mimeType = URLConnection.guessContentTypeFromName(file.getName());
     RequestBody body = RequestBody.create(MediaType.parse(mimeType), file);
 
-    Response response = config.getApiService()
+    Response response = config.getBaseService()
         .overwrite(handle, config.getPolicy(), config.getSignature(), body)
         .execute();
 
@@ -132,7 +132,7 @@ public class FsFile {
       throw new IllegalStateException("Security must be set in order to delete");
     }
     
-    Response response = config.getApiService()
+    Response response = config.getBaseService()
         .delete(handle, config.getApiKey(), config.getPolicy(), config.getSignature())
         .execute();
 
@@ -171,7 +171,7 @@ public class FsFile {
   }
 
   /**
-   * Determines if an image FsFile is "safe for work" using the Google Vision API.
+   * Determines if an image FileLink is "safe for work" using the Google Vision API.
    *
    * @throws HttpException on error response from backend
    * @throws IOException           on network failure
@@ -306,7 +306,7 @@ public class FsFile {
   }
 
   /**
-   * Asynchronously determines if an image FsFile is "safe for work" using the Google Vision API.
+   * Asynchronously determines if an image FileLink is "safe for work" using the Google Vision API.
    *
    * @see #imageSfw()
    */
@@ -321,7 +321,7 @@ public class FsFile {
         .observeOn(config.getObsScheduler());
   }
 
-  public FsConfig getConfig() {
+  public Config getConfig() {
     return config;
   }
 

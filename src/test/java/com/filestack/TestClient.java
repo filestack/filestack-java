@@ -1,7 +1,6 @@
 package com.filestack;
 
-import com.filestack.util.FsService;
-import com.filestack.util.FsUploadService;
+import com.filestack.util.UploadService;
 import com.filestack.util.responses.CompleteResponse;
 import com.filestack.util.responses.StartResponse;
 import com.filestack.util.responses.UploadResponse;
@@ -14,7 +13,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
-import io.reactivex.schedulers.Schedulers;
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -31,9 +29,9 @@ import retrofit2.Response;
 import retrofit2.mock.Calls;
 
 /**
- * Tests {@link FsClient FsClient} class.
+ * Tests {@link Client Client} class.
  */
-public class TestFsClient {
+public class TestClient {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -47,7 +45,7 @@ public class TestFsClient {
     return path;
   }
 
-  private static void setupStartMock(FsUploadService mockUploadService) {
+  private static void setupStartMock(UploadService mockUploadService) {
     String jsonString = "{"
         + "'uri' : '/bucket/apikey/filename',"
         + "'region' : 'region',"
@@ -65,7 +63,7 @@ public class TestFsClient {
         .start(Mockito.<String, RequestBody>anyMap());
   }
 
-  private static void setupUploadMock(FsUploadService mockUploadService) {
+  private static void setupUploadMock(UploadService mockUploadService) {
     String jsonString = "{"
         + "'url' : 'https://s3.amazonaws.com/path',"
         + "'headers' : {"
@@ -91,7 +89,7 @@ public class TestFsClient {
         .upload(Mockito.<String, RequestBody>anyMap());
   }
 
-  private static void setupUploadS3Mock(FsUploadService mockUploadService) {
+  private static void setupUploadS3Mock(UploadService mockUploadService) {
     MediaType mediaType = MediaType.parse("text/xml");
     ResponseBody responseBody = ResponseBody.create(mediaType, "");
     final Response<ResponseBody> response = Response.success(responseBody,
@@ -108,7 +106,7 @@ public class TestFsClient {
             Mockito.any(RequestBody.class));
   }
 
-  private static void setupCommitMock(FsUploadService mockUploadService) {
+  private static void setupCommitMock(UploadService mockUploadService) {
     MediaType mediaType = MediaType.parse("text/plain");
     final ResponseBody response = ResponseBody.create(mediaType, "");
     Mockito
@@ -122,7 +120,7 @@ public class TestFsClient {
         .commit(Mockito.<String, RequestBody>anyMap());
   }
 
-  private static void setupCompleteMock(FsUploadService mockUploadService) {
+  private static void setupCompleteMock(UploadService mockUploadService) {
     String jsonString = "{"
         + "'handle' : 'handle',"
         + "'url' : 'url',"
@@ -142,18 +140,18 @@ public class TestFsClient {
 
   @Test
   public void testExceptionPassing() throws Exception {
-    FsConfig config = new FsConfig.Builder()
+    Config config = new Config.Builder()
         .apiKey("apiKey")
         .security("policy", "signature")
         .build();
-    FsClient fsClient = new FsClient(config);
+    Client client = new Client(config);
     thrown.expect(FileNotFoundException.class);
-    fsClient.upload("/does_not_exist.txt", true);
+    client.upload("/does_not_exist.txt", true);
   }
 
   @Test
   public void testUpload() throws Exception {
-    FsUploadService mockUploadService = Mockito.mock(FsUploadService.class);
+    UploadService mockUploadService = Mockito.mock(UploadService.class);
 
     setupStartMock(mockUploadService);
     setupUploadMock(mockUploadService);
@@ -161,18 +159,18 @@ public class TestFsClient {
     setupCommitMock(mockUploadService);
     setupCompleteMock(mockUploadService);
 
-    FsConfig config = new FsConfig.Builder()
+    Config config = new Config.Builder()
         .apiKey("apiKey")
         .security("policy", "signature")
         .uploadService(mockUploadService)
         .build();
-    FsClient fsClient = new FsClient(config);
+    Client client = new Client(config);
 
     Path path = createRandomFile(10 * 1024 * 1024);
 
-    FsFile fsFile = fsClient.upload(path.toString(), false);
+    FileLink fileLink = client.upload(path.toString(), false);
 
-    Assert.assertEquals("handle", fsFile.getHandle());
+    Assert.assertEquals("handle", fileLink.getHandle());
 
     Files.delete(path);
   }

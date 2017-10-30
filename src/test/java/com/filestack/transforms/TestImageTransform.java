@@ -1,7 +1,7 @@
 package com.filestack.transforms;
 
-import com.filestack.FsConfig;
-import com.filestack.util.FsCdnService;
+import com.filestack.Config;
+import com.filestack.util.CdnService;
 import com.filestack.util.FsService;
 import com.filestack.util.responses.StoreResponse;
 import com.google.gson.Gson;
@@ -17,7 +17,7 @@ public class TestImageTransform {
     FsService fsService = new FsService();
 
     String taskString = "resize=width:100,height:100";
-    String correctUrl = FsCdnService.URL + "debug/" + taskString + "/handle";
+    String correctUrl = CdnService.URL + "debug/" + taskString + "/handle";
     String outputUrl = fsService.cdn().transformDebug(taskString, "handle")
         .request()
         .url()
@@ -35,7 +35,7 @@ public class TestImageTransform {
     String encodedUrl = "https:%2F%2Fexample.com%2Fimage.jpg";
 
     // Retrofit will return the URL with some characters escaped, so check for encoded version
-    String correctUrl = FsCdnService.URL + "apiKey/debug/" + taskString + "/" + encodedUrl;
+    String correctUrl = CdnService.URL + "apiKey/debug/" + taskString + "/" + encodedUrl;
     String outputUrl = fsService.cdn().transformDebugExt("apiKey", taskString, url)
         .request()
         .url()
@@ -46,8 +46,8 @@ public class TestImageTransform {
 
   @Test
   public void testDebugHandle() throws Exception {
-    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsConfig config = new FsConfig.Builder()
+    CdnService mockCdnService = Mockito.mock(CdnService.class);
+    Config config = new Config.Builder()
         .apiKey("apiKey")
         .cdnService(mockCdnService)
         .build();
@@ -64,8 +64,8 @@ public class TestImageTransform {
   @Test
   public void testDebugExternal() throws Exception {
     String url = "https://example.com/image.jpg";
-    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsConfig config = new FsConfig.Builder()
+    CdnService mockCdnService = Mockito.mock(CdnService.class);
+    Config config = new Config.Builder()
         .apiKey("apiKey")
         .cdnService(mockCdnService)
         .build();
@@ -81,8 +81,8 @@ public class TestImageTransform {
 
   @Test
   public void testStoreHandle() throws Exception {
-    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsConfig config = new FsConfig.Builder()
+    CdnService mockCdnService = Mockito.mock(CdnService.class);
+    Config config = new Config.Builder()
         .apiKey("apiKey")
         .cdnService(mockCdnService)
         .build();
@@ -107,12 +107,12 @@ public class TestImageTransform {
     StoreResponse storeResponse = gson.fromJson(jsonString, StoreResponse.class);
     String url = "https://example.com/image.jpg";
 
-    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
+    CdnService mockCdnService = Mockito.mock(CdnService.class);
     Mockito.doReturn(Calls.response(storeResponse))
         .when(mockCdnService)
         .transformStoreExt("apiKey", "store", url);
 
-    FsConfig config = new FsConfig.Builder()
+    Config config = new Config.Builder()
         .apiKey("apiKey")
         .cdnService(mockCdnService)
         .build();
@@ -123,7 +123,7 @@ public class TestImageTransform {
 
   @Test(expected = NullPointerException.class)
   public void testAddNullTask() throws Exception {
-    FsConfig config = new FsConfig.Builder().apiKey("apiKey").build();
+    Config config = new Config.Builder().apiKey("apiKey").build();
     ImageTransform transform = new ImageTransform(config, "handle", false);
     transform.addTask(null);
   }

@@ -4,17 +4,17 @@ package com.filestack.util;
 public class FsService {
   // An instance of this class can hold individual custom services
   // It doesn't contain singletons though, so we specify these as custom
-  private FsApiService customApiService;
-  private FsCdnService customCdnService;
-  private FsUploadService customUploadService;
-  private FsCloudService customCloudService;
+  private BaseService customApiService;
+  private CdnService customCdnService;
+  private UploadService customUploadService;
+  private CloudService customCloudService;
 
   /** Constructs instance using singleton REST services. */
   public FsService() { }
 
   /** Constructs instance using custom REST services. */
-  public FsService(FsApiService api, FsCdnService cdn, FsUploadService upload,
-                   FsCloudService cloud) {
+  public FsService(BaseService api, CdnService cdn, UploadService upload,
+                   CloudService cloud) {
     this.customApiService = api;
     this.customCdnService = cdn;
     this.customUploadService = upload;
@@ -22,46 +22,46 @@ public class FsService {
   }
 
   /**
-   * Returns {@link FsApiService} instance, custom if provided, global singleton otherwise.
+   * Returns {@link BaseService} instance, custom if provided, global singleton otherwise.
    */
-  public FsApiService api() {
+  public BaseService api() {
     if (customApiService != null) {
       return customApiService;
     } else {
-      return Networking.getFsApiService();
+      return Networking.getBaseService();
     }
   }
 
   /**
-   * Returns {@link FsCdnService} instance, custom if provided, global singleton otherwise.
+   * Returns {@link CdnService} instance, custom if provided, global singleton otherwise.
    */
-  public FsCdnService cdn() {
+  public CdnService cdn() {
     if (customCdnService != null) {
       return customCdnService;
     } else {
-      return Networking.getFsCdnService();
+      return Networking.getCdnService();
     }
   }
 
   /**
-   * Returns {@link FsUploadService} instance, custom if provided, global singleton otherwise.
+   * Returns {@link UploadService} instance, custom if provided, global singleton otherwise.
    */
-  public FsUploadService upload() {
+  public UploadService upload() {
     if (customUploadService != null) {
       return customUploadService;
     } else {
-      return Networking.getFsUploadService();
+      return Networking.getUploadService();
     }
   }
 
   /**
-   * Returns {@link FsCloudService} instance, custom if provided, global singleton otherwise.
+   * Returns {@link CloudService} instance, custom if provided, global singleton otherwise.
    */
-  public FsCloudService cloud() {
+  public CloudService cloud() {
     if (customCloudService != null) {
       return customCloudService;
     } else {
-      return Networking.getFsCloudService();
+      return Networking.getCloudService();
     }
   }
 }

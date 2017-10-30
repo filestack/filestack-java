@@ -1,13 +1,13 @@
 package com.filestack.util;
 
-import com.filestack.FsFile;
+import com.filestack.FileLink;
 import com.filestack.Progress;
 import io.reactivex.Flowable;
 import io.reactivex.functions.Function;
 import java.util.List;
 import org.reactivestreams.Publisher;
 
-public class ProgMapFunc implements Function<List<Prog<FsFile>>, Publisher<Progress<FsFile>>> {
+public class ProgMapFunc implements Function<List<Prog<FileLink>>, Publisher<Progress<FileLink>>> {
   private final Upload upload;
   private final long startTime = System.currentTimeMillis();
 
@@ -19,15 +19,15 @@ public class ProgMapFunc implements Function<List<Prog<FsFile>>, Publisher<Progr
   }
 
   @Override
-  public Publisher<Progress<FsFile>> apply(List<Prog<FsFile>> progs) throws Exception {
+  public Publisher<Progress<FileLink>> apply(List<Prog<FileLink>> progs) throws Exception {
     // Skip update if buffer is empty
     if (progs.size() == 0) {
       return Flowable.empty();
     }
 
     int bytes = 0;
-    FsFile data = null;
-    for (Prog<FsFile> simple : progs) {
+    FileLink data = null;
+    for (Prog<FileLink> simple : progs) {
       bytes += simple.getBytes();
       data = simple.getData();
     }

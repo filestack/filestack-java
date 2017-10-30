@@ -12,10 +12,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public class Networking {
   private static OkHttpClient httpClient;
-  private static FsApiService fsApiService;
-  private static FsCdnService fsCdnService;
-  private static FsUploadService fsUploadService;
-  private static FsCloudService fsCloudService;
+  private static BaseService baseService;
+  private static CdnService cdnService;
+  private static UploadService uploadService;
+  private static CloudService cloudService;
 
   /** Get http fsClient singleton. */
   public static OkHttpClient getHttpClient() {
@@ -32,47 +32,47 @@ public class Networking {
   }
 
   /**
-   * Get {@link FsApiService} singleton.
+   * Get {@link BaseService} singleton.
    */
-  public static FsApiService getFsApiService() {
-    if (fsApiService == null) {
-      Retrofit retrofit = getRetrofitBuilder().baseUrl(FsApiService.URL).build();
-      fsApiService = retrofit.create(FsApiService.class);
+  public static BaseService getBaseService() {
+    if (baseService == null) {
+      Retrofit retrofit = getRetrofitBuilder().baseUrl(BaseService.URL).build();
+      baseService = retrofit.create(BaseService.class);
     }
-    return fsApiService;
+    return baseService;
   }
 
   /**
-   * Get {@link FsCdnService} singleton.
+   * Get {@link CdnService} singleton.
    */
-  public static FsCdnService getFsCdnService() {
-    if (fsCdnService == null) {
-      Retrofit retrofit = getRetrofitBuilder().baseUrl(FsCdnService.URL).build();
-      fsCdnService = retrofit.create(FsCdnService.class);
+  public static CdnService getCdnService() {
+    if (cdnService == null) {
+      Retrofit retrofit = getRetrofitBuilder().baseUrl(CdnService.URL).build();
+      cdnService = retrofit.create(CdnService.class);
     }
-    return fsCdnService;
+    return cdnService;
   }
 
   /**
-   * Get {@link FsUploadService} singleton.
+   * Get {@link UploadService} singleton.
    */
-  public static FsUploadService getFsUploadService() {
-    if (fsUploadService == null) {
-      Retrofit retrofit = getRetrofitBuilder().baseUrl(FsUploadService.URL).build();
-      fsUploadService = retrofit.create(FsUploadService.class);
+  public static UploadService getUploadService() {
+    if (uploadService == null) {
+      Retrofit retrofit = getRetrofitBuilder().baseUrl(UploadService.URL).build();
+      uploadService = retrofit.create(UploadService.class);
     }
-    return fsUploadService;
+    return uploadService;
   }
 
   /**
-   * Get {@link FsCloudService} singleton.
+   * Get {@link CloudService} singleton.
    */
-  public static FsCloudService getFsCloudService() {
-    if (fsCloudService == null) {
-      Retrofit retrofit = getRetrofitBuilder().baseUrl(FsCloudService.URL).build();
-      fsCloudService = retrofit.create(FsCloudService.class);
+  public static CloudService getCloudService() {
+    if (cloudService == null) {
+      Retrofit retrofit = getRetrofitBuilder().baseUrl(CloudService.URL).build();
+      cloudService = retrofit.create(CloudService.class);
     }
-    return fsCloudService;
+    return cloudService;
   }
 
   /** Set a custom http fsClient. */
@@ -98,9 +98,9 @@ public class Networking {
 
   /** Sets the services to null so they'll be recreated. */
   private static void invalidateServices() {
-    fsApiService = null;
-    fsCdnService = null;
-    fsUploadService = null;
-    fsCloudService = null;
+    baseService = null;
+    cdnService = null;
+    uploadService = null;
+    cloudService = null;
   }
 }

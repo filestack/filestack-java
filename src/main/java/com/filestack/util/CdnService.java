@@ -11,7 +11,7 @@ import retrofit2.http.Query;
 import retrofit2.http.Streaming;
 
 /** Wraps endpoints that run on cdn.filestackcontent.com. */
-public interface FsCdnService {
+public interface CdnService {
   String URL = "https://cdn.filestackcontent.com/";
 
   @GET("{handle}")

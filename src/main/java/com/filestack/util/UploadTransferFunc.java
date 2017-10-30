@@ -1,6 +1,6 @@
 package com.filestack.util;
 
-import com.filestack.FsFile;
+import com.filestack.FileLink;
 import com.filestack.util.responses.UploadResponse;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
@@ -24,7 +24,7 @@ import java.util.Map;
  * An upload should be divided between multiple instances, with each uploading a subrange of parts.
  * We take a sectionIndex that tells us what area of the file to be responsible for.
  */
-public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FsFile>> {
+public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FileLink>> {
   private Upload upload;
   private int sectionIndex;
 
@@ -34,7 +34,7 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FsFile>> {
   }
 
   @Override
-  public void subscribe(FlowableEmitter<Prog<FsFile>> e) throws Exception {
+  public void subscribe(FlowableEmitter<Prog<FileLink>> e) throws Exception {
     int start = sectionIndex * upload.partsPerFunc;
     int count = Math.min(upload.partsPerFunc, upload.numParts - start);
 
@@ -81,7 +81,7 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FsFile>> {
         }
 
         bytesSent = uploadToS3(upload, part, offset, bytesRead, bytes);
-        e.onNext(new Prog<FsFile>(bytesSent));
+        e.onNext(new Prog<FileLink>(bytesSent));
 
         if (bytesSent < bytesRead) {
           if (bytesSent < Upload.MIN_CHUNK_SIZE) {

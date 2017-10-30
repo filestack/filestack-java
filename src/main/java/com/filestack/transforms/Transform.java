@@ -1,7 +1,7 @@
 package com.filestack.transforms;
 
-import com.filestack.FsConfig;
-import com.filestack.FsFile;
+import com.filestack.Config;
+import com.filestack.FileLink;
 import com.filestack.HttpException;
 import com.filestack.util.Util;
 import com.google.gson.Gson;
@@ -19,13 +19,13 @@ import java.util.concurrent.Callable;
  * Base class for file transformations and conversions.
  */
 public class Transform {
-  protected final FsConfig config;
+  protected final Config config;
   protected final String source;
   protected final boolean isExternal;
 
   protected final ArrayList<TransformTask> tasks = new ArrayList<>();
 
-  protected Transform(FsConfig config, String source, boolean isExternal) {
+  protected Transform(Config config, String source, boolean isExternal) {
     this.config = config;
     this.source = source;
     this.isExternal = isExternal;
@@ -56,7 +56,7 @@ public class Transform {
 
   /**
    * Generates a URL of the transformation.
-   * Includes the related {@link FsFile FsFile's} policy and signature.
+   * Includes the related {@link FileLink FileLink's} policy and signature.
    *
    * @return transformation URL
    */
