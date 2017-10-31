@@ -15,10 +15,11 @@ import io.reactivex.functions.Action;
 import retrofit2.Response;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.concurrent.Callable;
 
 /** Uploads new files. */
-public class Client {
+public class Client implements Serializable {
   protected final Config config;
   protected final String returnUrl;
   

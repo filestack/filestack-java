@@ -2,10 +2,12 @@ package com.filestack;
 
 import com.filestack.transforms.Transform;
 
+import java.io.Serializable;
+
 /**
  * Holds config common to {@link Client}, {@link FileLink}, and {@link Transform} classes.
  */
-public class Config {
+public class Config implements Serializable {
   protected final String apiKey;
   protected final String policy;
   protected final String signature;

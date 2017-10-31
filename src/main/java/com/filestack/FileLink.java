@@ -22,12 +22,13 @@ import retrofit2.Response;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URLConnection;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
 /** References and performs operations on an individual file. */
-public class FileLink {
+public class FileLink implements Serializable {
   protected final Config config;
   protected final String handle;
 
