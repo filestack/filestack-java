@@ -4,6 +4,7 @@ import com.filestack.Config;
 import com.filestack.FileLink;
 import com.filestack.HttpException;
 import com.filestack.StorageOptions;
+import com.filestack.internal.Networking;
 import com.filestack.internal.Util;
 import com.filestack.internal.responses.StoreResponse;
 import com.google.gson.JsonObject;
@@ -35,11 +36,11 @@ public class ImageTransform extends Transform {
 
     Response<JsonObject> response;
     if (isExternal) {
-      response = config.getCdnService()
+      response = Networking.getCdnService()
           .transformDebugExt(config.getApiKey(), tasksString, source)
           .execute();
     } else {
-      response = config.getCdnService()
+      response = Networking.getCdnService()
           .transformDebug(tasksString, source)
           .execute();
     }
@@ -85,11 +86,11 @@ public class ImageTransform extends Transform {
     Response<StoreResponse> response;
     String tasksString = getTasksString();
     if (isExternal) {
-      response = config.getCdnService()
+      response = Networking.getCdnService()
           .transformStoreExt(config.getApiKey(), tasksString, source)
           .execute();
     } else {
-      response = config.getCdnService()
+      response = Networking.getCdnService()
           .transformStore(tasksString, source)
           .execute();
     }
@@ -130,9 +131,7 @@ public class ImageTransform extends Transform {
       public JsonObject call() throws Exception {
         return debug();
       }
-    })
-        .subscribeOn(config.getSubScheduler())
-        .observeOn(config.getObsScheduler());
+    });
   }
 
   /**
@@ -153,8 +152,6 @@ public class ImageTransform extends Transform {
       public FileLink call() throws Exception {
         return store(storageOptions);
       }
-    })
-        .subscribeOn(config.getSubScheduler())
-        .observeOn(config.getObsScheduler());
+    });
   }
 }

@@ -1,9 +1,10 @@
 package com.filestack;
 
-import com.filestack.transforms.ImageTransform;
+import com.filestack.internal.Networking;
 import com.filestack.internal.Upload;
 import com.filestack.internal.Util;
 import com.filestack.internal.responses.CloudStoreResponse;
+import com.filestack.transforms.ImageTransform;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -71,7 +72,7 @@ public class Client {
    */
   public AppInfo getAppInfo() throws IOException {
     JsonObject params = makeCloudParams();
-    Response<AppInfo> response = config.getCloudService().prefetch(params).execute();
+    Response<AppInfo> response = Networking.getCloudService().prefetch(params).execute();
     Util.checkResponseAndThrow(response);
     return response.body();
   }
@@ -100,7 +101,7 @@ public class Client {
       throws IOException {
 
     JsonObject params = makeCloudParams(providerName, path, next);
-    Response<JsonObject> response = config.getCloudService().list(params).execute();
+    Response<JsonObject> response = Networking.getCloudService().list(params).execute();
     Util.checkResponseAndThrow(response);
     JsonObject base = response.body();
 
@@ -141,7 +142,7 @@ public class Client {
 
     JsonObject params = makeCloudParams(providerName, path);
     params.add("store", options.getAsJson());
-    Response<JsonObject> response = config.getCloudService().store(params).execute();
+    Response<JsonObject> response = Networking.getCloudService().store(params).execute();
     Util.checkResponseAndThrow(response);
     JsonElement responseJson = response.body().get(providerName);
     Gson gson = new Gson();
@@ -158,7 +159,7 @@ public class Client {
    */
   public void logoutCloud(String providerName) throws IOException {
     JsonObject params = makeCloudParams(providerName, "/");
-    Response response = config.getCloudService().logout(params).execute();
+    Response response = Networking.getCloudService().logout(params).execute();
     Util.checkResponseAndThrow(response);
   }
 
@@ -195,9 +196,7 @@ public class Client {
     }
 
     Upload upload = new Upload(config, path, intelligent, options);
-    return upload.runAsync()
-        .subscribeOn(config.getSubScheduler())
-        .observeOn(config.getObsScheduler());
+    return upload.runAsync();
   }
 
   /**
@@ -211,9 +210,7 @@ public class Client {
       public AppInfo call() throws Exception {
         return getAppInfo();
       }
-    })
-        .subscribeOn(config.getSubScheduler())
-        .observeOn(config.getObsScheduler());
+    });
   }
 
   /**
@@ -238,9 +235,7 @@ public class Client {
       public CloudResponse call() throws Exception {
         return getCloudItems(providerName, path, next);
       }
-    })
-        .subscribeOn(config.getSubScheduler())
-        .observeOn(config.getObsScheduler());
+    });
   }
 
   /**
@@ -266,9 +261,7 @@ public class Client {
       public FileLink call() throws Exception {
         return storeCloudItem(providerName, path, options);
       }
-    })
-        .subscribeOn(config.getSubScheduler())
-        .observeOn(config.getObsScheduler());
+    });
   }
 
   /**
@@ -282,9 +275,7 @@ public class Client {
       public void run() throws Exception {
         logoutCloud(providerName);
       }
-    })
-        .subscribeOn(config.getSubScheduler())
-        .observeOn(config.getObsScheduler());
+    });
   }
 
   /**

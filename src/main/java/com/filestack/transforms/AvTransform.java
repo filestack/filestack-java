@@ -103,8 +103,6 @@ public class AvTransform extends Transform {
         }
         return fileLink;
       }
-    })
-        .subscribeOn(config.getSubScheduler())
-        .observeOn(config.getObsScheduler());
+    });
   }
 }

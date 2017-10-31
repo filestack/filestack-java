@@ -1,11 +1,12 @@
 package com.filestack;
 
+import com.filestack.internal.Networking;
+import com.filestack.internal.Util;
+import com.filestack.internal.responses.ImageTagResponse;
 import com.filestack.transforms.AvTransform;
 import com.filestack.transforms.ImageTransform;
 import com.filestack.transforms.ImageTransformTask;
 import com.filestack.transforms.tasks.AvTransformOptions;
-import com.filestack.internal.Util;
-import com.filestack.internal.responses.ImageTagResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.reactivex.Completable;
@@ -43,7 +44,7 @@ public class FileLink {
    * @throws IOException           on network failure
    */
   public ResponseBody getContent() throws IOException {
-    Response<ResponseBody> response = config.getCdnService()
+    Response<ResponseBody> response = Networking.getCdnService()
         .get(this.handle, config.getPolicy(), config.getSignature())
         .execute();
 
@@ -70,7 +71,7 @@ public class FileLink {
    * @throws IOException           on error creating file or network failure
    */
   public File download(String directory, String filename) throws IOException {
-    Response<ResponseBody> response = config.getCdnService()
+    Response<ResponseBody> response = Networking.getCdnService()
         .get(this.handle, config.getPolicy(), config.getSignature())
         .execute();
 
@@ -114,7 +115,7 @@ public class FileLink {
     String mimeType = URLConnection.guessContentTypeFromName(file.getName());
     RequestBody body = RequestBody.create(MediaType.parse(mimeType), file);
 
-    Response response = config.getBaseService()
+    Response response = Networking.getBaseService()
         .overwrite(handle, config.getPolicy(), config.getSignature(), body)
         .execute();
 
@@ -132,7 +133,7 @@ public class FileLink {
       throw new IllegalStateException("Security must be set in order to delete");
     }
     
-    Response response = config.getBaseService()
+    Response response = Networking.getBaseService()
         .delete(handle, config.getApiKey(), config.getPolicy(), config.getSignature())
         .execute();
 
@@ -226,9 +227,7 @@ public class FileLink {
       public ResponseBody call() throws Exception {
         return getContent();
       }
-    })
-        .subscribeOn(config.getSubScheduler())
-        .observeOn(config.getObsScheduler());
+    });
   }
 
   /**
@@ -251,9 +250,7 @@ public class FileLink {
       public File call() throws Exception {
         return download(directory, filename);
       }
-    })
-        .subscribeOn(config.getSubScheduler())
-        .observeOn(config.getObsScheduler());
+    });
   }
 
   /**
@@ -268,9 +265,7 @@ public class FileLink {
       public void run() throws Exception {
         overwrite(pathname);
       }
-    })
-        .subscribeOn(config.getSubScheduler())
-        .observeOn(config.getObsScheduler());
+    });
   }
 
   /**
@@ -284,9 +279,7 @@ public class FileLink {
       public void run() throws Exception {
         delete();
       }
-    })
-        .subscribeOn(config.getSubScheduler())
-        .observeOn(config.getObsScheduler());
+    });
   }
 
   /**
@@ -300,9 +293,7 @@ public class FileLink {
       public Map<String, Integer> call() throws Exception {
         return imageTags();
       }
-    })
-        .subscribeOn(config.getSubScheduler())
-        .observeOn(config.getObsScheduler());
+    });
   }
 
   /**
@@ -316,9 +307,7 @@ public class FileLink {
       public Boolean call() throws Exception {
         return imageSfw();
       }
-    })
-        .subscribeOn(config.getSubScheduler())
-        .observeOn(config.getObsScheduler());
+    });
   }
 
   public Config getConfig() {

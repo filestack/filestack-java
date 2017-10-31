@@ -128,7 +128,7 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FileLink>> {
     func = new RetryNetworkFunc<UploadResponse>(5, 5, Upload.DELAY_BASE) {
       @Override
       Response<UploadResponse> work() throws Exception {
-        return upload.config.getUploadService()
+        return Networking.getUploadService()
             .upload(params)
             .execute();
       }
@@ -153,7 +153,7 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FileLink>> {
         String url = params.getUrl();
 
         RequestBody requestBody = RequestBody.create(upload.mediaType, bytes, 0, attemptSize);
-        return upload.config.getUploadService()
+        return Networking.getUploadService()
             .uploadS3(headers, url, requestBody)
             .execute();
       }
@@ -189,7 +189,7 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FileLink>> {
     func = new RetryNetworkFunc<ResponseBody>(5, 5, Upload.DELAY_BASE) {
       @Override
       Response<ResponseBody> work() throws Exception {
-        return upload.config.getUploadService()
+        return Networking.getUploadService()
             .commit(params)
             .execute();
       }

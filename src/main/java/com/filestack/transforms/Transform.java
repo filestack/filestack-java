@@ -3,6 +3,7 @@ package com.filestack.transforms;
 import com.filestack.Config;
 import com.filestack.FileLink;
 import com.filestack.HttpException;
+import com.filestack.internal.Networking;
 import com.filestack.internal.Util;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -65,12 +66,12 @@ public class Transform {
     HttpUrl httpUrl;
 
     if (isExternal) {
-      httpUrl = config.getCdnService()
+      httpUrl = Networking.getCdnService()
           .transformExt(config.getApiKey(), tasksString, source)
           .request()
           .url();
     } else {
-      httpUrl = config.getCdnService()
+      httpUrl = Networking.getCdnService()
           .transform(tasksString, source)
           .request()
           .url();
@@ -94,11 +95,11 @@ public class Transform {
     Response<ResponseBody> response;
 
     if (isExternal) {
-      response = config.getCdnService()
+      response = Networking.getCdnService()
           .transformExt(config.getApiKey(), tasksString, source)
           .execute();
     } else {
-      response = config.getCdnService()
+      response = Networking.getCdnService()
           .transform(tasksString, source)
           .execute();
     }
@@ -133,9 +134,7 @@ public class Transform {
       public ResponseBody call() throws Exception {
         return getContent();
       }
-    })
-        .subscribeOn(config.getSubScheduler())
-        .observeOn(config.getObsScheduler());
+    });
   }
 
   /**
@@ -149,8 +148,6 @@ public class Transform {
       public JsonObject call() throws Exception {
         return getContentJson();
       }
-    })
-        .subscribeOn(config.getSubScheduler())
-        .observeOn(config.getObsScheduler());
+    });
   }
 }

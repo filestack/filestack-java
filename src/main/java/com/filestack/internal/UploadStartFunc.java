@@ -35,7 +35,7 @@ public class UploadStartFunc implements Callable<Prog<FileLink>> {
     func = new RetryNetworkFunc<StartResponse>(0, 5, Upload.DELAY_BASE) {
       @Override
       Response<StartResponse> work() throws Exception {
-        return upload.config.getUploadService()
+        return Networking.getUploadService()
             .start(upload.baseParams)
             .execute();
       }

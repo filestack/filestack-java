@@ -44,7 +44,7 @@ public class UploadCompleteFunc implements Callable<Prog<FileLink>> {
 
       @Override
       Response<CompleteResponse> work() throws Exception {
-        return upload.config.getUploadService()
+        return Networking.getUploadService()
             .complete(params)
             .execute();
       }
