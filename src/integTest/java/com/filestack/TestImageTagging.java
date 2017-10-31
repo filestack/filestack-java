@@ -9,10 +9,11 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class TestImageTagging {
-  private static final Config config = new Config.Builder()
-      .apiKey(System.getenv("API_KEY"))
-      .security(System.getenv("POLICY"), System.getenv("SIGNATURE"))
-      .build();
+  private static final String API_KEY = System.getenv("API_KEY");
+  private static final String POLICY = System.getenv("POLICY");
+  private static final String SIGNATURE = System.getenv("SIGNATURE");
+
+  private static final Config config = new Config(API_KEY, POLICY, SIGNATURE);
   private static final Client client = new Client(config);
 
   private static ArrayList<String> HANDLES = new ArrayList<>();
