@@ -21,18 +21,11 @@ import java.util.concurrent.Callable;
 /** Uploads new files. */
 public class Client implements Serializable {
   protected final Config config;
-  protected final String returnUrl;
   
   private String sessionToken;
 
   public Client(Config config) {
     this.config = config;
-    this.returnUrl = null;
-  }
-  
-  public Client(Config config, String returnUrl) {
-    this.config = config;
-    this.returnUrl = null;
   }
 
   /**
@@ -304,7 +297,7 @@ public class Client implements Serializable {
       json.addProperty("signature", config.getSignature());
     }
     json.addProperty("flow", "mobile");
-    json.addProperty("appurl", returnUrl);
+    json.addProperty("appurl", config.getReturnUrl());
     if (sessionToken != null) {
       json.addProperty("token", sessionToken);
     }
