@@ -1,17 +1,14 @@
 package com.filestack.transforms;
 
+import com.filestack.Config;
 import com.filestack.FileLink;
+import com.filestack.HttpException;
 import com.filestack.StorageOptions;
-import com.filestack.errors.InternalException;
-import com.filestack.errors.InvalidArgumentException;
-import com.filestack.errors.InvalidParameterException;
-import com.filestack.errors.PolicySignatureException;
-import com.filestack.errors.ResourceNotFoundException;
 import com.filestack.transforms.tasks.AvTransformOptions;
-import com.filestack.util.Util;
+import com.filestack.internal.Util;
 import com.google.gson.JsonObject;
 import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
+
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
@@ -21,22 +18,24 @@ import java.util.concurrent.Callable;
 public class AvTransform extends Transform {
 
   /**
-   * Constructs a new instance.
+   * Constructs new instance.
    *
-   * @param fileLink  must point to an existing audio or video resource
-   * @param storeOpts sets how the resulting file(s) are stored, uses defaults if null
-   * @param avOps     sets conversion options
+   * @param config   should be from parent {@link FileLink}
+   * @param handle   should be from parent {@link FileLink}
+   * @param storeOps options for how to store the converted file
+   * @param avOps    options for how to convert the file
    */
-  public AvTransform(FileLink fileLink, StorageOptions storeOpts, AvTransformOptions avOps) {
+  public AvTransform(Config config, String handle, StorageOptions storeOps,
+                     AvTransformOptions avOps) {
 
-    super(fileLink);
+    super(config, handle, false);
 
     if (avOps == null) {
-      throw new InvalidArgumentException("AvTransform can't be created without options");
+      throw new IllegalArgumentException("AvTransform can't be created without options");
     }
 
-    if (storeOpts != null) {
-      tasks.add(TransformTask.merge("video_convert", storeOpts.getAsTask(), avOps));
+    if (storeOps != null) {
+      tasks.add(TransformTask.merge("video_convert", storeOps.getAsTask(), avOps));
     } else {
       tasks.add(avOps);
     }
@@ -48,16 +47,10 @@ public class AvTransform extends Transform {
    * If you need other data, such as thumbnails, use {@link Transform#getContentJson()}.
    *
    * @return null if processing, new {@link FileLink} if complete
-   * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if security is missing or invalid or tagging isn't enabled
-   * @throws ResourceNotFoundException if handle isn't found
-   * @throws InvalidParameterException if handle is malformed
-   * @throws InternalException         if unexpected error occurs
+   * @throws HttpException on error response from backend
+   * @throws IOException           on network failure
    */
-  public FileLink getFileLink()
-      throws IOException, PolicySignatureException, ResourceNotFoundException,
-             InvalidParameterException, InternalException {
-
+  public FileLink getFileLink() throws IOException {
     JsonObject json = getContentJson();
     String status = json.get("status").getAsString();
 
@@ -73,9 +66,9 @@ public class AvTransform extends Transform {
           return null;
         }
         String handle = url.split("/")[3];
-        return new FileLink(apiKey, handle, security);
+        return new FileLink(config, handle);
       default:
-        throw new InternalException();
+        throw new IOException("Unexpected transform error: " + json.toString());
     }
   }
 
@@ -110,8 +103,6 @@ public class AvTransform extends Transform {
         }
         return fileLink;
       }
-    })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+    });
   }
 }

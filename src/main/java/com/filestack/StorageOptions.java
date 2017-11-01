@@ -1,13 +1,17 @@
 package com.filestack;
 
 import com.filestack.transforms.TransformTask;
-import com.filestack.util.Util;
+import com.filestack.internal.Util;
+import com.google.gson.JsonObject;
+
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import okhttp3.MediaType;
 import okhttp3.RequestBody;
 
 /** Configure storage options for uploads and transformation stores. */
-public class StorageOptions {
+public class StorageOptions implements Serializable {
   private String access;
   private Boolean base64Decode;
   private String container;
@@ -15,6 +19,7 @@ public class StorageOptions {
   private String location;
   private String path;
   private String region;
+  private String contentType;
 
   public StorageOptions() { }
 
@@ -41,15 +46,47 @@ public class StorageOptions {
     HashMap<String, RequestBody> map = new HashMap<>();
     addToMap(map, "store_access", access);
     addToMap(map, "store_container", container);
+    addToMap(map, "filename", filename);
     addToMap(map, "store_location", location != null ? location : "s3");
     addToMap(map, "store_path", path);
     addToMap(map, "store_region", region);
+    addToMap(map, "mimetype", contentType);
     return map;
+  }
+
+  /** Get these options as JSON to use for cloud integrations. */
+  public JsonObject getAsJson() {
+    JsonObject json = new JsonObject();
+    addToJson(json, "access", access);
+    addToJson(json, "container", container);
+    addToJson(json, "filename", filename);
+    addToJson(json, "location", location);
+    addToJson(json, "path", path);
+    addToJson(json, "region", region);
+    return json;
+  }
+
+  public MediaType getMediaType() {
+    return MediaType.parse(contentType);
+  }
+
+  public boolean hasContentType() {
+    return contentType != null;
+  }
+
+  public Builder newBuilder() {
+    return new Builder(this);
   }
 
   private static void addToMap(Map<String, RequestBody> map, String key, String value) {
     if (value != null) {
       map.put(key, Util.createStringPart(value));
+    }
+  }
+
+  private static void addToJson(JsonObject json, String key, String value) {
+    if (value != null) {
+      json.addProperty(key, value);
     }
   }
 
@@ -61,6 +98,21 @@ public class StorageOptions {
     private String location;
     private String path;
     private String region;
+    private String contentType;
+
+    public Builder() { }
+
+    /** Create a new builder using an existing options config. */
+    public Builder(StorageOptions existing) {
+      access = existing.access;
+      base64Decode = existing.base64Decode;
+      container = existing.container;
+      filename = existing.filename;
+      location = existing.location;
+      path = existing.path;
+      region = existing.region;
+      contentType = existing.contentType;
+    }
 
     public Builder access(String access) {
       this.access = access;
@@ -97,6 +149,11 @@ public class StorageOptions {
       return this;
     }
 
+    public Builder contentType(String contentType) {
+      this.contentType = contentType;
+      return this;
+    }
+
     /**
      * Builds new {@link StorageOptions}.
      */
@@ -109,6 +166,7 @@ public class StorageOptions {
       building.location = location;
       building.path = path;
       building.region = region;
+      building.contentType = contentType;
       return building;
     }
   }

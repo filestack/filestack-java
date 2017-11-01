@@ -1,32 +1,26 @@
 package com.filestack.transforms;
 
+import com.filestack.Config;
 import com.filestack.FileLink;
-import com.filestack.FilestackClient;
+import com.filestack.HttpException;
 import com.filestack.StorageOptions;
-import com.filestack.errors.InternalException;
-import com.filestack.errors.InvalidParameterException;
-import com.filestack.errors.PolicySignatureException;
-import com.filestack.errors.ResourceNotFoundException;
-import com.filestack.responses.StoreResponse;
-import com.filestack.util.Util;
+import com.filestack.internal.Networking;
+import com.filestack.internal.Util;
+import com.filestack.internal.responses.StoreResponse;
 import com.google.gson.JsonObject;
 import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
+import retrofit2.Response;
+
 import java.io.IOException;
 import java.util.concurrent.Callable;
-import retrofit2.Response;
 
 /**
  * {@link Transform Transform} subclass for image transformations.
  */
 public class ImageTransform extends Transform {
 
-  public ImageTransform(FilestackClient fsClient, String source) {
-    super(fsClient, source);
-  }
-
-  public ImageTransform(FileLink fileLink) {
-    super(fileLink);
+  public ImageTransform(Config config, String source, boolean isExternal) {
+    super(config, source, isExternal);
   }
 
   /**
@@ -34,23 +28,21 @@ public class ImageTransform extends Transform {
    * @see <a href="https://www.filestack.com/docs/image-transformations/debug"></a>
    *
    * @return {@link JsonObject JSON} report for transformation
-   * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if security is missing or invalid
-   * @throws ResourceNotFoundException if API key, handle, or external URL are not found
-   * @throws InvalidParameterException if a request parameter is missing or invalid
-   * @throws InternalException         if unexpected error occurs
+   * @throws HttpException on error response from backend
+   * @throws IOException           on network failure
    */
-  public JsonObject debug()
-      throws IOException, PolicySignatureException, ResourceNotFoundException,
-             InvalidParameterException, InternalException {
-
+  public JsonObject debug() throws IOException {
     String tasksString = getTasksString();
 
     Response<JsonObject> response;
-    if (apiKey != null) {
-      response = fsService.transformDebugExt(apiKey, tasksString, source).execute();
+    if (isExternal) {
+      response = Networking.getCdnService()
+          .transformDebugExt(config.getApiKey(), tasksString, source)
+          .execute();
     } else {
-      response = fsService.transformDebug(tasksString, source).execute();
+      response = Networking.getCdnService()
+          .transformDebug(tasksString, source)
+          .execute();
     }
 
     Util.checkResponseAndThrow(response);
@@ -68,16 +60,10 @@ public class ImageTransform extends Transform {
    * @see <a href="https://www.filestack.com/docs/image-transformations/store"></a>
    *
    * @return new {@link FileLink FileLink} pointing to the file
-   * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if security is missing or invalid
-   * @throws ResourceNotFoundException if API key, handle, or external URL are not found
-   * @throws InvalidParameterException if a request parameter is missing or invalid
-   * @throws InternalException         if unexpected error occurs
+   * @throws HttpException on error response from backend
+   * @throws IOException           on network failure
    */
-  public FileLink store()
-      throws IOException, PolicySignatureException, ResourceNotFoundException,
-             InvalidParameterException, InternalException {
-
+  public FileLink store() throws IOException {
     return store(null);
   }
 
@@ -87,16 +73,10 @@ public class ImageTransform extends Transform {
    *
    * @param storageOptions configure where and how your file is stored
    * @return new {@link FileLink FileLink} pointing to the file
-   * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if security is missing or invalid
-   * @throws ResourceNotFoundException if API key, handle, or external URL are not found
-   * @throws InvalidParameterException if a request parameter is missing or invalid
-   * @throws InternalException         if unexpected error occurs
+   * @throws HttpException on error response from backend
+   * @throws IOException           on network failure
    */
-  public FileLink store(StorageOptions storageOptions)
-      throws IOException, PolicySignatureException, ResourceNotFoundException,
-             InvalidParameterException, InternalException {
-
+  public FileLink store(StorageOptions storageOptions) throws IOException {
     if (storageOptions == null) {
       storageOptions = new StorageOptions();
     }
@@ -105,10 +85,14 @@ public class ImageTransform extends Transform {
 
     Response<StoreResponse> response;
     String tasksString = getTasksString();
-    if (apiKey != null) {
-      response = fsService.transformStoreExt(apiKey, tasksString, source).execute();
+    if (isExternal) {
+      response = Networking.getCdnService()
+          .transformStoreExt(config.getApiKey(), tasksString, source)
+          .execute();
     } else {
-      response = fsService.transformStore(tasksString, source).execute();
+      response = Networking.getCdnService()
+          .transformStore(tasksString, source)
+          .execute();
     }
 
     Util.checkResponseAndThrow(response);
@@ -119,7 +103,7 @@ public class ImageTransform extends Transform {
     }
 
     String handle = body.getUrl().split("/")[3];
-    return new FileLink(apiKey, handle, security);
+    return new FileLink(config, handle);
   }
 
   /**
@@ -147,9 +131,7 @@ public class ImageTransform extends Transform {
       public JsonObject call() throws Exception {
         return debug();
       }
-    })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+    });
   }
 
   /**
@@ -170,8 +152,6 @@ public class ImageTransform extends Transform {
       public FileLink call() throws Exception {
         return store(storageOptions);
       }
-    })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+    });
   }
 }

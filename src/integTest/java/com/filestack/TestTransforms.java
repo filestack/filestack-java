@@ -6,31 +6,32 @@ import com.filestack.transforms.tasks.AvTransformOptions;
 import com.filestack.transforms.tasks.CropTask;
 import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
-import java.io.File;
-import java.util.ArrayList;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.File;
+import java.util.ArrayList;
 
 public class TestTransforms {
   private static final String API_KEY = System.getenv("API_KEY");
   private static final String POLICY = System.getenv("POLICY");
   private static final String SIGNATURE = System.getenv("SIGNATURE");
-  private static final Security SECURITY = Security.fromExisting(POLICY, SIGNATURE);
 
-  private static ArrayList<String> handles = new ArrayList<>();
-  private static ArrayList<File> files = new ArrayList<>();
+  private static final Config config = new Config(API_KEY, POLICY, SIGNATURE);
+  private static final Client client = new Client(config);
+
+  private static ArrayList<String> HANDLES = new ArrayList<>();
+  private static ArrayList<File> FILES = new ArrayList<>();
 
   @Test
   public void testImageTransform() throws Exception {
-    FilestackClient client = new FilestackClient(API_KEY, SECURITY);
-
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     String origPath = loader.getResource("com/filestack/sample_image.jpg").getPath();
     File origFile = new File(origPath);
 
-    FileLink fileLink = client.upload(origPath, "image/jpeg");
-    handles.add(fileLink.getHandle());
+    FileLink fileLink = client.upload(origPath, false);
+    HANDLES.add(fileLink.getHandle());
 
     ImageTransform transform = fileLink.imageTransform();
     transform.addTask(new CropTask(0, 0, 500, 500));
@@ -47,14 +48,12 @@ public class TestTransforms {
 
   @Test
   public void testAvTransform() throws Exception {
-    FilestackClient client = new FilestackClient(API_KEY, SECURITY);
-
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     String oggPath = loader.getResource("com/filestack/sample_music.ogg").getPath();
     File oggFile = new File(oggPath);
 
-    FileLink oggFileLink = client.upload(oggPath, "audio/ogg");
-    handles.add(oggFileLink.getHandle());
+    FileLink oggFileLink = client.upload(oggPath, false);
+    HANDLES.add(oggFileLink.getHandle());
 
     AvTransformOptions options = new AvTransformOptions.Builder()
         .preset("mp3")
@@ -66,7 +65,7 @@ public class TestTransforms {
     while ((mp3FileLink = transform.getFileLink()) == null) {
       Thread.sleep(5 * 1000);
     }
-    handles.add(mp3FileLink.getHandle());
+    HANDLES.add(mp3FileLink.getHandle());
 
     String mp3Path = loader.getResource("com/filestack/sample_music.mp3").getPath();
     File mp3File = new File(mp3Path);
@@ -81,8 +80,8 @@ public class TestTransforms {
   /** Deletes any files uploaded during tests. */
   @AfterClass
   public static void cleanupHandles() {
-    for (String handle : handles) {
-      FileLink fileLink = new FileLink(API_KEY, handle, SECURITY);
+    for (String handle : HANDLES) {
+      FileLink fileLink = new FileLink(config, handle);
       try {
         fileLink.delete();
       } catch (Exception e) {
@@ -94,7 +93,7 @@ public class TestTransforms {
   /** Deletes any local files created during tests. */
   @AfterClass
   public static void cleanupFiles() {
-    for (File file : files) {
+    for (File file : FILES) {
       if (!file.delete()) {
         Assert.fail("Unable to cleanup resource");
       }

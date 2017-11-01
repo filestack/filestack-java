@@ -1,11 +1,18 @@
 package com.filestack;
 
+import com.google.common.base.Charsets;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
+import com.google.common.io.BaseEncoding;
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.Date;
 
 /**
- * Determines what access a user is allowed (if account security is enabled).
- * A policy sets access and a signature validates the policy.
+ * Determines what access a user is allowed (if account security is enabled). A policy sets access
+ * and a signature validates the policy. This class should only be used in server-side code. Do not
+ * include your app secret in client-side code.
  * @see <a href="https://www.filestack.com/docs/security">Filestack Security Docs</a>
  */
 public class Policy {
@@ -19,17 +26,12 @@ public class Policy {
   public static final String CALL_REMOVE = "remove";
   public static final String CALL_EXIF = "exif";
 
-  private Long expiry;
-  private String[] call;
-  private String handle;
-  private String url;
-  private Integer maxSize;
-  private Integer minSize;
-  private String path;
-  private String container;
+  private final String encodedPolicy;
+  private final String signature;
 
-  private Policy() {
-
+  private Policy(String encodedPolicy, String signature) {
+    this.encodedPolicy = encodedPolicy;
+    this.signature = signature;
   }
 
   // Javadoc comments adapted from
@@ -40,7 +42,7 @@ public class Policy {
    */
   public static class Builder {
     private Long expiry;
-    private ArrayList<String> calls;
+    private String[] calls;
     private String handle;
     private String url;
     private Integer maxSize;
@@ -63,13 +65,10 @@ public class Policy {
      * specified is permitted to make all calls except for exif, which needs to be explicitly
      * included in a policy in order to be allowed.
      *
-     * @param call can be pick, read, stat, write, writeUrl, store, convert, remove, or exif
+     * @param calls can be pick, read, stat, write, writeUrl, store, convert, remove, or exif
      */
-    public Builder addCall(String call) {
-      if (calls == null) {
-        calls = new ArrayList<>();
-      }
-      calls.add(call);
+    public Builder calls(String... calls) {
+      this.calls = calls;
       return this;
     }
 
@@ -140,36 +139,34 @@ public class Policy {
       expiry = date.getTime() / 1000 + 60 * 60 * 24 * 365;
 
       // Add all calls
-      calls = new ArrayList<>();
-      calls.add(CALL_PICK);
-      calls.add(CALL_READ);
-      calls.add(CALL_STAT);
-      calls.add(CALL_WRITE);
-      calls.add(CALL_WRITE_URL);
-      calls.add(CALL_STORE);
-      calls.add(CALL_CONVERT);
-      calls.add(CALL_REMOVE);
-      calls.add(CALL_EXIF);
+      calls = new String[] { CALL_PICK, CALL_READ, CALL_STAT, CALL_WRITE, CALL_WRITE_URL,
+          CALL_STORE, CALL_CONVERT, CALL_REMOVE, CALL_EXIF };
 
       return this;
     }
 
     /**
-     * Create the {@link Policy} instance using the configured values.
+     * Encodes the json policy and signs it using the app secret.
+     * Do not include the app secret in client-side code.
      */
-    public Policy build() {
-      Policy policy = new Policy();
-      policy.expiry = expiry;
-      if (calls != null) {
-        policy.call = calls.toArray(new String[0]);
-      }
-      policy.handle = handle;
-      policy.url = url;
-      policy.maxSize = maxSize;
-      policy.minSize = minSize;
-      policy.path = path;
-      policy.container = container;
-      return policy;
+    public Policy build(String appSecret) {
+      Gson gson = new Gson();
+      HashFunction hashFunction = Hashing.hmacSha256(appSecret.getBytes(Charsets.UTF_8));
+
+      String jsonPolicy = gson.toJson(this);
+      System.out.println(jsonPolicy);
+      String encodedPolicy = BaseEncoding.base64Url().encode(jsonPolicy.getBytes(Charsets.UTF_8));
+      String signature = hashFunction.hashString(encodedPolicy, Charsets.UTF_8).toString();
+
+      return new Policy(encodedPolicy, signature);
     }
+  }
+
+  public String getEncodedPolicy() {
+    return encodedPolicy;
+  }
+
+  public String getSignature() {
+    return signature;
   }
 }

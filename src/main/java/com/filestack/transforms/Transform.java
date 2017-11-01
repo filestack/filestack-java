@@ -1,63 +1,40 @@
 package com.filestack.transforms;
 
+import com.filestack.Config;
 import com.filestack.FileLink;
-import com.filestack.FilestackClient;
-import com.filestack.Security;
-import com.filestack.errors.InternalException;
-import com.filestack.errors.InvalidParameterException;
-import com.filestack.errors.PolicySignatureException;
-import com.filestack.errors.ResourceNotFoundException;
-import com.filestack.util.FsService;
-import com.filestack.util.Util;
+import com.filestack.HttpException;
+import com.filestack.internal.Networking;
+import com.filestack.internal.Util;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.concurrent.Callable;
 import okhttp3.HttpUrl;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.concurrent.Callable;
 
 /**
  * Base class for file transformations and conversions.
  */
 public class Transform {
-  String apiKey;
-  String source;
-  Security security;
+  protected final Config config;
+  protected final String source;
+  protected final boolean isExternal;
 
-  ArrayList<TransformTask> tasks;
+  protected final ArrayList<TransformTask> tasks = new ArrayList<>();
 
-  FsService fsService;
+  protected Transform(Config config, String source, boolean isExternal) {
+    this.config = config;
+    this.source = source;
+    this.isExternal = isExternal;
 
-  Transform(FilestackClient fsClient, String url) {
-    this(fsClient, null, url);
-  }
-
-  Transform(FileLink fileLink) {
-    this(null, fileLink, null);
-  }
-
-  Transform(FilestackClient fsClient, FileLink fileLink, String url) {
-    if (fsClient != null) {
-      this.apiKey = fsClient.getApiKey();
-      this.source = url;
-      this.fsService = fsClient.getFsService();
-    } else {
-      this.source = fileLink.getHandle();
-      this.fsService = fileLink.getFsService();
-    }
-
-    this.tasks = new ArrayList<>();
-
-    Security security = fsClient != null ? fsClient.getSecurity() : fileLink.getSecurity();
-    this.security = security;
-    if (security != null) {
+    if (config.hasSecurity()) {
       TransformTask securityTask = new TransformTask("security");
-      securityTask.addOption("policy", security.getPolicy());
-      securityTask.addOption("signature", security.getSignature());
+      securityTask.addOption("policy", config.getPolicy());
+      securityTask.addOption("signature", config.getSignature());
       this.tasks.add(securityTask);
     }
   }
@@ -88,10 +65,16 @@ public class Transform {
     String tasksString = getTasksString();
     HttpUrl httpUrl;
 
-    if (apiKey != null) {
-      httpUrl = fsService.transformExt(apiKey, tasksString, source).request().url();
+    if (isExternal) {
+      httpUrl = Networking.getCdnService()
+          .transformExt(config.getApiKey(), tasksString, source)
+          .request()
+          .url();
     } else {
-      httpUrl = fsService.transform(tasksString, source).request().url();
+      httpUrl = Networking.getCdnService()
+          .transform(tasksString, source)
+          .request()
+          .url();
     }
 
     // When building the request we add a / between tasks
@@ -104,23 +87,21 @@ public class Transform {
    * Returns the content of a transformation.
    *
    * @return raw transformation content, streamable
-   * @throws IOException               if request fails because of network or other IO issue
-   * @throws PolicySignatureException  if security is missing or invalid
-   * @throws ResourceNotFoundException if handle or API key isn't found
-   * @throws InvalidParameterException if any of the task options is malformed
-   * @throws InternalException         if unexpected error occurs
+   * @throws HttpException on error response from backend
+   * @throws IOException           on network failure
    */
-  public ResponseBody getContent()
-      throws IOException, PolicySignatureException, ResourceNotFoundException,
-             InvalidParameterException, InternalException {
-
+  public ResponseBody getContent() throws IOException {
     String tasksString = getTasksString();
     Response<ResponseBody> response;
 
-    if (apiKey != null) {
-      response = fsService.transformExt(apiKey, tasksString, source).execute();
+    if (isExternal) {
+      response = Networking.getCdnService()
+          .transformExt(config.getApiKey(), tasksString, source)
+          .execute();
     } else {
-      response = fsService.transform(tasksString, source).execute();
+      response = Networking.getCdnService()
+          .transform(tasksString, source)
+          .execute();
     }
 
     Util.checkResponseAndThrow(response);
@@ -133,10 +114,7 @@ public class Transform {
    *
    * @see #getContent()
    */
-  public JsonObject getContentJson()
-      throws IOException, PolicySignatureException, ResourceNotFoundException,
-      InvalidParameterException, InternalException {
-
+  public JsonObject getContentJson() throws IOException {
     ResponseBody body = getContent();
 
     Gson gson = new Gson();
@@ -156,9 +134,7 @@ public class Transform {
       public ResponseBody call() throws Exception {
         return getContent();
       }
-    })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+    });
   }
 
   /**
@@ -172,8 +148,6 @@ public class Transform {
       public JsonObject call() throws Exception {
         return getContentJson();
       }
-    })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.single());
+    });
   }
 }

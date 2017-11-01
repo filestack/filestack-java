@@ -2,9 +2,6 @@ package com.filestack.transforms;
 
 import static org.junit.Assert.assertTrue;
 
-import com.filestack.errors.InvalidArgumentException;
-import com.filestack.errors.InvalidParameterException;
-import com.filestack.errors.ValidationException;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,10 +33,10 @@ public class TestTransformTask {
   }
 
   @Test
-  public void testOptionNullKey() throws ValidationException {
+  public void testOptionNullKey() {
     TransformTask transformTask = new TransformTask("test");
 
-    thrown.expect(InvalidArgumentException.class);
+    thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Task option key cannot be empty");
     transformTask.addOption(null, "");
   }
