@@ -1,10 +1,9 @@
 package com.filestack.transforms;
 
-import com.filestack.FsClient;
-import com.filestack.FsFile;
-import com.filestack.util.FsCdnService;
-import com.filestack.util.FsService;
-import com.filestack.util.responses.StoreResponse;
+import com.filestack.Config;
+import com.filestack.internal.CdnService;
+import com.filestack.internal.Networking;
+import com.filestack.internal.responses.StoreResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.junit.Assert;
@@ -13,14 +12,11 @@ import org.mockito.Mockito;
 import retrofit2.mock.Calls;
 
 public class TestImageTransform {
-
   @Test
   public void testDebugUrl() throws Exception {
-    FsService fsService = new FsService();
-
     String taskString = "resize=width:100,height:100";
-    String correctUrl = FsCdnService.URL + "debug/" + taskString + "/handle";
-    String outputUrl = fsService.cdn().transformDebug(taskString, "handle")
+    String correctUrl = CdnService.URL + "debug/" + taskString + "/handle";
+    String outputUrl = Networking.getCdnService().transformDebug(taskString, "handle")
         .request()
         .url()
         .toString();
@@ -30,15 +26,13 @@ public class TestImageTransform {
 
   @Test
   public void testDebugUrlExternal() throws Exception {
-    FsService fsService = new FsService();
-
     String taskString = "resize=width:100,height:100";
     String url = "https://example.com/image.jpg";
     String encodedUrl = "https:%2F%2Fexample.com%2Fimage.jpg";
 
     // Retrofit will return the URL with some characters escaped, so check for encoded version
-    String correctUrl = FsCdnService.URL + "apiKey/debug/" + taskString + "/" + encodedUrl;
-    String outputUrl = fsService.cdn().transformDebugExt("apiKey", taskString, url)
+    String correctUrl = CdnService.URL + "apiKey/debug/" + taskString + "/" + encodedUrl;
+    String outputUrl = Networking.getCdnService().transformDebugExt("apiKey", taskString, url)
         .request()
         .url()
         .toString();
@@ -48,47 +42,48 @@ public class TestImageTransform {
 
   @Test
   public void testDebugHandle() throws Exception {
-    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsService mockFsService = new FsService(null, mockCdnService, null, null);
-    FsClient fsClient = new FsClient.Builder()
+    CdnService mockCdnService = Mockito.mock(CdnService.class);
+    Config config = new Config.Builder()
         .apiKey("apiKey")
-        .fsService(mockFsService)
+        .cdnService(mockCdnService)
         .build();
 
-    FsFile fsFile = new FsFile(fsClient, "handle");
+    ImageTransform transform = new ImageTransform(config, "handle", false);
 
     Mockito.doReturn(Calls.response(new JsonObject()))
         .when(mockCdnService)
         .transformDebug("", "handle");
 
-    Assert.assertNotNull(fsFile.imageTransform().debug());
+    Assert.assertNotNull(transform.debug());
   }
 
   @Test
   public void testDebugExternal() throws Exception {
     String url = "https://example.com/image.jpg";
-    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsService mockFsService = new FsService(null, mockCdnService, null, null);
-    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").fsService(mockFsService).build();
+    CdnService mockCdnService = Mockito.mock(CdnService.class);
+    Config config = new Config.Builder()
+        .apiKey("apiKey")
+        .cdnService(mockCdnService)
+        .build();
+
+    ImageTransform transform = new ImageTransform(config, url, true);
 
     Mockito.doReturn(Calls.response(new JsonObject()))
         .when(mockCdnService)
         .transformDebugExt("apiKey", "", url);
 
-    Assert.assertNotNull(fsClient.imageTransform(url).debug());
+    Assert.assertNotNull(transform.debug());
   }
 
   @Test
   public void testStoreHandle() throws Exception {
-    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsService mockFsService = new FsService(null, mockCdnService, null, null);
-
-    FsClient fsClient = new FsClient.Builder()
+    CdnService mockCdnService = Mockito.mock(CdnService.class);
+    Config config = new Config.Builder()
         .apiKey("apiKey")
-        .fsService(mockFsService)
+        .cdnService(mockCdnService)
         .build();
 
-    FsFile fsFile = new FsFile(fsClient, "handle");
+    ImageTransform transform = new ImageTransform(config, "handle", false);
 
     String jsonString = "{'url': 'https://cdn.filestackcontent.com/handle'}";
     Gson gson = new Gson();
@@ -98,39 +93,34 @@ public class TestImageTransform {
         .when(mockCdnService)
         .transformStore("store", "handle");
 
-    Assert.assertNotNull(fsFile.imageTransform().store());
+    Assert.assertNotNull(transform.store());
   }
 
   @Test
   public void testStoreExternal() throws Exception {
-    FsCdnService mockCdnService = Mockito.mock(FsCdnService.class);
-    FsService mockFsService = new FsService(null, mockCdnService, null, null);
-
-    FsClient fsClient = new FsClient.Builder()
-        .apiKey("apiKey")
-        .fsService(mockFsService)
-        .build();
-
-    FsFile fsFile = new FsFile(fsClient, "handle");
-
     String jsonString = "{'url': 'https://cdn.filestackcontent.com/handle'}";
     Gson gson = new Gson();
     StoreResponse storeResponse = gson.fromJson(jsonString, StoreResponse.class);
-
     String url = "https://example.com/image.jpg";
 
+    CdnService mockCdnService = Mockito.mock(CdnService.class);
     Mockito.doReturn(Calls.response(storeResponse))
         .when(mockCdnService)
         .transformStoreExt("apiKey", "store", url);
 
-    Assert.assertNotNull(fsClient.imageTransform(url).store());
+    Config config = new Config.Builder()
+        .apiKey("apiKey")
+        .cdnService(mockCdnService)
+        .build();
+    ImageTransform transform = new ImageTransform(config, url, true);
+
+    Assert.assertNotNull(transform.store());
   }
 
   @Test(expected = NullPointerException.class)
   public void testAddNullTask() throws Exception {
-    FsClient fsClient = new FsClient.Builder().apiKey("apiKey").build();
-    FsFile fsFile = new FsFile(fsClient, "handle");
-    ImageTransform transform = fsFile.imageTransform();
+    Config config = new Config.Builder().apiKey("apiKey").build();
+    ImageTransform transform = new ImageTransform(config, "handle", false);
     transform.addTask(null);
   }
 }

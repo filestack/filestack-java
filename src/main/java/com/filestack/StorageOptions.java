@@ -1,15 +1,17 @@
 package com.filestack;
 
 import com.filestack.transforms.TransformTask;
-import com.filestack.util.Util;
+import com.filestack.internal.Util;
 import com.google.gson.JsonObject;
+
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 
 /** Configure storage options for uploads and transformation stores. */
-public class StorageOptions {
+public class StorageOptions implements Serializable {
   private String access;
   private Boolean base64Decode;
   private String container;
