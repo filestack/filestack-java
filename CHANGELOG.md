@@ -1,6 +1,18 @@
 Change Log
 ==========
 
+Version 0.4.0 *(2017-11-01)*
+----------------------------
+
+  * FS-2024 and FS-2128 Refactoring for Android
+    * Change: Major changes to constructors for all public classes.
+    * Change: All objects now use static networking objects, can no longer customize.
+    * Change: Security is no longer a class, just policy and signature strings.
+    * Change: Config object stores common values for Client, FileLink and transform classes.
+  * FS-1808, FS-1809, and FS-1811 Add cloud integrations
+    * New: Cloud integrations. Use the client to view and store items from cloud providers.
+    * Change: Error handling. Dropped more specific classes for basic HttpException and IOException.
+
 Version 0.3.0 *(2017-09-12)*
 ----------------------------
 
