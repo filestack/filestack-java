@@ -1,6 +1,5 @@
 com.filestack
-com.filestack.errors
-com.filestack.responses
+com.filestack.internal
+com.filestack.internal.responses
 com.filestack.transforms
 com.filestack.transforms.tasks
-com.filestack.util
