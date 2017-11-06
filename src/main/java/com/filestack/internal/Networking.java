@@ -31,6 +31,11 @@ public class Networking {
     return httpClient;
   }
 
+  public static void setHttpClient(OkHttpClient httpClient) {
+    Networking.httpClient = httpClient;
+    invalidateServices();
+  }
+
   /**
    * Get {@link BaseService} singleton.
    */
@@ -40,6 +45,10 @@ public class Networking {
       baseService = retrofit.create(BaseService.class);
     }
     return baseService;
+  }
+
+  public static void setBaseService(BaseService baseService) {
+    Networking.baseService = baseService;
   }
 
   /**
@@ -53,6 +62,10 @@ public class Networking {
     return cdnService;
   }
 
+  public static void setCdnService(CdnService cdnService) {
+    Networking.cdnService = cdnService;
+  }
+
   /**
    * Get {@link UploadService} singleton.
    */
@@ -62,6 +75,10 @@ public class Networking {
       uploadService = retrofit.create(UploadService.class);
     }
     return uploadService;
+  }
+
+  public static void setUploadService(UploadService uploadService) {
+    Networking.uploadService = uploadService;
   }
 
   /**
@@ -75,13 +92,8 @@ public class Networking {
     return cloudService;
   }
 
-  /** Set a custom http fsClient. */
-  public static void setCustomClient(OkHttpClient client) {
-    if (client == null) {
-      return;
-    }
-    httpClient = client;
-    invalidateServices();
+  public static void setCloudService(CloudService cloudService) {
+    Networking.cloudService = cloudService;
   }
 
   /** Sets all singletons to null so they'll be recreated. */

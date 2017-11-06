@@ -7,14 +7,10 @@ import org.junit.Test;
 public class TestNetworking extends Networking {
 
   @Test
-  public void testGets() {
-    Networking.invalidate();
+  public void testCreation() {
     Assert.assertNotNull(Networking.getHttpClient());
-    Networking.invalidate();
     Assert.assertNotNull(Networking.getBaseService());
-    Networking.invalidate();
     Assert.assertNotNull(Networking.getCdnService());
-    Networking.invalidate();
     Assert.assertNotNull(Networking.getUploadService());
   }
 
@@ -35,27 +31,9 @@ public class TestNetworking extends Networking {
     UploadService uploadService = Networking.getUploadService();
     Networking.invalidate();
     Assert.assertNotSame(uploadService, Networking.getUploadService());
-  }
 
-  @Test
-  public void testSetClient() {
-    OkHttpClient okHttpClient = new OkHttpClient();
-    Networking.setCustomClient(okHttpClient);
-    Assert.assertSame(okHttpClient, Networking.getHttpClient());
-  }
-
-  @Test
-  public void testSetClientNull() {
-    OkHttpClient okHttpClient = Networking.getHttpClient();
-    Networking.setCustomClient(null);
-    Assert.assertSame(okHttpClient, Networking.getHttpClient());
-  }
-
-  @Test
-  public void testRemoveClient() {
-    OkHttpClient okHttpClient = new OkHttpClient();
-    Networking.setCustomClient(okHttpClient);
+    CloudService cloudService = Networking.getCloudService();
     Networking.invalidate();
-    Assert.assertNotSame(okHttpClient, Networking.getHttpClient());
+    Assert.assertNotSame(cloudService, Networking.getCloudService());
   }
 }
