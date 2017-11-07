@@ -7,6 +7,9 @@ import retrofit2.mock.Calls;
 
 public class Helpers {
 
+  /**
+   * Helper method for creating raw ({@link ResponseBody}) {@link Call} objects.
+   */
   public static Call<ResponseBody> createRawCall(String contentType, String body) {
     MediaType mediaType = MediaType.parse(contentType);
     ResponseBody responseBody = ResponseBody.create(mediaType, body);

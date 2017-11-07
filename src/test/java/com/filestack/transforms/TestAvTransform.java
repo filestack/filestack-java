@@ -23,12 +23,14 @@ import java.io.IOException;
 
 public class TestAvTransform {
 
+  /** Set networking singletons to mocks. */
   @Before
   public void setup() {
     CdnService mockCdnService = Mockito.mock(CdnService.class);
     Networking.setCdnService(mockCdnService);
   }
 
+  /** Invalidate networking singletons. */
   @After
   public void teardown() {
     Networking.invalidate();

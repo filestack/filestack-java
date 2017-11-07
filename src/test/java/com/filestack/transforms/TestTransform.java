@@ -23,12 +23,14 @@ public class TestTransform {
     task.addOption("option4", new Integer[] {1, 1, 1, 1});
   }
 
+  /** Set networking singletons to mocks. */
   @Before
   public void setup() {
     CdnService mockCdnService = Mockito.mock(CdnService.class);
     Networking.setCdnService(mockCdnService);
   }
 
+  /** Invalidate networking singletons. */
   @After
   public void teardown() {
     Networking.invalidate();

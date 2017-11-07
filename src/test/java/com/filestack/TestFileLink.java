@@ -26,6 +26,7 @@ import java.util.Map;
  */
 public class TestFileLink {
 
+  /** Set networking singletons to mocks. */
   @Before
   public void setup() {
     CdnService mockCdnService = Mockito.mock(CdnService.class);
@@ -34,6 +35,7 @@ public class TestFileLink {
     Networking.setBaseService(mockBaseService);
   }
 
+  /** Invalidate networking singletons. */
   @After
   public void teardown() {
     Networking.invalidate();
