@@ -2,11 +2,14 @@ package com.filestack;
 
 import com.filestack.internal.BaseService;
 import com.filestack.internal.CdnService;
+import com.filestack.internal.Networking;
 import com.google.common.io.Files;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -22,25 +25,28 @@ import java.util.Map;
  * Tests {@link FileLink FileLink} class.
  */
 public class TestFileLink {
-  @Test
-  public void testConstructors() {
-    Config config = new Config.Builder().apiKey("apiKey").build();
-    FileLink fileLink = new FileLink(config, "handle");
+
+  @Before
+  public void setup() {
+    CdnService mockCdnService = Mockito.mock(CdnService.class);
+    BaseService mockBaseService = Mockito.mock(BaseService.class);
+    Networking.setCdnService(mockCdnService);
+    Networking.setBaseService(mockBaseService);
+  }
+
+  @After
+  public void teardown() {
+    Networking.invalidate();
   }
 
   @Test
   public void testGetContent() throws Exception {
-    MediaType mediaType = MediaType.parse("text/plain");
-    ResponseBody response = ResponseBody.create(mediaType, "Test content");
-    Call call = Calls.response(response);
+    Mockito
+        .doReturn(Helpers.createRawCall("text/plain", "Test content"))
+        .when(Networking.getCdnService())
+        .get("handle", null, null);
 
-    CdnService mockCdnService = Mockito.mock(CdnService.class);
-    Mockito.doReturn(call).when(mockCdnService).get("handle", null, null);
-
-    Config config = new Config.Builder()
-        .apiKey("apiKey")
-        .cdnService(mockCdnService)
-        .build();
+    Config config = new Config("apikey");
     FileLink fileLink = new FileLink(config, "handle");
 
     ResponseBody content = fileLink.getContent();
@@ -49,19 +55,12 @@ public class TestFileLink {
 
   @Test
   public void testDownload() throws Exception {
-    MediaType mediaType = MediaType.parse("text/plain");
-    ResponseBody response = ResponseBody.create(mediaType, "Test content");
-    Call call = Calls.response(response);
-
-    CdnService mockCdnService = Mockito.mock(CdnService.class);
-    Mockito.doReturn(call)
-        .when(mockCdnService)
+    Mockito
+        .doReturn(Helpers.createRawCall("text/plain", "Test content"))
+        .when(Networking.getCdnService())
         .get("handle", null, null);
 
-    Config config = new Config.Builder()
-        .apiKey("apiKey")
-        .cdnService(mockCdnService)
-        .build();
+    Config config = new Config("apikey");
     FileLink fileLink = new FileLink(config, "handle");
 
     File file = fileLink.download("/tmp/");
@@ -73,17 +72,12 @@ public class TestFileLink {
 
   @Test
   public void testDownloadCustomFilename() throws Exception {
-    MediaType mediaType = MediaType.parse("text/plain");
-    ResponseBody response = ResponseBody.create(mediaType, "Test content");
-    Call call = Calls.response(response);
+    Mockito
+        .doReturn(Helpers.createRawCall("text/plain", "Test content"))
+        .when(Networking.getCdnService())
+        .get("handle", null, null);
 
-    CdnService mockCdnService = Mockito.mock(CdnService.class);
-    Mockito.doReturn(call).when(mockCdnService).get("handle", null, null);
-
-    Config config = new Config.Builder()
-        .apiKey("apiKey")
-        .cdnService(mockCdnService)
-        .build();
+    Config config = new Config("apikey");
     FileLink fileLink = new FileLink(config, "handle");
 
     File file = fileLink.download("/tmp/", "filestack_test_filelink_download.txt");
@@ -95,10 +89,6 @@ public class TestFileLink {
 
   @Test
   public void testOverwrite() throws Exception {
-    MediaType jsonType = MediaType.parse("application/json");
-    ResponseBody response = ResponseBody.create(jsonType, "");
-    Call call = Calls.response(response);
-
     String pathname = "/tmp/filestack_test_filelink_overwrite.txt";
     File file = new File(pathname);
     if (!file.createNewFile()) {
@@ -106,20 +96,13 @@ public class TestFileLink {
     }
     Files.write("Test content".getBytes(), file);
 
-    MediaType textType = MediaType.parse("text/plain");
-    RequestBody body = RequestBody.create(textType, file);
-
-    BaseService mockApiService = Mockito.mock(BaseService.class);
-    Mockito.doReturn(call)
-        .when(mockApiService)
+    Mockito
+        .doReturn(Helpers.createRawCall("application/json", ""))
+        .when(Networking.getBaseService())
         .overwrite(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
             Mockito.any(RequestBody.class));
 
-    Config config = new Config.Builder()
-        .apiKey("apiKey")
-        .security("policy", "signature")
-        .apiService(mockApiService)
-        .build();
+    Config config = new Config("apiKey", "policy", "signature");
     FileLink fileLink = new FileLink(config, "handle");
 
     fileLink.overwrite(pathname);
@@ -131,20 +114,12 @@ public class TestFileLink {
 
   @Test
   public void testDelete() throws Exception {
-    MediaType mediaType = MediaType.parse("application/json");
-    ResponseBody response = ResponseBody.create(mediaType, "");
-    Call call = Calls.response(response);
-
-    BaseService mockApiService = Mockito.mock(BaseService.class);
-    Mockito.doReturn(call)
-        .when(mockApiService)
+    Mockito
+        .doReturn(Helpers.createRawCall("application/json", ""))
+        .when(Networking.getBaseService())
         .delete("handle", "apiKey", "policy", "signature");
 
-    Config config = new Config.Builder()
-        .apiKey("apiKey")
-        .security("policy", "signature")
-        .apiService(mockApiService)
-        .build();
+    Config config = new Config("apiKey", "policy", "signature");
     FileLink fileLink = new FileLink(config, "handle");
 
     fileLink.delete();
@@ -152,32 +127,28 @@ public class TestFileLink {
 
   @Test(expected = IllegalStateException.class)
   public void testOverwriteWithoutSecurity() throws Exception {
-    Config config = new Config.Builder().apiKey("apiKey").build();
+    Config config = new Config("apiKey");
     FileLink fileLink = new FileLink(config, "handle");
     fileLink.overwrite("");
   }
 
   @Test(expected = FileNotFoundException.class)
   public void testOverwriteNoFile() throws Exception {
-    Config config = new Config.Builder()
-        .apiKey("apiKey")
-        .security("policy", "signature")
-        .build();
+    Config config = new Config("apiKey", "policy", "signature");
     FileLink fileLink = new FileLink(config, "handle");
-
     fileLink.overwrite("/tmp/filestack_test_overwrite_no_file.txt");
   }
 
   @Test(expected = IllegalStateException.class)
   public void testDeleteWithoutSecurity() throws Exception {
-    Config config = new Config.Builder().apiKey("apiKey").build();
+    Config config = new Config("apiKey");
     FileLink fileLink = new FileLink(config, "handle");
     fileLink.delete();
   }
 
   @Test(expected = IllegalStateException.class)
   public void testImageTagNoSecurity() throws Exception {
-    Config config = new Config.Builder().apiKey("apiKey").build();
+    Config config = new Config("apiKey");
     FileLink fileLink = new FileLink(config, "handle");
     fileLink.imageTags();
   }
@@ -193,22 +164,14 @@ public class TestFileLink {
         + "}"
         + "}";
 
-    MediaType mediaType = MediaType.parse("application/json");
-    ResponseBody responseBody = ResponseBody.create(mediaType, jsonString);
-    Call call = Calls.response(responseBody);
-
     String tasksString = "security=policy:policy,signature:signature/tags";
 
-    CdnService mockCdnService = Mockito.mock(CdnService.class);
-    Mockito.doReturn(call)
-        .when(mockCdnService)
+    Mockito
+        .doReturn(Helpers.createRawCall("application/json", jsonString))
+        .when(Networking.getCdnService())
         .transform(tasksString, "handle");
 
-    Config config = new Config.Builder()
-        .apiKey("apiKey")
-        .security("policy", "signature")
-        .cdnService(mockCdnService)
-        .build();
+    Config config = new Config("apiKey", "policy", "signature");
     FileLink fileLink = new FileLink(config, "handle");
 
     Map<String, Integer> tags = fileLink.imageTags();
@@ -218,14 +181,13 @@ public class TestFileLink {
 
   @Test(expected = IllegalStateException.class)
   public void testImageSfwNoSecurity() throws Exception {
-    Config config = new Config.Builder().apiKey("apiKey").build();
+    Config config = new Config("apiKey");
     FileLink fileLink = new FileLink(config, "handle");
     fileLink.imageSfw();
   }
 
   @Test
   public void testImageSfw() throws Exception {
-    CdnService mockCdnService = Mockito.mock(CdnService.class);
     Mockito.doAnswer(new Answer() {
       @Override
       public Call<ResponseBody> answer(InvocationOnMock invocation) throws Throwable {
@@ -235,14 +197,10 @@ public class TestFileLink {
         return Calls.response(ResponseBody.create(mediaType, json));
       }
     })
-        .when(mockCdnService)
+        .when(Networking.getCdnService())
         .transform(Mockito.anyString(), Mockito.anyString());
 
-    Config config = new Config.Builder()
-        .apiKey("apiKey")
-        .security("policy", "signature")
-        .cdnService(mockCdnService)
-        .build();
+    Config config = new Config("apiKey", "policy", "signature");
 
     FileLink safe = new FileLink(config, "safe");
     FileLink notSafe = new FileLink(config, "notSafe");
