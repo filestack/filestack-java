@@ -6,7 +6,6 @@ import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
 import com.google.gson.Gson;
 
-import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -154,7 +153,6 @@ public class Policy {
       HashFunction hashFunction = Hashing.hmacSha256(appSecret.getBytes(Charsets.UTF_8));
 
       String jsonPolicy = gson.toJson(this);
-      System.out.println(jsonPolicy);
       String encodedPolicy = BaseEncoding.base64Url().encode(jsonPolicy.getBytes(Charsets.UTF_8));
       String signature = hashFunction.hashString(encodedPolicy, Charsets.UTF_8).toString();
 
