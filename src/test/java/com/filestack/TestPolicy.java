@@ -3,7 +3,6 @@ package com.filestack;
 import com.google.gson.Gson;
 import org.junit.Assert;
 import org.junit.Test;
-import org.omg.CORBA.TRANSACTION_MODE;
 
 /**
  * Tests {@link Policy Policy} class to check building and converting to JSON.
