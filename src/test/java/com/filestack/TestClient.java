@@ -1,5 +1,6 @@
 package com.filestack;
 
+import com.filestack.internal.Networking;
 import com.filestack.internal.UploadService;
 import com.filestack.internal.responses.CompleteResponse;
 import com.filestack.internal.responses.StartResponse;
@@ -140,10 +141,7 @@ public class TestClient {
 
   @Test
   public void testExceptionPassing() throws Exception {
-    Config config = new Config.Builder()
-        .apiKey("apiKey")
-        .security("policy", "signature")
-        .build();
+    Config config = new Config("apiKey", "policy", "signature");
     Client client = new Client(config);
     thrown.expect(FileNotFoundException.class);
     client.upload("/does_not_exist.txt", true);
@@ -159,11 +157,9 @@ public class TestClient {
     setupCommitMock(mockUploadService);
     setupCompleteMock(mockUploadService);
 
-    Config config = new Config.Builder()
-        .apiKey("apiKey")
-        .security("policy", "signature")
-        .uploadService(mockUploadService)
-        .build();
+    Networking.setUploadService(mockUploadService);
+
+    Config config = new Config("apiKey", "policy", "signature");
     Client client = new Client(config);
 
     Path path = createRandomFile(10 * 1024 * 1024);
@@ -173,5 +169,7 @@ public class TestClient {
     Assert.assertEquals("handle", fileLink.getHandle());
 
     Files.delete(path);
+
+    Networking.invalidate();
   }
 }
