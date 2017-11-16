@@ -1,6 +1,8 @@
 package com.filestack;
 
-public class CloudItem {
+import java.io.Serializable;
+
+public class CloudItem implements Serializable {
   private String name;
   private String path;
   private String mimetype;
