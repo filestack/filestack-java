@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+Version 0.5.0 *(2017-11-16)*
+----------------------------
+
+  * No major changes
+  * Change: CloudItem implements Serializable
+
 Version 0.4.0 *(2017-11-01)*
 ----------------------------
 
