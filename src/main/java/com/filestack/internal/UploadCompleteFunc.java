@@ -29,7 +29,7 @@ public class UploadCompleteFunc implements Callable<Prog<FileLink>> {
     final HashMap<String, RequestBody> params = new HashMap<>();
     params.putAll(upload.baseParams);
 
-    if (!upload.intelligent) {
+    if (!upload.intel) {
       StringBuilder builder = new StringBuilder();
       for (int i = 0; i < upload.etags.length; i++) {
         builder.append(i + 1).append(':').append(upload.etags[i]).append(';');
@@ -51,7 +51,7 @@ public class UploadCompleteFunc implements Callable<Prog<FileLink>> {
     };
 
     CompleteResponse response = func.call();
-    FileLink fileLink = new FileLink(upload.config, response.getHandle());
+    FileLink fileLink = new FileLink(upload.clientConf, response.getHandle());
 
     return new Prog<>(fileLink);
   }

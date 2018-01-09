@@ -14,7 +14,10 @@ import io.reactivex.Single;
 import io.reactivex.functions.Action;
 import retrofit2.Response;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.concurrent.Callable;
 
@@ -29,33 +32,44 @@ public class Client implements Serializable {
   }
 
   /**
-   * Uploads local file using default storage options.
+   * Synchronously uploads a file system path using default storage options.
+   * Wraps {@link #uploadAsync(InputStream, int, boolean, StorageOptions)}.
    *
-   * @see #upload(String, boolean, StorageOptions)
+   * @see #uploadAsync(InputStream, int, boolean, StorageOptions)
    */
-  public FileLink upload(String path, boolean intelligent) throws IOException {
-    return upload(path, intelligent, null);
+  public FileLink upload(String path, boolean intel) throws IOException {
+    return upload(path, intel, null);
   }
 
   /**
-   * Uploads local file.
+   * Synchronously uploads a file system path.
+   * Wraps {@link #uploadAsync(InputStream, int, boolean, StorageOptions)}.
    *
-   * @param path        path to the file, can be local or absolute
-   * @param options     storage options, https://www.filestack.com/docs/rest-api/store
-   * @param intelligent intelligent ingestion, setting to true to will decrease failures in very
-   *                    poor network conditions at the expense of upload speed
-   * @return new {@link FileLink} referencing file
-   * @throws HttpException on error response from backend
-   * @throws IOException           on error reading file or network failure
+   * @see #uploadAsync(InputStream, int, boolean, StorageOptions)
    */
-  public FileLink upload(String path, boolean intelligent, StorageOptions options)
-      throws IOException {
+  public FileLink upload(String path, boolean intel, StorageOptions opts) throws IOException {
+    return uploadAsync(path, intel, opts).blockingLast().getData();
+  }
 
-    try {
-      return uploadAsync(path, intelligent, options).blockingLast().getData();
-    } catch (RuntimeException e) {
-      throw (IOException) e.getCause();
-    }
+  /**
+   * Synchronously uploads an {@link InputStream} using default storage options.
+   * Wraps {@link #uploadAsync(InputStream, int, boolean, StorageOptions)}.
+   *
+   * @see #uploadAsync(InputStream, int, boolean, StorageOptions)
+   */
+  public FileLink upload(InputStream input, int size, boolean intel) throws IOException {
+    return upload(input, size, intel, null);
+  }
+
+  /**
+   * Synchronously uploads an {@link InputStream}.
+   * Wraps {@link #uploadAsync(InputStream, int, boolean, StorageOptions)}.
+   *
+   * @see #uploadAsync(InputStream, int, boolean, StorageOptions)
+   */
+  public FileLink upload(InputStream input, int size, boolean intel, StorageOptions opts)
+      throws IOException {
+    return uploadAsync(input, size, intel, opts).blockingLast().getData();
   }
 
   /**
@@ -131,7 +145,7 @@ public class Client implements Serializable {
       throws IOException {
 
     if (options == null) {
-      options = new StorageOptions();
+      options = new StorageOptions.Builder().build();
     }
 
     JsonObject params = makeCloudParams(providerName, path);
@@ -160,37 +174,66 @@ public class Client implements Serializable {
   // Async methods
 
   /**
-   * Asynchronously uploads local file using default storage options.
+   * Asynchronously uploads a file system path using default storage options.
+   * Wraps {@link #uploadAsync(InputStream, int, boolean, StorageOptions)}.
    *
-   * @see #upload(String, boolean, StorageOptions)
-   * @see #uploadAsync(String, boolean, StorageOptions)
+   * @see #uploadAsync(InputStream, int, boolean, StorageOptions)
    */
   public Flowable<Progress<FileLink>> uploadAsync(String path, boolean intelligent) {
     return uploadAsync(path, intelligent, null);
   }
 
   /**
-   * Asynchronously uploads local file. A stream of {@link Progress} objects are emitted by the
-   * returned {@link Flowable}. The final {@link Progress} object will return a new
-   * {@link FileLink} from {@link Progress#getData()}. The upload is not done until
-   * {@link Progress#getData()} returns non-null.
+   * Asynchronously uploads a file system path.
+   * Wraps {@link #uploadAsync(InputStream, int, boolean, StorageOptions)}.
    *
-   * @see #upload(String, boolean, StorageOptions)
+   * @see #uploadAsync(InputStream, int, boolean, StorageOptions)
    */
-  public Flowable<Progress<FileLink>> uploadAsync(String path, boolean intelligent,
-                                                  StorageOptions options) {
+  public Flowable<Progress<FileLink>> uploadAsync(String path, boolean intel, StorageOptions opts) {
+    try {
+      File inputFile = Util.createReadFile(path);
+      InputStream inputStream = new FileInputStream(inputFile);
+      return uploadAsync(inputStream, (int) inputFile.length(), intel, opts);
+    } catch (IOException e) {
+      return Flowable.error(e);
+    }
+  }
 
-    if (options == null) {
-      options = new StorageOptions();
+  /**
+   * Asynchronously uploads an {@link InputStream} using default storage options.
+   * Wraps {@link #uploadAsync(InputStream, int, boolean, StorageOptions)}.
+   *
+   * @see #uploadAsync(InputStream, int, boolean, StorageOptions)
+   */
+  public Flowable<Progress<FileLink>> uploadAsync(InputStream input, int size, boolean intel) {
+    return uploadAsync(input, size, intel, null);
+  }
+
+  /**
+   * Asynchronously uploads an {@link InputStream}.
+   * The returned {@link Flowable} emits a stream of {@link Progress} objects.
+   * The final {@link Progress} object will return a new {@link FileLink} from the
+   * {@link Progress#getData()} method.
+   * The upload is not done until {@link Progress#getData()} returns non-null.
+   * All exceptions, including issues opening a file, are returned through the observable.
+   *
+   * <p>
+   * An {@link HttpException} is thrown on error response from backend.
+   * An {@link IOException} is thrown on error reading file or network failure.
+   * </p>
+   *
+   * @param intel enable intelligent ingestion, setting to true to will decrease failures in very
+   *              poor network conditions at the expense of upload speed
+   * @param opts  storage options, https://www.filestack.com/docs/rest-api/store
+   */
+  public Flowable<Progress<FileLink>> uploadAsync(
+      InputStream input, int size, boolean intel, StorageOptions opts) {
+    if (opts == null) {
+      opts = new StorageOptions.Builder().build();
     }
 
-    if (!options.hasContentType()) {
-      String contentType = guessContentType(path);
-      options = options.newBuilder().contentType(contentType).build();
-    }
-
-    Upload upload = new Upload(config, path, intelligent, options);
-    return upload.runAsync();
+    Upload upload = new Upload(config, input, size, intel, opts);
+    return upload.run();
   }
 
   /**

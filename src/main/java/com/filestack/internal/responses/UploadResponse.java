@@ -33,7 +33,9 @@ public class UploadResponse {
     headers.put("Content-MD5", s3Headers.md5);
     headers.put("x-amz-content-sha256", s3Headers.sha256);
     headers.put("x-amz-date", s3Headers.date);
-
+    if (s3Headers.encryption != null) {
+      headers.put("x-amz-server-side-encryption", s3Headers.encryption);
+    }
     return headers;
   }
 
@@ -48,5 +50,7 @@ public class UploadResponse {
     private String sha256;
     @SerializedName("x-amz-date")
     private String date;
+    @SerializedName("x-amz-server-side-encryption")
+    private String encryption;
   }
 }

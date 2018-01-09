@@ -78,7 +78,7 @@ public class ImageTransform extends Transform {
    */
   public FileLink store(StorageOptions storageOptions) throws IOException {
     if (storageOptions == null) {
-      storageOptions = new StorageOptions();
+      storageOptions = new StorageOptions.Builder().build();
     }
 
     tasks.add(storageOptions.getAsTask());

@@ -23,22 +23,28 @@ public class TestImageTagging {
   public void testImageTags() throws Exception {
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     String origPath = loader.getResource("com/filestack/sample_image.jpg").getPath();
-    File origFile = new File(origPath);
 
-    FileLink fileLink = client.upload(origPath, true);
+    StorageOptions storeOpts = new StorageOptions.Builder()
+        .filename("nebula.jpg")
+        .mimeType("image/jpeg")
+        .build();
+    FileLink fileLink = client.upload(origPath, true, storeOpts);
     HANDLES.add(fileLink.getHandle());
 
     Map<String, Integer> tags = fileLink.imageTags();
-    Assert.assertNotNull(tags.get("nebula"));
+    Assert.assertTrue(tags.containsKey("nebula"));
   }
 
   @Test
   public void testImageSfw() throws Exception {
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     String origPath = loader.getResource("com/filestack/sample_image.jpg").getPath();
-    File origFile = new File(origPath);
 
-    FileLink fileLink = client.upload(origPath, false);
+    StorageOptions storeOpts = new StorageOptions.Builder()
+        .filename("nebula.jpg")
+        .mimeType("image/jpeg")
+        .build();
+    FileLink fileLink = client.upload(origPath, false, storeOpts);
     HANDLES.add(fileLink.getHandle());
 
     Assert.assertTrue(fileLink.imageSfw());
@@ -47,6 +53,7 @@ public class TestImageTagging {
   /** Deletes any FILES uploaded during tests. */
   @AfterClass
   public static void cleanupHandles() {
+    /*
     for (String handle : HANDLES) {
       FileLink fileLink = new FileLink(config, handle);
       try {
@@ -55,6 +62,7 @@ public class TestImageTagging {
         Assert.fail("FileLink delete failed");
       }
     }
+    */
   }
 
   /** Deletes any local FILES created during tests. */
