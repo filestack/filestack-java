@@ -1,27 +1,35 @@
 package com.filestack;
 
-import com.filestack.transforms.TransformTask;
 import com.filestack.internal.Util;
+import com.filestack.transforms.TransformTask;
+import com.google.common.base.Strings;
 import com.google.gson.JsonObject;
+import okhttp3.RequestBody;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
 
 /** Configure storage options for uploads and transformation stores. */
 public class StorageOptions implements Serializable {
+  private static final String DEFAULT_FILENAME = "java-sdk-upload-%d";
+  private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
+
   private String access;
   private Boolean base64Decode;
   private String container;
   private String filename;
   private String location;
+  private String mimeType;
   private String path;
   private String region;
-  private String contentType;
 
-  public StorageOptions() { }
+  // Private to enforce use of the builder
+  private StorageOptions() { }
+
+  public String getMimeType() {
+    return mimeType;
+  }
 
   /** Get these options as a task. */
   public TransformTask getAsTask() {
@@ -46,11 +54,25 @@ public class StorageOptions implements Serializable {
     HashMap<String, RequestBody> map = new HashMap<>();
     addToMap(map, "store_access", access);
     addToMap(map, "store_container", container);
-    addToMap(map, "filename", filename);
     addToMap(map, "store_location", location != null ? location : "s3");
     addToMap(map, "store_path", path);
     addToMap(map, "store_region", region);
-    addToMap(map, "mimetype", contentType);
+
+    // A name and MIME type must be set for uploads, so we set a default here but not in "build"
+    // If we're not using the instance for an upload, we don't want to set these defaults
+    if (Strings.isNullOrEmpty(filename)) {
+      long timestamp = System.currentTimeMillis() / 1000L;
+      filename = String.format(DEFAULT_FILENAME, timestamp);
+    }
+
+    // There's too many variables in guessing MIME types, esp between platforms
+    // Either the user sets it themselves or we use a default
+    if (Strings.isNullOrEmpty(mimeType)) {
+      mimeType = DEFAULT_MIME_TYPE;
+    }
+
+    addToMap(map, "filename", filename);
+    addToMap(map, "mimetype", mimeType);
     return map;
   }
 
@@ -64,26 +86,6 @@ public class StorageOptions implements Serializable {
     addToJson(json, "path", path);
     addToJson(json, "region", region);
     return json;
-  }
-
-  public boolean hasContentType() {
-    return contentType != null;
-  }
-
-  public void setContentType(String contentType) {
-    this.contentType = contentType;
-  }
-
-  public MediaType getMediaType() {
-    return MediaType.parse(contentType);
-  }
-
-  public boolean hasFilename() {
-    return filename != null;
-  }
-
-  public void setFilename(String filename) {
-    this.filename = filename;
   }
 
   public Builder newBuilder() {
@@ -103,14 +105,15 @@ public class StorageOptions implements Serializable {
   }
 
   public static class Builder {
-    private String access;
+    // Setting these is optional
     private Boolean base64Decode;
+    private String access;
     private String container;
     private String filename;
     private String location;
+    private String mimeType;
     private String path;
     private String region;
-    private String contentType;
 
     public Builder() { }
 
@@ -123,7 +126,7 @@ public class StorageOptions implements Serializable {
       location = existing.location;
       path = existing.path;
       region = existing.region;
-      contentType = existing.contentType;
+      mimeType = existing.mimeType;
     }
 
     public Builder access(String access) {
@@ -161,8 +164,8 @@ public class StorageOptions implements Serializable {
       return this;
     }
 
-    public Builder contentType(String contentType) {
-      this.contentType = contentType;
+    public Builder mimeType(String contentType) {
+      this.mimeType = contentType;
       return this;
     }
 
@@ -171,14 +174,16 @@ public class StorageOptions implements Serializable {
      */
     public StorageOptions build() {
       StorageOptions building = new StorageOptions();
+
       building.access = access;
       building.base64Decode = base64Decode;
       building.container = container;
       building.filename = filename;
       building.location = location;
+      building.mimeType = mimeType;
       building.path = path;
       building.region = region;
-      building.contentType = contentType;
+
       return building;
     }
   }

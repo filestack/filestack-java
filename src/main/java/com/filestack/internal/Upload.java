@@ -22,8 +22,6 @@ public class Upload {
   static final int DELAY_BASE = 2;
   static final int INTELLIGENT_PART_SIZE = 8 * 1024 * 1024;
   static final int REGULAR_PART_SIZE = 5 * 1024 * 1024;
-  static final String DEFAULT_FILENAME = "UntitledJavaUpload";
-  static final String DEFAULT_MIME_TYPE = "application/octet-stream";
 
   private static final int CONCURRENCY = 4;
   private static final int INITIAL_CHUNK_SIZE = 1024 * 1024;
@@ -55,17 +53,6 @@ public class Upload {
     this.partIndex = 1;
     this.chunkSize = INITIAL_CHUNK_SIZE;
 
-    // There's too many variables in guessing MIME types, esp between platforms
-    // Either the user sets it themselves or we use a default
-    if (!storeOpts.hasContentType()) {
-      storeOpts.setContentType(DEFAULT_MIME_TYPE);
-    }
-    this.mediaType = storeOpts.getMediaType();
-
-    if (!storeOpts.hasFilename()) {
-      storeOpts.setFilename(DEFAULT_FILENAME);
-    }
-
     // Setup base parameters that get used repeatedly for backend requests
     baseParams = new HashMap<>();
     baseParams.putAll(storeOpts.getAsPartMap());
@@ -86,6 +73,9 @@ public class Upload {
       baseParams.put("policy", Util.createStringPart(clientConf.getPolicy()));
       baseParams.put("signature", Util.createStringPart(clientConf.getSignature()));
     }
+
+    // This needs to be called after "getAsPartMap"
+    this.mediaType = MediaType.parse(storeOpts.getMimeType());
   }
 
   /**
