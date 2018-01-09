@@ -44,14 +44,14 @@ public class ProgMapFunc implements Function<List<Prog<FileLink>>, Publisher<Pro
     }
 
     // Skip update if we haven't sent anything or are waiting on the complete func
-    if (bytesSent == 0 || (bytesSent / upload.filesize == 1 && data == null)) {
+    if (bytesSent == 0 || (bytesSent / upload.inputSize == 1 && data == null)) {
       return Flowable.empty();
     }
 
     long currentTime = System.currentTimeMillis();
     int elapsed = (int) ((currentTime - startTime) / 1000L);
 
-    double rate = avgRate / Upload.PROG_INTERVAL; // Want bytes / second not bytes / interval
-    return Flowable.just(new Progress<>(bytesSent, upload.filesize, elapsed, rate, data));
+    double rate = avgRate / Upload.PROG_INTERVAL_SEC; // Want bytes / second not bytes / interval
+    return Flowable.just(new Progress<>(bytesSent, upload.inputSize, elapsed, rate, data));
   }
 }

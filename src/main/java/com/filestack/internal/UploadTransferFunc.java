@@ -13,8 +13,6 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,112 +23,52 @@ import java.util.Map;
  * We take a sectionIndex that tells us what area of the file to be responsible for.
  */
 public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FileLink>> {
+  private FlowableEmitter<Prog<FileLink>> emitter;
   private Upload upload;
-  private int sectionIndex;
+  private PartContainer container;
 
-  UploadTransferFunc(Upload upload, int sectionIndex) {
+  UploadTransferFunc(Upload upload) {
     this.upload = upload;
-    this.sectionIndex = sectionIndex;
   }
 
   @Override
   public void subscribe(FlowableEmitter<Prog<FileLink>> e) throws Exception {
-    int start = sectionIndex * upload.partsPerFunc;
-    int count = Math.min(upload.partsPerFunc, upload.numParts - start);
+    emitter = e;
+    container = new PartContainer(upload.partSize);
 
-    if (count <= 0) {
-      // No work for this instance
-      e.onComplete();
-    }
-
-    RandomAccessFile file = new RandomAccessFile(upload.path, "r");
-    file.seek(start * upload.partSize);
-
-    byte[] bytes;
-    if (upload.intelligent) {
-      bytes = new byte[upload.chunkSize];
-    } else {
-      bytes = new byte[upload.partSize];
-    }
-
-    int bytesLeft;
-    int bytesRead;
-    int bytesSent;
-    int offset;
-    int part;
-
-    // Loop through parts assigned to this thread
-    for (int i = 0; i < count; i++) {
-      bytesLeft = upload.partSize;
-      offset = 0;
-      part = start + i + 1;
-
-      // Loop through bytes of a single part
-      // If standard multipart upload, we upload in one partSize chunk
-      // If intelligent ingestion upload, we upload in multiple chunkSize chunks
-      while (bytesLeft != 0) {
-
-        if (upload.intelligent) {
-          bytesRead = file.read(bytes, 0, upload.chunkSize);
-        } else {
-          bytesRead = file.read(bytes, 0, upload.partSize);
-        }
-
-        if (bytesRead == -1) {
-          break;
-        }
-
-        bytesSent = uploadToS3(upload, part, offset, bytesRead, bytes);
-        e.onNext(new Prog<FileLink>(bytesSent));
-
-        if (bytesSent < bytesRead) {
-          if (bytesSent < Upload.MIN_CHUNK_SIZE) {
-            throw new IOException();
-          }
-          upload.chunkSize = bytesSent;
-          // Seek backwards to the byte after where we've successfully sent
-          // Otherwise we'd skip bytes when we reduce the chunkSize
-          file.seek(((start + i) * upload.partSize) + offset + bytesSent);
-        }
-
-        offset += bytesSent;
-        bytesLeft -= bytesSent;
+    while (upload.readInput(container) != -1) {
+      while (container.sent != container.size) {
+        uploadToS3();
       }
-
-      if (upload.intelligent) {
-        multipartCommit(upload, part);
+      if (upload.intel) {
+        multipartCommit();
       }
     }
-
-    e.onComplete();
+    emitter.onComplete();
   }
 
   /** Get parameters from Filestack for the upload to S3. */
-  private UploadResponse getUploadParams(final Upload upload, int part, int offset,
-                                         int size, byte[] bytes)
-      throws Exception {
+  private UploadResponse getUploadParams(int size) throws Exception {
 
     // Deprecated because MD5 is insecure not because this is unmaintained
     @SuppressWarnings("deprecation")
-    HashCode hc = Hashing.md5().newHasher(size).putBytes(bytes, 0, size).hash();
+    HashCode hc = Hashing.md5().newHasher(size).putBytes(container.data, container.sent, size).hash();
     String md5 = BaseEncoding.base64().encode(hc.asBytes());
 
     final HashMap<String, RequestBody> params = new HashMap<>();
     params.putAll(upload.baseParams);
-    params.put("part", Util.createStringPart(Integer.toString(part)));
+    params.put("part", Util.createStringPart(Integer.toString(container.num)));
     params.put("size", Util.createStringPart(Integer.toString(size)));
     params.put("md5", Util.createStringPart(md5));
-    if (upload.intelligent) {
-      params.put("offset", Util.createStringPart(Integer.toString(offset)));
+    if (upload.intel) {
+      params.put("offset", Util.createStringPart(Integer.toString(container.sent)));
     }
 
     RetryNetworkFunc<UploadResponse> func;
     func = new RetryNetworkFunc<UploadResponse>(5, 5, Upload.DELAY_BASE) {
       @Override
       Response<UploadResponse> work() throws Exception {
-        return Networking.getUploadService()
-            .upload(params)
-            .execute();
+        return Networking.getUploadService().upload(params).execute();
       }
     };
 
@@ -138,60 +76,61 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FileLink>> {
   }
 
   /** Upload chunk/part to S3. */
-  private int uploadToS3(final Upload upload, final int part, final int offset,
-                         final int size, final byte[] bytes)
-      throws Exception {
-
+  private void uploadToS3() throws Exception {
     RetryNetworkFunc<Integer> func;
+
     func = new RetryNetworkFunc<Integer>(5, 5, Upload.DELAY_BASE) {
-      private int attemptSize = size;
+      private int size;
 
       @Override
       Response<ResponseBody> work() throws Exception {
-        UploadResponse params = getUploadParams(upload, part, offset, attemptSize, bytes);
+
+        if (upload.intel) {
+          size = Math.min(upload.getChunkSize(), container.size - container.sent);
+        } else {
+          size = Math.min(upload.partSize, container.size);
+        }
+
+        UploadResponse params = getUploadParams(size);
         Map<String, String> headers = params.getS3Headers();
         String url = params.getUrl();
 
-        RequestBody requestBody = RequestBody.create(upload.mediaType, bytes, 0, attemptSize);
-        return Networking.getUploadService()
-            .uploadS3(headers, url, requestBody)
-            .execute();
+        RequestBody requestBody = RequestBody.create(upload.mediaType, container.data, container.sent, size);
+        return Networking.getUploadService().uploadS3(headers, url, requestBody).execute();
       }
 
       @Override
-      public void onNetworkFail(int retries) {
-        if (upload.intelligent) {
-          attemptSize /= 2;
-        }
+      public void onNetworkFail(int retries) throws Exception {
+        upload.reduceChunkSize();
         super.onNetworkFail(retries);
       }
 
       @Override
       Integer process(Response response) {
-        if (!upload.intelligent) {
+        if (!upload.intel) {
           String etag = response.headers().get("ETag");
-          upload.etags[part - 1] = etag;
+          upload.etags[container.num - 1] = etag;
         }
-        return attemptSize;
+        container.sent += size;
+        emitter.onNext(new Prog<FileLink>(size));
+        return size;
       }
     };
 
-    return func.call();
+    func.call();
   }
 
   /** For intelligent ingestion mode only. Called when all chunks of a part have been uploaded. */
-  private void multipartCommit(final Upload upload, int part) throws Exception {
+  private void multipartCommit() throws Exception {
     final HashMap<String, RequestBody> params = new HashMap<>();
     params.putAll(upload.baseParams);
-    params.put("part", Util.createStringPart(Integer.toString(part)));
+    params.put("part", Util.createStringPart(Integer.toString(container.num)));
 
     RetryNetworkFunc<ResponseBody> func;
     func = new RetryNetworkFunc<ResponseBody>(5, 5, Upload.DELAY_BASE) {
       @Override
       Response<ResponseBody> work() throws Exception {
-        return Networking.getUploadService()
-            .commit(params)
-            .execute();
+        return Networking.getUploadService().commit(params).execute();
       }
     };
 

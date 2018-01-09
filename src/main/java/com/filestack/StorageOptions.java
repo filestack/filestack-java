@@ -66,12 +66,24 @@ public class StorageOptions implements Serializable {
     return json;
   }
 
+  public boolean hasContentType() {
+    return contentType != null;
+  }
+
+  public void setContentType(String contentType) {
+    this.contentType = contentType;
+  }
+
   public MediaType getMediaType() {
     return MediaType.parse(contentType);
   }
 
-  public boolean hasContentType() {
-    return contentType != null;
+  public boolean hasFilename() {
+    return filename != null;
+  }
+
+  public void setFilename(String filename) {
+    this.filename = filename;
   }
 
   public Builder newBuilder() {
