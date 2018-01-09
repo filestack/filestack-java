@@ -52,7 +52,10 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FileLink>> {
 
     // Deprecated because MD5 is insecure not because this is unmaintained
     @SuppressWarnings("deprecation")
-    HashCode hc = Hashing.md5().newHasher(size).putBytes(container.data, container.sent, size).hash();
+    HashCode hc = Hashing.md5()
+        .newHasher(size)
+        .putBytes(container.data, container.sent, size)
+        .hash();
     String md5 = BaseEncoding.base64().encode(hc.asBytes());
 
     final HashMap<String, RequestBody> params = new HashMap<>();
@@ -95,8 +98,9 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FileLink>> {
         Map<String, String> headers = params.getS3Headers();
         String url = params.getUrl();
 
-        RequestBody requestBody = RequestBody.create(upload.mediaType, container.data, container.sent, size);
-        return Networking.getUploadService().uploadS3(headers, url, requestBody).execute();
+        RequestBody body;
+        body = RequestBody.create(upload.mediaType, container.data, container.sent, size);
+        return Networking.getUploadService().uploadS3(headers, url, body).execute();
       }
 
       @Override

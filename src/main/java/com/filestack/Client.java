@@ -14,7 +14,11 @@ import io.reactivex.Single;
 import io.reactivex.functions.Action;
 import retrofit2.Response;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
 import java.util.concurrent.Callable;
 
 /** Uploads new files. */
@@ -63,7 +67,8 @@ public class Client implements Serializable {
    *
    * @see #uploadAsync(InputStream, int, boolean, StorageOptions)
    */
-  public FileLink upload(InputStream input, int size, boolean intel, StorageOptions opts) throws IOException {
+  public FileLink upload(InputStream input, int size, boolean intel, StorageOptions opts)
+      throws IOException {
     return uploadAsync(input, size, intel, opts).blockingLast().getData();
   }
 
@@ -206,19 +211,23 @@ public class Client implements Serializable {
 
   /**
    * Asynchronously uploads an {@link InputStream}.
-   * The returned {@link Flowable} returns a stream of {@link Progress} objects.
-   * The final {@link Progress} object will return a new {@link FileLink} from the {@link Progress#getData()} method.
+   * The returned {@link Flowable} emits a stream of {@link Progress} objects.
+   * The final {@link Progress} object will return a new {@link FileLink} from the
+   * {@link Progress#getData()} method.
    * The upload is not done until {@link Progress#getData()} returns non-null.
    * All exceptions, including issues opening a file, are returned through the observable.
    *
+   * <p>
    * An {@link HttpException} is thrown on error response from backend.
    * An {@link IOException} is thrown on error reading file or network failure.
+   * </p>
    *
-   * @param intel enable intelligent ingestion, setting to true to will decrease failures in very poor network
-   *              conditions at the expense of upload speed
+   * @param intel enable intelligent ingestion, setting to true to will decrease failures in very
+   *              poor network conditions at the expense of upload speed
    * @param opts  storage options, https://www.filestack.com/docs/rest-api/store
    */
-  public Flowable<Progress<FileLink>> uploadAsync(InputStream input, int size, boolean intel, StorageOptions opts) {
+  public Flowable<Progress<FileLink>> uploadAsync(
+      InputStream input, int size, boolean intel, StorageOptions opts) {
     if (opts == null) {
       opts = new StorageOptions.Builder().build();
     }

@@ -46,7 +46,8 @@ public class Upload {
   private int partIndex;
 
   /** Constructs new instance. */
-  public Upload(Config clientConf, InputStream input, int inputSize, boolean intel, StorageOptions storeOpts) {
+  public Upload(Config clientConf, InputStream input, int inputSize, boolean intel,
+                StorageOptions storeOpts) {
     this.clientConf = clientConf;
     this.input = input;
     this.inputSize = inputSize;
@@ -72,10 +73,11 @@ public class Upload {
     baseParams.put("size", Util.createStringPart(Integer.toString(inputSize)));
 
     // Key name is a misnomer, all uploads are multipart, this is for "intelligent" uploads
-    // If the account doesn't support it, we'll know and fall back to regular multipart after the start request
+    // If the account doesn't support it, we'll fall back to regular multipart after start request
     // This param should not be added by default and the  later removed to match the "intel" param
     // It should only be set if the "intel" param was set to true
-    // If it's set by default, the account supports it, and it's removed *after* the call to start, small uploads fail
+    // If it's set by default, the account supports it, and it's removed *after* the call to start,
+    // uploads <= a the regular part size will fail
     if (intel) {
       baseParams.put("multipart", Util.createStringPart("true"));
     }
@@ -87,8 +89,9 @@ public class Upload {
   }
 
   /**
-   * Read from the input stream into a simple container object. Synchronized to support concurrent worker threads.
-   * The part object should be created once and reused to keep mem usage and garbage collection down.
+   * Read from the input stream into a simple container object. Synchronized to support concurrent
+   * worker threads. The part object should be created once and reused to keep mem usage and garbage
+   * collection down.
    */
   synchronized int readInput(PartContainer container) throws IOException {
     container.num = partIndex;
@@ -98,21 +101,21 @@ public class Upload {
     return container.size;
   }
 
-  // TODO Synchronizing access to the chunk size like this may incur too much of a performance penalty
+  // TODO Synchronizing access to chunk size like this may incur too much of a performance penalty
 
   /**
-   * Upload calls in different workers/threads may fail and reduce the intelligent chunk size. We want to synchronize
-   * reading this variable so the value is always accurate across threads.
+   * Upload calls in different workers/threads may fail and reduce the intelligent chunk size. We
+   * want to synchronize reading this variable so the value is always accurate across threads.
    */
   synchronized int getChunkSize() {
     return chunkSize;
   }
 
   /**
-   * Upload calls in different workers/threads may fail and reduce the intelligent chunk size. We want to synchronize
-   * updating this variable so the value is always accurate across threads.
+   * Upload calls in different workers/threads may fail and reduce the intelligent chunk size. We
+   * want to synchronize updating this variable so the value is always accurate across threads.
    *
-   * @throws IOException when too many upload requests have failed and the chunk size can't be reduced anymore
+   * @throws IOException when too many requests have failed and the chunk size can't be reduced
    */
   synchronized void reduceChunkSize() throws IOException {
     chunkSize /= 2;

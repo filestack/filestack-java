@@ -1,7 +1,7 @@
 package com.filestack.internal;
 
 class PartContainer {
-  byte data[];
+  byte[] data;
   int num;
   int size;
   int sent;

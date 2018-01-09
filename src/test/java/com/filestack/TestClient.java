@@ -139,7 +139,7 @@ public class TestClient {
         .complete(Mockito.<String, RequestBody>anyMap());
   }
 
-  // TODO The synchronous upload functions need to be refactored, for now they don't pass up exceptions
+  // TODO The synchronous upload functions need refactoring, they don't pass up exceptions
 
   /*
   @Test
