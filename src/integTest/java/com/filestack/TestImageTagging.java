@@ -53,7 +53,6 @@ public class TestImageTagging {
   /** Deletes any FILES uploaded during tests. */
   @AfterClass
   public static void cleanupHandles() {
-    /*
     for (String handle : HANDLES) {
       FileLink fileLink = new FileLink(config, handle);
       try {
@@ -62,7 +61,6 @@ public class TestImageTagging {
         Assert.fail("FileLink delete failed");
       }
     }
-    */
   }
 
   /** Deletes any local FILES created during tests. */
