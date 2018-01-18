@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+Version 0.6.0 *(2017-01-18)*
+----------------------------
+
+  * fix: s3 signature match error, now sending all headers from uploads api
+  * feat: client supports uploading InputStream objects
+  * fix: uploads will use a default file name and mime type if none is provided
+
 Version 0.5.0 *(2017-11-16)*
 ----------------------------
 
