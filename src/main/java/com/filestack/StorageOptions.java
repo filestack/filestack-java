@@ -27,6 +27,10 @@ public class StorageOptions implements Serializable {
   // Private to enforce use of the builder
   private StorageOptions() { }
 
+  public String getFilename() {
+    return filename;
+  }
+
   public String getMimeType() {
     return mimeType;
   }

@@ -5,6 +5,7 @@ import com.filestack.internal.Upload;
 import com.filestack.internal.Util;
 import com.filestack.internal.responses.CloudStoreResponse;
 import com.filestack.transforms.ImageTransform;
+import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -193,6 +194,13 @@ public class Client implements Serializable {
     try {
       File inputFile = Util.createReadFile(path);
       InputStream inputStream = new FileInputStream(inputFile);
+
+      if (opts == null) {
+        opts = new StorageOptions.Builder().filename(inputFile.getName()).build();
+      } else if (Strings.isNullOrEmpty(opts.getFilename())) {
+        opts = opts.newBuilder().filename(inputFile.getName()).build();
+      }
+
       return uploadAsync(inputStream, (int) inputFile.length(), intel, opts);
     } catch (IOException e) {
       return Flowable.error(e);
