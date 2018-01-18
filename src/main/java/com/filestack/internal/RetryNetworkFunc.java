@@ -73,19 +73,19 @@ public abstract class RetryNetworkFunc<T> {
   /** Contains the actual network call. */
   abstract Response work() throws Exception;
 
-  @SuppressWarnings("unchecked")
   /** Process the response to get a return value. */
+  @SuppressWarnings("unchecked")
   T process(Response response) throws Exception {
     return (T) response.body();
   }
 
   /** Called for network failures. */
-  public void onNetworkFail(int retries) {
+  public void onNetworkFail(int retries) throws Exception {
     networkRetries = sleep(retries);
   }
 
   /** Called for server failures. */
-  public void onServerFail(int retries) {
+  public void onServerFail(int retries) throws Exception {
     serverRetries = sleep(retries);
   }
 

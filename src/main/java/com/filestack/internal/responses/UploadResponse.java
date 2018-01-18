@@ -1,5 +1,6 @@
 package com.filestack.internal.responses;
 
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.HashMap;
@@ -11,7 +12,7 @@ public class UploadResponse {
   @SerializedName("location_url")
   private String locationUrl;
   @SerializedName("headers")
-  private S3Headers s3Headers;
+  private JsonObject s3Headers;
 
   public String getUrl() {
     return url;
@@ -25,28 +26,10 @@ public class UploadResponse {
    * Return {@link Map} of S3 headers.
    */
   public Map<String, String> getS3Headers() {
-    HashMap<String, String> headers = new HashMap<>();
-    headers.put("Authorization", s3Headers.auth);
-    if (s3Headers.acl != null) {
-      headers.put("x-amz-acl", s3Headers.acl);
+    HashMap<String, String> out = new HashMap<>();
+    for (String key : s3Headers.keySet()) {
+      out.put(key, s3Headers.get(key).getAsString());
     }
-    headers.put("Content-MD5", s3Headers.md5);
-    headers.put("x-amz-content-sha256", s3Headers.sha256);
-    headers.put("x-amz-date", s3Headers.date);
-
-    return headers;
-  }
-
-  private class S3Headers {
-    @SerializedName("Authorization")
-    private String auth;
-    @SerializedName("x-amz-acl")
-    private String acl;
-    @SerializedName("Content-MD5")
-    private String md5;
-    @SerializedName("x-amz-content-sha256")
-    private String sha256;
-    @SerializedName("x-amz-date")
-    private String date;
+    return out;
   }
 }

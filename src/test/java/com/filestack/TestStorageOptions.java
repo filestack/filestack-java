@@ -54,7 +54,7 @@ public class TestStorageOptions {
 
   @Test
   public void testGetPartMapLocationDefault() throws Exception {
-    StorageOptions options = new StorageOptions();
+    StorageOptions options = new StorageOptions.Builder().build();
 
     Map<String, RequestBody> map = options.getAsPartMap();
 

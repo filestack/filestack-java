@@ -5,7 +5,6 @@ import com.filestack.internal.responses.StartResponse;
 import io.reactivex.Flowable;
 import retrofit2.Response;
 
-import java.io.File;
 import java.util.concurrent.Callable;
 
 /**
@@ -21,16 +20,6 @@ public class UploadStartFunc implements Callable<Prog<FileLink>> {
 
   @Override
   public Prog<FileLink> call() throws Exception {
-    // Open the file here so that any exceptions with it get passed through the observable
-    // Otherwise we'd have an async method that directly throws exceptions
-    File file = Util.createReadFile(upload.path);
-    upload.filesize = file.length();
-
-    if (!upload.baseParams.containsKey("filename")) {
-      upload.baseParams.put("filename", Util.createStringPart(file.getName()));
-    }
-    upload.baseParams.put("size", Util.createStringPart(Long.toString(upload.filesize)));
-
     RetryNetworkFunc<StartResponse> func;
     func = new RetryNetworkFunc<StartResponse>(0, 5, Upload.DELAY_BASE) {
       @Override
@@ -44,18 +33,20 @@ public class UploadStartFunc implements Callable<Prog<FileLink>> {
     StartResponse response = func.call();
 
     upload.baseParams.putAll(response.getUploadParams());
-    upload.intelligent = response.isIntelligent();
-    if (upload.intelligent) {
-      upload.partSize = 8 * 1024 * 1024;
+    upload.intel = response.isIntelligent();
+
+    // If we tried to enable an intelligent upload and the response came back true
+    // Then the account supports it and we perform an intelligent upload
+    if (upload.intel) {
+      upload.partSize = Upload.INTELLIGENT_PART_SIZE;
+    // Otherwise we didn't enable it for this call or the account doesn't support it
     } else {
+      upload.partSize = Upload.REGULAR_PART_SIZE;
       upload.baseParams.remove("multipart");
-      upload.partSize = 5 * 1024 * 1024;
     }
 
-    upload.numParts = (int) Math.ceil(upload.filesize / (double) upload.partSize);
-    upload.partsPerFunc = (int) Math.ceil(upload.numParts / (double) Upload.CONCURRENCY);
-
-    upload.etags = new String[upload.numParts];
+    int numParts = (int) Math.ceil(upload.inputSize / (double) upload.partSize);
+    upload.etags = new String[numParts];
 
     return new Prog<>();
   }
