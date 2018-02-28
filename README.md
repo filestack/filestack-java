@@ -3,6 +3,7 @@
 [![Coveralls][coveralls_badge]][coveralls]
 
 # Filestack Java SDK
+Official Java SDK for the Filestack service. API reference is available [here][javadoc].
 
 ## Installing
 ```
@@ -65,13 +66,10 @@ String url = transform.url();
 ResponseBody content = transform.getContent();
 ```
 
-## Other Resources
-* [Javadoc](https://filestack.github.io/filestack-java)
-* [Main Filestack Docs](https://www.filestack.com/docs)
-
 [bintray]: https://bintray.com/filestack/maven/filestack-java/
 [bintray_badge]: https://img.shields.io/bintray/v/filestack/maven/filestack-java.svg?style=flat-square
-[travis]: https://travis-ci.org/filestack/filestack-java
-[travis_badge]: https://img.shields.io/travis/filestack/filestack-java.svg?style=flat-square
 [coveralls]: https://coveralls.io/github/filestack/filestack-java
 [coveralls_badge]: https://img.shields.io/coveralls/filestack/filestack-java.svg?style=flat-square
+[javadoc]: https://filestack.github.io/filestack-java
+[travis]: https://travis-ci.org/filestack/filestack-java
+[travis_badge]: https://img.shields.io/travis/filestack/filestack-java.svg?style=flat-square
