@@ -3,44 +3,71 @@
 [![Coveralls][coveralls_badge]][coveralls]
 
 # Filestack Java SDK
-<a href="https://www.filestack.com"><img src="https://filestack.com/themes/filestack/assets/images/press-articles/color.svg" align="left" hspace="10" vspace="6"></a>
-
-This is the official Java SDK for Filestack - API and content management system that makes it easy to add powerful file uploading and transformation capabilities to any web or mobile application.
-
----
-
-## Resources
-
-* [SDK Docs](https://www.filestack.com/docs/sdks?java)
-* [Filestack Docs](https://www.filestack.com/docs)
-* [Javadoc](https://filestack.github.io/filestack-java)
 
 ## Installing
-
-### Gradle
-
 ```
 compile 'com.filestack:filestack-java:0.6.0'
 ```
 
-### Maven
+## Uploading
+```java
+Config config = new Config("API_KEY");
+Client client = new Client(config);
+
+// Storage options are "optional" BUT we don't guess MIME types
+StorageOptions options = new StorageOptions.Builder()
+    .mimeType("text/plain")
+    .filename("hello.txt")
+    .build();
+
+// Synchronous, blocking upload
+FileLink file = client.upload("/path/to/file", false);
+
+// Asynchronous, not blocking upload
+Flowable<Progress<FileLink>> upload = client.uploadAsync("/path/to/file", false);
+upload.doOnNext(new Consumer<Progress<FileLink>>() {
+  @Override
+  public void accept(Progress<FileLink> progress) throws Exception {
+    System.out.printf("%f%% uploaded\n", progress.getPercent());
+    if (progress.getData() != null) {
+      FileLink file = progress.getData();
+    }
+  }
+});
+```
+
+## FileLink Operations
+Any method that makes a network call has both a synchrnous (blocking) and asynchronous (non-blocking) version.
 
 ```
-<dependency>
-  <groupId>com.filestack</groupId>
-  <artifactId>filestack-java</artifactId>
-  <version>0.6.0</version>
-  <type>pom</type>
-</dependency>
+// A handle is a file's ID in Filestack
+String handle = fileLink.getHandle();
+fileLink.download("/path/to/save/file");
+fileLink.delete();
+fileLink.overwrite("/path/to/new/file");
 ```
 
-## Contributing
+## Transformations
+We have several wrappers to our backend transformations. These are not performed locally.
 
-Please see [CONTRIBUTING.md](https://github.com/filestack/filestack-java/blob/master/CONTRIBUTING.md) for details.
+```
+ImageTransformTask sepia = new SepiaTask();
+ImageTransformTask crop = new CropTask(0, 0, 300, 300);
 
-## Credits
+// Transform operations can be chained
+ImageTransform transform = fileLink
+    .imageTransform()
+    .addTask(crop)
+    .addTask(sepia);
 
-Thank you to all the [contributors](https://github.com/filestack/filestack-java/graphs/contributors). :clap: :clap: :clap:
+// You can directly get the resulting file or generate a URL to it
+String url = transform.url();
+ResponseBody content = transform.getContent();
+```
+
+## Other Resources
+* [Javadoc](https://filestack.github.io/filestack-java)
+* [Main Filestack Docs](https://www.filestack.com/docs)
 
 [bintray]: https://bintray.com/filestack/maven/filestack-java/
 [bintray_badge]: https://img.shields.io/bintray/v/filestack/maven/filestack-java.svg?style=flat-square
