@@ -1,9 +1,25 @@
-[![Bintray][bintray_badge]][bintray]
-[![Travis][travis_badge]][travis]
-[![Coveralls][coveralls_badge]][coveralls]
+<p align="center"><img src="logo.svg" align="center" width="100"/></p>
+<h1 align="center">Filestack Java SDK</h1>
 
-# Filestack Java SDK
-Official Java SDK for the Filestack service. API reference is available [here][javadoc].
+<p align="center">
+  <a href="https://bintray.com/filestack/maven/filestack-java">
+    <img src="https://img.shields.io/badge/bintray-v0.6.0-blue.svg?longCache=true&style=flat-square">
+  </a>
+  <a href="https://filestack.github.io/filestack-java/">
+    <img src="https://img.shields.io/badge/ref-javadoc-795548.svg?longCache=true&style=flat-square">
+  </a>
+  <img src="https://img.shields.io/badge/java_version-7-green.svg?longCache=true&style=flat-square">
+  <a href="https://travis-ci.org/filestack/filestack-java">
+    <img src="https://img.shields.io/travis/filestack/filestack-java.svg?style=flat-square">
+  </a>
+  <a href="https://coveralls.io/github/filestack/filestack-java">
+    <img src="https://img.shields.io/coveralls/filestack/filestack-java.svg?style=flat-square">
+  </a>
+</p>
+
+<p align="center">
+  Java SDK for Filestack. Includes wrappers for Core, Upload, Transformation, and Cloud APIs. Supports Amazon Drive, Box, Dropbox, Facebook, GitHub, Gmail, Google Drive, Google Photos, Instagram, and OneDrive.
+</p>
 
 ## Installing
 ```
@@ -66,10 +82,5 @@ String url = transform.url();
 ResponseBody content = transform.getContent();
 ```
 
-[bintray]: https://bintray.com/filestack/maven/filestack-java/
-[bintray_badge]: https://img.shields.io/bintray/v/filestack/maven/filestack-java.svg?style=flat-square
 [coveralls]: https://coveralls.io/github/filestack/filestack-java
 [coveralls_badge]: https://img.shields.io/coveralls/filestack/filestack-java.svg?style=flat-square
-[javadoc]: https://filestack.github.io/filestack-java
-[travis]: https://travis-ci.org/filestack/filestack-java
-[travis_badge]: https://img.shields.io/travis/filestack/filestack-java.svg?style=flat-square
