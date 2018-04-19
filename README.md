@@ -1,30 +1,47 @@
-[![Bintray][bintray_badge]][bintray]
-[![Travis][travis_badge]][travis]
-[![Coveralls][coveralls_badge]][coveralls]
+<p align="center"><img src="logo.svg" align="center" width="100"/></p>
+<h1 align="center">Filestack Java SDK</h1>
 
-# Filestack Java SDK
-Official Java SDK for the Filestack service. API reference is available [here][javadoc].
+<p align="center">
+  <a href="https://bintray.com/filestack/maven/filestack-java">
+    <img src="https://img.shields.io/badge/bintray-v0.6.0-blue.svg?longCache=true&style=flat-square">
+  </a>
+  <a href="https://filestack.github.io/filestack-java/">
+    <img src="https://img.shields.io/badge/ref-javadoc-795548.svg?longCache=true&style=flat-square">
+  </a>
+  <img src="https://img.shields.io/badge/java_version-7-green.svg?longCache=true&style=flat-square">
+  <a href="https://travis-ci.org/filestack/filestack-java">
+    <img src="https://img.shields.io/travis/filestack/filestack-java.svg?style=flat-square">
+  </a>
+  <a href="https://coveralls.io/github/filestack/filestack-java">
+    <img src="https://img.shields.io/coveralls/filestack/filestack-java.svg?style=flat-square">
+  </a>
+</p>
 
-## Installing
+<p align="center">
+  Java SDK for Filestack. Includes wrappers for Core, Upload, Transformation, and Cloud APIs. Supports Amazon Drive, Box, Dropbox, Facebook, GitHub, Gmail, Google Drive, Google Photos, Instagram, and OneDrive.
+</p>
+
+## Install
 ```
 compile 'com.filestack:filestack-java:0.6.0'
 ```
 
-## Uploading
+## Upload
 ```java
+// Create a client
 Config config = new Config("API_KEY");
 Client client = new Client(config);
 
-// Storage options are "optional" BUT we don't guess MIME types
+// Set options and metadata for upload
 StorageOptions options = new StorageOptions.Builder()
     .mimeType("text/plain")
     .filename("hello.txt")
     .build();
 
-// Synchronous, blocking upload
+// Perform a synchronous, blocking upload
 FileLink file = client.upload("/path/to/file", false);
 
-// Asynchronous, not blocking upload
+// Perform an asynchronous, non-blocking upload
 Flowable<Progress<FileLink>> upload = client.uploadAsync("/path/to/file", false);
 upload.doOnNext(new Consumer<Progress<FileLink>>() {
   @Override
@@ -37,39 +54,79 @@ upload.doOnNext(new Consumer<Progress<FileLink>>() {
 });
 ```
 
-## FileLink Operations
-Any method that makes a network call has both a synchrnous (blocking) and asynchronous (non-blocking) version.
+## Asynchronous Functions
+Every function that makes a network call has both a synchronous (blocking) and asynchronous (non-blocking) version. The asynchronous versions return [RxJava][rxjava-repo] classes (Observable, Single, Completable).
 
+For example to delete a file both synchronously and asynchronously:
+```java
+// Synchronous, blocking
+fileLink.delete();
+
+// Asynchronous, not blocking
+fileLink.deleteAsync().doOnComplete(new Action() {
+  @Override
+  public void run() throws Exception {
+    System.out.println("File deleted.");
+  }
+});
 ```
-// A handle is a file's ID in Filestack
-String handle = fileLink.getHandle();
+
+## FileLink Operations
+```
+String handle = fileLink.getHandle(); // A handle is a file ID
 fileLink.download("/path/to/save/file");
 fileLink.delete();
 fileLink.overwrite("/path/to/new/file");
 ```
 
 ## Transformations
-We have several wrappers to our backend transformations. These are not performed locally.
+The transform functions generate URLs for backend transformations; No local processing occurs. With the exception of video transformations, front-end clients can directly use the generated URLS.
 
-```
-ImageTransformTask sepia = new SepiaTask();
-ImageTransformTask crop = new CropTask(0, 0, 300, 300);
-
-// Transform operations can be chained
-ImageTransform transform = fileLink
-    .imageTransform()
-    .addTask(crop)
-    .addTask(sepia);
-
-// You can directly get the resulting file or generate a URL to it
+For example, to reduce image bandwidth usage, generate resize transform URLs based on display size:
+```java
+ResizeTask task = new ResizeTask.Builder()
+    .width(100)
+    .fit("center")
+    .build();
+ImageTransform transform = fileLink.imageTransform().addTask(task);
 String url = transform.url();
-ResponseBody content = transform.getContent();
 ```
 
-[bintray]: https://bintray.com/filestack/maven/filestack-java/
-[bintray_badge]: https://img.shields.io/bintray/v/filestack/maven/filestack-java.svg?style=flat-square
-[coveralls]: https://coveralls.io/github/filestack/filestack-java
-[coveralls_badge]: https://img.shields.io/coveralls/filestack/filestack-java.svg?style=flat-square
-[javadoc]: https://filestack.github.io/filestack-java
-[travis]: https://travis-ci.org/filestack/filestack-java
-[travis_badge]: https://img.shields.io/travis/filestack/filestack-java.svg?style=flat-square
+## Cloud Transfers
+
+```java
+// Check a user's auth status by first trying to list contents of drive
+CloudResponse response = client.getCloudItems(Sources.GOOGLE_DRIVE, "/");
+String authUrl = response.getAuthUrl();
+// If auth URL isn't null, user needs to authenticate, open URL in browser
+if (authUrl != null) {
+    openBrowser(authUrl);
+    return;
+}
+
+// Transfer the first file from the cloud provider to Filestack
+CloudItem first = response.getItems()[0];
+client.storeCloudItem(Sources.GOOGLE_DRIVE, first.getPath());
+
+// Check for another page of results
+String nextToken = response.getNextToken();
+// If next token isn't null, there's more items to fetch
+if (nextToken != null) {
+  response = client.getCloudItems(Sources.GOOGLE_DRIVE, "/", nextToken);
+}
+
+// Save the session token
+String sessionToken = client.getSessionToken();
+saveSessionToken(sessionToken);
+```
+
+## Cloud Auth States
+There are 3 levels of state to note with cloud integrations: 1) the local state (stored by a session token) 2) the authorization state between the user's cloud account and Filestack (on the backend) and 3) (potentially) the login state within the browser where users complete the OAuth login.
+
+A session token determines the auth state between an app and Filestack. Every response includes a refreshed token, and every request should send the last token received. Tokens do not just identify a session, they hold the session state. For example if a user logs out of a cloud, only the token returned by the logout response reflects that action; Using the old token would still allow listing the contents of the logged out cloud. To maintain state across client destruction, export and save the token.
+
+The auth state in the local session does not connect to the authorization state between a cloud account and Filestack. For example a user can log out of an account in a local session, but still see Filestack as authorized in the cloud provider's settings. A user must revoke access to Filestack within a provider to truly disconnect Filestack.
+
+Users complete the OAuth flow (aka login to their clouds) in a browser, and the browser state can cause confusion. For example if a user logs into a cloud they previously logged out of, the OAuth flow may work differently because they've already logged in within the browser, and have already authorized Filestack to that cloud.
+
+[rxjava-repo]: https://github.com/ReactiveX/RxJava
