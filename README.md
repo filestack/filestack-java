@@ -121,12 +121,12 @@ saveSessionToken(sessionToken);
 ```
 
 ## Cloud Auth States
-There are 3 levels of state to be mindful of with cloud transfers: 1) the local state (stored by a session token) 2) the authorization state between the user's cloud account and Filestack (on the backend) and 3) (potentially) the user's login state within the browser where the OAuth flow is performed.
+There are 3 levels of state to note with cloud integrations: 1) the local state (stored by a session token) 2) the authorization state between the user's cloud account and Filestack (on the backend) and 3) (potentially) the login state within the browser where users complete the OAuth login.
 
-The local authentication state is maintained by a session token. A new token is returned by the Cloud API on every request. Each request should use the latest session token. You can confuse state by using old session tokens, because the token determines the state. For example if you log out a user, then later use an old session token from before the logout request was performed, the user would still be logged in. The Client class manages the token automatically but you should manually save the session token before a client is destroyed.
+A session token determines the auth state between an app and Filestack. Every response includes a refreshed token, and every request should send the last token received. Tokens do not just identify a session, they hold the session state. For example if a user logs out of a cloud, only the token returned by the logout response reflects that action; Using the old token would still allow listing the contents of the logged out cloud. To maintain state across client destruction, export and save the token.
 
-The authorization state in the local session is not connected to the authorization state between a cloud account and Filestack. For example a user can be logged out of an account in a local session, but still see Filestack as authorized against their account in the account's settings. A user must revoke access to Filestack within a cloud provider's settings to truly disconnect Filestack.
+The auth state in the local session does not connect to the authorization state between a cloud account and Filestack. For example a user can log out of an account in a local session, but still see Filestack as authorized in the cloud provider's settings. A user must revoke access to Filestack within a provider to truly disconnect Filestack.
 
-You should also be mindful of the user's login state in the browser. For example if a user completes the OAuth flow in a browser, then logs out of the account within an app using the SDK, then goes through the OAuth flow in the same browser, there may be confusing behavior because they were still logged into the account in the browser.
+Users complete the OAuth flow (aka login to their clouds) in a browser, and the browser state can cause confusion. For example if a user logs into a cloud they previously logged out of, the OAuth flow may work differently because they've already logged in within the browser, and have already authorized Filestack to that cloud.
 
 [rxjava-repo]: https://github.com/ReactiveX/RxJava
