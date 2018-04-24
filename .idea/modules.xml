@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/filestack-java.iml" filepath="$PROJECT_DIR$/filestack-java.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/filestack-java_integTest.iml" filepath="$PROJECT_DIR$/.idea/modules/filestack-java_integTest.iml" group="filestack-java" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/filestack-java_main.iml" filepath="$PROJECT_DIR$/.idea/modules/filestack-java_main.iml" group="filestack-java" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/filestack-java_test.iml" filepath="$PROJECT_DIR$/.idea/modules/filestack-java_test.iml" group="filestack-java" />
+    </modules>
+  </component>
+</project>
