@@ -1,5 +1,6 @@
 package com.filestack;
 
+import com.filestack.internal.CloudServiceUtil;
 import com.filestack.internal.Networking;
 import com.filestack.internal.Upload;
 import com.filestack.internal.Util;
@@ -80,7 +81,7 @@ public class Client implements Serializable {
    * @throws IOException           on network failure
    */
   public AppInfo getAppInfo() throws IOException {
-    JsonObject params = makeCloudParams();
+    JsonObject params = CloudServiceUtil.buildBaseJson(config, null);
     Response<AppInfo> response = Networking.getCloudService().prefetch(params).execute();
     Util.checkResponseAndThrow(response);
     return response.body();
@@ -109,7 +110,8 @@ public class Client implements Serializable {
   public CloudResponse getCloudItems(String providerName, String path, String next)
       throws IOException {
 
-    JsonObject params = makeCloudParams(providerName, path, next);
+    JsonObject params = CloudServiceUtil.buildBaseJson(config, sessionToken);
+    CloudServiceUtil.addCloudJson(params, providerName, path, next);
     Response<JsonObject> response = Networking.getCloudService().list(params).execute();
     Util.checkResponseAndThrow(response);
     JsonObject base = response.body();
@@ -149,7 +151,9 @@ public class Client implements Serializable {
       options = new StorageOptions.Builder().build();
     }
 
-    JsonObject params = makeCloudParams(providerName, path);
+    JsonObject params = CloudServiceUtil.buildBaseJson(config, sessionToken);
+    CloudServiceUtil.addCloudJson(params, providerName, path, null);
+    CloudServiceUtil.addStorageJson(params, providerName, options);
     params.add("store", options.getAsJson());
     Response<JsonObject> response = Networking.getCloudService().store(params).execute();
     Util.checkResponseAndThrow(response);
@@ -167,7 +171,8 @@ public class Client implements Serializable {
    * @throws IOException           on network failure
    */
   public void logoutCloud(String providerName) throws IOException {
-    JsonObject params = makeCloudParams(providerName, "/");
+    JsonObject params = CloudServiceUtil.buildBaseJson(config, sessionToken);
+    CloudServiceUtil.addCloudJson(params, providerName, null, null);
     Response response = Networking.getCloudService().logout(params).execute();
     Util.checkResponseAndThrow(response);
   }
@@ -335,47 +340,6 @@ public class Client implements Serializable {
 
   protected static String guessContentType(String path) {
     return "application/octet-stream";
-  }
-
-  /**
-   * Creates a {@link JsonObject} with this fsClient's config.
-   */
-  protected JsonObject makeCloudParams() {
-    JsonObject json = new JsonObject();
-    json.addProperty("apikey", config.getApiKey());
-    if (config.hasSecurity()) {
-      json.addProperty("policy", config.getPolicy());
-      json.addProperty("signature", config.getSignature());
-    }
-    json.addProperty("flow", "mobile");
-    json.addProperty("appurl", config.getReturnUrl());
-    if (sessionToken != null) {
-      json.addProperty("token", sessionToken);
-    }
-    return json;
-  }
-
-  /**
-   * Creates a {@link JsonObject} with this fsClient's config. Adds provider info.
-   */
-  protected JsonObject makeCloudParams(String providerName, String path) {
-    return makeCloudParams(providerName, path, null);
-  }
-
-  /**
-   * Creates a {@link JsonObject} with this fsClient's config. Adds provider info with next token.
-   */
-  protected JsonObject makeCloudParams(String providerName, String path, String next) {
-    JsonObject provider = new JsonObject();
-    provider.addProperty("path", path);
-    if (next != null) {
-      provider.addProperty("next", next);
-    }
-    JsonObject clouds = new JsonObject();
-    clouds.add(providerName, provider);
-    JsonObject base = makeCloudParams();
-    base.add("clouds", clouds);
-    return base;
   }
 
   public Config getConfig() {
