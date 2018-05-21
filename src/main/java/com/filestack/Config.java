@@ -1,5 +1,6 @@
 package com.filestack;
 
+import com.filestack.internal.Util;
 import com.filestack.transforms.Transform;
 
 import java.io.Serializable;
@@ -54,7 +55,7 @@ public class Config implements Serializable {
   }
 
   public boolean hasSecurity() {
-    return policy != null && signature != null;
+    return !(Util.isNullOrEmpty(policy) || Util.isNullOrEmpty(signature));
   }
 
   public String getPolicy() {
