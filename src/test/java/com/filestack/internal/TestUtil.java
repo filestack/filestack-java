@@ -13,6 +13,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import retrofit2.Response;
 
+import static org.junit.Assert.assertTrue;
+
 public class TestUtil extends Util {
 
   @Rule
@@ -95,5 +97,21 @@ public class TestUtil extends Util {
     thrown.expect(FileNotFoundException.class);
     thrown.expectMessage("Can't read from special file");
     Util.createReadFile("/dev/null");
+  }
+
+  @Test
+  public void testIsNullOrEmpty() {
+    assertTrue(Util.isNullOrEmpty(null));
+    assertTrue(Util.isNullOrEmpty(""));
+  }
+
+  @Test
+  public void testThrowIfNullOrEmpty() {
+    String message = "some exception message";
+
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage(message);
+
+    Util.throwIfNullOrEmpty(null, message);
   }
 }
