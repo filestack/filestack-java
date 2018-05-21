@@ -110,6 +110,9 @@ public class Client implements Serializable {
   public CloudResponse getCloudItems(String providerName, String path, String next)
       throws IOException {
 
+    Util.throwIfNullOrEmpty(providerName, "Provider name is required");
+    Util.throwIfNullOrEmpty(path, "Path is required");
+
     JsonObject params = CloudServiceUtil.buildBaseJson(config, sessionToken);
     CloudServiceUtil.addCloudJson(params, providerName, path, next);
     Response<JsonObject> response = Networking.getCloudService().list(params).execute();
@@ -131,6 +134,10 @@ public class Client implements Serializable {
    * @see #storeCloudItem(String, String, StorageOptions)
    */
   public FileLink storeCloudItem(String providerName, String path) throws IOException {
+
+    Util.throwIfNullOrEmpty(providerName, "Provider name is required");
+    Util.throwIfNullOrEmpty(path, "Path is required");
+
     return storeCloudItem(providerName, path, null);
   }
 
@@ -146,6 +153,9 @@ public class Client implements Serializable {
   @SuppressWarnings("ConstantConditions")
   public FileLink storeCloudItem(String providerName, String path, StorageOptions options)
       throws IOException {
+
+    Util.throwIfNullOrEmpty(providerName, "Provider name is required");
+    Util.throwIfNullOrEmpty(path, "Path is required");
 
     if (options == null) {
       options = new StorageOptions.Builder().build();
@@ -171,6 +181,9 @@ public class Client implements Serializable {
    * @throws IOException           on network failure
    */
   public void logoutCloud(String providerName) throws IOException {
+
+    Util.throwIfNullOrEmpty(providerName, "Provider name is required");
+
     JsonObject params = CloudServiceUtil.buildBaseJson(config, sessionToken);
     CloudServiceUtil.addCloudJson(params, providerName, null, null);
     Response response = Networking.getCloudService().logout(params).execute();

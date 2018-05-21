@@ -135,4 +135,14 @@ public class Util {
     String env = System.getenv("TEST_TYPE");
     return env != null && env.equals("unit");
   }
+
+  public static boolean isNullOrEmpty(String value) {
+    return value == null || value.equals("");
+  }
+
+  public static void throwIfNullOrEmpty(String value, String message) {
+    if (isNullOrEmpty(value)) {
+      throw new IllegalArgumentException(message);
+    }
+  }
 }
