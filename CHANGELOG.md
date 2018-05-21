@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+Version 0.7.0 *(2018-05-21)*
+----------------------------
+
+  * fix: storage options ignored for cloud API, malformed request body
+
 Version 0.6.0 *(2017-01-18)*
 ----------------------------
 

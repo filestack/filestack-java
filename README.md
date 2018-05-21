@@ -3,7 +3,7 @@
 
 <p align="center">
   <a href="https://bintray.com/filestack/maven/filestack-java">
-    <img src="https://img.shields.io/badge/bintray-v0.6.0-blue.svg?longCache=true&style=flat-square">
+    <img src="https://img.shields.io/badge/bintray-v0.7.0-blue.svg?longCache=true&style=flat-square">
   </a>
   <a href="https://filestack.github.io/filestack-java/">
     <img src="https://img.shields.io/badge/ref-javadoc-795548.svg?longCache=true&style=flat-square">
@@ -23,7 +23,7 @@
 
 ## Install
 ```
-compile 'com.filestack:filestack-java:0.6.0'
+compile 'com.filestack:filestack-java:0.7.0'
 ```
 
 ## Upload
