@@ -136,10 +136,14 @@ public class Util {
     return env != null && env.equals("unit");
   }
 
+  /** Check if String is null or empty. */
   public static boolean isNullOrEmpty(String value) {
     return value == null || value.equals("");
   }
 
+  /**
+   * Throw an {@link java.lang.IllegalArgumentException} with message if String is mull or empty.
+   */
   public static void throwIfNullOrEmpty(String value, String message) {
     if (isNullOrEmpty(value)) {
       throw new IllegalArgumentException(message);
