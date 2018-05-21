@@ -50,7 +50,7 @@ public class CloudServiceUtil {
   }
 
   /**
-   * Add JSON object for a cloud. For list and store requests.
+   * Add JSON object for a cloud. For list, store, and logout requests.
    */
   public static void addCloudJson(JsonObject base, String cloud, String path, String next) {
     JsonObject json = new JsonObject();
