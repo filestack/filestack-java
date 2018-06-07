@@ -54,7 +54,7 @@ public class ProgMapFunc implements Function<Prog, Publisher<Progress<FileLink>>
   private Flowable<Progress<FileLink>> createUpdate(Prog prog) {
     long currentTime = System.currentTimeMillis() / 1000;
     int elapsedTime = (int) (currentTime - startTime);
-    return Flowable.just(new Progress<>(transBytes, upload.inputSize, elapsedTime, movAvgRate, prog.getFileLink()));
+    return Flowable.just(new Progress<>(transBytes, upload.inputSize, elapsedTime, movAvgRate * Upload.CONCURRENCY, prog.getFileLink()));
   }
 
 }
