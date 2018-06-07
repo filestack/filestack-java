@@ -41,7 +41,8 @@ class Prog {
   }
 
   double getRate() {
-    return bytes / (endTime - startTime);
+    long diff = endTime - startTime;
+    return bytes / (diff > 0 ? diff : 1);
   }
 
   double getElapsed() {
