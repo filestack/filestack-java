@@ -1,26 +1,71 @@
 package com.filestack.internal;
 
-/** Simple internal progress. */
-class Prog<T> {
-  private int bytes;
-  private T data;
+import com.filestack.FileLink;
 
-  public Prog() {
+/** Simple internal events for the upload process. */
+class Prog {
+
+  enum Type {
+    START,
+    TRANSFER,
+    COMPLETE
   }
 
-  public Prog(int bytes) {
+  private Type type;
+  private long startTime; // Unix time in seconds
+  private long endTime;
+  private int bytes;
+  private FileLink fileLink;
+
+  // For the start function
+  public Prog(long startTime, long endTime) {
+    this.type = Type.START;
+    this.startTime = startTime;
+    this.endTime = endTime;
+  }
+
+  // For the transfer function
+  public Prog(long startTime, long endTime, int bytes) {
+    this.type = Type.TRANSFER;
+    this.startTime = startTime;
+    this.endTime = endTime;
     this.bytes = bytes;
   }
 
-  public Prog(T data) {
-    this.data = data;
+  // For the complete function
+  public Prog(long startTime, long endTime, FileLink fileLink) {
+    this.type = Type.COMPLETE;
+    this.startTime = startTime;
+    this.endTime = endTime;
+    this.fileLink = fileLink;
   }
 
-  public int getBytes() {
+  double getRate() {
+    long diff = endTime - startTime;
+    return bytes / (diff > 0 ? diff : 1);
+  }
+
+  double getElapsed() {
+    return endTime - startTime;
+  }
+
+  Type getType() {
+    return type;
+  }
+
+  long getStartTime() {
+    return startTime;
+  }
+
+  long getEndTime() {
+    return endTime;
+  }
+
+  int getBytes() {
     return bytes;
   }
 
-  public T getData() {
-    return data;
+  FileLink getFileLink() {
+    return fileLink;
   }
 }
