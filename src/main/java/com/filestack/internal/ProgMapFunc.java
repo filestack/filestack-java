@@ -11,7 +11,7 @@ public class ProgMapFunc implements Function<Prog, Publisher<Progress<FileLink>>
   private static final double SMOOTHING_FACTOR = 0.25; // How quickly we discard old observations
 
   private final Upload upload; // Just needed to know the total size of the upload
-  private int elapsedTime; // Total seconds spent on this upload
+  private long startTime; // Time we received start event
   private long transBytes; // Number of bytes transferred
   private double movAvgRate; // Rate that increasingly devalues older rates (bytes / second)
 
@@ -21,8 +21,6 @@ public class ProgMapFunc implements Function<Prog, Publisher<Progress<FileLink>>
 
   @Override
   public Publisher<Progress<FileLink>> apply(Prog prog) throws Exception {
-
-    elapsedTime += prog.getElapsed();
 
     if (prog.getType() == Prog.Type.TRANSFER) {
 
@@ -40,6 +38,7 @@ public class ProgMapFunc implements Function<Prog, Publisher<Progress<FileLink>>
 
     // Don't send an update when we don't have a rate
     if (prog.getType() == Prog.Type.START) {
+      startTime = System.currentTimeMillis() / 1000;
       return Flowable.empty();
     }
 
@@ -53,6 +52,8 @@ public class ProgMapFunc implements Function<Prog, Publisher<Progress<FileLink>>
 
   // Creates a progress update from the current state
   private Flowable<Progress<FileLink>> createUpdate(Prog prog) {
+    long currentTime = System.currentTimeMillis() / 1000;
+    int elapsedTime = (int) (currentTime - startTime);
     return Flowable.just(new Progress<>(transBytes, upload.inputSize, elapsedTime, movAvgRate, prog.getFileLink()));
   }
 
