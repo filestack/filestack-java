@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+Version 0.8.0 *(2018-06-07)*
+----------------------------
+
+  * fix: improve progress events and upload rate calculation
+
 Version 0.7.0 *(2018-05-21)*
 ----------------------------
 
