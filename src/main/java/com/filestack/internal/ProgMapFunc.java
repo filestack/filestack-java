@@ -4,54 +4,56 @@ import com.filestack.FileLink;
 import com.filestack.Progress;
 import io.reactivex.Flowable;
 import io.reactivex.functions.Function;
-import java.util.List;
 import org.reactivestreams.Publisher;
 
-public class ProgMapFunc implements Function<List<Prog<FileLink>>, Publisher<Progress<FileLink>>> {
-  private final Upload upload;
-  private final long startTime = System.currentTimeMillis();
+public class ProgMapFunc implements Function<Prog, Publisher<Progress<FileLink>>> {
 
-  private double avgRate; // bytes / second
-  private long bytesSent;
+  private static final double SMOOTHING_FACTOR = 0.25; // How quickly we discard old observations
+
+  private final Upload upload; // Just needed to know the total size of the upload
+  private int elapsedTime; // Total seconds spent on this upload
+  private long transBytes; // Number of bytes transferred
+  private double movAvgRate; // Rate that increasingly devalues older rates (bytes / second)
 
   ProgMapFunc(Upload upload) {
     this.upload = upload;
   }
 
   @Override
-  public Publisher<Progress<FileLink>> apply(List<Prog<FileLink>> progs) throws Exception {
-    // Skip update if buffer is empty
-    if (progs.size() == 0) {
-      return Flowable.empty();
-    }
+  public Publisher<Progress<FileLink>> apply(Prog prog) throws Exception {
 
-    int bytes = 0;
-    FileLink data = null;
-    for (Prog<FileLink> simple : progs) {
-      bytes += simple.getBytes();
-      data = simple.getData();
-    }
+    elapsedTime += prog.getElapsed();
 
-    // Bytes could equal 0 if we only have a status from start or complete func
-    // We don't want to update the rate for requests that don't carry file content
-    if (bytes != 0) {
-      bytesSent += bytes;
-      if (avgRate == 0) {
-        avgRate = bytes;
-      } else {
-        avgRate = Progress.calcAvg(bytes, avgRate);
+    if (prog.getType() == Prog.Type.TRANSFER) {
+
+      // Use the first update's rate as the initial value for moving average
+      if (transBytes == 0) {
+        movAvgRate = prog.getRate();
       }
+
+      transBytes += prog.getBytes();
+      movAvgRate = calcMovAvg(prog.getRate(), movAvgRate);
+
+      // Send a progress update
+      return createUpdate(prog);
     }
 
-    // Skip update if we haven't sent anything or are waiting on the complete func
-    if (bytesSent == 0 || (bytesSent / upload.inputSize == 1 && data == null)) {
+    // Don't send an update when we don't have a rate
+    if (prog.getType() == Prog.Type.START) {
       return Flowable.empty();
     }
 
-    long currentTime = System.currentTimeMillis();
-    int elapsed = (int) ((currentTime - startTime) / 1000L);
-
-    double rate = avgRate / Upload.PROG_INTERVAL_SEC; // Want bytes / second not bytes / interval
-    return Flowable.just(new Progress<>(bytesSent, upload.inputSize, elapsed, rate, data));
+    return createUpdate(prog);
   }
+
+  // Calculates exponential moving average.
+  private double calcMovAvg(double current, double average) {
+    return SMOOTHING_FACTOR * current + (1 - SMOOTHING_FACTOR) * average;
+  }
+
+  // Creates a progress update from the current state
+  private Flowable<Progress<FileLink>> createUpdate(Prog prog) {
+    return Flowable.just(new Progress<>(transBytes, upload.inputSize, elapsedTime, movAvgRate, prog.getFileLink()));
+  }
+
 }
