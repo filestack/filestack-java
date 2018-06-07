@@ -18,11 +18,6 @@ public class Progress<T> {
     this.data = data;
   }
 
-  /** Calculates exponential moving average. */
-  public static double calcAvg(double lastRate, double avgRate) {
-    return SMOOTHING_FACTOR * lastRate + (1 - SMOOTHING_FACTOR) * avgRate;
-  }
-
   public long getBytesMoved() {
     return bytesMoved;
   }
