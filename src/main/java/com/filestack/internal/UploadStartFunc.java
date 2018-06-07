@@ -1,6 +1,5 @@
 package com.filestack.internal;
 
-import com.filestack.FileLink;
 import com.filestack.internal.responses.StartResponse;
 import io.reactivex.Flowable;
 import retrofit2.Response;
@@ -11,7 +10,7 @@ import java.util.concurrent.Callable;
  * Function to be passed to {@link Flowable#fromCallable(Callable)}.
  * Handles initiating a multipart upload.
  */
-public class UploadStartFunc implements Callable<Prog<FileLink>> {
+public class UploadStartFunc implements Callable<Prog> {
   private final Upload upload;
   
   UploadStartFunc(Upload upload) {
@@ -19,7 +18,9 @@ public class UploadStartFunc implements Callable<Prog<FileLink>> {
   }
 
   @Override
-  public Prog<FileLink> call() throws Exception {
+  public Prog call() throws Exception {
+    long startTime = System.currentTimeMillis() / 1000;
+
     RetryNetworkFunc<StartResponse> func;
     func = new RetryNetworkFunc<StartResponse>(0, 5, Upload.DELAY_BASE) {
       @Override
@@ -48,6 +49,7 @@ public class UploadStartFunc implements Callable<Prog<FileLink>> {
     int numParts = (int) Math.ceil(upload.inputSize / (double) upload.partSize);
     upload.etags = new String[numParts];
 
-    return new Prog<>();
+    long endTime = System.currentTimeMillis() / 1000;
+    return new Prog(startTime, endTime);
   }
 }

@@ -17,7 +17,7 @@ import java.util.concurrent.Callable;
  * 202 response while the parts are still processing. In this case the {@link RetryNetworkFunc}
  * will handle it like a failure and automatically retry.
  */
-public class UploadCompleteFunc implements Callable<Prog<FileLink>> {
+public class UploadCompleteFunc implements Callable<Prog> {
   private Upload upload;
   
   UploadCompleteFunc(Upload upload) {
@@ -25,7 +25,8 @@ public class UploadCompleteFunc implements Callable<Prog<FileLink>> {
   }
   
   @Override
-  public Prog<FileLink> call() throws Exception {
+  public Prog call() throws Exception {
+    long startTime = System.currentTimeMillis() / 1000;
     final HashMap<String, RequestBody> params = new HashMap<>();
     params.putAll(upload.baseParams);
 
@@ -53,6 +54,7 @@ public class UploadCompleteFunc implements Callable<Prog<FileLink>> {
     CompleteResponse response = func.call();
     FileLink fileLink = new FileLink(upload.clientConf, response.getHandle());
 
-    return new Prog<>(fileLink);
+    long endTime = System.currentTimeMillis() / 1000;
+    return new Prog(startTime, endTime, fileLink);
   }
 }

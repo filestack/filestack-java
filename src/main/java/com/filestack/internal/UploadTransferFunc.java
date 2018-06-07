@@ -1,6 +1,5 @@
 package com.filestack.internal;
 
-import com.filestack.FileLink;
 import com.filestack.internal.responses.UploadResponse;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
@@ -22,8 +21,8 @@ import java.util.Map;
  * An upload should be divided between multiple instances, with each uploading a subrange of parts.
  * We take a sectionIndex that tells us what area of the file to be responsible for.
  */
-public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FileLink>> {
-  private FlowableEmitter<Prog<FileLink>> emitter;
+public class UploadTransferFunc implements FlowableOnSubscribe<Prog> {
+  private FlowableEmitter<Prog> emitter;
   private Upload upload;
   private PartContainer container;
 
@@ -32,7 +31,7 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FileLink>> {
   }
 
   @Override
-  public void subscribe(FlowableEmitter<Prog<FileLink>> e) throws Exception {
+  public void subscribe(FlowableEmitter<Prog> e) throws Exception {
     emitter = e;
     container = new PartContainer(upload.partSize);
 
@@ -84,9 +83,14 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FileLink>> {
 
     func = new RetryNetworkFunc<Integer>(5, 5, Upload.DELAY_BASE) {
       private int size;
+      private long startTime;
 
       @Override
       Response<ResponseBody> work() throws Exception {
+
+        if (startTime == 0) {
+          startTime = System.currentTimeMillis() / 1000;
+        }
 
         if (upload.intel) {
           size = Math.min(upload.getChunkSize(), container.size - container.sent);
@@ -116,7 +120,8 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog<FileLink>> {
           upload.etags[container.num - 1] = etag;
         }
         container.sent += size;
-        emitter.onNext(new Prog<FileLink>(size));
+        long endTime = System.currentTimeMillis() / 1000;
+        emitter.onNext(new Prog(startTime, endTime, size));
         return size;
       }
     };
