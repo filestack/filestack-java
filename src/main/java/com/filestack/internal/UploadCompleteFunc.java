@@ -26,7 +26,7 @@ public class UploadCompleteFunc implements Callable<Prog> {
   
   @Override
   public Prog call() throws Exception {
-    long startTime = System.currentTimeMillis() / 1000;
+    final long startTime = System.currentTimeMillis() / 1000;
     final HashMap<String, RequestBody> params = new HashMap<>();
     params.putAll(upload.baseParams);
 

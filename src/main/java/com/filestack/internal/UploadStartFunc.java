@@ -19,7 +19,7 @@ public class UploadStartFunc implements Callable<Prog> {
 
   @Override
   public Prog call() throws Exception {
-    long startTime = System.currentTimeMillis() / 1000;
+    final long startTime = System.currentTimeMillis() / 1000;
 
     RetryNetworkFunc<StartResponse> func;
     func = new RetryNetworkFunc<StartResponse>(0, 5, Upload.DELAY_BASE) {
