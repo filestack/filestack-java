@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /** Holds upload state and request logic. */
 public class Upload {
@@ -22,8 +21,8 @@ public class Upload {
   static final int DELAY_BASE = 2;
   static final int INTELLIGENT_PART_SIZE = 8 * 1024 * 1024;
   static final int REGULAR_PART_SIZE = 5 * 1024 * 1024;
+  static final int CONCURRENCY = 4;
 
-  private static final int CONCURRENCY = 4;
   private static final int INITIAL_CHUNK_SIZE = 1024 * 1024;
   private static final int MIN_CHUNK_SIZE = 32 * 1024;
 
@@ -120,29 +119,28 @@ public class Upload {
    * @return {@link Flowable} that emits {@link Progress} events
    */
   public Flowable<Progress<FileLink>> run() {
-    Flowable<Prog<FileLink>> startFlow = Flowable
+    Flowable<Prog> startFlow = Flowable
         .fromCallable(new UploadStartFunc(this))
         .subscribeOn(Schedulers.io());
 
     // Create multiple func instances to each upload a subrange of parts from the file
     // Merge each of these together into one so they're executed concurrently
-    Flowable<Prog<FileLink>> transferFlow = Flowable.empty();
+    Flowable<Prog> transferFlow = Flowable.empty();
     for (int i = 0; i < CONCURRENCY; i++) {
       UploadTransferFunc func = new UploadTransferFunc(this);
-      Flowable<Prog<FileLink>> temp = Flowable
+      Flowable<Prog> temp = Flowable
           .create(func, BackpressureStrategy.BUFFER)
           .subscribeOn(Schedulers.io());
       transferFlow = transferFlow.mergeWith(temp);
     }
 
-    Flowable<Prog<FileLink>> completeFlow = Flowable
+    Flowable<Prog> completeFlow = Flowable
         .fromCallable(new UploadCompleteFunc(this))
         .subscribeOn(Schedulers.io());
 
     return startFlow
         .concatWith(transferFlow)
         .concatWith(completeFlow)
-        .buffer(PROG_INTERVAL_SEC, TimeUnit.SECONDS)
         .flatMap(new ProgMapFunc(this));
   }
 }
