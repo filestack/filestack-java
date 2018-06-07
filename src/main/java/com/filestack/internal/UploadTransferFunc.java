@@ -18,8 +18,8 @@ import java.util.Map;
 /**
  * Function to be passed to {@link Flowable#create(FlowableOnSubscribe, BackpressureStrategy)}.
  * This class handles uploading of parts/chunks and makes calls to both S3 and Filestack endpoints.
- * An upload should be divided between multiple instances, with each uploading a subrange of parts.
- * We take a sectionIndex that tells us what area of the file to be responsible for.
+ * An upload should be divided between multiple instances.
+ * Different instances are not assigned to section of the file, instead we synchronize reads.
  */
 public class UploadTransferFunc implements FlowableOnSubscribe<Prog> {
   private FlowableEmitter<Prog> emitter;
