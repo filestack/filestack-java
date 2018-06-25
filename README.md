@@ -137,7 +137,7 @@ To run unit tests:
 ./gradlew test
 ```
 
-The integration tests need "API_KEY", "POLICY", and "SIGNATURE" environment variables to be set. Assets created for the tests _should_ be cleaned up automatically. To run:
+The integration tests need "API_KEY", "POLICY", and "SIGNATURE" environment variables to be set. Assets created for the tests are cleaned up automatically, but there's potential for leftovers if something fails. To run:
 ```shell
 export API_KEY=''
 export POLICY=''
@@ -149,8 +149,8 @@ You can also setup IntelliJ run configs for convenience while developing. A conf
 
 The project also has Checkstyle setup for code linting. The config is at `config/checkstyle/checkstyle.xml`. To run:
 ```shell
-./gradlew check # This also runs unit tests
-./gradlew checkstyleMain # Or just run checkstyle tasks without running unit tests
+./gradlew check # Runs linter and unit tests
+./gradlew checkstyleMain # Runs linter on individual package without tests
 ./gradlew checkstyleTest
 ./gradlew checkstyleIntegTest
 ```
