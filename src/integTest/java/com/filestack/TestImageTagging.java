@@ -19,7 +19,13 @@ public class TestImageTagging {
   private static ArrayList<String> HANDLES = new ArrayList<>();
   private static ArrayList<File> FILES = new ArrayList<>();
 
-  @Test
+  /**
+   * TODO Possibly modify these to be reliable
+   * These tests have intermittently failed so many times they're useless. The aim isn't to test and deal with backend
+   * issues, but every failure has been for a backend or account issue. Disabling them for now.
+   */
+
+  // @Test
   public void testImageTags() throws Exception {
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     String origPath = loader.getResource("com/filestack/sample_image.jpg").getPath();
@@ -35,7 +41,8 @@ public class TestImageTagging {
     Assert.assertTrue(tags.containsKey("nebula"));
   }
 
-  @Test
+  /** TODO This shouldn't expect certain tags returned as the results vary. */
+  // @Test
   public void testImageSfw() throws Exception {
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     String origPath = loader.getResource("com/filestack/sample_image.jpg").getPath();
