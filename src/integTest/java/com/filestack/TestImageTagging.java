@@ -41,7 +41,7 @@ public class TestImageTagging {
     Assert.assertTrue(tags.containsKey("nebula"));
   }
 
-  // TODO This shouldn't expect certain tags returned as the results vary
+  /** TODO This shouldn't expect certain tags returned as the results vary. */
   // @Test
   public void testImageSfw() throws Exception {
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
