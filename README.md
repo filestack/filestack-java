@@ -157,6 +157,43 @@ The project also has Checkstyle setup for code linting. The config is at `config
 
 These tests are also configured to run automatically in Travis. Unit tests are run for every commit, and integration tests are run for pull requests. Integration tests won't run for pull requests from forks.
 
+## ProGuard/R8 configuration
+If you are using ProGuard / R8, please include the following entries in your configuration file.
+```
+# filestack-java-specific rules
+-keep public class com.filestack.internal.responses.** {
+    private *;
+    <init>(...);
+}
+
+
+# OkHttp-specific rules
+-dontwarn javax.annotation.**
+-keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase
+-dontwarn org.codehaus.mojo.animal_sniffer.*
+-dontwarn okhttp3.internal.platform.ConscryptPlatform
+
+# Okio-specific rules
+-dontwarn okio.**
+
+# Retrofit-specific rules
+-keepattributes Signature, InnerClasses
+-keepclassmembers,allowshrinking,allowobfuscation interface * {
+    @retrofit2.http.* <methods>;
+}
+# Guarded by a NoClassDefFoundError try/catch and only used when on the classpath.
+-dontwarn kotlin.Unit
+
+# Guava-specific rules
+-dontwarn afu.org.checkerframework.**
+-dontwarn org.checkerframework.**
+-dontwarn com.google.errorprone.**
+-dontwarn sun.misc.Unsafe
+-dontwarn java.lang.ClassValue
+```
+
+Please note, that those rules will probably decrease in size as we proceed with getting rid of most of external dependencies.
+
 ## Deployment
 _This is for Filestack devs._ Deployments are made to Bintray. You must have an account that's been added to the Filestack organization to deploy. Also make sure to follow general Filestack release guidelines. "BINTRAY_USER" and "BINTRAY_API_KEY" environment variables are required. To run:
 
