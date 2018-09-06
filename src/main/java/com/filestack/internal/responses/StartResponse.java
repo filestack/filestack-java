@@ -7,6 +7,7 @@ import java.util.Map;
 import okhttp3.RequestBody;
 
 /** Response object from multipart start endpoint. */
+@SuppressWarnings("unused")
 public class StartResponse {
   private String uri;
   private String region;

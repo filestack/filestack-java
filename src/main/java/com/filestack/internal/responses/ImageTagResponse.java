@@ -7,8 +7,9 @@ import java.util.Map;
  *
  * @see <a href="https://www.filestack.com/docs/tagging"></a>
  */
+@SuppressWarnings("unused")
 public class ImageTagResponse {
-  Tags tags;
+  private Tags tags;
 
   class Tags {
     Map<String, Integer> auto;
