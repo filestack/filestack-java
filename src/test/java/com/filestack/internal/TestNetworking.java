@@ -4,7 +4,7 @@ import okhttp3.OkHttpClient;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestNetworking extends Networking {
+public class TestNetworking {
 
   @Test
   public void testCreation() {

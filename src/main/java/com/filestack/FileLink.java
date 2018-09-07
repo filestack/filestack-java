@@ -33,8 +33,10 @@ public class FileLink implements Serializable {
   protected final String handle;
 
   /**
+   * Basic constructor for a FileLink.
+   *
    * @deprecated FileLink objects should not be created by hand - use {@link Client} to acquire them.
-   * This method is scheduled to be removed in version 1.0.0.
+   *     This method is scheduled to be removed in version 1.0.0.
    */
   @Deprecated
   public FileLink(Config config, String handle) {

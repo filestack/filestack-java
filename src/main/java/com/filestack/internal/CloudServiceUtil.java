@@ -74,4 +74,7 @@ public class CloudServiceUtil {
 
     base.getAsJsonObject(KEY_CLOUDS).getAsJsonObject(cloud).add(KEY_STORE, json);
   }
+
+  private CloudServiceUtil() {}
+
 }

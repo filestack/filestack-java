@@ -10,6 +10,8 @@ public class Progress<T> {
   private final T data;
 
   /**
+   * Basic constructor for Progress.
+   * 
    * @deprecated access to this constructor is scheduled to be limited in 1.0.0 to internal use only.
    */
   @Deprecated
