@@ -9,7 +9,10 @@ public class Progress<T> {
   private final double rate;
   private final T data;
 
-  /** Constructs new instance. */
+  /**
+   * @deprecated access to this constructor is scheduled to be limited in 1.0.0 to internal use only.
+   */
+  @Deprecated
   public Progress(long bytesMoved, long bytesTotal, int elapsed, double rate, T data) {
     this.bytesMoved = bytesMoved;
     this.bytesTotal = bytesTotal;

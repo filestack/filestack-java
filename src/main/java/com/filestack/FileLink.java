@@ -32,6 +32,11 @@ public class FileLink implements Serializable {
   protected final Config config;
   protected final String handle;
 
+  /**
+   * @deprecated FileLink objects should not be created by hand - use {@link Client} to acquire them.
+   * This method is scheduled to be removed in version 1.0.0.
+   */
+  @Deprecated
   public FileLink(Config config, String handle) {
     this.config = config;
     this.handle = handle;
