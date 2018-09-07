@@ -18,7 +18,7 @@ public class HeaderInterceptor implements Interceptor {
 
   private String version;
 
-  public HeaderInterceptor() {
+  HeaderInterceptor() {
     this.version = Util.getVersion();
   }
 

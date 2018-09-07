@@ -2,6 +2,7 @@ package com.filestack.internal;
 
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.graph.Network;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -10,7 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Holds {@link OkHttpClient} and {@link Retrofit} singletons.
  * We only want to instantiate these classes once per app.
  */
-public class Networking {
+public final class Networking {
   private static OkHttpClient httpClient;
   private static BaseService baseService;
   private static CdnService cdnService;
@@ -115,4 +116,6 @@ public class Networking {
     uploadService = null;
     cloudService = null;
   }
+
+  private Networking() {}
 }
