@@ -166,6 +166,20 @@ If you are using ProGuard / R8, please include the following entries in your con
     <init>(...);
 }
 
+-keep public class com.filestack.CloudResponse {
+    private *;
+    <init>(...);
+}
+
+-keep public class com.filestack.CloudItem {
+    private *;
+    <init>(...);
+}
+
+-keep public class com.filestack.AppInfo {
+    private *;
+    <init>(...);
+}
 
 # OkHttp-specific rules
 -dontwarn javax.annotation.**
