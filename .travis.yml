@@ -12,8 +12,7 @@ jdk:
   - oraclejdk8
 
 script:
-  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then export TEST_TYPE="unit"; bash ./gradlew check; fi'
-  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ $API_KEY ]; then export TEST_TYPE="integ"; bash ./gradlew integTest; fi'
+  - export TEST_TYPE="unit"; bash ./gradlew check
 
 after_success:
   - ./gradlew jacocoTestReport coveralls
