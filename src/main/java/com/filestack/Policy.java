@@ -12,7 +12,7 @@ import java.util.Date;
  * Determines what access a user is allowed (if account security is enabled). A policy sets access
  * and a signature validates the policy. This class should only be used in server-side code. Do not
  * include your app secret in client-side code.
- * @see <a href="https://www.filestack.com/docs/security">Filestack Security Docs</a>
+ * @see <a href="https://www.filestack.com/docs/security/creating-policies">Filestack Docs - Creating policies</a>
  */
 public class Policy {
   public static final String CALL_PICK = "pick";

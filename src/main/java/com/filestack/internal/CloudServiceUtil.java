@@ -22,10 +22,19 @@ public class CloudServiceUtil {
 
   private static final String VALUE_FLOW_MOBILE = "mobile";
 
+
+  /**
+   * Create the base JSON object with properties needed for all requests.
+   * @deprecated explicitly pass returnUrl with {@link #buildBaseJson(Config, String, String)} instead.
+   */
+  public static JsonObject buildBaseJson(Config config, String session) {
+    return buildBaseJson(config, session, config.getReturnUrl());
+  }
+
   /**
    * Create the base JSON object with properties needed for all requests.
    */
-  public static JsonObject buildBaseJson(Config config, String session) {
+  public static JsonObject buildBaseJson(Config config, String session, String returnUrl) {
 
     JsonObject json = new JsonObject();
     json.addProperty(KEY_API_KEY, config.getApiKey());
@@ -36,8 +45,8 @@ public class CloudServiceUtil {
       json.addProperty(KEY_SIGNATURE, config.getSignature());
     }
 
-    if (config.getReturnUrl() != null) {
-      json.addProperty(KEY_APP_URL, config.getReturnUrl());
+    if (returnUrl != null) {
+      json.addProperty(KEY_APP_URL, returnUrl);
     }
 
     if (session != null) {
