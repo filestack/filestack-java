@@ -1,5 +1,13 @@
 Change Log
 ==========
+Version 0.8.1 *(2018-09-10)*
+----------------------------
+
+  * New: Proguard rules are now included inside of META-INF dir for R8 users.
+  * New: More convenient `Config` constructors that require `Policy` object.
+  * **Deprecation:** `Config` constructors requiring `returnUrl` field are now deprecated. If you are relying on `CloudServiceUtil` class, use new `buildBaseJson` method that accepts `returnUrl` as a param.
+  * **Deprecation:** `FileLink` constructor is deprecated and scheduled to be removed in future releases. Rely on `Client` class to acquire `FileLink` instances.
+  * Change: prevent access to some internal classes
 
 Version 0.8.0 *(2018-06-07)*
 ----------------------------
