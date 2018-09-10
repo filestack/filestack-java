@@ -1,17 +1,18 @@
 package com.filestack.internal.responses;
 
 /** Response object from transform store endpoint. */
+@SuppressWarnings("unused")
 public class StoreResponse {
-  String url;
-  String filename;
-  String type;
+  private String url;
+  private String filename;
+  private String type;
 
-  String container;
-  String key;
+  private String container;
+  private String key;
 
-  int width;
-  int height;
-  int size;
+  private int width;
+  private int height;
+  private int size;
 
   public String getUrl() {
     return url;

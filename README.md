@@ -157,6 +157,11 @@ The project also has Checkstyle setup for code linting. The config is at `config
 
 These tests are also configured to run automatically in Travis. Unit tests are run for every commit, and integration tests are run for pull requests. Integration tests won't run for pull requests from forks.
 
+## Proguard
+If you are using Proguard, please include entries from [this file](src/main/resources/META-INF/proguard/filestack.pro) in your Proguard configuration file.
+
+Please note, that those rules will probably decrease in size as we proceed with getting rid of most of external dependencies.
+
 ## Deployment
 _This is for Filestack devs._ Deployments are made to Bintray. You must have an account that's been added to the Filestack organization to deploy. Also make sure to follow general Filestack release guidelines. "BINTRAY_USER" and "BINTRAY_API_KEY" environment variables are required. To run:
 

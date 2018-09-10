@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /** Response object from multipart upload endpoint. */
+@SuppressWarnings("unused")
 public class UploadResponse {
   private String url;
   @SerializedName("location_url")

@@ -1,5 +1,6 @@
 package com.filestack.internal.responses;
 
+@SuppressWarnings("unused")
 public class CloudStoreResponse {
   private String url;
   private String handle;

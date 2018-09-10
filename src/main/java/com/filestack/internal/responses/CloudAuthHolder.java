@@ -2,6 +2,7 @@ package com.filestack.internal.responses;
 
 import com.google.gson.annotations.SerializedName;
 
+@SuppressWarnings("unused")
 public class CloudAuthHolder {
   @SerializedName("redirect_url") private String redirectUrl;
 

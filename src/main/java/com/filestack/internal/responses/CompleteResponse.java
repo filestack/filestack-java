@@ -1,6 +1,7 @@
 package com.filestack.internal.responses;
 
 /** Response from multipart complete endpoint. */
+@SuppressWarnings("unused")
 public class CompleteResponse {
   private String url;
   private String handle;
