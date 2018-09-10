@@ -14,35 +14,59 @@ public class Config implements Serializable {
   protected final String signature;
   protected final String returnUrl;
 
-  /** Construct basic config. */
+  /**
+   * Constructs configuration for {@link Client} class.
+   * @param apiKey - an API key obtained from the Developer Portal
+   * @param policy - access policy, one can be created with {@link Policy.Builder}
+   */
+  public Config(String apiKey, Policy policy) {
+    this(apiKey, null, policy.getEncodedPolicy(), policy.getSignature());
+  }
+
+  /**
+   * Constructs basic configuration for {@link Client} class without any security policy.
+   * @param apiKey - an API key obtained from the Developer Portal
+  */
   public Config(String apiKey) {
-    this.apiKey = apiKey;
-    this.returnUrl = null;
-    this.policy = null;
-    this.signature = null;
+    this(apiKey, null, null, null);
   }
 
-  /** Construct config for auth.*/
+  /**
+   * Constructs basic configuration for {@link Client} class without any security policy.
+   * @param apiKey - an API key obtained from the Developer Portal
+   * @param returnUrl - returnUrl used for building JSON bodies with {@link com.filestack.internal.CloudServiceUtil}
+   * @deprecated use {@link #Config(String)} instead and manually pass returnUrl to
+   *     {@link com.filestack.internal.CloudServiceUtil#buildBaseJson(Config, String, String)} if necessary
+   */
+  @Deprecated
   public Config(String apiKey, String returnUrl) {
-    this.apiKey = apiKey;
-    this.returnUrl = returnUrl;
-    this.policy = null;
-    this.signature = null;
+    this(apiKey, returnUrl, null, null);
   }
 
-  /** Construct config for security. */
-  public Config(String apiKey, String policy, String signature) {
-    this.apiKey = apiKey;
-    this.returnUrl = null;
-    this.policy = policy;
-    this.signature = signature;
+  /**
+   * Constructs configuration for {@link Client} class.
+   * @param apiKey - an API key obtained from the Developer Portal
+   * @param encodedPolicy - encoded policy, obtain one using {@link Policy#getEncodedPolicy()}
+   * @param signature - policy signature, obtain one using {@link Policy#getSignature()}
+   */
+  public Config(String apiKey, String encodedPolicy, String signature) {
+    this(apiKey, null, encodedPolicy, signature);
   }
 
-  /** Construct config for auth and security. */
-  public Config(String apiKey, String returnUrl, String policy, String signature) {
+  /**
+   * Constructs configuration for {@link Client} class.
+   * @param apiKey - an API key obtained from the Developer Portal
+   * @param encodedPolicy - encoded policy, obtain one using {@link Policy#getEncodedPolicy()}
+   * @param signature - policy signature, obtain one using {@link Policy#getSignature()}
+   * @param returnUrl - returnUrl used for building JSON bodies with {@link com.filestack.internal.CloudServiceUtil}
+   * @deprecated use {@link #Config(String, String, String)} instead and manually pass returnUrl to
+   *     {@link com.filestack.internal.CloudServiceUtil#buildBaseJson(Config, String, String)} if necessary
+   */
+  @Deprecated
+  public Config(String apiKey, String returnUrl, String encodedPolicy, String signature) {
     this.apiKey = apiKey;
     this.returnUrl = returnUrl;
-    this.policy = policy;
+    this.policy = encodedPolicy;
     this.signature = signature;
   }
 
@@ -50,6 +74,7 @@ public class Config implements Serializable {
     return apiKey;
   }
 
+  @Deprecated
   public String getReturnUrl() {
     return returnUrl;
   }
