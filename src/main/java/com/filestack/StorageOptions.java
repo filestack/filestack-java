@@ -2,7 +2,6 @@ package com.filestack;
 
 import com.filestack.internal.Util;
 import com.filestack.transforms.TransformTask;
-import com.google.common.base.Strings;
 import com.google.gson.JsonObject;
 import okhttp3.RequestBody;
 
@@ -64,14 +63,14 @@ public class StorageOptions implements Serializable {
 
     // A name and MIME type must be set for uploads, so we set a default here but not in "build"
     // If we're not using the instance for an upload, we don't want to set these defaults
-    if (Strings.isNullOrEmpty(filename)) {
+    if (Util.isNullOrEmpty(filename)) {
       long timestamp = System.currentTimeMillis() / 1000L;
       filename = String.format(DEFAULT_FILENAME, timestamp);
     }
 
     // There's too many variables in guessing MIME types, esp between platforms
     // Either the user sets it themselves or we use a default
-    if (Strings.isNullOrEmpty(mimeType)) {
+    if (Util.isNullOrEmpty(mimeType)) {
       mimeType = DEFAULT_MIME_TYPE;
     }
 

@@ -1,11 +1,10 @@
 package com.filestack;
 
-import com.google.common.base.Charsets;
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hashing;
-import com.google.common.io.BaseEncoding;
+import com.filestack.internal.Hash;
+import com.filestack.internal.Util;
 import com.google.gson.Gson;
 
+import java.nio.charset.Charset;
 import java.util.Date;
 
 /**
@@ -150,12 +149,12 @@ public class Policy {
      */
     public Policy build(String appSecret) {
       Gson gson = new Gson();
-      HashFunction hashFunction = Hashing.hmacSha256(appSecret.getBytes(Charsets.UTF_8));
-
       String jsonPolicy = gson.toJson(this);
-      String encodedPolicy = BaseEncoding.base64Url().encode(jsonPolicy.getBytes(Charsets.UTF_8));
-      String signature = hashFunction.hashString(encodedPolicy, Charsets.UTF_8).toString();
-
+      String encodedPolicy = Util.base64Url(jsonPolicy.getBytes());
+      String signature = Hash.hmacSha256(
+          appSecret.getBytes(Charset.forName("UTF-8")),
+          encodedPolicy.getBytes(Charset.forName("UTF-8"))
+      );
       return new Policy(encodedPolicy, signature);
     }
   }

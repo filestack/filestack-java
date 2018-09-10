@@ -3,10 +3,11 @@ package com.filestack;
 import com.filestack.internal.BaseService;
 import com.filestack.internal.CdnService;
 import com.filestack.internal.Networking;
-import com.google.common.io.Files;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
+import okio.BufferedSink;
+import okio.Okio;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -91,12 +92,10 @@ public class TestFileLink {
 
   @Test
   public void testOverwrite() throws Exception {
-    String pathname = "/tmp/filestack_test_filelink_overwrite.txt";
-    File file = new File(pathname);
-    if (!file.createNewFile()) {
-      Assert.fail("Unable to create resource");
-    }
-    Files.write("Test content".getBytes(), file);
+    File file = File.createTempFile("filestack", ".txt");
+    file.deleteOnExit();
+
+    Okio.buffer(Okio.sink(file)).writeUtf8("Test content").close();
 
     Mockito
         .doReturn(Helpers.createRawCall("application/json", ""))
@@ -107,11 +106,7 @@ public class TestFileLink {
     Config config = new Config("apiKey", "policy", "signature");
     FileLink fileLink = new FileLink(config, "handle");
 
-    fileLink.overwrite(pathname);
-
-    if (!file.delete()) {
-      Assert.fail("Unable to cleanup resource");
-    }
+    fileLink.overwrite(file.getAbsolutePath());
   }
 
   @Test

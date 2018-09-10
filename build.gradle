@@ -42,12 +42,10 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-gson:2.3.0' // GSON integration
 
     compile 'com.google.code.gson:gson:2.8.1' // JSON serialization to Java objects
-    compile ('com.google.guava:guava:22.0-android', { // Useful core libraries for Java
-        exclude group: 'com.google.code.findbugs', module: 'jsr305'
-    })
 
     compile 'io.reactivex.rxjava2:rxjava:2.1.2'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version" // Observable pattern for async methods
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 }
 
 javadoc {
