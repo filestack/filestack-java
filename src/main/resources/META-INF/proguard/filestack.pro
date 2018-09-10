@@ -35,10 +35,3 @@
 }
 # Guarded by a NoClassDefFoundError try/catch and only used when on the classpath.
 -dontwarn kotlin.Unit
-
-# Guava-specific rules
--dontwarn afu.org.checkerframework.**
--dontwarn org.checkerframework.**
--dontwarn com.google.errorprone.**
--dontwarn sun.misc.Unsafe
--dontwarn java.lang.ClassValue

@@ -1,9 +1,6 @@
 package com.filestack.internal;
 
 import com.filestack.internal.responses.UploadResponse;
-import com.google.common.hash.HashCode;
-import com.google.common.hash.Hashing;
-import com.google.common.io.BaseEncoding;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
@@ -48,20 +45,14 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog> {
 
   /** Get parameters from Filestack for the upload to S3. */
   private UploadResponse getUploadParams(int size) throws Exception {
-
-    // Deprecated because MD5 is insecure not because this is unmaintained
-    @SuppressWarnings("deprecation")
-    HashCode hc = Hashing.md5()
-        .newHasher(size)
-        .putBytes(container.data, container.sent, size)
-        .hash();
-    String md5 = BaseEncoding.base64().encode(hc.asBytes());
+    byte[] md5 = Hash.md5(container.data, container.sent, size);
+    String encodedMd5 = Util.base64(md5);
 
     final HashMap<String, RequestBody> params = new HashMap<>();
     params.putAll(upload.baseParams);
     params.put("part", Util.createStringPart(Integer.toString(container.num)));
     params.put("size", Util.createStringPart(Integer.toString(size)));
-    params.put("md5", Util.createStringPart(md5));
+    params.put("md5", Util.createStringPart(encodedMd5));
     if (upload.intel) {
       params.put("offset", Util.createStringPart(Integer.toString(container.sent)));
     }

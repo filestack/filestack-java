@@ -1,6 +1,6 @@
 package com.filestack;
 
-import com.google.common.io.Files;
+import okio.Okio;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -86,7 +86,7 @@ public class TestBasicFunctions {
     fileLink.download("/tmp/", downloadFile.getName());
 
     Assert.assertTrue(downloadFile.isFile());
-    byte[] bytes = Files.asByteSource(downloadFile).read();
+    byte[] bytes = Okio.buffer(Okio.source(downloadFile)).readByteArray();
     String content = new String(bytes, "utf-16");
     Assert.assertEquals(uploadUuid, content);
   }

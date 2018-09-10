@@ -2,7 +2,6 @@ package com.filestack.internal;
 
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.graph.Network;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;

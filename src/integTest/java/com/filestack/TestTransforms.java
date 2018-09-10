@@ -4,13 +4,15 @@ import com.filestack.transforms.AvTransform;
 import com.filestack.transforms.ImageTransform;
 import com.filestack.transforms.tasks.AvTransformOptions;
 import com.filestack.transforms.tasks.CropTask;
-import com.google.common.hash.Hashing;
-import com.google.common.io.Files;
+import okio.ByteString;
+import okio.Okio;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 public class TestTransforms {
@@ -39,9 +41,10 @@ public class TestTransforms {
     String cropPath = loader.getResource("com/filestack/sample_image_cropped.jpg").getPath();
     File cropFile = new File(cropPath);
 
-    String correct = Files.asByteSource(cropFile).hash(Hashing.sha256()).toString();
-    byte[] bytes = transform.getContent().bytes();
-    String output = Hashing.sha256().hashBytes(bytes).toString();
+    byte[] bytes = Okio.buffer(Okio.source(cropFile)).readByteArray();
+    String correct = ByteString.of(sha256(bytes)).hex();
+    byte[] actualBytes = transform.getContent().bytes();
+    String output = ByteString.of(sha256(actualBytes)).hex();
 
     Assert.assertEquals(correct, output);
   }
@@ -70,9 +73,9 @@ public class TestTransforms {
     String mp3Path = loader.getResource("com/filestack/sample_music.mp3").getPath();
     File mp3File = new File(mp3Path);
 
-    String correct = Files.asByteSource(mp3File).hash(Hashing.sha256()).toString();
+    String correct = ByteString.of(sha256(Okio.buffer(Okio.source(mp3File)).readByteArray())).hex();
     byte[] bytes = mp3FileLink.getContent().bytes();
-    String output = Hashing.sha256().hashBytes(bytes).toString();
+    String output = ByteString.of(bytes).hex();
 
     Assert.assertEquals(correct, output);
   }
@@ -98,5 +101,11 @@ public class TestTransforms {
         Assert.fail("Unable to cleanup resource");
       }
     }
+  }
+
+  private static byte[] sha256(byte[] bytes) throws NoSuchAlgorithmException {
+    MessageDigest md = MessageDigest.getInstance("SHA-256");
+    md.update(bytes);
+    return md.digest();
   }
 }

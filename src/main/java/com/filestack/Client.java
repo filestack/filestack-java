@@ -6,7 +6,6 @@ import com.filestack.internal.Upload;
 import com.filestack.internal.Util;
 import com.filestack.internal.responses.CloudStoreResponse;
 import com.filestack.transforms.ImageTransform;
-import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -215,7 +214,7 @@ public class Client implements Serializable {
 
       if (opts == null) {
         opts = new StorageOptions.Builder().filename(inputFile.getName()).build();
-      } else if (Strings.isNullOrEmpty(opts.getFilename())) {
+      } else if (Util.isNullOrEmpty(opts.getFilename())) {
         opts = opts.newBuilder().filename(inputFile.getName()).build();
       }
 

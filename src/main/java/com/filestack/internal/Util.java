@@ -1,16 +1,19 @@
 package com.filestack.internal;
 
 import com.filestack.HttpException;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import okio.Buffer;
+import okio.ByteString;
+import retrofit2.Response;
+
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import okio.Buffer;
-import retrofit2.Response;
 
 /**
  * Small helper functions that don't need their own class.
@@ -137,7 +140,7 @@ public class Util {
   }
 
   /** Check if String is null or empty. */
-  public static boolean isNullOrEmpty(String value) {
+  public static boolean isNullOrEmpty(@Nullable String value) {
     return value == null || value.equals("");
   }
 
@@ -149,4 +152,17 @@ public class Util {
       throw new IllegalArgumentException(message);
     }
   }
+
+  public static String base64(byte[] data) {
+    return base64(data, 0, data.length);
+  }
+
+  public static String base64(byte[] data, int offset, int length) {
+    return ByteString.of(data, offset, length).base64();
+  }
+
+  public static String base64Url(byte[] data) {
+    return ByteString.of(data).base64Url();
+  }
+
 }
