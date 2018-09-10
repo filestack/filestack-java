@@ -1,6 +1,5 @@
 package com.filestack;
 
-import com.google.gson.Gson;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,8 +25,6 @@ public class TestPolicy {
 
   @Test
   public void testNormal() {
-    Gson gson = new Gson();
-
     Policy policy = new Policy.Builder()
         .expiry(4653651600L)
         .calls(Policy.CALL_WRITE, Policy.CALL_REMOVE)
@@ -45,8 +42,6 @@ public class TestPolicy {
 
   @Test
   public void testNoCalls() {
-    Gson gson = new Gson();
-
     Policy policy = new Policy.Builder()
         .expiry(4653651600L)
         .build(TEST_SECRET);

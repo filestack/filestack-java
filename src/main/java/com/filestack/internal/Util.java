@@ -1,6 +1,8 @@
 package com.filestack.internal;
 
 import com.filestack.HttpException;
+import com.google.gson.JsonObject;
+import io.reactivex.annotations.Nullable;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -8,7 +10,6 @@ import okio.Buffer;
 import okio.ByteString;
 import retrofit2.Response;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -164,5 +165,24 @@ public class Util {
   public static String base64Url(byte[] data) {
     return ByteString.of(data).base64Url();
   }
+
+  /**
+   * Populates {@link JsonObject} if value is not null.
+   */
+  public static void addIfNotNull(JsonObject object, String key, String value) {
+    if (value != null) {
+      object.addProperty(key, value);
+    }
+  }
+
+  /**
+   * Populates {@link JsonObject} if value is not null.
+   */
+  public static void addIfNotNull(JsonObject object, String key, Number value) {
+    if (value != null) {
+      object.addProperty(key, value);
+    }
+  }
+
 
 }

@@ -19,9 +19,6 @@
     <init>(...);
 }
 
--keep public class com.filestack.Policy { *; }
--keep public class com.filestack.Policy$Builder { *; }
-
 # OkHttp-specific rules
 -dontwarn javax.annotation.**
 -keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase
