@@ -2,7 +2,8 @@ package com.filestack;
 
 import com.filestack.internal.Hash;
 import com.filestack.internal.Util;
-import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import java.nio.charset.Charset;
 import java.util.Date;
@@ -148,14 +149,32 @@ public class Policy {
      * Do not include the app secret in client-side code.
      */
     public Policy build(String appSecret) {
-      Gson gson = new Gson();
-      String jsonPolicy = gson.toJson(this);
+      String jsonPolicy = buildJsonPolicy();
       String encodedPolicy = Util.base64Url(jsonPolicy.getBytes());
       String signature = Hash.hmacSha256(
           appSecret.getBytes(Charset.forName("UTF-8")),
           encodedPolicy.getBytes(Charset.forName("UTF-8"))
       );
       return new Policy(encodedPolicy, signature);
+    }
+
+    private String buildJsonPolicy() {
+      JsonObject json = new JsonObject();
+      Util.addIfNotNull(json, "expiry", expiry);
+      if (calls != null) {
+        JsonArray callsArray = new JsonArray();
+        for (String call : calls) {
+          callsArray.add(call);
+        }
+        json.add("calls", callsArray);
+      }
+      Util.addIfNotNull(json, "handle", handle);
+      Util.addIfNotNull(json, "url", url);
+      Util.addIfNotNull(json, "maxSize", maxSize);
+      Util.addIfNotNull(json, "minSize", minSize);
+      Util.addIfNotNull(json, "path", path);
+      Util.addIfNotNull(json, "container", container);
+      return json.toString();
     }
   }
 
