@@ -35,16 +35,14 @@ dependencies {
     testImplementation 'junit:junit:4.12' // Testing
     testImplementation 'org.mockito:mockito-core:2.8.47' // Mocking
     testImplementation 'com.squareup.retrofit2:retrofit-mock:2.3.0' // Helpers for Retrofit
-    testImplementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    testImplementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     compile 'com.squareup.okhttp3:okhttp:3.8.0' // Low-level HTTP client
     compile 'com.squareup.retrofit2:retrofit:2.3.0' // High-level HTTP client
     compile 'com.squareup.retrofit2:converter-gson:2.3.0' // GSON integration
-
     compile 'com.google.code.gson:gson:2.8.1' // JSON serialization to Java objects
-
     compile 'io.reactivex.rxjava2:rxjava:2.1.2'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version" // Observable pattern for async methods
+
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 }
 
