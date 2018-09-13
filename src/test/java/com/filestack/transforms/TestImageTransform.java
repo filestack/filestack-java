@@ -88,7 +88,7 @@ public class TestImageTransform {
     Assert.assertNotNull(transform.store());
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testAddNullTask() throws Exception {
     Config config = new Config("apiKey");
     ImageTransform transform = new ImageTransform(config, cdnService,"handle", false);

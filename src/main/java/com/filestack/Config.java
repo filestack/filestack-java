@@ -3,6 +3,7 @@ package com.filestack;
 import com.filestack.internal.Util;
 import com.filestack.transforms.Transform;
 
+import javax.annotation.Nullable;
 import java.io.Serializable;
 
 /**
@@ -39,7 +40,7 @@ public class Config implements Serializable {
    *     {@link com.filestack.internal.CloudServiceUtil#buildBaseJson(Config, String, String)} if necessary
    */
   @Deprecated
-  public Config(String apiKey, String returnUrl) {
+  public Config(String apiKey, @Nullable String returnUrl) {
     this(apiKey, returnUrl, null, null);
   }
 
@@ -49,7 +50,7 @@ public class Config implements Serializable {
    * @param encodedPolicy - encoded policy, obtain one using {@link Policy#getEncodedPolicy()}
    * @param signature - policy signature, obtain one using {@link Policy#getSignature()}
    */
-  public Config(String apiKey, String encodedPolicy, String signature) {
+  public Config(String apiKey, @Nullable String encodedPolicy, @Nullable String signature) {
     this(apiKey, null, encodedPolicy, signature);
   }
 
@@ -63,7 +64,8 @@ public class Config implements Serializable {
    *     {@link com.filestack.internal.CloudServiceUtil#buildBaseJson(Config, String, String)} if necessary
    */
   @Deprecated
-  public Config(String apiKey, String returnUrl, String encodedPolicy, String signature) {
+  public Config(String apiKey, @Nullable String returnUrl, @Nullable String encodedPolicy,
+                @Nullable String signature) {
     this.apiKey = apiKey;
     this.returnUrl = returnUrl;
     this.policy = encodedPolicy;

@@ -11,6 +11,7 @@ import com.google.gson.JsonObject;
 import io.reactivex.Single;
 import retrofit2.Response;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
@@ -79,7 +80,7 @@ public class ImageTransform extends Transform {
    * @throws HttpException on error response from backend
    * @throws IOException           on network failure
    */
-  public FileLink store(StorageOptions storageOptions) throws IOException {
+  public FileLink store(@Nullable StorageOptions storageOptions) throws IOException {
     if (storageOptions == null) {
       storageOptions = new StorageOptions.Builder().build();
     }
@@ -116,7 +117,7 @@ public class ImageTransform extends Transform {
    */
   public ImageTransform addTask(ImageTransformTask task) {
     if (task == null) {
-      throw new NullPointerException("Cannot add null task to image transform");
+      throw new IllegalArgumentException("ImageTransformTask object cannot be null!");
     }
     tasks.add(task);
     return this;
@@ -149,7 +150,7 @@ public class ImageTransform extends Transform {
    * Async, observable version of {@link #store(StorageOptions)}.
    * Same exceptions are passed through observable.
    */
-  public Single<FileLink> storeAsync(final StorageOptions storageOptions) {
+  public Single<FileLink> storeAsync(@Nullable final StorageOptions storageOptions) {
     return Single.fromCallable(new Callable<FileLink>() {
       @Override
       public FileLink call() throws Exception {

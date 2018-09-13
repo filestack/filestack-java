@@ -17,6 +17,7 @@ import io.reactivex.Single;
 import io.reactivex.functions.Action;
 import retrofit2.Response;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -65,7 +66,7 @@ public class Client implements Serializable {
    *
    * @see #uploadAsync(InputStream, int, boolean, StorageOptions)
    */
-  public FileLink upload(String path, boolean intel, StorageOptions opts) throws IOException {
+  public FileLink upload(String path, boolean intel, @Nullable StorageOptions opts) throws IOException {
     return uploadAsync(path, intel, opts).blockingLast().getData();
   }
 
@@ -85,7 +86,7 @@ public class Client implements Serializable {
    *
    * @see #uploadAsync(InputStream, int, boolean, StorageOptions)
    */
-  public FileLink upload(InputStream input, int size, boolean intel, StorageOptions opts)
+  public FileLink upload(InputStream input, int size, boolean intel, @Nullable StorageOptions opts)
       throws IOException {
     return uploadAsync(input, size, intel, opts).blockingLast().getData();
   }
@@ -123,7 +124,7 @@ public class Client implements Serializable {
    * @throws IOException           on network failure
    */
   @SuppressWarnings("ConstantConditions")
-  public CloudResponse getCloudItems(String providerName, String path, String next)
+  public CloudResponse getCloudItems(String providerName, @Nullable String path, @Nullable String next)
       throws IOException {
 
     Util.throwIfNullOrEmpty(providerName, "Provider name is required");
@@ -167,7 +168,7 @@ public class Client implements Serializable {
    * @throws IOException           on network failure
    */
   @SuppressWarnings("ConstantConditions")
-  public FileLink storeCloudItem(String providerName, String path, StorageOptions options)
+  public FileLink storeCloudItem(String providerName, String path, @Nullable StorageOptions options)
       throws IOException {
 
     Util.throwIfNullOrEmpty(providerName, "Provider name is required");
@@ -224,7 +225,7 @@ public class Client implements Serializable {
    *
    * @see #uploadAsync(InputStream, int, boolean, StorageOptions)
    */
-  public Flowable<Progress<FileLink>> uploadAsync(String path, boolean intel, StorageOptions opts) {
+  public Flowable<Progress<FileLink>> uploadAsync(String path, boolean intel, @Nullable StorageOptions opts) {
     try {
       File inputFile = Util.createReadFile(path);
       InputStream inputStream = new FileInputStream(inputFile);
@@ -269,7 +270,7 @@ public class Client implements Serializable {
    * @param opts  storage options, https://www.filestack.com/docs/rest-api/store
    */
   public Flowable<Progress<FileLink>> uploadAsync(
-      InputStream input, int size, boolean intel, StorageOptions opts) {
+      InputStream input, int size, boolean intel, @Nullable StorageOptions opts) {
     if (opts == null) {
       opts = new StorageOptions.Builder().build();
     }
@@ -307,7 +308,7 @@ public class Client implements Serializable {
    * @see #getCloudItems(String, String, String)
    */
   public Single<CloudResponse> getCloudItemsAsync(final String providerName, final String path,
-                                                     final String next) {
+                                                     @Nullable final String next) {
 
     return Single.fromCallable(new Callable<CloudResponse>() {
       @Override
@@ -333,7 +334,7 @@ public class Client implements Serializable {
    * @see #storeCloudItem(String, String, StorageOptions)
    */
   public Single<FileLink> storeCloudItemAsync(final String providerName, final String path,
-                                              final StorageOptions options) {
+                                              @Nullable final StorageOptions options) {
 
     return Single.fromCallable(new Callable<FileLink>() {
       @Override

@@ -1,5 +1,6 @@
 package com.filestack.transforms;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,7 +35,7 @@ public class TransformTask {
   /**
    * Add a key-value option pair to this task.
    */
-  public void addOption(String key, Object value) {
+  public void addOption(String key, @Nullable Object value) {
     // Passing an empty key is a mistake, shouldn't happen
     if (key == null || key.length() == 0) {
       throw new IllegalArgumentException("Task option key cannot be empty");

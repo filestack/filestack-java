@@ -4,6 +4,8 @@ import com.filestack.Config;
 import com.filestack.StorageOptions;
 import com.google.gson.JsonObject;
 
+import javax.annotation.Nullable;
+
 /**
  * Functions to help create JSON bodies for Cloud API.
  */
@@ -34,7 +36,7 @@ public class CloudServiceUtil {
   /**
    * Create the base JSON object with properties needed for all requests.
    */
-  public static JsonObject buildBaseJson(Config config, String session, String returnUrl) {
+  public static JsonObject buildBaseJson(Config config, @Nullable String session, @Nullable String returnUrl) {
 
     JsonObject json = new JsonObject();
     json.addProperty(KEY_API_KEY, config.getApiKey());
@@ -61,7 +63,7 @@ public class CloudServiceUtil {
   /**
    * Add JSON object for a cloud. For list, store, and logout requests.
    */
-  public static void addCloudJson(JsonObject base, String cloud, String path, String next) {
+  public static void addCloudJson(JsonObject base, String cloud, @Nullable String path, @Nullable String next) {
     JsonObject json = new JsonObject();
 
     if (path != null) {
