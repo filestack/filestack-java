@@ -1,5 +1,6 @@
 package com.filestack;
 
+import com.filestack.internal.BaseService;
 import com.filestack.internal.CdnService;
 import com.filestack.internal.CloudServiceUtil;
 import com.filestack.internal.Networking;
@@ -30,6 +31,7 @@ public class Client implements Serializable {
 
   private final CdnService cdnService;
   private final UploadService uploadService;
+  private final BaseService baseService;
   protected final Config config;
   
   private String sessionToken;
@@ -42,12 +44,14 @@ public class Client implements Serializable {
     this.config = config;
     this.cdnService = Networking.getCdnService();
     this.uploadService = Networking.getUploadService();
+    this.baseService = Networking.getBaseService();
   }
 
-  Client(Config config, CdnService cdnService, UploadService uploadService) {
+  Client(Config config, CdnService cdnService, BaseService baseService, UploadService uploadService) {
     this.config = config;
     this.cdnService = cdnService;
     this.uploadService = uploadService;
+    this.baseService = baseService;
   }
 
   /**
@@ -89,6 +93,14 @@ public class Client implements Serializable {
   public FileLink upload(InputStream input, int size, boolean intel, @Nullable StorageOptions opts)
       throws IOException {
     return uploadAsync(input, size, intel, opts).blockingLast().getData();
+  }
+
+  /**
+   * Acquires a reference to a {@link FileLink} based on an unique handle.
+   * @param handle - a unique reference to a file uploaded through our API
+   */
+  public FileLink fileLink(String handle) {
+    return new FileLink(config, cdnService, baseService, handle);
   }
 
   /**
@@ -187,7 +199,7 @@ public class Client implements Serializable {
     JsonElement responseJson = response.body().get(providerName);
     Gson gson = new Gson();
     CloudStoreResponse storeInfo = gson.fromJson(responseJson, CloudStoreResponse.class);
-    return new FileLink(config, cdnService, storeInfo.getHandle());
+    return new FileLink(config, cdnService, baseService, storeInfo.getHandle());
   }
 
   /**
