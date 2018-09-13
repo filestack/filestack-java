@@ -34,7 +34,10 @@ public class UploadStartFunc implements Callable<Prog> {
     StartResponse response = func.call();
 
     upload.baseParams.putAll(response.getUploadParams());
-    upload.intel = response.isIntelligent();
+
+    if (upload.intel) {
+      upload.intel = response.isIntelligent();
+    }
 
     // If we tried to enable an intelligent upload and the response came back true
     // Then the account supports it and we perform an intelligent upload
