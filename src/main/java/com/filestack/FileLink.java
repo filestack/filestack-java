@@ -20,6 +20,7 @@ import okio.BufferedSource;
 import okio.Okio;
 import retrofit2.Response;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -78,7 +79,7 @@ public class FileLink implements Serializable {
    * @throws HttpException on error response from backend
    * @throws IOException           on error creating file or network failure
    */
-  public File download(String directory, String filename) throws IOException {
+  public File download(String directory, @Nullable String filename) throws IOException {
     Response<ResponseBody> response = Networking.getCdnService()
         .get(this.handle, config.getPolicy(), config.getSignature())
         .execute();
@@ -217,7 +218,7 @@ public class FileLink implements Serializable {
    * @param avOptions    options for how ot convert the file
    * @return {@link AvTransform ImageTransform} instance configured for this file
    */
-  public AvTransform avTransform(StorageOptions storeOptions, AvTransformOptions avOptions) {
+  public AvTransform avTransform(@Nullable StorageOptions storeOptions, AvTransformOptions avOptions) {
     return new AvTransform(config, handle, storeOptions, avOptions);
   }
 
@@ -252,7 +253,7 @@ public class FileLink implements Serializable {
    *
    * @see #download(String, String)
    */
-  public Single<File> downloadAsync(final String directory, final String filename) {
+  public Single<File> downloadAsync(final String directory, @Nullable final String filename) {
     return Single.fromCallable(new Callable<File>() {
       @Override
       public File call() throws Exception {

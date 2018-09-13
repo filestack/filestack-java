@@ -9,6 +9,7 @@ import com.filestack.internal.Util;
 import com.google.gson.JsonObject;
 import io.reactivex.Single;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
@@ -25,8 +26,8 @@ public class AvTransform extends Transform {
    * @param storeOps options for how to store the converted file
    * @param avOps    options for how to convert the file
    */
-  public AvTransform(Config config, String handle, StorageOptions storeOps,
-                     AvTransformOptions avOps) {
+  public AvTransform(Config config, String handle, @Nullable StorageOptions storeOps,
+                     @Nullable AvTransformOptions avOps) {
 
     super(config, handle, false);
 

@@ -5,6 +5,7 @@ import com.filestack.transforms.TransformTask;
 import com.google.gson.JsonObject;
 import okhttp3.RequestBody;
 
+import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -95,13 +96,13 @@ public class StorageOptions implements Serializable {
     return new Builder(this);
   }
 
-  private static void addToMap(Map<String, RequestBody> map, String key, String value) {
+  private static void addToMap(Map<String, RequestBody> map, String key, @Nullable String value) {
     if (value != null) {
       map.put(key, Util.createStringPart(value));
     }
   }
 
-  private static void addToJson(JsonObject json, String key, String value) {
+  private static void addToJson(JsonObject json, String key, @Nullable String value) {
     if (value != null) {
       json.addProperty(key, value);
     }
