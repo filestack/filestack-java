@@ -1,5 +1,12 @@
 Change Log
 ==========
+Version 0.8.2 *(2018-09-13)*
+----------------------------
+  * New: Filestack Java SDK now uses `@Nullable` to annotate possibly-null parameters. We use `@ParametersAreNonnullByDefault` annotation to treat all other parameters as non-null.
+  * Change: The SDK no longer depends on Guava library. Proguard rules have been updated to include this change.
+  * Fix: Improved Proguard rules for Policy class.
+  * Fix: Removed Kotlin dependency from main jar archive
+
 Version 0.8.1 *(2018-09-10)*
 ----------------------------
 

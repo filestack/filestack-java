@@ -23,7 +23,7 @@
 
 ## Install
 ```
-compile 'com.filestack:filestack-java:0.8.0'
+compile 'com.filestack:filestack-java:0.8.2'
 ```
 
 ## Upload
