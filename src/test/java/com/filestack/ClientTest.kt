@@ -1,5 +1,6 @@
 package com.filestack
 
+import com.filestack.internal.BaseService
 import com.filestack.internal.CdnService
 import com.filestack.internal.UploadService
 import okhttp3.OkHttpClient
@@ -37,7 +38,13 @@ class ClientTest {
             .build()
             .create(UploadService::class.java)
 
-    val client = Client(config, cdnService, uploadService)
+    val baseService: BaseService = Retrofit.Builder()
+            .baseUrl(server.url("/"))
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(BaseService::class.java)
+
+    val client = Client(config, cdnService, baseService, uploadService)
 
     @Test
     fun `regular upload - single part`() {

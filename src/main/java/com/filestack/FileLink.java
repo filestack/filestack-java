@@ -1,5 +1,6 @@
 package com.filestack;
 
+import com.filestack.internal.BaseService;
 import com.filestack.internal.CdnService;
 import com.filestack.internal.Networking;
 import com.filestack.internal.Util;
@@ -35,24 +36,27 @@ public class FileLink implements Serializable {
   protected final String handle;
 
   private final CdnService cdnService;
+  private final BaseService baseService;
 
   /**
    * Basic constructor for a FileLink.
    *
-   * @deprecated FileLink objects should not be created by hand - use {@link Client} to acquire them.
-   *     This method is scheduled to be removed in version 1.0.0.
+   * @deprecated FileLink objects should not be created by hand - use {@link Client#fileLink(String)} to acquire them.
+   *     This constructor is scheduled to be removed in version 1.0.0.
    */
   @Deprecated
   public FileLink(Config config, String handle) {
     this.config = config;
     this.handle = handle;
     this.cdnService = Networking.getCdnService();
+    this.baseService = Networking.getBaseService();
   }
 
-  FileLink(Config config, CdnService cdnService, String handle) {
+  FileLink(Config config, CdnService cdnService, BaseService baseService, String handle) {
     this.config = config;
     this.handle = handle;
     this.cdnService = cdnService;
+    this.baseService = baseService;
   }
 
   /**
@@ -63,7 +67,7 @@ public class FileLink implements Serializable {
    * @throws IOException           on network failure
    */
   public ResponseBody getContent() throws IOException {
-    Response<ResponseBody> response = Networking.getCdnService()
+    Response<ResponseBody> response = cdnService
         .get(this.handle, config.getPolicy(), config.getSignature())
         .execute();
 
@@ -90,7 +94,7 @@ public class FileLink implements Serializable {
    * @throws IOException           on error creating file or network failure
    */
   public File download(String directory, @Nullable String filename) throws IOException {
-    Response<ResponseBody> response = Networking.getCdnService()
+    Response<ResponseBody> response = cdnService
         .get(this.handle, config.getPolicy(), config.getSignature())
         .execute();
 
@@ -134,7 +138,7 @@ public class FileLink implements Serializable {
     String mimeType = URLConnection.guessContentTypeFromName(file.getName());
     RequestBody body = RequestBody.create(MediaType.parse(mimeType), file);
 
-    Response response = Networking.getBaseService()
+    Response response = baseService
         .overwrite(handle, config.getPolicy(), config.getSignature(), body)
         .execute();
 
@@ -152,7 +156,7 @@ public class FileLink implements Serializable {
       throw new IllegalStateException("Security must be set in order to delete");
     }
     
-    Response response = Networking.getBaseService()
+    Response response = baseService
         .delete(handle, config.getApiKey(), config.getPolicy(), config.getSignature())
         .execute();
 
