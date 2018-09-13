@@ -1,6 +1,11 @@
 package com.filestack;
 
-import com.filestack.internal.*;
+import com.filestack.internal.CdnService;
+import com.filestack.internal.CloudServiceUtil;
+import com.filestack.internal.Networking;
+import com.filestack.internal.Upload;
+import com.filestack.internal.UploadService;
+import com.filestack.internal.Util;
 import com.filestack.internal.responses.CloudStoreResponse;
 import com.filestack.transforms.ImageTransform;
 import com.google.gson.Gson;
@@ -28,6 +33,10 @@ public class Client implements Serializable {
   
   private String sessionToken;
 
+  /**
+   * Basic constructor for Client class.
+   * @param config - configuration for this Client's instance
+   */
   public Client(Config config) {
     this.config = config;
     this.cdnService = Networking.getCdnService();

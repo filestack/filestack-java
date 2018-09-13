@@ -1,11 +1,14 @@
 package com.filestack.internal;
 
 import java.io.IOException;
+
 import okhttp3.Interceptor;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -24,6 +27,7 @@ public class TestHeaderInterceptor {
             return new Response.Builder()
                 .code(200)
                 .message("OK")
+                .body(ResponseBody.create(MediaType.get("text/plain"), "foo".getBytes()))
                 .protocol(Protocol.HTTP_1_1)
                 .request(chain.request())
                 .build();
