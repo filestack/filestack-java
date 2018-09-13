@@ -15,10 +15,11 @@ import retrofit2.mock.Calls;
 
 public class TestImageTransform {
 
+  final CdnService cdnService = Mockito.mock(CdnService.class);
+
   @Before
   public void setup() {
-    CdnService mockCdnService = Mockito.mock(CdnService.class);
-    Networking.setCdnService(mockCdnService);
+    Networking.setCdnService(cdnService);
   }
 
   @After
@@ -29,7 +30,7 @@ public class TestImageTransform {
   @Test
   public void testDebugHandle() throws Exception {
     Config config = new Config("apiKey");
-    ImageTransform transform = new ImageTransform(config, "handle", false);
+    ImageTransform transform = new ImageTransform(config, cdnService,"handle", false);
 
     Mockito
         .doReturn(Calls.response(new JsonObject()))
@@ -43,7 +44,7 @@ public class TestImageTransform {
   public void testDebugExternal() throws Exception {
     String url = "https://example.com/image.jpg";
     Config config = new Config("apiKey");
-    ImageTransform transform = new ImageTransform(config, url, true);
+    ImageTransform transform = new ImageTransform(config, cdnService,  url, true);
 
     Mockito
         .doReturn(Calls.response(new JsonObject()))
@@ -56,7 +57,7 @@ public class TestImageTransform {
   @Test
   public void testStoreHandle() throws Exception {
     Config config = new Config("apiKey");
-    ImageTransform transform = new ImageTransform(config, "handle", false);
+    ImageTransform transform = new ImageTransform(config, cdnService,"handle", false);
     String jsonString = "{'url': 'https://cdn.filestackcontent.com/handle'}";
     Gson gson = new Gson();
     StoreResponse storeResponse = gson.fromJson(jsonString, StoreResponse.class);
@@ -82,7 +83,7 @@ public class TestImageTransform {
         .transformStoreExt("apiKey", "store", url);
 
     Config config = new Config("apiKey");
-    ImageTransform transform = new ImageTransform(config, url, true);
+    ImageTransform transform = new ImageTransform(config, cdnService, url, true);
 
     Assert.assertNotNull(transform.store());
   }
@@ -90,7 +91,7 @@ public class TestImageTransform {
   @Test(expected = NullPointerException.class)
   public void testAddNullTask() throws Exception {
     Config config = new Config("apiKey");
-    ImageTransform transform = new ImageTransform(config, "handle", false);
+    ImageTransform transform = new ImageTransform(config, cdnService,"handle", false);
     transform.addTask(null);
   }
 }

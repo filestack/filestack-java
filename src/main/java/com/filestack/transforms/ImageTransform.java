@@ -4,7 +4,7 @@ import com.filestack.Config;
 import com.filestack.FileLink;
 import com.filestack.HttpException;
 import com.filestack.StorageOptions;
-import com.filestack.internal.Networking;
+import com.filestack.internal.CdnService;
 import com.filestack.internal.Util;
 import com.filestack.internal.responses.StoreResponse;
 import com.google.gson.JsonObject;
@@ -19,8 +19,11 @@ import java.util.concurrent.Callable;
  */
 public class ImageTransform extends Transform {
 
-  public ImageTransform(Config config, String source, boolean isExternal) {
+  private final CdnService cdnService;
+
+  public ImageTransform(Config config, CdnService cdnService, String source, boolean isExternal) {
     super(config, source, isExternal);
+    this.cdnService = cdnService;
   }
 
   /**
@@ -28,7 +31,7 @@ public class ImageTransform extends Transform {
    * @see <a href="https://www.filestack.com/docs/image-transformations/debug"></a>
    *
    * @return {@link JsonObject JSON} report for transformation
-   * @throws HttpException on error response from backend
+   * @throws HttpException on error response fro\m backend
    * @throws IOException           on network failure
    */
   public JsonObject debug() throws IOException {
@@ -36,11 +39,11 @@ public class ImageTransform extends Transform {
 
     Response<JsonObject> response;
     if (isExternal) {
-      response = Networking.getCdnService()
+      response = cdnService
           .transformDebugExt(config.getApiKey(), tasksString, source)
           .execute();
     } else {
-      response = Networking.getCdnService()
+      response = cdnService
           .transformDebug(tasksString, source)
           .execute();
     }
@@ -86,11 +89,11 @@ public class ImageTransform extends Transform {
     Response<StoreResponse> response;
     String tasksString = getTasksString();
     if (isExternal) {
-      response = Networking.getCdnService()
+      response = cdnService
           .transformStoreExt(config.getApiKey(), tasksString, source)
           .execute();
     } else {
-      response = Networking.getCdnService()
+      response = cdnService
           .transformStore(tasksString, source)
           .execute();
     }

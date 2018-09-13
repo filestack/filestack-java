@@ -1,5 +1,6 @@
 package com.filestack;
 
+import com.filestack.internal.CdnService;
 import com.filestack.internal.Networking;
 import com.filestack.internal.Util;
 import com.filestack.internal.responses.ImageTagResponse;
@@ -32,6 +33,8 @@ public class FileLink implements Serializable {
   protected final Config config;
   protected final String handle;
 
+  private final CdnService cdnService;
+
   /**
    * Basic constructor for a FileLink.
    *
@@ -42,6 +45,13 @@ public class FileLink implements Serializable {
   public FileLink(Config config, String handle) {
     this.config = config;
     this.handle = handle;
+    this.cdnService = Networking.getCdnService();
+  }
+
+  FileLink(Config config, CdnService cdnService, String handle) {
+    this.config = config;
+    this.handle = handle;
+    this.cdnService = cdnService;
   }
 
   /**
@@ -155,7 +165,7 @@ public class FileLink implements Serializable {
    * @return {@link ImageTransform ImageTransform} instance configured for this file
    */
   public ImageTransform imageTransform() {
-    return new ImageTransform(config, handle, false);
+    return new ImageTransform(config, cdnService, handle, false);
   }
 
   /**
@@ -171,7 +181,7 @@ public class FileLink implements Serializable {
       throw new IllegalStateException("Security must be set in order to tag an image");
     }
 
-    ImageTransform transform = new ImageTransform(config, handle, false);
+    ImageTransform transform = new ImageTransform(config, cdnService, handle, false);
     transform.addTask(new ImageTransformTask("tags"));
     JsonObject json = transform.getContentJson();
     Gson gson = new Gson();
@@ -192,7 +202,7 @@ public class FileLink implements Serializable {
       throw new IllegalStateException("Security must be set in order to tag an image");
     }
 
-    ImageTransform transform = new ImageTransform(config, handle, false);
+    ImageTransform transform = new ImageTransform(config, cdnService, handle, false);
     transform.addTask(new ImageTransformTask("sfw"));
     JsonObject json = transform.getContentJson();
 
@@ -318,6 +328,7 @@ public class FileLink implements Serializable {
     });
   }
 
+  @Deprecated
   public Config getConfig() {
     return config;
   }

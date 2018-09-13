@@ -11,9 +11,11 @@ import java.util.concurrent.Callable;
  * Handles initiating a multipart upload.
  */
 public class UploadStartFunc implements Callable<Prog> {
+  private final UploadService uploadService;
   private final Upload upload;
   
-  UploadStartFunc(Upload upload) {
+  UploadStartFunc(UploadService uploadService, Upload upload) {
+    this.uploadService = uploadService;
     this.upload = upload;
   }
 
@@ -25,9 +27,7 @@ public class UploadStartFunc implements Callable<Prog> {
     func = new RetryNetworkFunc<StartResponse>(0, 5, Upload.DELAY_BASE) {
       @Override
       Response<StartResponse> work() throws Exception {
-        return Networking.getUploadService()
-            .start(upload.baseParams)
-            .execute();
+        return uploadService.start(upload.baseParams).execute();
       }
     };
 

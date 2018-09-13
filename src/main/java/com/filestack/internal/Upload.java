@@ -26,6 +26,7 @@ public class Upload {
   private static final int INITIAL_CHUNK_SIZE = 1024 * 1024;
   private static final int MIN_CHUNK_SIZE = 32 * 1024;
 
+  private final UploadService uploadService;
   // These should never change once set
   final Config clientConf;
   final int inputSize;
@@ -43,9 +44,10 @@ public class Upload {
   private int partIndex;
 
   /** Constructs new instance. */
-  public Upload(Config clientConf, InputStream input, int inputSize, boolean intel,
+  public Upload(Config clientConf, UploadService uploadService, InputStream input, int inputSize, boolean intel,
                 StorageOptions storeOpts) {
     this.clientConf = clientConf;
+    this.uploadService = uploadService;
     this.input = input;
     this.inputSize = inputSize;
     this.intel = intel;
@@ -120,14 +122,14 @@ public class Upload {
    */
   public Flowable<Progress<FileLink>> run() {
     Flowable<Prog> startFlow = Flowable
-        .fromCallable(new UploadStartFunc(this))
+        .fromCallable(new UploadStartFunc(uploadService, this))
         .subscribeOn(Schedulers.io());
 
     // Create multiple func instances to each upload a subrange of parts from the file
     // Merge each of these together into one so they're executed concurrently
     Flowable<Prog> transferFlow = Flowable.empty();
     for (int i = 0; i < CONCURRENCY; i++) {
-      UploadTransferFunc func = new UploadTransferFunc(this);
+      UploadTransferFunc func = new UploadTransferFunc(uploadService, this);
       Flowable<Prog> temp = Flowable
           .create(func, BackpressureStrategy.BUFFER)
           .subscribeOn(Schedulers.io());
@@ -135,7 +137,7 @@ public class Upload {
     }
 
     Flowable<Prog> completeFlow = Flowable
-        .fromCallable(new UploadCompleteFunc(this))
+        .fromCallable(new UploadCompleteFunc(uploadService, this))
         .subscribeOn(Schedulers.io());
 
     return startFlow
