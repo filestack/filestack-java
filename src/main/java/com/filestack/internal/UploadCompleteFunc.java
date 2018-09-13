@@ -18,9 +18,11 @@ import java.util.concurrent.Callable;
  * will handle it like a failure and automatically retry.
  */
 public class UploadCompleteFunc implements Callable<Prog> {
-  private Upload upload;
+  private final UploadService uploadService;
+  private final Upload upload;
   
-  UploadCompleteFunc(Upload upload) {
+  UploadCompleteFunc(UploadService uploadService, Upload upload) {
+    this.uploadService = uploadService;
     this.upload = upload;
   }
   
@@ -45,9 +47,7 @@ public class UploadCompleteFunc implements Callable<Prog> {
 
       @Override
       Response<CompleteResponse> work() throws Exception {
-        return Networking.getUploadService()
-            .complete(params)
-            .execute();
+        return uploadService.complete(params).execute();
       }
     };
 

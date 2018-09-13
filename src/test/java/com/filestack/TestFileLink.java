@@ -27,11 +27,14 @@ import java.util.Map;
  */
 public class TestFileLink {
 
+  private CdnService mockCdnService;
+  private BaseService mockBaseService;
+
   /** Set networking singletons to mocks. */
   @Before
   public void setup() {
-    CdnService mockCdnService = Mockito.mock(CdnService.class);
-    BaseService mockBaseService = Mockito.mock(BaseService.class);
+    mockCdnService = Mockito.mock(CdnService.class);
+    mockBaseService = Mockito.mock(BaseService.class);
     Networking.setCdnService(mockCdnService);
     Networking.setBaseService(mockBaseService);
   }
@@ -46,7 +49,7 @@ public class TestFileLink {
   public void testGetContent() throws Exception {
     Mockito
         .doReturn(Helpers.createRawCall("text/plain", "Test content"))
-        .when(Networking.getCdnService())
+        .when(mockCdnService)
         .get("handle", null, null);
 
     Config config = new Config("apikey");
@@ -60,7 +63,7 @@ public class TestFileLink {
   public void testDownload() throws Exception {
     Mockito
         .doReturn(Helpers.createRawCall("text/plain", "Test content"))
-        .when(Networking.getCdnService())
+        .when(mockCdnService)
         .get("handle", null, null);
 
     Config config = new Config("apikey");
@@ -77,7 +80,7 @@ public class TestFileLink {
   public void testDownloadCustomFilename() throws Exception {
     Mockito
         .doReturn(Helpers.createRawCall("text/plain", "Test content"))
-        .when(Networking.getCdnService())
+        .when(mockCdnService)
         .get("handle", null, null);
 
     Config config = new Config("apikey");
@@ -99,7 +102,7 @@ public class TestFileLink {
 
     Mockito
         .doReturn(Helpers.createRawCall("application/json", ""))
-        .when(Networking.getBaseService())
+        .when(mockBaseService)
         .overwrite(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
             Mockito.any(RequestBody.class));
 
@@ -113,7 +116,7 @@ public class TestFileLink {
   public void testDelete() throws Exception {
     Mockito
         .doReturn(Helpers.createRawCall("application/json", ""))
-        .when(Networking.getBaseService())
+        .when(mockBaseService)
         .delete("handle", "apiKey", "policy", "signature");
 
     Config config = new Config("apiKey", "policy", "signature");
@@ -165,7 +168,7 @@ public class TestFileLink {
 
     Mockito
         .doReturn(Helpers.createRawCall("application/json", jsonString))
-        .when(Networking.getCdnService())
+        .when(mockCdnService)
         .transform(tasksString, "handle");
 
     Config config = new Config("apiKey", "policy", "signature");
@@ -194,7 +197,7 @@ public class TestFileLink {
         return Calls.response(ResponseBody.create(mediaType, json));
       }
     })
-        .when(Networking.getCdnService())
+        .when(mockCdnService)
         .transform(Mockito.anyString(), Mockito.anyString());
 
     Config config = new Config("apiKey", "policy", "signature");

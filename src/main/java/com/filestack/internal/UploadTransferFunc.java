@@ -19,11 +19,13 @@ import java.util.Map;
  * Different instances are not assigned to section of the file, instead we synchronize reads.
  */
 public class UploadTransferFunc implements FlowableOnSubscribe<Prog> {
+  private final UploadService uploadService;
+  private final Upload upload;
   private FlowableEmitter<Prog> emitter;
-  private Upload upload;
   private PartContainer container;
 
-  UploadTransferFunc(Upload upload) {
+  UploadTransferFunc(UploadService uploadService, Upload upload) {
+    this.uploadService = uploadService;
     this.upload = upload;
   }
 
@@ -61,7 +63,7 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog> {
     func = new RetryNetworkFunc<UploadResponse>(5, 5, Upload.DELAY_BASE) {
       @Override
       Response<UploadResponse> work() throws Exception {
-        return Networking.getUploadService().upload(params).execute();
+        return uploadService.upload(params).execute();
       }
     };
 
@@ -95,7 +97,7 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog> {
 
         RequestBody body;
         body = RequestBody.create(upload.mediaType, container.data, container.sent, size);
-        return Networking.getUploadService().uploadS3(headers, url, body).execute();
+        return uploadService.uploadS3(headers, url, body).execute();
       }
 
       @Override
@@ -130,7 +132,7 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog> {
     func = new RetryNetworkFunc<ResponseBody>(5, 5, Upload.DELAY_BASE) {
       @Override
       Response<ResponseBody> work() throws Exception {
-        return Networking.getUploadService().commit(params).execute();
+        return uploadService.commit(params).execute();
       }
     };
 

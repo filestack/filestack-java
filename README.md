@@ -130,32 +130,15 @@ The auth state in the local session does not connect to the authorization state 
 Users complete the OAuth flow (aka login to their clouds) in a browser, and the browser state can cause confusion. For example if a user logs into a cloud they previously logged out of, the OAuth flow may work differently because they've already logged in within the browser, and have already authorized Filestack to that cloud.
 
 ## Running Tests and Linting
-The project contains both unit and integration tests. In this case "integration" tests are tests that send real requests to the Filestack service. Both sets of tests can be run through Gradle.
-
-To run unit tests:
+To run tests:
 ```shell
 ./gradlew test
 ```
 
-The integration tests need "API_KEY", "POLICY", and "SIGNATURE" environment variables to be set. Assets created for the tests are cleaned up automatically, but there's potential for leftovers if something fails. To run:
-```shell
-export API_KEY=''
-export POLICY=''
-export SIGNATURE=''
-./gradlew integTest
-```
-
-You can also setup IntelliJ run configs for convenience while developing. A config for the unit tests has been included, but you'll have to create one for the integration tests because of the sensitive environment variables.
-
 The project also has Checkstyle setup for code linting. The config is at `config/checkstyle/checkstyle.xml`. To run:
 ```shell
 ./gradlew check # Runs linter and unit tests
-./gradlew checkstyleMain # Runs linter on individual package without tests
-./gradlew checkstyleTest
-./gradlew checkstyleIntegTest
 ```
-
-These tests are also configured to run automatically in Travis. Unit tests are run for every commit, and integration tests are run for pull requests. Integration tests won't run for pull requests from forks.
 
 ## Proguard
 If you are using Proguard, please include entries from [this file](src/main/resources/META-INF/proguard/filestack.pro) in your Proguard configuration file.

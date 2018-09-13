@@ -1,8 +1,10 @@
 package com.filestack;
 
+import com.filestack.internal.CdnService;
 import com.filestack.internal.CloudServiceUtil;
 import com.filestack.internal.Networking;
 import com.filestack.internal.Upload;
+import com.filestack.internal.UploadService;
 import com.filestack.internal.Util;
 import com.filestack.internal.responses.CloudStoreResponse;
 import com.filestack.transforms.ImageTransform;
@@ -24,12 +26,27 @@ import java.util.concurrent.Callable;
 
 /** Uploads new files. */
 public class Client implements Serializable {
+
+  private final CdnService cdnService;
+  private final UploadService uploadService;
   protected final Config config;
   
   private String sessionToken;
 
+  /**
+   * Basic constructor for Client class.
+   * @param config - configuration for this Client's instance
+   */
   public Client(Config config) {
     this.config = config;
+    this.cdnService = Networking.getCdnService();
+    this.uploadService = Networking.getUploadService();
+  }
+
+  Client(Config config, CdnService cdnService, UploadService uploadService) {
+    this.config = config;
+    this.cdnService = cdnService;
+    this.uploadService = uploadService;
   }
 
   /**
@@ -169,7 +186,7 @@ public class Client implements Serializable {
     JsonElement responseJson = response.body().get(providerName);
     Gson gson = new Gson();
     CloudStoreResponse storeInfo = gson.fromJson(responseJson, CloudStoreResponse.class);
-    return new FileLink(config, storeInfo.getHandle());
+    return new FileLink(config, cdnService, storeInfo.getHandle());
   }
 
   /**
@@ -257,7 +274,7 @@ public class Client implements Serializable {
       opts = new StorageOptions.Builder().build();
     }
 
-    Upload upload = new Upload(config, input, size, intel, opts);
+    Upload upload = new Upload(config, uploadService, input, size, intel, opts);
     return upload.run();
   }
 
@@ -347,7 +364,7 @@ public class Client implements Serializable {
    * @return {@link ImageTransform ImageTransform} instance configured for this file
    */
   public ImageTransform imageTransform(String url) {
-    return new ImageTransform(config, url, true);
+    return new ImageTransform(config, cdnService, url, true);
   }
 
   protected static String guessContentType(String path) {

@@ -1,10 +1,10 @@
 package com.filestack.internal;
 
-import java.util.concurrent.TimeUnit;
-
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Holds {@link OkHttpClient} and {@link Retrofit} singletons.
@@ -29,11 +29,6 @@ public final class Networking {
           .build();
     }
     return httpClient;
-  }
-
-  public static void setHttpClient(OkHttpClient httpClient) {
-    Networking.httpClient = httpClient;
-    invalidateServices();
   }
 
   /**
