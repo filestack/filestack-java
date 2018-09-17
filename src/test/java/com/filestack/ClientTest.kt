@@ -1,19 +1,18 @@
 package com.filestack
 
-import com.filestack.internal.BaseService
-import com.filestack.internal.CdnService
-import com.filestack.internal.UploadService
+import com.filestack.internal.NetworkClient
+import com.filestack.internal.TestServiceFactory.Companion.baseService
+import com.filestack.internal.TestServiceFactory.Companion.cdnService
+import com.filestack.internal.TestServiceFactory.Companion.cloudService
+import com.filestack.internal.TestServiceFactory.Companion.uploadService
+import com.google.gson.Gson
 import okhttp3.OkHttpClient
-import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import java.util.concurrent.TimeUnit
 
 private const val UPLOAD_ID = "iacwRXloJVbO78XMR7vQqiiKJRIr2.geEepw4aUG"
 private const val API_KEY = "iowjr230942nn2"
@@ -24,27 +23,18 @@ class ClientTest {
     @get:Rule
     val server = MockWebServer()
 
+    val okHttpClient = OkHttpClient.Builder().build()
+
+    val gson = Gson()
+
+    val networkClient = NetworkClient(okHttpClient, gson)
+    val cdnService = cdnService(networkClient, server.url("/"))
+    val baseService = baseService(networkClient, server.url("/"))
+    val uploadService = uploadService(networkClient, server.url("/"))
+    val cloudService = cloudService(networkClient, gson, server.url("/"))
+
     val config = Config(API_KEY, "policy", "signature")
-
-    val cdnService: CdnService = Retrofit.Builder()
-            .baseUrl(server.url("/"))
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(CdnService::class.java)
-
-    val uploadService: UploadService = Retrofit.Builder()
-            .baseUrl(server.url("/"))
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(UploadService::class.java)
-
-    val baseService: BaseService = Retrofit.Builder()
-            .baseUrl(server.url("/"))
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(BaseService::class.java)
-
-    val client = Client(config, cdnService, baseService, uploadService)
+    val client = Client(config, cdnService, baseService, uploadService, cloudService)
 
     @Test
     fun `regular upload - single part`() {
@@ -59,7 +49,7 @@ class ClientTest {
                 }"""))
 
         server.enqueue(MockResponse().setBody("""{
-                    "url": "/s3_upload_url",
+                    "url": "${server.url("/s3_upload_url")}",
                     "headers": {
                         "Authorization": "s3_authorization_token",
                         "Content-Md5": "KSiCLGZTaJerQ9kDUi8zCg==",
@@ -170,7 +160,7 @@ class ClientTest {
             private fun uploadResponse(request: RecordedRequest): MockResponse {
                 val part = request.bodyParams()["part"]
                 return MockResponse().setBody("""{
-                          "url": "s3_upload_url?partNumber=$part\u0026uploadId=upload_id_for_part_$part",
+                          "url": "${server.url("/s3_upload_url")}?partNumber=$part\u0026uploadId=upload_id_for_part_$part",
                           "headers": {
                             "Authorization": "s3_authorization_token",
                             "Content-Md5": "Hp1M87g6X56soslQBkSlhQ==",

@@ -2,44 +2,34 @@ package com.filestack.transforms;
 
 import com.filestack.Config;
 import com.filestack.FileLink;
-import com.filestack.Helpers;
 import com.filestack.StorageOptions;
+import com.filestack.internal.BaseService;
 import com.filestack.internal.CdnService;
-import com.filestack.internal.Networking;
+import com.filestack.internal.MockResponse;
 import com.filestack.transforms.tasks.AvTransformOptions;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import retrofit2.Call;
-import retrofit2.mock.Calls;
 
 import java.io.IOException;
 
+import static com.filestack.UtilsKt.fileLink;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class TestAvTransform {
 
-  /** Set networking singletons to mocks. */
-  @Before
-  public void setup() {
-    CdnService mockCdnService = Mockito.mock(CdnService.class);
-    Networking.setCdnService(mockCdnService);
-  }
 
-  /** Invalidate networking singletons. */
-  @After
-  public void teardown() {
-    Networking.invalidate();
-  }
+  CdnService cdnService = mock(CdnService.class);
+  BaseService baseService = mock(BaseService.class);
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorException() {
     Config config = new Config("apiKey");
-    AvTransform transform = new AvTransform(config, "handle", null, null);
+    AvTransform transform = new AvTransform(cdnService, config, "handle", null, null);
   }
 
   @Test
@@ -49,7 +39,7 @@ public class TestAvTransform {
         .build();
 
     Config config = new Config("apiKey");
-    TransformTask task = new AvTransform(config, "handle", null, avOpts).tasks.get(0);
+    TransformTask task = new AvTransform(cdnService, config, "handle", null, avOpts).tasks.get(0);
 
     Assert.assertEquals("video_convert=preset:mp4", task.toString());
   }
@@ -65,30 +55,42 @@ public class TestAvTransform {
         .build();
 
     Config config = new Config("apiKey");
-    TransformTask task = new AvTransform(config, "handle", storeOpts, avOpts).tasks.get(0);
+    TransformTask task = new AvTransform(cdnService, config, "handle", storeOpts, avOpts).tasks.get(0);
 
     Assert.assertEquals("video_convert=container:some-bucket,preset:mp4", task.toString());
   }
 
   @Test
   public void testGetFilelink() throws Exception {
-    Mockito
-        .doAnswer(new Answer() {
-          @Override
-          public Call<ResponseBody> answer(InvocationOnMock invocation) throws Throwable {
-            boolean ready = invocation.getArgument(1).equals("ready");
-            String json = "{'status':" + (ready ? "'completed'" : "'pending'") + ","
-                + "'data': {'url': 'https://cdn.filestackcontent.com/handle'}}";
-            MediaType mediaType = MediaType.parse("application/json");
-            return Calls.response(ResponseBody.create(mediaType, json));
-          }
-        })
-        .when(Networking.getCdnService())
-        .transform(Mockito.anyString(), Mockito.anyString());
+    ResponseBody readyBody = ResponseBody.create(
+        MediaType.get("application/json"),
+        "{\n" +
+            "  \"status\": \"completed\",\n" +
+            "  \"data\": {\n" +
+            "    \"url\": \"https://cdn.filestackcontent.com/handle\"\n" +
+            "  }\n" +
+            "}"
+    );
+
+    ResponseBody notReadyBody = ResponseBody.create(
+        MediaType.get("application/json"),
+        "{\n" +
+            "  \"status\": \"pending\",\n" +
+            "  \"data\": {\n" +
+            "    \"url\": \"https://cdn.filestackcontent.com/handle\"\n" +
+            "  }\n" +
+            "}"
+    );
+
+    when(cdnService.transform(anyString(), eq("pending")))
+        .thenReturn(MockResponse.<ResponseBody>success(notReadyBody));
+
+    when(cdnService.transform(anyString(), eq("ready")))
+        .thenReturn(MockResponse.<ResponseBody>success(readyBody));
 
     Config config = new Config("apiKey");
-    FileLink ready = new FileLink(config, "ready");
-    FileLink pending = new FileLink(config, "pending");
+    FileLink ready = fileLink(config, cdnService, baseService, "ready");
+    FileLink pending = fileLink(config, cdnService, baseService, "pending");
 
     AvTransformOptions avOptions = new AvTransformOptions.Builder().preset("mp4").build();
 
@@ -99,13 +101,17 @@ public class TestAvTransform {
 
   @Test(expected = IOException.class)
   public void testGetFilelinkFail() throws Exception {
-    Mockito
-        .doReturn(Helpers.createRawCall("application/json", "{'status':'failed'}"))
-        .when(Networking.getCdnService())
-        .transform("video_convert=preset:mp4", "handle");
+
+    ResponseBody body = ResponseBody.create(
+        MediaType.get("application/json"),
+        "{'status':'failed'}"
+    );
+
+    when(cdnService.transform("video_convert=preset:mp4", "handle"))
+        .thenReturn(MockResponse.<ResponseBody>success(body));
 
     Config config = new Config("apiKey");
-    FileLink fileLink = new FileLink(config, "handle");
+    FileLink fileLink = fileLink(config, cdnService, baseService, "handle");
 
     AvTransformOptions avOptions = new AvTransformOptions.Builder().preset("mp4").build();
 

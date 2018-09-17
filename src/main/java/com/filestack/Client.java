@@ -2,8 +2,10 @@ package com.filestack;
 
 import com.filestack.internal.BaseService;
 import com.filestack.internal.CdnService;
+import com.filestack.internal.CloudService;
 import com.filestack.internal.CloudServiceUtil;
 import com.filestack.internal.Networking;
+import com.filestack.internal.Response;
 import com.filestack.internal.Upload;
 import com.filestack.internal.UploadService;
 import com.filestack.internal.Util;
@@ -16,7 +18,7 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.functions.Action;
-import retrofit2.Response;
+import okhttp3.ResponseBody;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -32,6 +34,7 @@ public class Client implements Serializable {
   private final CdnService cdnService;
   private final UploadService uploadService;
   private final BaseService baseService;
+  private final CloudService cloudService;
   protected final Config config;
   
   private String sessionToken;
@@ -45,13 +48,16 @@ public class Client implements Serializable {
     this.cdnService = Networking.getCdnService();
     this.uploadService = Networking.getUploadService();
     this.baseService = Networking.getBaseService();
+    this.cloudService = Networking.getCloudService();
   }
 
-  Client(Config config, CdnService cdnService, BaseService baseService, UploadService uploadService) {
+  Client(Config config, CdnService cdnService, BaseService baseService, UploadService uploadService,
+         CloudService cloudService) {
     this.config = config;
     this.cdnService = cdnService;
     this.uploadService = uploadService;
     this.baseService = baseService;
+    this.cloudService = cloudService;
   }
 
   /**
@@ -111,9 +117,9 @@ public class Client implements Serializable {
    */
   public AppInfo getAppInfo() throws IOException {
     JsonObject params = CloudServiceUtil.buildBaseJson(config, null);
-    Response<AppInfo> response = Networking.getCloudService().prefetch(params).execute();
+    Response<AppInfo> response = cloudService.prefetch(params);
     Util.checkResponseAndThrow(response);
-    return response.body();
+    return response.getData();
   }
 
   /**
@@ -144,9 +150,9 @@ public class Client implements Serializable {
 
     JsonObject params = CloudServiceUtil.buildBaseJson(config, sessionToken);
     CloudServiceUtil.addCloudJson(params, providerName, path, next);
-    Response<JsonObject> response = Networking.getCloudService().list(params).execute();
+    Response<JsonObject> response = cloudService.list(params);
     Util.checkResponseAndThrow(response);
-    JsonObject base = response.body();
+    JsonObject base = response.getData();
 
     if (base.has("token")) {
       sessionToken = base.get("token").getAsString();
@@ -190,13 +196,13 @@ public class Client implements Serializable {
       options = new StorageOptions.Builder().build();
     }
 
-    JsonObject params = CloudServiceUtil.buildBaseJson(config, sessionToken);
+    JsonObject params = CloudServiceUtil.buildBaseJson(config, sessionToken, config.returnUrl);
     CloudServiceUtil.addCloudJson(params, providerName, path, null);
     CloudServiceUtil.addStorageJson(params, providerName, options);
     params.add("store", options.getAsJson());
-    Response<JsonObject> response = Networking.getCloudService().store(params).execute();
+    Response<JsonObject> response = cloudService.store(params);
     Util.checkResponseAndThrow(response);
-    JsonElement responseJson = response.body().get(providerName);
+    JsonElement responseJson = response.getData().get(providerName);
     Gson gson = new Gson();
     CloudStoreResponse storeInfo = gson.fromJson(responseJson, CloudStoreResponse.class);
     return new FileLink(config, cdnService, baseService, storeInfo.getHandle());
@@ -215,7 +221,7 @@ public class Client implements Serializable {
 
     JsonObject params = CloudServiceUtil.buildBaseJson(config, sessionToken);
     CloudServiceUtil.addCloudJson(params, providerName, null, null);
-    Response response = Networking.getCloudService().logout(params).execute();
+    Response<ResponseBody> response = cloudService.logout(params);
     Util.checkResponseAndThrow(response);
   }
 

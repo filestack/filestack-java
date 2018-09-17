@@ -1,16 +1,14 @@
 package com.filestack.internal;
 
 import com.filestack.HttpException;
-import java.io.IOException;
-import okhttp3.MediaType;
-import okhttp3.Protocol;
-import okhttp3.Request;
-import okhttp3.ResponseBody;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import retrofit2.Response;
+
+import java.io.IOException;
+
+import static com.filestack.UtilsKt.mockOkHttpResponse;
 
 public class TestRetryNetworkFunc {
 
@@ -22,7 +20,7 @@ public class TestRetryNetworkFunc {
     RetryNetworkFunc retryNetworkFunc = new RetryNetworkFunc<Void>(1, 0, 0) {
 
       @Override
-      Response work() throws Exception {
+      Response<Void> work() throws Exception {
         throw new IOException();
       }
     };
@@ -36,9 +34,8 @@ public class TestRetryNetworkFunc {
     RetryNetworkFunc retryNetworkFunc = new RetryNetworkFunc<Void>(0, 1, 0) {
 
       @Override
-      Response work() throws Exception {
-        MediaType mediaType = MediaType.parse("text/plain");
-        return Response.error(500, ResponseBody.create(mediaType, "test"));
+      Response<Void> work() throws Exception {
+        return Response.error(mockOkHttpResponse(500));
       }
     };
 
@@ -51,19 +48,8 @@ public class TestRetryNetworkFunc {
     RetryNetworkFunc retryNetworkFunc = new RetryNetworkFunc<Void>(0, 1, 0) {
 
       @Override
-      Response work() throws Exception {
-        MediaType mediaType = MediaType.parse("text/plain");
-        Request request = new Request.Builder()
-            .url("https://example.com")
-            .build();
-        ResponseBody responseBody = ResponseBody.create(mediaType, "test");
-        okhttp3.Response rawResponse = new okhttp3.Response.Builder()
-            .request(request)
-            .protocol(Protocol.HTTP_1_1)
-            .code(206)
-            .message("Partial Content")
-            .build();
-        return Response.success(responseBody, rawResponse);
+      Response<Void> work() throws Exception {
+        return Response.error(mockOkHttpResponse(206));
       }
     };
 
@@ -76,9 +62,8 @@ public class TestRetryNetworkFunc {
     RetryNetworkFunc retryNetworkFunc = new RetryNetworkFunc<Void>(0, 1, 0) {
 
       @Override
-      Response work() throws Exception {
-        MediaType mediaType = MediaType.parse("text/plain");
-        return Response.error(400, ResponseBody.create(mediaType, "test"));
+      Response<Void> work() throws Exception {
+        return Response.error(mockOkHttpResponse(400));
       }
     };
 
@@ -91,9 +76,8 @@ public class TestRetryNetworkFunc {
     RetryNetworkFunc retryNetworkFunc = new RetryNetworkFunc<Void>(0, 1, 0) {
 
       @Override
-      Response work() throws Exception {
-        MediaType mediaType = MediaType.parse("text/plain");
-        return Response.error(403, ResponseBody.create(mediaType, "test"));
+      Response<Void> work() throws Exception {
+        return Response.error(mockOkHttpResponse(403));
       }
     };
 
@@ -106,7 +90,7 @@ public class TestRetryNetworkFunc {
     RetryNetworkFunc retryNetworkFunc = new RetryNetworkFunc<Void>(5, 5, 0) {
 
       @Override
-      Response work() throws Exception {
+      Response<Void> work() throws Exception {
         throw new IOException();
       }
     };
@@ -123,9 +107,8 @@ public class TestRetryNetworkFunc {
     RetryNetworkFunc retryNetworkFunc = new RetryNetworkFunc<Void>(5, 5, 0) {
 
       @Override
-      Response work() throws Exception {
-        MediaType mediaType = MediaType.parse("text/plain");
-        return Response.error(500, ResponseBody.create(mediaType, "test"));
+      Response<Void> work() throws Exception {
+        return Response.error(mockOkHttpResponse(500));
       }
     };
 

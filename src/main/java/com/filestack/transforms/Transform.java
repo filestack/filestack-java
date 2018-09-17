@@ -3,14 +3,14 @@ package com.filestack.transforms;
 import com.filestack.Config;
 import com.filestack.FileLink;
 import com.filestack.HttpException;
-import com.filestack.internal.Networking;
+import com.filestack.internal.CdnService;
+import com.filestack.internal.Response;
 import com.filestack.internal.Util;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.reactivex.Single;
 import okhttp3.HttpUrl;
 import okhttp3.ResponseBody;
-import retrofit2.Response;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,12 +21,14 @@ import java.util.concurrent.Callable;
  */
 public class Transform {
   protected final Config config;
+  protected final CdnService cdnService;
   protected final String source;
   protected final boolean isExternal;
 
   protected final ArrayList<TransformTask> tasks = new ArrayList<>();
 
-  protected Transform(Config config, String source, boolean isExternal) {
+  protected Transform(CdnService cdnService, Config config, String source, boolean isExternal) {
+    this.cdnService = cdnService;
     this.config = config;
     this.source = source;
     this.isExternal = isExternal;
@@ -66,15 +68,9 @@ public class Transform {
     HttpUrl httpUrl;
 
     if (isExternal) {
-      httpUrl = Networking.getCdnService()
-          .transformExt(config.getApiKey(), tasksString, source)
-          .request()
-          .url();
+      httpUrl = cdnService.transformExtUrl(config.getApiKey(), tasksString, source);
     } else {
-      httpUrl = Networking.getCdnService()
-          .transform(tasksString, source)
-          .request()
-          .url();
+      httpUrl = cdnService.transformUrl(tasksString, source);
     }
 
     // When building the request we add a / between tasks
@@ -95,18 +91,13 @@ public class Transform {
     Response<ResponseBody> response;
 
     if (isExternal) {
-      response = Networking.getCdnService()
-          .transformExt(config.getApiKey(), tasksString, source)
-          .execute();
+      response = cdnService.transformExt(config.getApiKey(), tasksString, source);
     } else {
-      response = Networking.getCdnService()
-          .transform(tasksString, source)
-          .execute();
+      response = cdnService.transform(tasksString, source);
     }
 
     Util.checkResponseAndThrow(response);
-
-    return response.body();
+    return response.getData();
   }
 
   /**

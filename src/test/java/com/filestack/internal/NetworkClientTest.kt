@@ -55,7 +55,7 @@ class NetworkClientTest {
     fun `does not catch JsonParseExceptions`() {
         server.enqueue(MockResponse().setBody("-1_not_a_json"))
 
-        val result = networkClient.call(request, Foo::class.java)
+        networkClient.call(request, Foo::class.java)
     }
 
     private class Foo(val text: String, val number: Int)

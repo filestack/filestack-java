@@ -1,19 +1,16 @@
 package com.filestack.internal;
 
 import com.filestack.HttpException;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import okhttp3.MediaType;
-import okhttp3.ResponseBody;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import retrofit2.Response;
 
-import static org.junit.Assert.assertTrue;
+import static com.filestack.UtilsKt.mockOkHttpResponse;
+import static org.junit.Assert.*;
 
 public class TestUtil extends Util {
 
@@ -24,17 +21,16 @@ public class TestUtil extends Util {
   public void testCheckResponseAndThrow() {
     int code = 400;
     String message = "Error message...";
-    MediaType mediaType = MediaType.parse("text/plain");
-    Response response = Response.error(code, ResponseBody.create(mediaType, message));
+    Response<Void> response = Response.error(mockOkHttpResponse(400, message));
 
     try {
       Util.checkResponseAndThrow(response);
-      Assert.fail("Should have thrown exception");
+      fail("Should have thrown exception");
     } catch (HttpException e) {
-      Assert.assertEquals(code, e.getCode());
-      Assert.assertEquals(message, e.getMessage());
+      assertEquals(code, e.getCode());
+      assertEquals(message, e.getMessage());
     } catch (IOException e) {
-      Assert.fail("Threw wrong exception");
+      fail("Threw wrong exception");
     }
   }
 
@@ -42,7 +38,7 @@ public class TestUtil extends Util {
   public void testCreateWriteFileSuccess() throws Exception {
     File file = Util.createWriteFile("/tmp/filestack_test_create_write_file.txt");
     if (!file.delete()) {
-      Assert.fail("Unable to cleanup file");
+      fail("Unable to cleanup file");
     }
   }
 

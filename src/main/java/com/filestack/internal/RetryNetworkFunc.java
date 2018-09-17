@@ -1,7 +1,5 @@
 package com.filestack.internal;
 
-import retrofit2.Response;
-
 /**
  * Abstract class to generalize retry logic of a network call.
  *
@@ -33,15 +31,15 @@ public abstract class RetryNetworkFunc<T> {
   /** Start the request. */
   public T call() throws Exception {
 
-    Response response = run();
+    Response<T> response = run();
     return process(response);
   }
 
   /**
    * Orchestrates calling {@link #work()} and retrying on failure.
    */
-  Response run() throws Exception {
-    Response response = null;
+  private Response<T> run() throws Exception {
+    Response<T> response = null;
     Exception exception = null;
 
     while (networkRetries <= maxNetworkRetries && serverRetries <= maxServerRetries) {
@@ -71,12 +69,11 @@ public abstract class RetryNetworkFunc<T> {
   }
 
   /** Contains the actual network call. */
-  abstract Response work() throws Exception;
+  abstract Response<T> work() throws Exception;
 
   /** Process the response to get a return value. */
-  @SuppressWarnings("unchecked")
-  T process(Response response) throws Exception {
-    return (T) response.body();
+  T process(Response<T> response) {
+    return response.getData();
   }
 
   /** Called for network failures. */

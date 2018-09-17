@@ -5,11 +5,11 @@ import com.filestack.FileLink;
 import com.filestack.HttpException;
 import com.filestack.StorageOptions;
 import com.filestack.internal.CdnService;
+import com.filestack.internal.Response;
 import com.filestack.internal.Util;
 import com.filestack.internal.responses.StoreResponse;
 import com.google.gson.JsonObject;
 import io.reactivex.Single;
-import retrofit2.Response;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -20,11 +20,8 @@ import java.util.concurrent.Callable;
  */
 public class ImageTransform extends Transform {
 
-  private final CdnService cdnService;
-
   public ImageTransform(Config config, CdnService cdnService, String source, boolean isExternal) {
-    super(config, source, isExternal);
-    this.cdnService = cdnService;
+    super(cdnService, config, source, isExternal);
   }
 
   /**
@@ -40,18 +37,14 @@ public class ImageTransform extends Transform {
 
     Response<JsonObject> response;
     if (isExternal) {
-      response = cdnService
-          .transformDebugExt(config.getApiKey(), tasksString, source)
-          .execute();
+      response = cdnService.transformDebugExt(config.getApiKey(), tasksString, source);
     } else {
-      response = cdnService
-          .transformDebug(tasksString, source)
-          .execute();
+      response = cdnService.transformDebug(tasksString, source);
     }
 
     Util.checkResponseAndThrow(response);
 
-    JsonObject body = response.body();
+    JsonObject body = response.getData();
     if (body == null) {
       throw new IOException();
     }
@@ -90,18 +83,14 @@ public class ImageTransform extends Transform {
     Response<StoreResponse> response;
     String tasksString = getTasksString();
     if (isExternal) {
-      response = cdnService
-          .transformStoreExt(config.getApiKey(), tasksString, source)
-          .execute();
+      response = cdnService.transformStoreExt(config.getApiKey(), tasksString, source);
     } else {
-      response = cdnService
-          .transformStore(tasksString, source)
-          .execute();
+      response = cdnService.transformStore(tasksString, source);
     }
 
     Util.checkResponseAndThrow(response);
 
-    StoreResponse body = response.body();
+    StoreResponse body = response.getData();
     if (body == null) {
       throw new IOException();
     }

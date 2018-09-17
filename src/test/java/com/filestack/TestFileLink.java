@@ -2,27 +2,19 @@ package com.filestack;
 
 import com.filestack.internal.BaseService;
 import com.filestack.internal.CdnService;
-import com.filestack.internal.Networking;
+import com.filestack.internal.MockResponse;
 import okhttp3.MediaType;
-import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import okio.Okio;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import retrofit2.Call;
-import retrofit2.mock.Calls;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.any;
+import static com.filestack.internal.MockResponse.success;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,17 +26,15 @@ public class TestFileLink {
   private CdnService cdnService = mock(CdnService.class);
   private BaseService baseService = mock(BaseService.class);
 
-  /** Set networking singletons to mocks. */
-  @Before
-  public void setup() {
-    Networking.setCdnService(cdnService);
-    Networking.setBaseService(baseService);
-  }
-
   @Test
   public void testGetContent() throws Exception {
+    ResponseBody responseBody = ResponseBody.create(
+        MediaType.get("text/plain"),
+        "Test content"
+    );
+
     when(cdnService.get("handle", null, null))
-            .thenReturn(Helpers.createRawCall("text/plain", "Test content"));
+        .thenReturn(MockResponse.<ResponseBody>success(responseBody));
 
     Config config = new Config("apikey");
     FileLink fileLink = new FileLink(config, cdnService, baseService, "handle");
@@ -55,8 +45,13 @@ public class TestFileLink {
 
   @Test
   public void testDownload() throws Exception {
+    ResponseBody responseBody = ResponseBody.create(
+        MediaType.get("text/plain"),
+        "Test content"
+    );
+
     when(cdnService.get("handle", null, null))
-            .thenReturn(Helpers.createRawCall("text/plain", "Test content"));
+        .thenReturn(MockResponse.<ResponseBody>success(responseBody));
 
     Config config = new Config("apikey");
     FileLink fileLink = new FileLink(config, cdnService, baseService, "handle");
@@ -70,8 +65,13 @@ public class TestFileLink {
 
   @Test
   public void testDownloadCustomFilename() throws Exception {
+    ResponseBody responseBody = ResponseBody.create(
+        MediaType.get("text/plain"),
+        "Test content"
+    );
+
     when(cdnService.get("handle", null, null))
-            .thenReturn(Helpers.createRawCall("text/plain", "Test content"));
+        .thenReturn(MockResponse.<ResponseBody>success(responseBody));
 
     Config config = new Config("apikey");
     FileLink fileLink = new FileLink(config, cdnService, baseService, "handle");
@@ -81,33 +81,6 @@ public class TestFileLink {
     if (!file.delete()) {
       Assert.fail("Unable to cleanup resource");
     }
-  }
-
-  @Test
-  public void testOverwrite() throws Exception {
-    File file = File.createTempFile("filestack", ".txt");
-    file.deleteOnExit();
-
-    Okio.buffer(Okio.sink(file)).writeUtf8("Test content").close();
-
-    when(baseService.overwrite(anyString(), anyString(), anyString(), any(RequestBody.class)))
-            .thenReturn(Helpers.createRawCall("application/json", ""));
-
-    Config config = new Config("apiKey", "policy", "signature");
-    FileLink fileLink = new FileLink(config, cdnService, baseService, "handle");
-
-    fileLink.overwrite(file.getAbsolutePath());
-  }
-
-  @Test
-  public void testDelete() throws Exception {
-    when(baseService.delete("handle", "apiKey", "policy", "signature"))
-            .thenReturn(Helpers.createRawCall("application/json", ""));
-
-    Config config = new Config("apiKey", "policy", "signature");
-    FileLink fileLink = new FileLink(config, cdnService, baseService, "handle");
-
-    fileLink.delete();
   }
 
   @Test(expected = IllegalStateException.class)
@@ -151,8 +124,13 @@ public class TestFileLink {
 
     String tasksString = "security=policy:policy,signature:signature/tags";
 
+    ResponseBody responseBody = ResponseBody.create(
+        MediaType.get("application/json"),
+        jsonString
+    );
+
     when(cdnService.transform(tasksString, "handle"))
-            .thenReturn(Helpers.createRawCall("application/json", jsonString));
+        .thenReturn(success(responseBody));
 
     Config config = new Config("apiKey", "policy", "signature");
     FileLink fileLink = new FileLink(config, cdnService, baseService, "handle");
@@ -171,22 +149,27 @@ public class TestFileLink {
 
   @Test
   public void testImageSfw() throws Exception {
-    when(cdnService.transform(anyString(), anyString()))
-            .thenAnswer(new Answer() {
-              @Override
-              public Call<ResponseBody> answer(InvocationOnMock invocation) {
-                String handle = invocation.getArgument(1);
-                String json = "{'sfw': " + (handle.equals("safe") ? "true" : "false") + "}";
-                MediaType mediaType = MediaType.parse("application/json");
-                return Calls.response(ResponseBody.create(mediaType, json));
-              }
-            });
+    ResponseBody safeBody = ResponseBody.create(
+        MediaType.get("application/json"),
+        "{ \"sfw\": true }"
+    );
+
+    ResponseBody notSafeBody = ResponseBody.create(
+        MediaType.get("application/json"),
+        "{ \"sfw\": false }"
+    );
+
+    when(cdnService.transform(anyString(), eq("safe")))
+        .thenReturn(MockResponse.<ResponseBody>success(safeBody));
+
+    when(cdnService.transform(anyString(), eq("notSafe")))
+        .thenReturn(MockResponse.<ResponseBody>success(notSafeBody));
 
 
     Config config = new Config("apiKey", "policy", "signature");
 
-    FileLink safe = new FileLink(config, "safe");
-    FileLink notSafe = new FileLink(config, "notSafe");
+    FileLink safe = new FileLink(config, cdnService, baseService, "safe");
+    FileLink notSafe = new FileLink(config, cdnService, baseService, "notSafe");
 
     Assert.assertTrue(safe.imageSfw());
     Assert.assertFalse(notSafe.imageSfw());
