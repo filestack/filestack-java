@@ -1,29 +1,57 @@
 package com.filestack.internal;
 
+import okhttp3.HttpUrl;
+import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.http.Body;
-import retrofit2.http.DELETE;
-import retrofit2.http.POST;
-import retrofit2.http.Path;
-import retrofit2.http.Query;
+
+import java.io.IOException;
 
 /** Wraps endpoints that run on www.filestackapi.com. */
-public interface BaseService {
-  String URL = "https://www.filestackapi.com/api/file/";
+public class BaseService {
 
-  @POST("{handle}")
-  Call<ResponseBody> overwrite(
-      @Path("handle") String handle,
-      @Query("policy") String policy,
-      @Query("signature") String signature,
-      @Body RequestBody body);
+  private final NetworkClient networkClient;
+  private final HttpUrl url;
 
-  @DELETE("{handle}")
-  Call<ResponseBody> delete(
-      @Path("handle") String handle,
-      @Query("key") String key,
-      @Query("policy") String policy,
-      @Query("signature") String signature);
+  public BaseService(NetworkClient networkClient) {
+    this(networkClient, HttpUrl.get("https://www.filestackapi.com/api/file/"));
+  }
+
+  BaseService(NetworkClient networkClient, HttpUrl url) {
+    this.networkClient = networkClient;
+    this.url = url;
+  }
+
+  public Response<ResponseBody> overwrite(String handle, String policy, String signature,
+                                          RequestBody body) throws IOException {
+    HttpUrl url = this.url.newBuilder()
+        .addPathSegment(handle)
+        .addQueryParameter("policy", policy)
+        .addQueryParameter("signature", signature)
+        .build();
+
+    Request request = new Request.Builder()
+        .url(url)
+        .post(body)
+        .build();
+
+    return networkClient.call(request);
+  }
+
+  public Response<ResponseBody> delete(String handle, String key, String policy,
+                                       String signature) throws IOException {
+    HttpUrl url = this.url.newBuilder()
+        .addPathSegment(handle)
+        .addQueryParameter("key", key)
+        .addQueryParameter("policy", policy)
+        .addQueryParameter("signature", signature)
+        .build();
+
+    Request request = new Request.Builder()
+        .url(url)
+        .delete()
+        .build();
+
+    return networkClient.call(request);
+  }
 }

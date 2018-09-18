@@ -4,7 +4,6 @@ import com.filestack.FileLink;
 import com.filestack.internal.responses.CompleteResponse;
 import io.reactivex.Flowable;
 import okhttp3.RequestBody;
-import retrofit2.Response;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,8 +28,7 @@ public class UploadCompleteFunc implements Callable<Prog> {
   @Override
   public Prog call() throws Exception {
     final long startTime = System.currentTimeMillis() / 1000;
-    final HashMap<String, RequestBody> params = new HashMap<>();
-    params.putAll(upload.baseParams);
+    final Map<String, RequestBody> params = new HashMap<>(upload.baseParams);
 
     if (!upload.intel) {
       StringBuilder builder = new StringBuilder();
@@ -47,7 +45,7 @@ public class UploadCompleteFunc implements Callable<Prog> {
 
       @Override
       Response<CompleteResponse> work() throws Exception {
-        return uploadService.complete(params).execute();
+        return uploadService.complete(params);
       }
     };
 

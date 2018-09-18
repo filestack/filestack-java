@@ -2,59 +2,128 @@ package com.filestack.internal;
 
 import com.filestack.internal.responses.StoreResponse;
 import com.google.gson.JsonObject;
+import okhttp3.HttpUrl;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.http.GET;
-import retrofit2.http.POST;
-import retrofit2.http.Path;
-import retrofit2.http.Query;
-import retrofit2.http.Streaming;
+
+import java.io.IOException;
 
 /** Wraps endpoints that run on cdn.filestackcontent.com. */
-public interface CdnService {
-  String URL = "https://cdn.filestackcontent.com/";
+public class CdnService {
 
-  @GET("{handle}")
-  @Streaming
-  Call<ResponseBody> get(
-      @Path("handle") String handle,
-      @Query("policy") String policy,
-      @Query("signature") String signature);
+  private final HttpUrl apiUrl;
+  private final NetworkClient networkClient;
 
-  // Using an existing handle
-  @Streaming
-  @GET("{tasks}/{handle}")
-  Call<ResponseBody> transform(
-      @Path("tasks") String tasks,
-      @Path("handle") String handle);
+  public CdnService(NetworkClient networkClient) {
+    this(networkClient, HttpUrl.get("https://cdn.filestackcontent.com/"));
+  }
 
-  @GET("debug/{tasks}/{handle}")
-  Call<JsonObject> transformDebug(
-      @Path("tasks") String tasks,
-      @Path("handle") String handle);
+  CdnService(NetworkClient networkClient, HttpUrl url) {
+    this.networkClient = networkClient;
+    this.apiUrl = url;
+  }
 
-  @POST("{tasks}/{handle}")
-  Call<StoreResponse> transformStore(
-      @Path("tasks") String tasks,
-      @Path("handle") String handle);
+  public Response<ResponseBody> get(String handle, String policy, String signature) throws IOException {
+    HttpUrl url = apiUrl.newBuilder()
+        .addPathSegment(handle)
+        .addQueryParameter("policy", policy)
+        .addQueryParameter("signature", signature)
+        .build();
 
-  // Using an external URL
-  @Streaming
-  @GET("{key}/{tasks}/{url}")
-  Call<ResponseBody> transformExt(
-      @Path("key") String key,
-      @Path("tasks") String tasks,
-      @Path("url") String url);
+    Request request = new Request.Builder()
+        .url(url)
+        .build();
 
-  @GET("{key}/debug/{tasks}/{url}")
-  Call<JsonObject> transformDebugExt(
-      @Path("key") String key,
-      @Path("tasks") String tasks,
-      @Path("url") String url);
+    return networkClient.call(request);
+  }
 
-  @POST("{key}/{tasks}/{url}")
-  Call<StoreResponse> transformStoreExt(
-      @Path("key") String key,
-      @Path("tasks") String tasks,
-      @Path("url") String url);
+  public Response<ResponseBody> transform(String tasks, String handle) throws IOException {
+    Request request = new Request.Builder()
+        .url(transformUrl(tasks, handle))
+        .build();
+
+    return networkClient.call(request);
+  }
+
+  public HttpUrl transformUrl(String tasks, String handle) {
+    return apiUrl.newBuilder()
+        .addPathSegment(tasks)
+        .addPathSegment(handle)
+        .build();
+  }
+
+  public Response<JsonObject> transformDebug(String tasks, String handle) throws IOException {
+    HttpUrl url = apiUrl.newBuilder()
+        .addPathSegment("debug")
+        .addPathSegment(tasks)
+        .addPathSegment(handle)
+        .build();
+
+    Request request = new Request.Builder()
+        .url(url)
+        .build();
+
+    return networkClient.call(request, JsonObject.class);
+  }
+
+  public Response<StoreResponse> transformStore(String tasks, String handle) throws IOException {
+    HttpUrl url = apiUrl.newBuilder()
+        .addPathSegment(tasks)
+        .addPathSegment(handle)
+        .build();
+
+    Request request = new Request.Builder()
+        .url(url)
+        .post(RequestBody.create(null, ""))
+        .build();
+
+    return networkClient.call(request, StoreResponse.class);
+  }
+
+  public Response<ResponseBody> transformExt(String key, String tasks, String url) throws IOException {
+    Request request = new Request.Builder()
+        .url(transformExtUrl(key, tasks, url))
+        .build();
+
+    return networkClient.call(request);
+  }
+
+  public HttpUrl transformExtUrl(String key, String tasks, String url) {
+    return apiUrl.newBuilder()
+        .addPathSegment(key)
+        .addPathSegment(tasks)
+        .addPathSegment(url)
+        .build();
+  }
+
+  public Response<JsonObject> transformDebugExt(String key, String tasks, String url) throws IOException {
+    HttpUrl httpUrl = apiUrl.newBuilder()
+        .addPathSegment(key)
+        .addPathSegment("debug")
+        .addPathSegment(tasks)
+        .addPathSegment(url)
+        .build();
+
+    Request request = new Request.Builder()
+        .url(httpUrl)
+        .build();
+
+    return networkClient.call(request, JsonObject.class);
+  }
+
+  public Response<StoreResponse> transformStoreExt(String key, String tasks, String url) throws IOException {
+    HttpUrl httpUrl = apiUrl.newBuilder()
+        .addPathSegment(key)
+        .addPathSegment(tasks)
+        .addPathSegment(url)
+        .build();
+
+    Request request = new Request.Builder()
+        .url(httpUrl)
+        .post(RequestBody.create(null, ""))
+        .build();
+
+    return networkClient.call(request, StoreResponse.class);
+  }
 }

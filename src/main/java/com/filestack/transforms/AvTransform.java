@@ -4,6 +4,8 @@ import com.filestack.Config;
 import com.filestack.FileLink;
 import com.filestack.HttpException;
 import com.filestack.StorageOptions;
+import com.filestack.internal.CdnService;
+import com.filestack.internal.Networking;
 import com.filestack.transforms.tasks.AvTransformOptions;
 import com.filestack.internal.Util;
 import com.google.gson.JsonObject;
@@ -29,7 +31,7 @@ public class AvTransform extends Transform {
   public AvTransform(Config config, String handle, @Nullable StorageOptions storeOps,
                      @Nullable AvTransformOptions avOps) {
 
-    super(config, handle, false);
+    super(Networking.getCdnService(), config, handle, false);
 
     if (avOps == null) {
       throw new IllegalArgumentException("AvTransform can't be created without options");
@@ -41,6 +43,32 @@ public class AvTransform extends Transform {
       tasks.add(avOps);
     }
   }
+
+  /**
+   * Constructs new instance.
+   *
+   * @param cdnService cdn client
+   * @param config   should be from parent {@link FileLink}
+   * @param handle   should be from parent {@link FileLink}
+   * @param storeOps options for how to store the converted file
+   * @param avOps    options for how to convert the file
+   */
+  public AvTransform(CdnService cdnService, Config config, String handle, @Nullable StorageOptions storeOps,
+                     @Nullable AvTransformOptions avOps) {
+
+    super(cdnService, config, handle, false);
+
+    if (avOps == null) {
+      throw new IllegalArgumentException("AvTransform can't be created without options");
+    }
+
+    if (storeOps != null) {
+      tasks.add(TransformTask.merge("video_convert", storeOps.getAsTask(), avOps));
+    } else {
+      tasks.add(avOps);
+    }
+  }
+
 
   /**
    * Gets converted content as a new {@link FileLink}. Starts processing on first call.

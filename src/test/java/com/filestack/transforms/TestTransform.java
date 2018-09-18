@@ -1,15 +1,16 @@
 package com.filestack.transforms;
 
 import com.filestack.Config;
-import com.filestack.Helpers;
 import com.filestack.internal.CdnService;
-import com.filestack.internal.Networking;
 import com.google.gson.JsonObject;
-import org.junit.After;
+import okhttp3.MediaType;
+import okhttp3.ResponseBody;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
+
+import static com.filestack.internal.MockResponse.success;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class TestTransform {
   private static final TransformTask task = new TransformTask("task");
@@ -23,29 +24,16 @@ public class TestTransform {
     task.addOption("option4", new Integer[] {1, 1, 1, 1});
   }
 
-  /** Set networking singletons to mocks. */
-  @Before
-  public void setup() {
-    CdnService mockCdnService = Mockito.mock(CdnService.class);
-    Networking.setCdnService(mockCdnService);
-  }
-
-  /** Invalidate networking singletons. */
-  @After
-  public void teardown() {
-    Networking.invalidate();
-  }
+  CdnService cdnService = mock(CdnService.class);
 
   @Test
   public void testGetContentExt() throws Exception {
     Config config = new Config("apikey");
 
-    Mockito
-        .doReturn(Helpers.createRawCall("text/plain", "Test Response"))
-        .when(Networking.getCdnService())
-        .transformExt("apikey", "task", "https://example.com/example.txt");
+    when(cdnService.transformExt("apikey","task", "https://example.com/example.txt"))
+        .thenReturn(success(ResponseBody.create(MediaType.get("text/plain"), "Test Response")));
 
-    Transform transform = new Transform(config, "https://example.com/example.txt", true);
+    Transform transform = new Transform(cdnService, config, "https://example.com/example.txt", true);
     transform.tasks.add(new TransformTask("task"));
 
     Assert.assertEquals("Test Response", transform.getContent().string());
@@ -55,12 +43,10 @@ public class TestTransform {
   public void testGetContentHandle() throws Exception {
     Config config = new Config("apikey");
 
-    Mockito
-        .doReturn(Helpers.createRawCall("text/plain", "Test Response"))
-        .when(Networking.getCdnService())
-        .transform("task", "handle");
+    when(cdnService.transform("task", "handle"))
+        .thenReturn(success(ResponseBody.create(MediaType.get("text/plain"), "Test Response")));
 
-    Transform transform = new Transform(config, "handle", false);
+    Transform transform = new Transform(cdnService, config, "handle", false);
     transform.tasks.add(new TransformTask("task"));
 
     Assert.assertEquals("Test Response", transform.getContent().string());
@@ -71,12 +57,11 @@ public class TestTransform {
     Config config = new Config("apikey");
     String jsonString = "{'key': 'value'}";
 
-    Mockito
-        .doReturn(Helpers.createRawCall("application/json", jsonString))
-        .when(Networking.getCdnService())
-        .transform("task", "handle");
 
-    Transform transform = new Transform(config, "handle", false);
+    when(cdnService.transform("task", "handle"))
+        .thenReturn(success(ResponseBody.create(MediaType.get("application/json"), jsonString)));
+
+    Transform transform = new Transform(cdnService, config, "handle", false);
     transform.tasks.add(new TransformTask("task"));
     JsonObject jsonObject = transform.getContentJson();
 

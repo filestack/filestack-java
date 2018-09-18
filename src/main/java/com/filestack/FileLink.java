@@ -3,6 +3,7 @@ package com.filestack;
 import com.filestack.internal.BaseService;
 import com.filestack.internal.CdnService;
 import com.filestack.internal.Networking;
+import com.filestack.internal.Response;
 import com.filestack.internal.Util;
 import com.filestack.internal.responses.ImageTagResponse;
 import com.filestack.transforms.AvTransform;
@@ -20,7 +21,6 @@ import okhttp3.ResponseBody;
 import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.Okio;
-import retrofit2.Response;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -67,13 +67,10 @@ public class FileLink implements Serializable {
    * @throws IOException           on network failure
    */
   public ResponseBody getContent() throws IOException {
-    Response<ResponseBody> response = cdnService
-        .get(this.handle, config.getPolicy(), config.getSignature())
-        .execute();
-
+    Response<ResponseBody> response = cdnService.get(this.handle, config.getPolicy(), config.getSignature());
     Util.checkResponseAndThrow(response);
 
-    return response.body();
+    return response.getData();
   }
 
   /**
@@ -95,18 +92,17 @@ public class FileLink implements Serializable {
    */
   public File download(String directory, @Nullable String filename) throws IOException {
     Response<ResponseBody> response = cdnService
-        .get(this.handle, config.getPolicy(), config.getSignature())
-        .execute();
+        .get(this.handle, config.getPolicy(), config.getSignature());
 
     Util.checkResponseAndThrow(response);
 
     if (filename == null) {
-      filename = response.headers().get("x-file-name");
+      filename = response.getHeaders().get("x-file-name");
     }
 
     File file = Util.createWriteFile(directory + "/" + filename);
 
-    ResponseBody body = response.body();
+    ResponseBody body = response.getData();
     if (body == null) {
       throw new IOException();
     }
@@ -138,9 +134,7 @@ public class FileLink implements Serializable {
     String mimeType = URLConnection.guessContentTypeFromName(file.getName());
     RequestBody body = RequestBody.create(MediaType.parse(mimeType), file);
 
-    Response response = baseService
-        .overwrite(handle, config.getPolicy(), config.getSignature(), body)
-        .execute();
+    Response<ResponseBody> response = baseService.overwrite(handle, config.getPolicy(), config.getSignature(), body);
 
     Util.checkResponseAndThrow(response);
   }
@@ -155,10 +149,9 @@ public class FileLink implements Serializable {
     if (!config.hasSecurity()) {
       throw new IllegalStateException("Security must be set in order to delete");
     }
-    
-    Response response = baseService
-        .delete(handle, config.getApiKey(), config.getPolicy(), config.getSignature())
-        .execute();
+
+    Response<ResponseBody> response =
+        baseService.delete(handle, config.getApiKey(), config.getPolicy(), config.getSignature());
 
     Util.checkResponseAndThrow(response);
   }
@@ -233,7 +226,7 @@ public class FileLink implements Serializable {
    * @return {@link AvTransform ImageTransform} instance configured for this file
    */
   public AvTransform avTransform(@Nullable StorageOptions storeOptions, AvTransformOptions avOptions) {
-    return new AvTransform(config, handle, storeOptions, avOptions);
+    return new AvTransform(cdnService, config, handle, storeOptions, avOptions);
   }
 
   // Async methods

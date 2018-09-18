@@ -2,40 +2,27 @@ package com.filestack.transforms;
 
 import com.filestack.Config;
 import com.filestack.internal.CdnService;
-import com.filestack.internal.Networking;
+import com.filestack.internal.MockResponse;
 import com.filestack.internal.responses.StoreResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import retrofit2.mock.Calls;
+
+import static org.mockito.Mockito.when;
 
 public class TestImageTransform {
 
   final CdnService cdnService = Mockito.mock(CdnService.class);
-
-  @Before
-  public void setup() {
-    Networking.setCdnService(cdnService);
-  }
-
-  @After
-  public void teardown() {
-    Networking.invalidate();
-  }
 
   @Test
   public void testDebugHandle() throws Exception {
     Config config = new Config("apiKey");
     ImageTransform transform = new ImageTransform(config, cdnService,"handle", false);
 
-    Mockito
-        .doReturn(Calls.response(new JsonObject()))
-        .when(Networking.getCdnService())
-        .transformDebug("", "handle");
+    when(cdnService.transformDebug("", "handle"))
+        .thenReturn(MockResponse.<JsonObject>success(new JsonObject()));
 
     Assert.assertNotNull(transform.debug());
   }
@@ -46,10 +33,8 @@ public class TestImageTransform {
     Config config = new Config("apiKey");
     ImageTransform transform = new ImageTransform(config, cdnService,  url, true);
 
-    Mockito
-        .doReturn(Calls.response(new JsonObject()))
-        .when(Networking.getCdnService())
-        .transformDebugExt("apiKey", "", url);
+    when(cdnService.transformDebugExt("apiKey", "", url))
+        .thenReturn(MockResponse.<JsonObject>success(new JsonObject()));
 
     Assert.assertNotNull(transform.debug());
   }
@@ -62,10 +47,8 @@ public class TestImageTransform {
     Gson gson = new Gson();
     StoreResponse storeResponse = gson.fromJson(jsonString, StoreResponse.class);
 
-    Mockito
-        .doReturn(Calls.response(storeResponse))
-        .when(Networking.getCdnService())
-        .transformStore("store", "handle");
+    when(cdnService.transformStore("store", "handle"))
+        .thenReturn(MockResponse.<StoreResponse>success(storeResponse));
 
     Assert.assertNotNull(transform.store());
   }
@@ -77,10 +60,8 @@ public class TestImageTransform {
     StoreResponse storeResponse = gson.fromJson(jsonString, StoreResponse.class);
     String url = "https://example.com/image.jpg";
 
-    Mockito
-        .doReturn(Calls.response(storeResponse))
-        .when(Networking.getCdnService())
-        .transformStoreExt("apiKey", "store", url);
+    when(cdnService.transformStoreExt("apiKey","store", url))
+        .thenReturn(MockResponse.<StoreResponse>success(storeResponse));
 
     Config config = new Config("apiKey");
     ImageTransform transform = new ImageTransform(config, cdnService, url, true);

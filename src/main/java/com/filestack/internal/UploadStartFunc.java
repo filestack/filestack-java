@@ -2,7 +2,6 @@ package com.filestack.internal;
 
 import com.filestack.internal.responses.StartResponse;
 import io.reactivex.Flowable;
-import retrofit2.Response;
 
 import java.util.concurrent.Callable;
 
@@ -27,7 +26,7 @@ public class UploadStartFunc implements Callable<Prog> {
     func = new RetryNetworkFunc<StartResponse>(0, 5, Upload.DELAY_BASE) {
       @Override
       Response<StartResponse> work() throws Exception {
-        return uploadService.start(upload.baseParams).execute();
+        return uploadService.start(upload.baseParams);
       }
     };
 

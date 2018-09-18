@@ -7,7 +7,6 @@ import io.reactivex.FlowableEmitter;
 import io.reactivex.FlowableOnSubscribe;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import retrofit2.Response;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -63,7 +62,7 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog> {
     func = new RetryNetworkFunc<UploadResponse>(5, 5, Upload.DELAY_BASE) {
       @Override
       Response<UploadResponse> work() throws Exception {
-        return uploadService.upload(params).execute();
+        return uploadService.upload(params);
       }
     };
 
@@ -72,9 +71,9 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog> {
 
   /** Upload chunk/part to S3. */
   private void uploadToS3() throws Exception {
-    RetryNetworkFunc<Integer> func;
+    RetryNetworkFunc<ResponseBody> func;
 
-    func = new RetryNetworkFunc<Integer>(5, 5, Upload.DELAY_BASE) {
+    func = new RetryNetworkFunc<ResponseBody>(5, 5, Upload.DELAY_BASE) {
       private int size;
       private long startTime;
 
@@ -97,7 +96,7 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog> {
 
         RequestBody body;
         body = RequestBody.create(upload.mediaType, container.data, container.sent, size);
-        return uploadService.uploadS3(headers, url, body).execute();
+        return uploadService.uploadS3(headers, url, body);
       }
 
       @Override
@@ -107,15 +106,15 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog> {
       }
 
       @Override
-      Integer process(Response response) {
+      ResponseBody process(Response<ResponseBody> response) {
         if (!upload.intel) {
-          String etag = response.headers().get("ETag");
+          String etag = response.getHeaders().get("ETag");
           upload.etags[container.num - 1] = etag;
         }
         container.sent += size;
         long endTime = System.currentTimeMillis() / 1000;
         emitter.onNext(new Prog(startTime, endTime, size));
-        return size;
+        return response.getData();
       }
     };
 
@@ -132,7 +131,7 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog> {
     func = new RetryNetworkFunc<ResponseBody>(5, 5, Upload.DELAY_BASE) {
       @Override
       Response<ResponseBody> work() throws Exception {
-        return uploadService.commit(params).execute();
+        return uploadService.commit(params);
       }
     };
 

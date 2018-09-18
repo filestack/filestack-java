@@ -7,7 +7,6 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import okio.Buffer;
 import okio.ByteString;
-import retrofit2.Response;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -66,8 +65,8 @@ public class Util {
    * @throws HttpException always unless error reading response body
    * @throws IOException           on error reading response body
    */
-  public static void throwHttpResponseException(Response response) throws IOException {
-    ResponseBody errorBody = response.errorBody();
+  public static <T> void throwHttpResponseException(Response<T> response) throws IOException {
+    ResponseBody errorBody = response.getErrorBody();
     if (errorBody != null) {
       throw new HttpException(response.code(), errorBody.string());
     } else {
@@ -83,7 +82,7 @@ public class Util {
    * @throws HttpException on response code not in 200 range
    * @throws IOException           on error reading response body
    */
-  public static void checkResponseAndThrow(Response response) throws IOException {
+  public static <T> void checkResponseAndThrow(Response<T> response) throws IOException {
     if (response.isSuccessful()) {
       return;
     }

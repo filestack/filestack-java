@@ -1,10 +1,31 @@
 package com.filestack
 
+import com.filestack.internal.BaseService
+import com.filestack.internal.CdnService
+import okhttp3.*
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
-import org.junit.Assert.*
-import org.mockito.Mock
+import okio.Buffer
+import org.junit.Assert
+
+@JvmOverloads
+fun mockOkHttpResponse(code: Int, message: String = "Test message"): okhttp3.Response {
+    val mediaType = MediaType.parse("text/plain")
+    return okhttp3.Response.Builder()
+            .protocol(Protocol.HTTP_2)
+            .code(code)
+            .request(Request.Builder().url("http://localhost").build())
+            .body(ResponseBody.create(mediaType, message))
+            .message("Status code: $code")
+            .build()
+}
+
+fun RequestBody.readUtf8(): String {
+    val buffer = Buffer()
+    writeTo(buffer)
+    return buffer.readUtf8()
+}
 
 fun RecordedRequest.assertThat(test: RecordedRequestTester.() -> Unit) {
     val tester = RecordedRequestTester(this, bodyParams())
@@ -12,20 +33,23 @@ fun RecordedRequest.assertThat(test: RecordedRequestTester.() -> Unit) {
 }
 
 fun RecordedRequest.bodyParams(): Map<String, String> {
-    body.clone().let {
-        val boundary = it.readUtf8Line()!!
-        val body = it.readUtf8()
+    return body.bodyParams()
+}
+
+fun Buffer.bodyParams(): Map<String, String> {
+    val result = mutableMapOf<String, String>()
+    val buffer = clone()
+    buffer.readUtf8Line()?.let { boundary ->
+        val body = buffer.readUtf8()
         val multiPartParams = body.split(boundary)
-        val result = mutableMapOf<String, String>()
         multiPartParams.forEach { param ->
             val parts = param.trim().split("\n")
             val key = parts.first().substringAfter("name=\"").substringBefore("\"")
             val value = parts.last()
             result[key] = value
         }
-        return result
     }
-
+    return result
 }
 
 class RecordedRequestTester(private val recordedRequest: RecordedRequest, private val params: Map<String, String>) {
@@ -38,24 +62,32 @@ class RecordedRequestTester(private val recordedRequest: RecordedRequest, privat
         methodIs("PUT")
     }
 
+    fun isDelete() {
+        methodIs("DELETE")
+    }
+
     private fun methodIs(methodName: String) {
-        assertEquals(methodName, recordedRequest.method)
+        Assert.assertEquals(methodName, recordedRequest.method)
     }
 
     fun pathIs(expected: String) {
-        assertEquals(expected, recordedRequest.path)
+        Assert.assertEquals(expected, recordedRequest.path)
     }
 
     fun bodyField(key: String, expectedValue: Any) {
-        assertEquals(expectedValue.toString(), params[key])
+        Assert.assertEquals(expectedValue.toString(), params[key])
+    }
+
+    fun bodyIs(text: String) {
+        Assert.assertEquals(text, recordedRequest.body.clone().readUtf8())
     }
 
     fun header(key: String, expectedValue: Any) {
-        assertEquals(recordedRequest.headers[key], expectedValue)
+        Assert.assertEquals(recordedRequest.headers[key], expectedValue)
     }
 
     fun noField(key: String) {
-        assertNull(params[key])
+        Assert.assertNull(params[key])
     }
 }
 
@@ -79,11 +111,11 @@ fun RequestStoringDispatcher.assertThat(test: RequestStoringDispatcherTester.() 
 class RequestStoringDispatcherTester(private val dispatcher: RequestStoringDispatcher) {
 
     fun totalRequests(numOfRequests: Int) {
-        assertEquals(numOfRequests, dispatcher.requests.size)
+        Assert.assertEquals(numOfRequests, dispatcher.requests.size)
     }
 
     fun onlyOneRequest(path: String) {
-        assertEquals(1,
+        Assert.assertEquals(1,
                 dispatcher.requests.filter { it.path == path }.count())
     }
 
@@ -91,6 +123,9 @@ class RequestStoringDispatcherTester(private val dispatcher: RequestStoringDispa
         val request = dispatcher.requests.find { it.path == path }
         request?.assertThat(test)
     }
+}
 
+fun fileLink(config: Config, cdnService: CdnService, baseService: BaseService, handle: String): FileLink {
+    return FileLink(config, cdnService, baseService, handle)
 }
 
