@@ -27,11 +27,3 @@
 
 # Okio-specific rules
 -dontwarn okio.**
-
-# Retrofit-specific rules
--keepattributes Signature, InnerClasses
--keepclassmembers,allowshrinking,allowobfuscation interface * {
-    @retrofit2.http.* <methods>;
-}
-# Guarded by a NoClassDefFoundError try/catch and only used when on the classpath.
--dontwarn kotlin.Unit
