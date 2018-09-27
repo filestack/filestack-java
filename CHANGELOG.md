@@ -1,5 +1,11 @@
 Change Log
 ==========
+Version 0.9.0 *(2018-09-27)*
+----------------------------
+  * New: Use `Client#fileLink(String)` to obtain `FileLink` instances from handle.
+  * Change: The SDK no longer depends on Retrofit library. Proguard rules have been updated to include this change.
+  * Fix: Support for TLS 1.2 on old Android devices has been enabled. This should not interfere with newer devices. If you encounter any kind of network issues, please report it.
+
 Version 0.8.2 *(2018-09-13)*
 ----------------------------
   * New: Filestack Java SDK now uses `@Nullable` to annotate possibly-null parameters. We use `@ParametersAreNonnullByDefault` annotation to treat all other parameters as non-null.
