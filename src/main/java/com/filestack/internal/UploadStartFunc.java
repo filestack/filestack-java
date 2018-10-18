@@ -13,11 +13,6 @@ public class UploadStartFunc implements Callable<Prog> {
   private final UploadService uploadService;
   private final Upload upload;
   
-  UploadStartFunc(UploadService uploadService, Upload upload) {
-    this.uploadService = uploadService;
-    this.upload = upload;
-  }
-
   @Override
   public Prog call() throws Exception {
     final long startTime = System.currentTimeMillis() / 1000;
@@ -54,4 +49,10 @@ public class UploadStartFunc implements Callable<Prog> {
     long endTime = System.currentTimeMillis() / 1000;
     return new Prog(startTime, endTime);
   }
+
+  UploadStartFunc(UploadService uploadService, Upload upload) {
+    this.uploadService = uploadService;
+    this.upload = upload;
+  }
+
 }
