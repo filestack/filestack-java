@@ -1,16 +1,12 @@
 package com.filestack.internal;
 
+import okhttp3.*;
+import okhttp3.Response;
+import org.junit.Test;
+
 import java.io.IOException;
 
-import okhttp3.Interceptor;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Protocol;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Tests {@link HeaderInterceptor} class to check if headers are added.
@@ -40,18 +36,10 @@ public class TestHeaderInterceptor {
     Response response = client.newCall(original).execute();
     Request modified = response.request();
 
-    String version = Util.getVersion();
-
     String headerUserAgent = modified.header(HeaderInterceptor.HEADER_USER_AGENT);
     String headerFilestackSource = modified.header(HeaderInterceptor.HEADER_FILESTACK_SOURCE);
 
-    Assert.assertNotNull(headerUserAgent);
-    Assert.assertNotNull(headerFilestackSource);
-
-    String correctUserAgent = String.format(HeaderInterceptor.USER_AGENT, version);
-    String correctFilestackSource = String.format(HeaderInterceptor.FILESTACK_SOURCE, version);
-
-    Assert.assertEquals(correctUserAgent, headerUserAgent);
-    Assert.assertEquals(correctFilestackSource, headerFilestackSource);
+    assertEquals(HeaderInterceptor.USER_AGENT, headerUserAgent);
+    assertEquals(HeaderInterceptor.FILESTACK_SOURCE, headerFilestackSource);
   }
 }
