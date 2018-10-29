@@ -12,34 +12,11 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 
 /**
  * Small helper functions that don't need their own class.
  */
 public class Util {
-
-  /**
-   * Loads version string from properties file in resources folder.
-   *
-   * @return Version string
-   */
-  public static String getVersion() {
-    ClassLoader loader = Thread.currentThread().getContextClassLoader();
-    InputStream inputStream = loader.getResourceAsStream("com/filestack/version.properties");
-    Properties prop = new Properties();
-    String version;
-
-    try {
-      prop.load(inputStream);
-      version = prop.getProperty("version");
-    } catch (IOException e) {
-      version = "x.y.z";
-    }
-
-    return version;
-  }
 
   /**
    * Creates {@link RequestBody Request Body} from String.

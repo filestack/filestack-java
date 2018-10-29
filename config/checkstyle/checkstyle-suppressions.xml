@@ -5,6 +5,7 @@
         "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
 
 <suppressions>
+    <suppress files=".*FilestackBuildConfig" checks=".*"/>
     <suppress files="com[\\/]filestack[\\/]internal[\\/]" checks="JavadocMethod"/>
     <suppress files=".*[\\/]src[\\/](test)[\\/]" checks="AvoidStarImport|OperatorWrap"/>
 </suppressions>
