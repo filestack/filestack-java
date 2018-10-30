@@ -30,6 +30,7 @@ public class Upload {
   // These should never change once set
   final Config clientConf;
   final int inputSize;
+  final StorageOptions storageOptions;
 
   // Not bothering with getters / setters for these
   boolean intel;
@@ -53,6 +54,7 @@ public class Upload {
     this.intel = intel;
     this.partIndex = 1;
     this.chunkSize = INITIAL_CHUNK_SIZE;
+    this.storageOptions = storeOpts;
 
     // Setup base parameters that get used repeatedly for backend requests
     baseParams = new HashMap<>();

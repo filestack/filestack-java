@@ -1,6 +1,9 @@
 package com.filestack.internal
 
+import com.filestack.StorageOptions
 import com.filestack.bodyParams
+import com.filestack.internal.request.BaseUploadParams
+import com.filestack.internal.request.StartUploadRequest
 import com.filestack.internal.responses.CompleteResponse
 import com.filestack.internal.responses.StartResponse
 import com.filestack.internal.responses.UploadResponse
@@ -33,7 +36,18 @@ class UploadServiceTest {
         baseParams["policy"] = Util.createStringPart("my_policy")
         baseParams["signature"] = Util.createStringPart("my_signature")
 
-        uploadService.start(baseParams)
+        val startUploadRequest = StartUploadRequest(
+                BaseUploadParams(
+                        "api_key",
+                        file.length(),
+                        StorageOptions.Builder().build(),
+                        null,
+                        "my_policy",
+                        "my_signature"
+                )
+        )
+
+        uploadService.start(startUploadRequest)
 
         val argumentCaptor = ArgumentCaptor.forClass(okhttp3.Request::class.java)
         verify(networkClient).call(argumentCaptor.capture(), eq(StartResponse::class.java))

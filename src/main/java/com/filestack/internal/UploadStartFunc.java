@@ -1,5 +1,7 @@
 package com.filestack.internal;
 
+import com.filestack.internal.request.BaseUploadParams;
+import com.filestack.internal.request.StartUploadRequest;
 import com.filestack.internal.responses.StartResponse;
 import io.reactivex.Flowable;
 
@@ -17,11 +19,22 @@ public class UploadStartFunc implements Callable<Prog> {
   public Prog call() throws Exception {
     final long startTime = System.currentTimeMillis() / 1000;
 
+    BaseUploadParams baseUploadParams = new BaseUploadParams(
+        upload.clientConf.getApiKey(),
+        upload.inputSize,
+        upload.storageOptions,
+        upload.intel ? "true" : null,
+        upload.clientConf.getPolicy(),
+        upload.clientConf.getSignature()
+    );
+
+    final StartUploadRequest startUploadRequest = new StartUploadRequest(baseUploadParams);
+
     RetryNetworkFunc<StartResponse> func;
     func = new RetryNetworkFunc<StartResponse>(0, 5, Upload.DELAY_BASE) {
       @Override
       Response<StartResponse> work() throws Exception {
-        return uploadService.start(upload.baseParams);
+        return uploadService.start(startUploadRequest);
       }
     };
 

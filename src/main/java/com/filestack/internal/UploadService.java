@@ -1,5 +1,8 @@
 package com.filestack.internal;
 
+import com.filestack.internal.request.BaseUploadParams;
+import com.filestack.internal.request.MultipartBodyBuilder;
+import com.filestack.internal.request.StartUploadRequest;
 import com.filestack.internal.responses.CompleteResponse;
 import com.filestack.internal.responses.StartResponse;
 import com.filestack.internal.responses.UploadResponse;
@@ -28,15 +31,26 @@ public class UploadService {
     this.apiUrl = url;
   }
 
-  public Response<StartResponse> start(Map<String, RequestBody> parameters) throws IOException {
+  public Response<StartResponse> start(StartUploadRequest startUploadRequest) throws IOException {
     HttpUrl url = apiUrl.newBuilder()
         .addPathSegment("multipart")
         .addPathSegment("start")
         .build();
 
+    BaseUploadParams uploadParams = startUploadRequest.getBaseUploadParams();
+
+    MultipartBody body = new MultipartBodyBuilder()
+        .add("apikey", uploadParams.getApiKey())
+        .add("size", uploadParams.getSize())
+        .add("multiplayer", uploadParams.getMultipart())
+        .add("policy", uploadParams.getPolicy())
+        .add("signature", uploadParams.getSignature())
+        .addAll(uploadParams.getStorageOptions().getAsPartMap())
+        .build();
+
     Request request = new Request.Builder()
         .url(url)
-        .post(buildMultipartBody(parameters))
+        .post(body)
         .build();
 
     return networkClient.call(request, StartResponse.class);
