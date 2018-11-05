@@ -19,8 +19,15 @@ public class MultipartBodyBuilder {
     return this;
   }
 
-  public MultipartBodyBuilder add(String key, long value) {
-    parameters.put(key, RequestBody.create(MultipartBody.FORM, Long.toString(value)));
+  public MultipartBodyBuilder add(String key, @Nullable Long value) {
+    if (value != null) {
+      parameters.put(key, RequestBody.create(MultipartBody.FORM, Long.toString(value)));
+    }
+    return this;
+  }
+
+  public MultipartBodyBuilder add(String key, int value) {
+    parameters.put(key, RequestBody.create(MultipartBody.FORM, Integer.toString(value)));
     return this;
   }
 

@@ -96,7 +96,6 @@ class ClientTest {
             bodyField("part", 1)
             bodyField("size", file.length().toString())
             bodyField("region", "eu-west-1")
-            bodyField("store_location", "s3")
             bodyField("upload_id", UPLOAD_ID)
 
             noField("upload_type")

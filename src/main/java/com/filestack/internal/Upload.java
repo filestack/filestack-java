@@ -140,28 +140,31 @@ public class Upload {
    * @return {@link Flowable} that emits {@link Progress} events
    */
   public Flowable<Progress<FileLink>> run() {
-    Flowable<StartResponse> startFlow = Flowable
+    final Flowable<StartResponse> startFlow = Flowable
         .fromCallable(new UploadStartFunc(uploadService, this))
         .subscribeOn(Schedulers.io());
 
-    Flowable<Prog> transferFlow = Flowable.empty();
-    for (int i = 0; i < CONCURRENCY; i++) {
-      UploadTransferFunc func = new UploadTransferFunc(uploadService, this);
-      Flowable<Prog> temp = Flowable
-          .create(func, BackpressureStrategy.BUFFER)
-          .subscribeOn(Schedulers.io());
-      transferFlow = transferFlow.mergeWith(temp);
-    }
-
-    final Flowable<Prog> finalTransferFlow = transferFlow;
     return startFlow
         .flatMap(new Function<StartResponse, Publisher<Prog>>() {
           @Override
           public Publisher<Prog> apply(StartResponse startResponse) {
-            return finalTransferFlow;
+            Flowable<Prog> transferFlow = Flowable.empty();
+            for (int i = 0; i < CONCURRENCY; i++) {
+              UploadTransferFunc func = new UploadTransferFunc(
+                  uploadService,
+                  Upload.this,
+                  startResponse.getUri(),
+                  startResponse.getRegion(),
+                  startResponse.getUploadId()
+              );
+              Flowable<Prog> temp = Flowable
+                  .create(func, BackpressureStrategy.BUFFER)
+                  .subscribeOn(Schedulers.io());
+              transferFlow = transferFlow.mergeWith(temp);
+            }
+            return transferFlow;
           }
         })
-        .concatWith(transferFlow)
         .concatWith(Flowable.fromCallable(new UploadCompleteFunc(uploadService, this)))
         .flatMap(new ProgMapFunc(this));
   }

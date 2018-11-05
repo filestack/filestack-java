@@ -1,5 +1,6 @@
 package com.filestack.internal;
 
+import com.filestack.internal.request.UploadRequest;
 import com.filestack.internal.responses.UploadResponse;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
@@ -23,9 +24,16 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog> {
   private FlowableEmitter<Prog> emitter;
   private PartContainer container;
 
-  UploadTransferFunc(UploadService uploadService, Upload upload) {
+  private final String uri;
+  private final String region;
+  private final String uploadId;
+
+  UploadTransferFunc(UploadService uploadService, Upload upload, String uri, String region, String uploadId) {
     this.uploadService = uploadService;
     this.upload = upload;
+    this.uri = uri;
+    this.region = region;
+    this.uploadId = uploadId;
   }
 
   @Override
@@ -58,11 +66,23 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog> {
       params.put("offset", Util.createStringPart(Integer.toString(container.sent)));
     }
 
+    final UploadRequest uploadRequest = new UploadRequest(
+        upload.clientConf.getApiKey(),
+        container.num,
+        size,
+        encodedMd5,
+        uri,
+        region,
+        uploadId,
+        upload.intel,
+        upload.intel ? (long) container.sent : null
+    );
+
     RetryNetworkFunc<UploadResponse> func;
     func = new RetryNetworkFunc<UploadResponse>(5, 5, Upload.DELAY_BASE) {
       @Override
       Response<UploadResponse> work() throws Exception {
-        return uploadService.upload(params);
+        return uploadService.upload(uploadRequest);
       }
     };
 

@@ -4,6 +4,7 @@ import com.filestack.StorageOptions
 import com.filestack.assertThat
 import com.filestack.bodyParams
 import com.filestack.internal.request.StartUploadRequest
+import com.filestack.internal.request.UploadRequest
 import com.filestack.tempFile
 import com.google.gson.Gson
 import com.nhaarman.mockitokotlin2.mock
@@ -116,26 +117,34 @@ class UploadServiceTest {
     fun upload() {
         server.enqueue(MockResponse())
         val fileToUpload = tempFile(postfix = ".jpg", sizeInBytes = 1024)
-        val type = URLConnection.guessContentTypeFromName(fileToUpload.name)
-        val requestBody = RequestBody.create(MediaType.get(type), fileToUpload)
 
-        val params = mutableMapOf<String, RequestBody>()
-        params["apikey"] = Util.createStringPart("api_key")
-        params["size"] = Util.createStringPart(fileToUpload.length().toString())
-        params["policy"] = Util.createStringPart("my_policy")
-        params["signature"] = Util.createStringPart("my_signature")
-        params["content"] = requestBody
+        val uploadRequest = UploadRequest(
+                "api_key",
+                1,
+                fileToUpload.length(),
+                "my_md5",
+                "response_uri",
+                "response_region",
+                "response_upload_id",
+                true,
+                512
+        )
 
-        uploadService.upload(params)
+        uploadService.upload(uploadRequest)
 
         val request = server.takeRequest()
         request.assertThat {
             pathIs("/multipart/upload")
             isPost()
             bodyField("apikey", "api_key")
-            bodyField("size", fileToUpload.length().toString())
-            bodyField("policy", "my_policy")
-            bodyField("signature", "my_signature")
+            bodyField("part", 1)
+            bodyField("size", fileToUpload.length())
+            bodyField("md5", "my_md5")
+            bodyField("uri", "response_uri")
+            bodyField("region", "response_region")
+            bodyField("upload_id", "response_upload_id")
+            bodyField("multipart", "true")
+            bodyField("offset", 512)
         }
     }
 

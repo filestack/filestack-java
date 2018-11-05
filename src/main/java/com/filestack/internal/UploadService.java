@@ -2,6 +2,7 @@ package com.filestack.internal;
 
 import com.filestack.internal.request.MultipartBodyBuilder;
 import com.filestack.internal.request.StartUploadRequest;
+import com.filestack.internal.request.UploadRequest;
 import com.filestack.internal.responses.CompleteResponse;
 import com.filestack.internal.responses.StartResponse;
 import com.filestack.internal.responses.UploadResponse;
@@ -53,14 +54,22 @@ public class UploadService {
     return networkClient.call(request, StartResponse.class);
   }
 
-  public Response<UploadResponse> upload(Map<String, RequestBody> parameters) throws IOException {
+  public Response<UploadResponse> upload(UploadRequest uploadRequest) throws IOException {
     HttpUrl url = apiUrl.newBuilder()
         .addPathSegment("multipart")
         .addPathSegment("upload")
         .build();
 
     MultipartBody multipartBody = new MultipartBodyBuilder()
-        .addAll(parameters)
+        .add("apikey", uploadRequest.getApiKey())
+        .add("part", uploadRequest.getPart())
+        .add("size", uploadRequest.getSize())
+        .add("md5", uploadRequest.getMd5())
+        .add("uri", uploadRequest.getUri())
+        .add("region", uploadRequest.getRegion())
+        .add("upload_id", uploadRequest.getUploadId())
+        .add("multipart", uploadRequest.isIntelligentIngestion() ? "true" : null)
+        .add("offset", uploadRequest.getOffset())
         .build();
 
     Request request = new Request.Builder()

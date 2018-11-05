@@ -45,4 +45,16 @@ public class StartResponse {
   public boolean isIntelligent() {
     return uploadType != null && uploadType.equals("intelligent_ingestion");
   }
+
+  public String getUri() {
+    return uri;
+  }
+
+  public String getRegion() {
+    return region;
+  }
+
+  public String getUploadId() {
+    return uploadId;
+  }
 }
