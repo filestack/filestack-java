@@ -4,11 +4,14 @@ import com.filestack.Config;
 import com.filestack.FileLink;
 import com.filestack.Progress;
 import com.filestack.StorageOptions;
+import com.filestack.internal.responses.StartResponse;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
+import org.reactivestreams.Publisher;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,7 +61,15 @@ public class Upload {
 
     // Setup base parameters that get used repeatedly for backend requests
     baseParams = new HashMap<>();
-    baseParams.putAll(storeOpts.getAsPartMap());
+
+    safePut(baseParams,"filename", storeOpts.getFilename());
+    safePut(baseParams,"mimetype", storeOpts.getMimeType());
+    safePut(baseParams,"store_location", storeOpts.getLocation());
+    safePut(baseParams,"store_region", storeOpts.getRegion());
+    safePut(baseParams,"store_container", storeOpts.getContainer());
+    safePut(baseParams,"store_path", storeOpts.getPath());
+    safePut(baseParams,"store_access", storeOpts.getAccess());
+    
     baseParams.put("apikey", Util.createStringPart(clientConf.getApiKey()));
     baseParams.put("size", Util.createStringPart(Integer.toString(inputSize)));
 
@@ -79,6 +90,12 @@ public class Upload {
 
     // This needs to be called after "getAsPartMap"
     this.mediaType = MediaType.parse(storeOpts.getMimeType());
+  }
+
+  private void safePut(Map<String, RequestBody> map, String key, String value) {
+    if (value != null) {
+      map.put(key, Util.createStringPart(value));
+    }
   }
 
   /**
@@ -123,12 +140,10 @@ public class Upload {
    * @return {@link Flowable} that emits {@link Progress} events
    */
   public Flowable<Progress<FileLink>> run() {
-    Flowable<Prog> startFlow = Flowable
+    Flowable<StartResponse> startFlow = Flowable
         .fromCallable(new UploadStartFunc(uploadService, this))
         .subscribeOn(Schedulers.io());
 
-    // Create multiple func instances to each upload a subrange of parts from the file
-    // Merge each of these together into one so they're executed concurrently
     Flowable<Prog> transferFlow = Flowable.empty();
     for (int i = 0; i < CONCURRENCY; i++) {
       UploadTransferFunc func = new UploadTransferFunc(uploadService, this);
@@ -138,13 +153,16 @@ public class Upload {
       transferFlow = transferFlow.mergeWith(temp);
     }
 
-    Flowable<Prog> completeFlow = Flowable
-        .fromCallable(new UploadCompleteFunc(uploadService, this))
-        .subscribeOn(Schedulers.io());
-
+    final Flowable<Prog> finalTransferFlow = transferFlow;
     return startFlow
+        .flatMap(new Function<StartResponse, Publisher<Prog>>() {
+          @Override
+          public Publisher<Prog> apply(StartResponse startResponse) {
+            return finalTransferFlow;
+          }
+        })
         .concatWith(transferFlow)
-        .concatWith(completeFlow)
+        .concatWith(Flowable.fromCallable(new UploadCompleteFunc(uploadService, this)))
         .flatMap(new ProgMapFunc(this));
   }
 }

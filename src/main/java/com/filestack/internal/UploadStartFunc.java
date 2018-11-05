@@ -1,6 +1,5 @@
 package com.filestack.internal;
 
-import com.filestack.internal.request.BaseUploadParams;
 import com.filestack.internal.request.StartUploadRequest;
 import com.filestack.internal.responses.StartResponse;
 import io.reactivex.Flowable;
@@ -11,24 +10,20 @@ import java.util.concurrent.Callable;
  * Function to be passed to {@link Flowable#fromCallable(Callable)}.
  * Handles initiating a multipart upload.
  */
-public class UploadStartFunc implements Callable<Prog> {
+public class UploadStartFunc implements Callable<StartResponse> {
   private final UploadService uploadService;
   private final Upload upload;
   
   @Override
-  public Prog call() throws Exception {
-    final long startTime = System.currentTimeMillis() / 1000;
-
-    BaseUploadParams baseUploadParams = new BaseUploadParams(
+  public StartResponse call() throws Exception {
+    final StartUploadRequest startUploadRequest = new StartUploadRequest(
         upload.clientConf.getApiKey(),
         upload.inputSize,
-        upload.storageOptions,
-        upload.intel ? "true" : null,
+        upload.intel,
         upload.clientConf.getPolicy(),
-        upload.clientConf.getSignature()
+        upload.clientConf.getSignature(),
+        upload.storageOptions
     );
-
-    final StartUploadRequest startUploadRequest = new StartUploadRequest(baseUploadParams);
 
     RetryNetworkFunc<StartResponse> func;
     func = new RetryNetworkFunc<StartResponse>(0, 5, Upload.DELAY_BASE) {
@@ -59,8 +54,7 @@ public class UploadStartFunc implements Callable<Prog> {
     int numParts = (int) Math.ceil(upload.inputSize / (double) upload.partSize);
     upload.etags = new String[numParts];
 
-    long endTime = System.currentTimeMillis() / 1000;
-    return new Prog(startTime, endTime);
+    return response;
   }
 
   UploadStartFunc(UploadService uploadService, Upload upload) {

@@ -23,6 +23,9 @@ public class Util {
    * For multipart form uploads.
    */
   public static RequestBody createStringPart(String content) {
+    if (content == null) {
+      return null;
+    }
     return RequestBody.create(MultipartBody.FORM, content);
   }
 

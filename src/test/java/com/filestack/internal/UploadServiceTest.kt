@@ -1,74 +1,120 @@
 package com.filestack.internal
 
 import com.filestack.StorageOptions
+import com.filestack.assertThat
 import com.filestack.bodyParams
-import com.filestack.internal.request.BaseUploadParams
 import com.filestack.internal.request.StartUploadRequest
-import com.filestack.internal.responses.CompleteResponse
-import com.filestack.internal.responses.StartResponse
-import com.filestack.internal.responses.UploadResponse
 import com.filestack.tempFile
-import com.nhaarman.mockitokotlin2.eq
+import com.google.gson.Gson
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
-import okhttp3.HttpUrl
-import okhttp3.MediaType
-import okhttp3.Request
-import okhttp3.RequestBody
+import okhttp3.*
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
 import okio.Buffer
 import org.junit.Assert.assertEquals
+import org.junit.Rule
 import org.junit.Test
 import org.mockito.ArgumentCaptor
 import java.net.URLConnection
 
 class UploadServiceTest {
 
-    val networkClient: NetworkClient = mock()
-    val uploadService = UploadService(networkClient)
+    @get:Rule
+    val server = MockWebServer()
+
+    val networkClient: NetworkClient = NetworkClient(OkHttpClient(), Gson())
+    val uploadService = UploadService(networkClient, server.url("/"))
 
     @Test
-    fun start() {
+    fun `start without intelligent ingestion`() {
         val file = tempFile(sizeInBytes = 1024)
+        server.enqueue(MockResponse())
 
-        val baseParams = mutableMapOf<String, RequestBody>()
-        baseParams["apikey"] = Util.createStringPart("api_key")
-        baseParams["size"] = Util.createStringPart(file.length().toString())
-        baseParams["policy"] = Util.createStringPart("my_policy")
-        baseParams["signature"] = Util.createStringPart("my_signature")
+        val storageOptions = StorageOptions.Builder()
+                .access("my_access")
+                .container("my_container")
+                .filename("my_filename")
+                .location( "my_location")
+                .mimeType("my_mimetype")
+                .region("my_region")
+                .path("my_path")
+                .build()
 
         val startUploadRequest = StartUploadRequest(
-                BaseUploadParams(
-                        "api_key",
-                        file.length(),
-                        StorageOptions.Builder().build(),
-                        null,
-                        "my_policy",
-                        "my_signature"
-                )
+                "api_key",
+                file.length(),
+                false,
+                "my_policy",
+                "my_signature",
+                storageOptions
+        )
+
+        server.enqueue(MockResponse())
+        uploadService.start(startUploadRequest)
+
+        val request = server.takeRequest()
+
+        request.assertThat {
+            isPost()
+            pathIs("/multipart/start")
+            noField("multipart")
+            bodyField("apikey", "api_key")
+            bodyField("size", file.length().toString())
+            bodyField("policy", "my_policy")
+            bodyField("signature", "my_signature")
+            bodyField("filename", "my_filename")
+            bodyField("mimetype", "my_mimetype")
+            bodyField("store_location", "my_location")
+            bodyField("store_region", "my_region")
+            bodyField("store_container", "my_container")
+            bodyField("store_path", "my_path")
+            bodyField("store_access", "my_access")
+        }
+    }
+
+    @Test
+    fun `start with intelligent ingestion`() {
+        val file = tempFile(sizeInBytes = 1024)
+        server.enqueue(MockResponse())
+
+        val storageOptions = StorageOptions.Builder()
+                .access("my_access")
+                .container("my_container")
+                .filename("my_filename")
+                .location( "my_location")
+                .mimeType("my_mimetype")
+                .region("my_region")
+                .build()
+
+        val startUploadRequest = StartUploadRequest(
+                "api_key",
+                file.length(),
+                true,
+                "my_policy",
+                "my_signature",
+                storageOptions
         )
 
         uploadService.start(startUploadRequest)
 
-        val argumentCaptor = ArgumentCaptor.forClass(okhttp3.Request::class.java)
-        verify(networkClient).call(argumentCaptor.capture(), eq(StartResponse::class.java))
+        val request = server.takeRequest()
 
-        val request = argumentCaptor.value
 
-        assertEquals(
-                HttpUrl.get("https://upload.filestackapi.com/multipart/start"),
-                request.url()
-        )
-        assertEquals("POST", request.method())
-
-        val bodyParams = request.bodyParams()
-        assertEquals("api_key", bodyParams["apikey"])
-        assertEquals(file.length().toString(), bodyParams["size"])
-        assertEquals("my_policy", bodyParams["policy"])
-        assertEquals("my_signature", bodyParams["signature"])
+        request.assertThat {
+            isPost()
+            pathIs("/multipart/start")
+            bodyField("multipart", "true")
+            bodyField("apikey", "api_key")
+            bodyField("size", file.length().toString())
+            bodyField("policy", "my_policy")
+            bodyField("signature", "my_signature")
+        }
     }
 
     @Test
     fun upload() {
+        server.enqueue(MockResponse())
         val fileToUpload = tempFile(postfix = ".jpg", sizeInBytes = 1024)
         val type = URLConnection.guessContentTypeFromName(fileToUpload.name)
         val requestBody = RequestBody.create(MediaType.get(type), fileToUpload)
@@ -82,26 +128,22 @@ class UploadServiceTest {
 
         uploadService.upload(params)
 
-        val argumentCaptor = ArgumentCaptor.forClass(okhttp3.Request::class.java)
-        verify(networkClient).call(argumentCaptor.capture(), eq(UploadResponse::class.java))
-
-        val request = argumentCaptor.value
-
-        assertEquals(
-                HttpUrl.get("https://upload.filestackapi.com/multipart/upload"),
-                request.url()
-        )
-        assertEquals("POST", request.method())
-
-        val bodyParams = request.bodyParams()
-        assertEquals("api_key", bodyParams["apikey"])
-        assertEquals(fileToUpload.length().toString(), bodyParams["size"])
-        assertEquals("my_policy", bodyParams["policy"])
-        assertEquals("my_signature", bodyParams["signature"])
+        val request = server.takeRequest()
+        request.assertThat {
+            pathIs("/multipart/upload")
+            isPost()
+            bodyField("apikey", "api_key")
+            bodyField("size", fileToUpload.length().toString())
+            bodyField("policy", "my_policy")
+            bodyField("signature", "my_signature")
+        }
     }
 
     @Test
     fun uploadS3() {
+        val networkClient: NetworkClient = mock()
+        val uploadService = UploadService(networkClient)
+
         val headers = mapOf(
                 "Header1" to "HeaderValue1",
                 "Header2" to "HeaderValue2"
@@ -135,6 +177,7 @@ class UploadServiceTest {
 
     @Test
     fun commit() {
+        server.enqueue(MockResponse())
         val file = tempFile(sizeInBytes = 1024)
 
         val baseParams = mutableMapOf<String, RequestBody>()
@@ -145,16 +188,12 @@ class UploadServiceTest {
 
         uploadService.commit(baseParams)
 
-        val argumentCaptor = ArgumentCaptor.forClass(okhttp3.Request::class.java)
-        verify(networkClient).call(argumentCaptor.capture())
+        val request = server.takeRequest()
 
-        val request = argumentCaptor.value
-
-        assertEquals(
-                HttpUrl.get("https://upload.filestackapi.com/multipart/commit"),
-                request.url()
-        )
-        assertEquals("POST", request.method())
+        request.assertThat {
+            pathIs("/multipart/commit")
+            isPost()
+        }
 
         val bodyParams = request.bodyParams()
         assertEquals("api_key", bodyParams["apikey"])
@@ -165,6 +204,7 @@ class UploadServiceTest {
 
     @Test
     fun complete() {
+        server.enqueue(MockResponse())
         val file = tempFile(sizeInBytes = 1024)
 
         val baseParams = mutableMapOf<String, RequestBody>()
@@ -175,22 +215,12 @@ class UploadServiceTest {
 
         uploadService.complete(baseParams)
 
-        val argumentCaptor = ArgumentCaptor.forClass(okhttp3.Request::class.java)
-        verify(networkClient).call(argumentCaptor.capture(), eq(CompleteResponse::class.java))
+        val request = server.takeRequest()
 
-        val request = argumentCaptor.value
-
-        assertEquals(
-                HttpUrl.get("https://upload.filestackapi.com/multipart/complete"),
-                request.url()
-        )
-        assertEquals("POST", request.method())
-
-        val bodyParams = request.bodyParams()
-        assertEquals("api_key", bodyParams["apikey"])
-        assertEquals(file.length().toString(), bodyParams["size"])
-        assertEquals("my_policy", bodyParams["policy"])
-        assertEquals("my_signature", bodyParams["signature"])
+        request.assertThat {
+            pathIs("/multipart/complete")
+            isPost()
+        }
     }
 
     private fun Request.bodyParams(): Map<String, String> {

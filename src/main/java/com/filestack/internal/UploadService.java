@@ -1,22 +1,15 @@
 package com.filestack.internal;
 
-import com.filestack.internal.request.BaseUploadParams;
 import com.filestack.internal.request.MultipartBodyBuilder;
 import com.filestack.internal.request.StartUploadRequest;
 import com.filestack.internal.responses.CompleteResponse;
 import com.filestack.internal.responses.StartResponse;
 import com.filestack.internal.responses.UploadResponse;
-import okhttp3.Headers;
-import okhttp3.HttpUrl;
-import okhttp3.MultipartBody;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
+import okhttp3.*;
 
 import java.io.IOException;
 import java.util.Map;
 
-/** Wraps endpoints that run on upload.filestackapi.com. */
 public class UploadService {
 
   private final HttpUrl apiUrl;
@@ -31,21 +24,25 @@ public class UploadService {
     this.apiUrl = url;
   }
 
-  public Response<StartResponse> start(StartUploadRequest startUploadRequest) throws IOException {
+  public Response<StartResponse> start(StartUploadRequest uploadRequest) throws IOException {
     HttpUrl url = apiUrl.newBuilder()
         .addPathSegment("multipart")
         .addPathSegment("start")
         .build();
 
-    BaseUploadParams uploadParams = startUploadRequest.getBaseUploadParams();
-
     MultipartBody body = new MultipartBodyBuilder()
-        .add("apikey", uploadParams.getApiKey())
-        .add("size", uploadParams.getSize())
-        .add("multiplayer", uploadParams.getMultipart())
-        .add("policy", uploadParams.getPolicy())
-        .add("signature", uploadParams.getSignature())
-        .addAll(uploadParams.getStorageOptions().getAsPartMap())
+        .add("apikey", uploadRequest.getApiKey())
+        .add("size", uploadRequest.getSize())
+        .add("multipart", uploadRequest.isIntelligentIngestion() ? "true" : null)
+        .add("policy", uploadRequest.getPolicy())
+        .add("signature", uploadRequest.getSignature())
+        .add("filename", uploadRequest.getFilename())
+        .add("mimetype", uploadRequest.getMimeType())
+        .add("store_location", uploadRequest.getStoreLocation())
+        .add("store_region", uploadRequest.getStoreRegion())
+        .add("store_container", uploadRequest.getStoreContainer())
+        .add("store_path", uploadRequest.getStorePath())
+        .add("store_access", uploadRequest.getStoreAccess())
         .build();
 
     Request request = new Request.Builder()
@@ -62,9 +59,13 @@ public class UploadService {
         .addPathSegment("upload")
         .build();
 
+    MultipartBody multipartBody = new MultipartBodyBuilder()
+        .addAll(parameters)
+        .build();
+
     Request request = new Request.Builder()
         .url(url)
-        .post(buildMultipartBody(parameters))
+        .post(multipartBody)
         .build();
 
     return networkClient.call(request, UploadResponse.class);
@@ -96,9 +97,13 @@ public class UploadService {
         .addPathSegment("commit")
         .build();
 
+    MultipartBody multipartBody = new MultipartBodyBuilder()
+        .addAll(parameters)
+        .build();
+
     Request request = new Request.Builder()
         .url(url)
-        .post(buildMultipartBody(parameters))
+        .post(multipartBody)
         .build();
 
     return networkClient.call(request);
@@ -110,26 +115,17 @@ public class UploadService {
         .addPathSegment("complete")
         .build();
 
+    MultipartBody multipartBody = new MultipartBodyBuilder()
+        .addAll(parameters)
+        .build();
+
     Request request = new Request.Builder()
         .url(url)
-        .post(buildMultipartBody(parameters))
+        .post(multipartBody)
         .build();
 
     return networkClient.call(request, CompleteResponse.class);
 
   }
 
-  private MultipartBody buildMultipartBody(Map<String, RequestBody> parameters) {
-    MultipartBody.Builder multiPartBuilder = new MultipartBody.Builder()
-        .setType(MultipartBody.FORM);
-
-    for (Map.Entry<String, RequestBody> entry : parameters.entrySet()) {
-      Headers headers = Headers.of(
-          "Content-Disposition", "form-data; name=\"" + entry.getKey() + "\"",
-          "Content-Transfer-Encoding", "binary");
-      multiPartBuilder.addPart(headers, entry.getValue());
-    }
-
-    return multiPartBuilder.build();
-  }
 }

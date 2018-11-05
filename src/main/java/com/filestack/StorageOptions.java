@@ -1,19 +1,15 @@
 package com.filestack;
 
-import com.filestack.internal.Util;
 import com.filestack.transforms.TransformTask;
 import com.google.gson.JsonObject;
-import okhttp3.RequestBody;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 /** Configure storage options for uploads and transformation stores. */
 public class StorageOptions implements Serializable {
-  private static final String DEFAULT_FILENAME = "java-sdk-upload-%d";
   private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
+  private static final String DEFAULT_LOCATION = "s3";
 
   private String access;
   private Boolean base64Decode;
@@ -53,33 +49,6 @@ public class StorageOptions implements Serializable {
     task.addOption("region", region);
   }
 
-  /** Get these options as a part map to use for uploads. */
-  public Map<String, RequestBody> getAsPartMap() {
-    HashMap<String, RequestBody> map = new HashMap<>();
-    addToMap(map, "store_access", access);
-    addToMap(map, "store_container", container);
-    addToMap(map, "store_location", location != null ? location : "s3");
-    addToMap(map, "store_path", path);
-    addToMap(map, "store_region", region);
-
-    // A name and MIME type must be set for uploads, so we set a default here but not in "build"
-    // If we're not using the instance for an upload, we don't want to set these defaults
-    if (Util.isNullOrEmpty(filename)) {
-      long timestamp = System.currentTimeMillis() / 1000L;
-      filename = String.format(DEFAULT_FILENAME, timestamp);
-    }
-
-    // There's too many variables in guessing MIME types, esp between platforms
-    // Either the user sets it themselves or we use a default
-    if (Util.isNullOrEmpty(mimeType)) {
-      mimeType = DEFAULT_MIME_TYPE;
-    }
-
-    addToMap(map, "filename", filename);
-    addToMap(map, "mimetype", mimeType);
-    return map;
-  }
-
   /** Get these options as JSON to use for cloud integrations. */
   public JsonObject getAsJson() {
     JsonObject json = new JsonObject();
@@ -96,16 +65,35 @@ public class StorageOptions implements Serializable {
     return new Builder(this);
   }
 
-  private static void addToMap(Map<String, RequestBody> map, String key, @Nullable String value) {
-    if (value != null) {
-      map.put(key, Util.createStringPart(value));
-    }
-  }
 
   private static void addToJson(JsonObject json, String key, @Nullable String value) {
     if (value != null) {
       json.addProperty(key, value);
     }
+  }
+
+  public String getAccess() {
+    return access;
+  }
+
+  public Boolean getBase64Decode() {
+    return base64Decode;
+  }
+
+  public String getContainer() {
+    return container;
+  }
+
+  public String getLocation() {
+    return location;
+  }
+
+  public String getPath() {
+    return path;
+  }
+
+  public String getRegion() {
+    return region;
   }
 
   public static class Builder {
@@ -184,7 +172,13 @@ public class StorageOptions implements Serializable {
       building.container = container;
       building.filename = filename;
       building.location = location;
+      if (location == null) {
+        building.location = DEFAULT_LOCATION;
+      }
       building.mimeType = mimeType;
+      if (mimeType == null) {
+        building.mimeType = DEFAULT_MIME_TYPE;
+      }
       building.path = path;
       building.region = region;
 
