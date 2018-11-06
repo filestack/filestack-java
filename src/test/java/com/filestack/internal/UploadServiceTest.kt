@@ -2,17 +2,17 @@ package com.filestack.internal
 
 import com.filestack.StorageOptions
 import com.filestack.assertThat
-import com.filestack.bodyParams
-import com.filestack.internal.request.StartUploadRequest
-import com.filestack.internal.request.UploadRequest
+import com.filestack.internal.request.*
 import com.filestack.tempFile
 import com.google.gson.Gson
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
-import okhttp3.*
+import okhttp3.HttpUrl
+import okhttp3.MediaType
+import okhttp3.OkHttpClient
+import okhttp3.RequestBody
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
-import okio.Buffer
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -160,9 +160,17 @@ class UploadServiceTest {
         val url = "https://s3.url.test.com"
         val fileToUpload = tempFile(postfix = ".jpg", sizeInBytes = 1024)
         val type = URLConnection.guessContentTypeFromName(fileToUpload.name)
-        val requestBody = RequestBody.create(MediaType.get(type), fileToUpload)
 
-        uploadService.uploadS3(headers, url, requestBody)
+        val uploadRequest = S3UploadRequest(
+                HttpUrl.parse(url),
+                headers,
+                type,
+                fileToUpload.readBytes(),
+                0,
+                fileToUpload.length().toInt()
+        )
+
+        uploadService.uploadS3(uploadRequest)
 
         val argumentCaptor = ArgumentCaptor.forClass(okhttp3.Request::class.java)
         verify(networkClient).call(argumentCaptor.capture())
@@ -190,51 +198,119 @@ class UploadServiceTest {
         val file = tempFile(sizeInBytes = 1024)
 
         val baseParams = mutableMapOf<String, RequestBody>()
-        baseParams["apikey"] = Util.createStringPart("api_key")
+        baseParams["apikey"] = Util.createStringPart("my_apikey")
         baseParams["size"] = Util.createStringPart(file.length().toString())
-        baseParams["policy"] = Util.createStringPart("my_policy")
-        baseParams["signature"] = Util.createStringPart("my_signature")
 
-        uploadService.commit(baseParams)
+        val commitRequest = CommitUploadRequest(
+                "my_apikey",
+                file.length(),
+                1,
+                "my_uri",
+                "my_region",
+                "my_upload_id",
+                "my_store_location"
+        )
+
+        uploadService.commit(commitRequest)
 
         val request = server.takeRequest()
 
         request.assertThat {
             pathIs("/multipart/commit")
             isPost()
+            bodyField("apikey", "my_apikey")
+            bodyField("uri", "my_uri")
+            bodyField("region", "my_region")
+            bodyField("upload_id", "my_upload_id")
+            bodyField("size", "1024")
+            bodyField("part", 1)
+            bodyField("store_location", "my_store_location")
         }
-
-        val bodyParams = request.bodyParams()
-        assertEquals("api_key", bodyParams["apikey"])
-        assertEquals(file.length().toString(), bodyParams["size"])
-        assertEquals("my_policy", bodyParams["policy"])
-        assertEquals("my_signature", bodyParams["signature"])
     }
 
     @Test
-    fun complete() {
+    fun `complete with intelligent ingestion`() {
         server.enqueue(MockResponse())
         val file = tempFile(sizeInBytes = 1024)
 
-        val baseParams = mutableMapOf<String, RequestBody>()
-        baseParams["apikey"] = Util.createStringPart("api_key")
-        baseParams["size"] = Util.createStringPart(file.length().toString())
-        baseParams["policy"] = Util.createStringPart("my_policy")
-        baseParams["signature"] = Util.createStringPart("my_signature")
+        val completeRequest = CompleteUploadRequest.withIntelligentIngestion(
+                "my_apikey",
+                "my_uri",
+                "my_region",
+                "my_upload_id",
+                file.name,
+                file.length(),
+                "text/plain",
+                "my_location",
+                "my_store_region",
+                null,
+                null,
+                null
+        )
 
-        uploadService.complete(baseParams)
+        uploadService.complete(completeRequest)
 
         val request = server.takeRequest()
 
         request.assertThat {
             pathIs("/multipart/complete")
             isPost()
+            bodyField("apikey", "my_apikey")
+            bodyField("uri", "my_uri")
+            bodyField("region", "my_region")
+            bodyField("upload_id", "my_upload_id")
+            bodyField("filename", file.name)
+            bodyField("size", file.length())
+            bodyField("mimetype", "text/plain")
+            bodyField("store_location", "my_location")
+            bodyField("store_region", "my_store_region")
+            noField("store_path")
+            noField("store_access")
+            noField("parts")
         }
     }
 
-    private fun Request.bodyParams(): Map<String, String> {
-        val buffer = Buffer()
-        body()?.writeTo(buffer)
-        return buffer.bodyParams()
+    @Test
+    fun `complete without intelligent ingestion`() {
+        server.enqueue(MockResponse())
+        val file = tempFile(sizeInBytes = 1024)
+
+        val completeRequest = CompleteUploadRequest.regular(
+                "my_apikey",
+                "my_uri",
+                "my_region",
+                "my_upload_id",
+                file.name,
+                file.length(),
+                "text/plain",
+                "my_location",
+                "my_store_region",
+                null,
+                null,
+                null,
+                5
+        )
+
+        uploadService.complete(completeRequest)
+
+        val request = server.takeRequest()
+
+        request.assertThat {
+            pathIs("/multipart/complete")
+            isPost()
+            bodyField("apikey", "my_apikey")
+            bodyField("uri", "my_uri")
+            bodyField("region", "my_region")
+            bodyField("upload_id", "my_upload_id")
+            bodyField("filename", file.name)
+            bodyField("size", file.length())
+            bodyField("mimetype", "text/plain")
+            bodyField("store_location", "my_location")
+            bodyField("store_region", "my_store_region")
+            noField("store_path")
+            noField("store_access")
+            noField("multipart")
+            bodyField("parts", 5)
+        }
     }
 }

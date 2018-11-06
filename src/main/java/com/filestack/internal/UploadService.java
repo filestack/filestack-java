@@ -1,8 +1,6 @@
 package com.filestack.internal;
 
-import com.filestack.internal.request.MultipartBodyBuilder;
-import com.filestack.internal.request.StartUploadRequest;
-import com.filestack.internal.request.UploadRequest;
+import com.filestack.internal.request.*;
 import com.filestack.internal.responses.CompleteResponse;
 import com.filestack.internal.responses.StartResponse;
 import com.filestack.internal.responses.UploadResponse;
@@ -80,34 +78,42 @@ public class UploadService {
     return networkClient.call(request, UploadResponse.class);
   }
 
-  public Response<ResponseBody> uploadS3(Map<String, String> headers, String url, RequestBody body) throws IOException {
-    HttpUrl s3Url = HttpUrl.parse(url);
-    if (s3Url == null) {
-      throw new IOException("Invalid S3 url: " + url);
-    }
-
+  public Response<ResponseBody> uploadS3(S3UploadRequest s3UploadRequest) throws IOException {
     Headers.Builder headersBuilder = new Headers.Builder();
-    for (Map.Entry<String, String> entry : headers.entrySet()) {
+    for (Map.Entry<String, String> entry : s3UploadRequest.getHeaders().entrySet()) {
       headersBuilder.add(entry.getKey(), entry.getValue());
     }
 
+    RequestBody requestBody = RequestBody.create(
+        MediaType.parse(s3UploadRequest.getMimeType()),
+        s3UploadRequest.getData(),
+        s3UploadRequest.getOffset(),
+        s3UploadRequest.getByteCount()
+    );
+
     Request request = new Request.Builder()
-        .url(s3Url)
+        .url(s3UploadRequest.getUrl())
         .headers(headersBuilder.build())
-        .put(body)
+        .put(requestBody)
         .build();
 
     return networkClient.call(request);
   }
 
-  public Response<ResponseBody> commit(Map<String, RequestBody> parameters) throws IOException {
+  public Response<ResponseBody> commit(CommitUploadRequest commitRequest) throws IOException {
     HttpUrl url = apiUrl.newBuilder()
         .addPathSegment("multipart")
         .addPathSegment("commit")
         .build();
 
     MultipartBody multipartBody = new MultipartBodyBuilder()
-        .addAll(parameters)
+        .add("apikey", commitRequest.getApiKey())
+        .add("uri", commitRequest.getUri())
+        .add("region", commitRequest.getRegion())
+        .add("upload_id", commitRequest.getUploadId())
+        .add("size", commitRequest.getSize())
+        .add("part", commitRequest.getPart())
+        .add("store_location", commitRequest.getStoreLocation())
         .build();
 
     Request request = new Request.Builder()
@@ -137,4 +143,37 @@ public class UploadService {
 
   }
 
+  public Response<CompleteResponse> complete(CompleteUploadRequest request) throws IOException {
+    HttpUrl url = apiUrl.newBuilder()
+        .addPathSegment("multipart")
+        .addPathSegment("complete")
+        .build();
+
+    MultipartBodyBuilder builder = new MultipartBodyBuilder()
+        .add("apikey", request.getApiKey())
+        .add("uri", request.getUri())
+        .add("region", request.getRegion())
+        .add("upload_id", request.getUploadId())
+        .add("filename", request.getFilename())
+        .add("size", request.getSize())
+        .add("mimetype", request.getMimeType())
+        .add("store_location", request.getStoreLocation())
+        .add("store_container", request.getStoreContainer())
+        .add("store_path", request.getStorePath())
+        .add("store_access", request.getStoreAccess())
+        .add("store_region", request.getStoreRegion());
+
+    if (request.isIntelligentIngestion()) {
+      builder.add("multipart", "true");
+    } else {
+      builder.add("parts", request.getParts());
+    }
+
+    Request r = new Request.Builder()
+        .url(url)
+        .post(builder.build())
+        .build();
+
+    return networkClient.call(r, CompleteResponse.class);
+  }
 }

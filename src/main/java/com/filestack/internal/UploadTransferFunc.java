@@ -1,16 +1,18 @@
 package com.filestack.internal;
 
+import com.filestack.internal.request.CommitUploadRequest;
+import com.filestack.internal.request.S3UploadRequest;
 import com.filestack.internal.request.UploadRequest;
 import com.filestack.internal.responses.UploadResponse;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
 import io.reactivex.FlowableOnSubscribe;
+import okhttp3.HttpUrl;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Function to be passed to {@link Flowable#create(FlowableOnSubscribe, BackpressureStrategy)}.
@@ -111,12 +113,15 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog> {
         }
 
         UploadResponse params = getUploadParams(size);
-        Map<String, String> headers = params.getS3Headers();
-        String url = params.getUrl();
-
-        RequestBody body;
-        body = RequestBody.create(upload.mediaType, container.data, container.sent, size);
-        return uploadService.uploadS3(headers, url, body);
+        S3UploadRequest uploadRequest = new S3UploadRequest(
+            HttpUrl.parse(params.getUrl()),
+            params.getS3Headers(),
+            upload.storageOptions.getMimeType(),
+            container.data,
+            container.sent,
+            size
+        );
+        return uploadService.uploadS3(uploadRequest);
       }
 
       @Override
@@ -143,15 +148,20 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog> {
 
   /** For intelligent ingestion mode only. Called when all chunks of a part have been uploaded. */
   private void multipartCommit() throws Exception {
-    final HashMap<String, RequestBody> params = new HashMap<>();
-    params.putAll(upload.baseParams);
-    params.put("part", Util.createStringPart(Integer.toString(container.num)));
-
+    final CommitUploadRequest commitRequest = new CommitUploadRequest(
+        upload.clientConf.getApiKey(),
+        upload.inputSize,
+        container.num,
+        uri,
+        region,
+        uploadId,
+        upload.storageOptions.getLocation()
+    );
     RetryNetworkFunc<ResponseBody> func;
     func = new RetryNetworkFunc<ResponseBody>(5, 5, Upload.DELAY_BASE) {
       @Override
       Response<ResponseBody> work() throws Exception {
-        return uploadService.commit(params);
+        return uploadService.commit(commitRequest);
       }
     };
 
