@@ -9,10 +9,7 @@ import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
 import io.reactivex.FlowableOnSubscribe;
 import okhttp3.HttpUrl;
-import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-
-import java.util.HashMap;
 
 /**
  * Function to be passed to {@link Flowable#create(FlowableOnSubscribe, BackpressureStrategy)}.
@@ -30,12 +27,15 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog> {
   private final String region;
   private final String uploadId;
 
-  UploadTransferFunc(UploadService uploadService, Upload upload, String uri, String region, String uploadId) {
+  private final boolean intel;
+
+  UploadTransferFunc(UploadService uploadService, Upload upload, String uri, String region, String uploadId, boolean intel) {
     this.uploadService = uploadService;
     this.upload = upload;
     this.uri = uri;
     this.region = region;
     this.uploadId = uploadId;
+    this.intel = intel;
   }
 
   @Override
@@ -47,7 +47,7 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog> {
       while (container.sent != container.size) {
         uploadToS3();
       }
-      if (upload.intel) {
+      if (intel) {
         multipartCommit();
       }
     }
@@ -59,15 +59,6 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog> {
     byte[] md5 = Hash.md5(container.data, container.sent, size);
     String encodedMd5 = Util.base64(md5);
 
-    final HashMap<String, RequestBody> params = new HashMap<>();
-    params.putAll(upload.baseParams);
-    params.put("part", Util.createStringPart(Integer.toString(container.num)));
-    params.put("size", Util.createStringPart(Integer.toString(size)));
-    params.put("md5", Util.createStringPart(encodedMd5));
-    if (upload.intel) {
-      params.put("offset", Util.createStringPart(Integer.toString(container.sent)));
-    }
-
     final UploadRequest uploadRequest = new UploadRequest(
         upload.clientConf.getApiKey(),
         container.num,
@@ -76,8 +67,8 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog> {
         uri,
         region,
         uploadId,
-        upload.intel,
-        upload.intel ? (long) container.sent : null
+        intel,
+        intel ? (long) container.sent : null
     );
 
     RetryNetworkFunc<UploadResponse> func;
@@ -106,7 +97,7 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog> {
           startTime = System.currentTimeMillis() / 1000;
         }
 
-        if (upload.intel) {
+        if (intel) {
           size = Math.min(upload.getChunkSize(), container.size - container.sent);
         } else {
           size = Math.min(upload.partSize, container.size);
@@ -132,7 +123,7 @@ public class UploadTransferFunc implements FlowableOnSubscribe<Prog> {
 
       @Override
       ResponseBody process(Response<ResponseBody> response) {
-        if (!upload.intel) {
+        if (!intel) {
           String etag = response.getHeaders().get("ETag");
           upload.etags[container.num - 1] = etag;
         }

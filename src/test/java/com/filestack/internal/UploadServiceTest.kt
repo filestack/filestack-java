@@ -288,7 +288,7 @@ class UploadServiceTest {
                 null,
                 null,
                 null,
-                5
+                "my_parts"
         )
 
         uploadService.complete(completeRequest)
@@ -310,7 +310,7 @@ class UploadServiceTest {
             noField("store_path")
             noField("store_access")
             noField("multipart")
-            bodyField("parts", 5)
+            bodyField("parts", "my_parts")
         }
     }
 }

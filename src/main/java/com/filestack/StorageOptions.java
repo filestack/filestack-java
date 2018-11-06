@@ -1,15 +1,18 @@
 package com.filestack;
 
+import com.filestack.internal.Util;
 import com.filestack.transforms.TransformTask;
 import com.google.gson.JsonObject;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.util.Locale;
 
 /** Configure storage options for uploads and transformation stores. */
 public class StorageOptions implements Serializable {
   private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
   private static final String DEFAULT_LOCATION = "s3";
+  private static final String DEFAULT_FILENAME_TEMPLATE = "java-sdk-upload-%d";
 
   private String access;
   private Boolean base64Decode;
@@ -171,6 +174,9 @@ public class StorageOptions implements Serializable {
       building.base64Decode = base64Decode;
       building.container = container;
       building.filename = filename;
+      if (Util.isNullOrEmpty(filename)) {
+        building.filename = generateFilename();
+      }
       building.location = location;
       if (location == null) {
         building.location = DEFAULT_LOCATION;
@@ -183,6 +189,11 @@ public class StorageOptions implements Serializable {
       building.region = region;
 
       return building;
+    }
+
+    private static String generateFilename() {
+      long seconds = System.currentTimeMillis() / 1000L;
+      return String.format(Locale.ROOT, DEFAULT_FILENAME_TEMPLATE, seconds);
     }
   }
 }

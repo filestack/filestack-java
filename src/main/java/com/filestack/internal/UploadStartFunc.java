@@ -32,29 +32,7 @@ public class UploadStartFunc implements Callable<StartResponse> {
         return uploadService.start(startUploadRequest);
       }
     };
-
-    StartResponse response = func.call();
-
-    upload.baseParams.putAll(response.getUploadParams());
-
-    if (upload.intel) {
-      upload.intel = response.isIntelligent();
-    }
-
-    // If we tried to enable an intelligent upload and the response came back true
-    // Then the account supports it and we perform an intelligent upload
-    if (upload.intel) {
-      upload.partSize = Upload.INTELLIGENT_PART_SIZE;
-    // Otherwise we didn't enable it for this call or the account doesn't support it
-    } else {
-      upload.partSize = Upload.REGULAR_PART_SIZE;
-      upload.baseParams.remove("multipart");
-    }
-
-    int numParts = (int) Math.ceil(upload.inputSize / (double) upload.partSize);
-    upload.etags = new String[numParts];
-
-    return response;
+    return func.call();
   }
 
   UploadStartFunc(UploadService uploadService, Upload upload) {

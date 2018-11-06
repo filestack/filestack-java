@@ -2,18 +2,13 @@ package com.filestack.internal
 
 import com.filestack.Config
 import com.filestack.StorageOptions
-import com.filestack.internal.responses.Model
-import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
-import org.junit.Assert.*
-import org.junit.Test
 
 class UploadStartFuncTest {
 
     val uploadService = mock<UploadService>()
 
-    @Test
+/*    @Test
     fun `includes upload params`() {
         val upload = upload()
         val startResponse = Model.startResponse()
@@ -91,7 +86,7 @@ class UploadStartFuncTest {
 
         assertFalse(upload.baseParams.containsKey("multipart"))
         assertEquals(Upload.REGULAR_PART_SIZE, upload.partSize)
-    }
+    }*/
 
     private fun upload(
             inputSize: Int = 0,

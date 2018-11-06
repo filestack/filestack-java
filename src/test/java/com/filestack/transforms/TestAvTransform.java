@@ -48,6 +48,7 @@ public class TestAvTransform {
   public void testConstructorStoreOpts() {
     StorageOptions storeOpts = new StorageOptions.Builder()
         .container("some-bucket")
+        .filename("my_filename.mp4")
         .build();
 
     AvTransformOptions avOpts = new AvTransformOptions.Builder()
@@ -57,7 +58,7 @@ public class TestAvTransform {
     Config config = new Config("apiKey");
     TransformTask task = new AvTransform(cdnService, config, "handle", storeOpts, avOpts).tasks.get(0);
 
-    Assert.assertEquals("video_convert=container:some-bucket,preset:mp4", task.toString());
+    Assert.assertEquals("video_convert=container:some-bucket,filename:my_filename.mp4,location:s3,preset:mp4", task.toString());
   }
 
   @Test

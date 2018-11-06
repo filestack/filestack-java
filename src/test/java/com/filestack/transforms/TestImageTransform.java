@@ -1,6 +1,7 @@
 package com.filestack.transforms;
 
 import com.filestack.Config;
+import com.filestack.StorageOptions;
 import com.filestack.internal.CdnService;
 import com.filestack.internal.MockResponse;
 import com.filestack.internal.responses.StoreResponse;
@@ -12,6 +13,7 @@ import org.mockito.Mockito;
 
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("WeakerAccess")
 public class TestImageTransform {
 
   final CdnService cdnService = Mockito.mock(CdnService.class);
@@ -46,11 +48,14 @@ public class TestImageTransform {
     String jsonString = "{'url': 'https://cdn.filestackcontent.com/handle'}";
     Gson gson = new Gson();
     StoreResponse storeResponse = gson.fromJson(jsonString, StoreResponse.class);
+    StorageOptions storageOptions = new StorageOptions.Builder()
+        .filename("my_filename.mp4")
+        .build();
 
-    when(cdnService.transformStore("store", "handle"))
+    when(cdnService.transformStore("store=filename:my_filename.mp4,location:s3", "handle"))
         .thenReturn(MockResponse.<StoreResponse>success(storeResponse));
 
-    Assert.assertNotNull(transform.store());
+    Assert.assertNotNull(transform.store(storageOptions));
   }
 
   @Test
@@ -59,14 +64,17 @@ public class TestImageTransform {
     Gson gson = new Gson();
     StoreResponse storeResponse = gson.fromJson(jsonString, StoreResponse.class);
     String url = "https://example.com/image.jpg";
+    StorageOptions storageOptions = new StorageOptions.Builder()
+        .filename("my_filename.mp4")
+        .build();
 
-    when(cdnService.transformStoreExt("apiKey","store", url))
-        .thenReturn(MockResponse.<StoreResponse>success(storeResponse));
+    when(cdnService.transformStoreExt("apiKey","store=filename:my_filename.mp4,location:s3", url))
+        .thenReturn(MockResponse.success(storeResponse));
 
     Config config = new Config("apiKey");
     ImageTransform transform = new ImageTransform(config, cdnService, url, true);
 
-    Assert.assertNotNull(transform.store());
+    Assert.assertNotNull(transform.store(storageOptions));
   }
 
   @Test(expected = IllegalArgumentException.class)
