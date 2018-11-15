@@ -8,13 +8,11 @@ import com.filestack.internal.Response;
 import com.filestack.internal.Util;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import io.reactivex.Single;
 import okhttp3.HttpUrl;
 import okhttp3.ResponseBody;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.Callable;
 
 /**
  * Base class for file transformations and conversions.
@@ -110,35 +108,5 @@ public class Transform {
 
     Gson gson = new Gson();
     return gson.fromJson(body.charStream(), JsonObject.class);
-  }
-
-  // Async method wrappers
-
-  /**
-   * Asynchronously returns the content of a transformation.
-   *
-   * @see #getContent()
-   */
-  public Single<ResponseBody> getContentAsync() {
-    return Single.fromCallable(new Callable<ResponseBody>() {
-      @Override
-      public ResponseBody call() throws Exception {
-        return getContent();
-      }
-    });
-  }
-
-  /**
-   * Asynchronously returns the content of a transformation as JSON.
-   *
-   * @see #getContent()
-   */
-  public Single<JsonObject> getContentJsonAsync() {
-    return Single.fromCallable(new Callable<JsonObject>() {
-      @Override
-      public JsonObject call() throws Exception {
-        return getContentJson();
-      }
-    });
   }
 }

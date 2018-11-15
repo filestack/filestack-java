@@ -9,7 +9,8 @@ public class CommitUploadRequest {
   private final String uploadId;
   private final String storeLocation;
 
-  public CommitUploadRequest(String apiKey, long size, int part, String uri, String region, String uploadId, String storeLocation) {
+  public CommitUploadRequest(String apiKey, long size, int part, String uri, String region, String uploadId,
+                             String storeLocation) {
     this.apiKey = apiKey;
     this.size = size;
     this.part = part;

@@ -9,11 +9,9 @@ import com.filestack.internal.Response;
 import com.filestack.internal.Util;
 import com.filestack.internal.responses.StoreResponse;
 import com.google.gson.JsonObject;
-import io.reactivex.Single;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.util.concurrent.Callable;
 
 /**
  * {@link Transform Transform} subclass for image transformations.
@@ -110,41 +108,5 @@ public class ImageTransform extends Transform {
     }
     tasks.add(task);
     return this;
-  }
-
-  // Async method wrappers
-
-  /**
-   * Async, observable version of {@link #debug()}.
-   * Same exceptions are passed through observable.
-   */
-  public Single<JsonObject> debugAsync() {
-    return Single.fromCallable(new Callable<JsonObject>() {
-      @Override
-      public JsonObject call() throws Exception {
-        return debug();
-      }
-    });
-  }
-
-  /**
-   * Async, observable version of {@link #store()}.
-   * Same exceptions are passed through observable.
-   */
-  public Single<FileLink> storeAsync() {
-    return storeAsync(null);
-  }
-
-  /**
-   * Async, observable version of {@link #store(StorageOptions)}.
-   * Same exceptions are passed through observable.
-   */
-  public Single<FileLink> storeAsync(@Nullable final StorageOptions storageOptions) {
-    return Single.fromCallable(new Callable<FileLink>() {
-      @Override
-      public FileLink call() throws Exception {
-        return store(storageOptions);
-      }
-    });
   }
 }

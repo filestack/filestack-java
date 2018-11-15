@@ -1,6 +1,5 @@
 package com.filestack.internal;
 
-import com.filestack.FilestackBuildConfig;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -15,7 +14,7 @@ public class HeaderInterceptor implements Interceptor {
   static String HEADER_USER_AGENT = "User-Agent";
   static String HEADER_FILESTACK_SOURCE = "Filestack-Source";
 
-  static String VERSION = FilestackBuildConfig.VERSION;
+  static String VERSION = "1.0.0-alpha1";
   static String USER_AGENT = String.format(Locale.ROOT, "filestack-java %s", VERSION);
   static String FILESTACK_SOURCE = String.format(Locale.ROOT, "Java-%s", VERSION);
 

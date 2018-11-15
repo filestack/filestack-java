@@ -1,10 +1,6 @@
 package com.filestack;
 
-import com.filestack.internal.BaseService;
-import com.filestack.internal.CdnService;
-import com.filestack.internal.Networking;
-import com.filestack.internal.Response;
-import com.filestack.internal.Util;
+import com.filestack.internal.*;
 import com.filestack.internal.responses.ImageTagResponse;
 import com.filestack.transforms.AvTransform;
 import com.filestack.transforms.ImageTransform;
@@ -12,9 +8,6 @@ import com.filestack.transforms.ImageTransformTask;
 import com.filestack.transforms.tasks.AvTransformOptions;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import io.reactivex.Completable;
-import io.reactivex.Single;
-import io.reactivex.functions.Action;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -28,7 +21,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URLConnection;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 /** References and performs operations on an individual file. */
 public class FileLink implements Serializable {
@@ -227,103 +219,6 @@ public class FileLink implements Serializable {
    */
   public AvTransform avTransform(@Nullable StorageOptions storeOptions, AvTransformOptions avOptions) {
     return new AvTransform(cdnService, config, handle, storeOptions, avOptions);
-  }
-
-  // Async methods
-  // These just wrap each of the sync methods in some class of observable
-
-  /**
-   * Asynchronously returns the content of a file.
-   *
-   * @see #getContent()
-   */
-  public Single<ResponseBody> getContentAsync() {
-    return Single.fromCallable(new Callable<ResponseBody>() {
-      @Override
-      public ResponseBody call() throws Exception {
-        return getContent();
-      }
-    });
-  }
-
-  /**
-   * Asynchronously saves the file using the name it was uploaded with.
-   *
-   * @see #download(String, String)
-   */
-  public Single<File> downloadAsync(final String directory) {
-    return downloadAsync(directory, null);
-  }
-
-  /**
-   * Asynchronously saves the file overriding the name it was uploaded with.
-   *
-   * @see #download(String, String)
-   */
-  public Single<File> downloadAsync(final String directory, @Nullable final String filename) {
-    return Single.fromCallable(new Callable<File>() {
-      @Override
-      public File call() throws Exception {
-        return download(directory, filename);
-      }
-    });
-  }
-
-  /**
-   * Asynchronously replace the content of an existing file handle. Requires security to be set.
-   * Does not update the filename or MIME type.
-   *
-   * @see #overwrite(String)
-   */
-  public Completable overwriteAsync(final String pathname) {
-    return Completable.fromAction(new Action() {
-      @Override
-      public void run() throws Exception {
-        overwrite(pathname);
-      }
-    });
-  }
-
-  /**
-   * Asynchronously deletes a file handle. Requires security to be set.
-   *
-   * @see #delete()
-   */
-  public Completable deleteAsync() {
-    return Completable.fromAction(new Action() {
-      @Override
-      public void run() throws Exception {
-        delete();
-      }
-    });
-  }
-
-  /**
-   * Asynchronously returns tags from Google Vision API for image FileLinks.
-   *
-   * @see #imageTags()
-   */
-  public Single<Map<String, Integer>> imageTagsAsync() {
-    return Single.fromCallable(new Callable<Map<String, Integer>>() {
-      @Override
-      public Map<String, Integer> call() throws Exception {
-        return imageTags();
-      }
-    });
-  }
-
-  /**
-   * Asynchronously determines if an image FileLink is "safe for work" using the Google Vision API.
-   *
-   * @see #imageSfw()
-   */
-  public Single<Boolean> imageSfwAsync() {
-    return Single.fromCallable(new Callable<Boolean>() {
-      @Override
-      public Boolean call() throws Exception {
-        return imageSfw();
-      }
-    });
   }
 
   @Deprecated

@@ -15,7 +15,8 @@ public class UploadRequest {
   @Nullable
   private final Long offset;
 
-  public UploadRequest(String apiKey, int part, long size, String md5, String uri, String region, String uploadId, boolean isIntelligentIngestion, @Nullable Long offset) {
+  public UploadRequest(String apiKey, int part, long size, String md5, String uri, String region, String uploadId,
+                       boolean isIntelligentIngestion, @Nullable Long offset) {
     this.apiKey = apiKey;
     this.part = part;
     this.size = size;

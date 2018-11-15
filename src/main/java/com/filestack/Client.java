@@ -1,32 +1,15 @@
 package com.filestack;
 
-import com.filestack.internal.BaseService;
-import com.filestack.internal.CdnService;
-import com.filestack.internal.CloudService;
-import com.filestack.internal.CloudServiceUtil;
-import com.filestack.internal.Networking;
-import com.filestack.internal.Response;
-import com.filestack.internal.Upload;
-import com.filestack.internal.UploadService;
-import com.filestack.internal.Util;
+import com.filestack.internal.*;
 import com.filestack.internal.responses.CloudStoreResponse;
 import com.filestack.transforms.ImageTransform;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.Single;
-import io.reactivex.functions.Action;
 import okhttp3.ResponseBody;
 
 import javax.annotation.Nullable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.util.concurrent.Callable;
+import java.io.*;
 
 /** Uploads new files. */
 public class Client implements Serializable {
@@ -60,45 +43,38 @@ public class Client implements Serializable {
     this.cloudService = cloudService;
   }
 
-  /**
-   * Synchronously uploads a file system path using default storage options.
-   * Wraps {@link #uploadAsync(InputStream, int, boolean, StorageOptions)}.
-   *
-   * @see #uploadAsync(InputStream, int, boolean, StorageOptions)
-   */
-  public FileLink upload(String path, boolean intel) throws IOException {
+  public FileLink upload(String path, boolean intel) throws Exception {
     return upload(path, intel, null);
   }
 
-  /**
-   * Synchronously uploads a file system path.
-   * Wraps {@link #uploadAsync(InputStream, int, boolean, StorageOptions)}.
-   *
-   * @see #uploadAsync(InputStream, int, boolean, StorageOptions)
-   */
-  public FileLink upload(String path, boolean intel, @Nullable StorageOptions opts) throws IOException {
-    return uploadAsync(path, intel, opts).blockingLast().getData();
+  public FileLink upload(String path, boolean intel, @Nullable StorageOptions opts) throws Exception {
+    File inputFile = Util.createReadFile(path);
+    InputStream inputStream = new FileInputStream(inputFile);
+
+    if (opts == null) {
+      opts = new StorageOptions.Builder().filename(inputFile.getName()).build();
+    } else if (Util.isNullOrEmpty(opts.getFilename())) {
+      opts = opts.newBuilder().filename(inputFile.getName()).build();
+    }
+
+    return upload(inputStream, (int) inputFile.length(), intel, opts);
   }
 
-  /**
-   * Synchronously uploads an {@link InputStream} using default storage options.
-   * Wraps {@link #uploadAsync(InputStream, int, boolean, StorageOptions)}.
-   *
-   * @see #uploadAsync(InputStream, int, boolean, StorageOptions)
-   */
-  public FileLink upload(InputStream input, int size, boolean intel) throws IOException {
+  public FileLink upload(InputStream input, int size, boolean intel) throws Exception {
     return upload(input, size, intel, null);
   }
 
   /**
    * Synchronously uploads an {@link InputStream}.
-   * Wraps {@link #uploadAsync(InputStream, int, boolean, StorageOptions)}.
    *
-   * @see #uploadAsync(InputStream, int, boolean, StorageOptions)
    */
   public FileLink upload(InputStream input, int size, boolean intel, @Nullable StorageOptions opts)
-      throws IOException {
-    return uploadAsync(input, size, intel, opts).blockingLast().getData();
+      throws Exception {
+    if (opts == null) {
+      opts = new StorageOptions.Builder().build();
+    }
+    final Upload upload = new Upload(config, uploadService, input, size, intel, opts);
+    return upload.upload();
   }
 
   /**
@@ -225,156 +201,9 @@ public class Client implements Serializable {
     Util.checkResponseAndThrow(response);
   }
 
-  // Async methods
 
-  /**
-   * Asynchronously uploads a file system path using default storage options.
-   * Wraps {@link #uploadAsync(InputStream, int, boolean, StorageOptions)}.
-   *
-   * @see #uploadAsync(InputStream, int, boolean, StorageOptions)
-   */
-  public Flowable<Progress<FileLink>> uploadAsync(String path, boolean intelligent) {
-    return uploadAsync(path, intelligent, null);
-  }
 
-  /**
-   * Asynchronously uploads a file system path.
-   * Wraps {@link #uploadAsync(InputStream, int, boolean, StorageOptions)}.
-   *
-   * @see #uploadAsync(InputStream, int, boolean, StorageOptions)
-   */
-  public Flowable<Progress<FileLink>> uploadAsync(String path, boolean intel, @Nullable StorageOptions opts) {
-    try {
-      File inputFile = Util.createReadFile(path);
-      InputStream inputStream = new FileInputStream(inputFile);
 
-      if (opts == null) {
-        opts = new StorageOptions.Builder().filename(inputFile.getName()).build();
-      } else if (Util.isNullOrEmpty(opts.getFilename())) {
-        opts = opts.newBuilder().filename(inputFile.getName()).build();
-      }
-
-      return uploadAsync(inputStream, (int) inputFile.length(), intel, opts);
-    } catch (IOException e) {
-      return Flowable.error(e);
-    }
-  }
-
-  /**
-   * Asynchronously uploads an {@link InputStream} using default storage options.
-   * Wraps {@link #uploadAsync(InputStream, int, boolean, StorageOptions)}.
-   *
-   * @see #uploadAsync(InputStream, int, boolean, StorageOptions)
-   */
-  public Flowable<Progress<FileLink>> uploadAsync(InputStream input, int size, boolean intel) {
-    return uploadAsync(input, size, intel, null);
-  }
-
-  /**
-   * Asynchronously uploads an {@link InputStream}.
-   * The returned {@link Flowable} emits a stream of {@link Progress} objects.
-   * The final {@link Progress} object will return a new {@link FileLink} from the
-   * {@link Progress#getData()} method.
-   * The upload is not done until {@link Progress#getData()} returns non-null.
-   * All exceptions, including issues opening a file, are returned through the observable.
-   *
-   * <p>
-   * An {@link HttpException} is thrown on error response from backend.
-   * An {@link IOException} is thrown on error reading file or network failure.
-   * </p>
-   *
-   * @param intel enable intelligent ingestion, setting to true to will decrease failures in very
-   *              poor network conditions at the expense of upload speed
-   * @param opts  storage options, https://www.filestack.com/docs/rest-api/store
-   */
-  public Flowable<Progress<FileLink>> uploadAsync(
-      InputStream input, int size, boolean intel, @Nullable StorageOptions opts) {
-    if (opts == null) {
-      opts = new StorageOptions.Builder().build();
-    }
-
-    Upload upload = new Upload(config, uploadService, input, size, intel, opts);
-    return upload.run();
-  }
-
-  /**
-   * Asynchronously get basic account info for this fsClient's API key.
-   *
-   * @see #getAppInfo()
-   */
-  public Single<AppInfo> getAppInfoAsync() {
-    return Single.fromCallable(new Callable<AppInfo>() {
-      @Override
-      public AppInfo call() throws Exception {
-        return getAppInfo();
-      }
-    });
-  }
-
-  /**
-   * Asynchronously gets contents of a user's cloud "drive".
-   *
-   * @see #getCloudItems(String, String, String)
-   */
-  public Single<CloudResponse> getCloudItemsAsync(String providerName, String path) {
-    return getCloudItemsAsync(providerName, path, null);
-  }
-
-  /**
-   * Asynchronously gets contents of a user's cloud "drive".
-   *
-   * @see #getCloudItems(String, String, String)
-   */
-  public Single<CloudResponse> getCloudItemsAsync(final String providerName, final String path,
-                                                     @Nullable final String next) {
-
-    return Single.fromCallable(new Callable<CloudResponse>() {
-      @Override
-      public CloudResponse call() throws Exception {
-        return getCloudItems(providerName, path, next);
-      }
-    });
-  }
-
-  /**
-   * Asynchronously transfers file from a user's cloud "drive" to Filestack.
-   * Uses default storage options.
-   *
-   * @see #storeCloudItem(String, String, StorageOptions)
-   */
-  public Single<FileLink> storeCloudItemAsync(final String providerName, final String path) {
-    return storeCloudItemAsync(providerName, path, null);
-  }
-
-  /**
-   * Asynchronously transfers file from a user's cloud "drive" to Filestack.
-   *
-   * @see #storeCloudItem(String, String, StorageOptions)
-   */
-  public Single<FileLink> storeCloudItemAsync(final String providerName, final String path,
-                                              @Nullable final StorageOptions options) {
-
-    return Single.fromCallable(new Callable<FileLink>() {
-      @Override
-      public FileLink call() throws Exception {
-        return storeCloudItem(providerName, path, options);
-      }
-    });
-  }
-
-  /**
-   * Asynchronously logs out from specified cloud.
-   *
-   * @see #logoutCloud(String)
-   */
-  public Completable logoutCloudAsync(final String providerName) {
-    return Completable.fromAction(new Action() {
-      @Override
-      public void run() throws Exception {
-        logoutCloud(providerName);
-      }
-    });
-  }
 
   /**
    * Creates an {@link ImageTransform} object for this file. A transformation call isn't made

@@ -1,26 +1,22 @@
 package com.filestack.internal;
 
 import com.filestack.FileLink;
-import com.filestack.Progress;
-import io.reactivex.Flowable;
-import io.reactivex.functions.Function;
-import org.reactivestreams.Publisher;
 
-public class ProgMapFunc implements Function<Prog, Publisher<Progress<FileLink>>> {
+import com.filestack.Progress;
+public class ProgMapFunc  {
 
   private static final double SMOOTHING_FACTOR = 0.25; // How quickly we discard old observations
 
-  private final Upload upload; // Just needed to know the total size of the upload
+  private final int inputSize;
   private long startTime; // Time we received start event
   private long transBytes; // Number of bytes transferred
   private double movAvgRate; // Rate that increasingly devalues older rates (bytes / second)
 
-  ProgMapFunc(Upload upload) {
-    this.upload = upload;
+  ProgMapFunc(int inputSize) {
+    this.inputSize = inputSize;
   }
 
-  @Override
-  public Publisher<Progress<FileLink>> apply(Prog prog) throws Exception {
+  public Progress<FileLink> apply(Prog prog) throws Exception {
 
     if (prog.getType() == Prog.Type.TRANSFER) {
 
@@ -39,7 +35,7 @@ public class ProgMapFunc implements Function<Prog, Publisher<Progress<FileLink>>
     // Don't send an update when we don't have a rate
     if (prog.getType() == Prog.Type.START) {
       startTime = System.currentTimeMillis() / 1000;
-      return Flowable.empty();
+      return null;
     }
 
     return createUpdate(prog);
@@ -51,11 +47,11 @@ public class ProgMapFunc implements Function<Prog, Publisher<Progress<FileLink>>
   }
 
   // Creates a progress update from the current state
-  private Flowable<Progress<FileLink>> createUpdate(Prog prog) {
+  private Progress<FileLink> createUpdate(Prog prog) {
     long currentTime = System.currentTimeMillis() / 1000;
     int elapsedTime = (int) (currentTime - startTime);
-    return Flowable.just(new Progress<>(transBytes, upload.inputSize, elapsedTime, movAvgRate * Upload.CONCURRENCY,
-        prog.getFileLink()));
+    return new Progress<>(transBytes, inputSize, elapsedTime, movAvgRate * Upload.CONCURRENCY,
+        prog.getFileLink());
   }
 
 }

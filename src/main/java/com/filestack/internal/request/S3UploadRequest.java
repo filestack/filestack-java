@@ -12,7 +12,8 @@ public class S3UploadRequest {
   private final int offset;
   private final int byteCount;
 
-  public S3UploadRequest(HttpUrl url, Map<String, String> headers, String mimeType, byte[] data, int offset, int byteCount) {
+  public S3UploadRequest(HttpUrl url, Map<String, String> headers, String mimeType, byte[] data, int offset,
+                         int byteCount) {
     this.url = url;
     this.headers = headers;
     this.mimeType = mimeType;

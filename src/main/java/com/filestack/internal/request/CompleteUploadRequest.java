@@ -4,20 +4,36 @@ import com.filestack.StorageOptions;
 
 public class CompleteUploadRequest {
 
-  public static CompleteUploadRequest withIntelligentIngestion(String apiKey, String uri, String region, String uploadId, String filename, long size, String mimeType, String storeLocation, String storeRegion, String storeContainer, String storePath, String storeAccess) {
-    return new CompleteUploadRequest(apiKey, uri, region, uploadId, filename, size, mimeType, storeLocation, storeRegion, storeContainer, storePath, storeAccess, true, null);
+  public static CompleteUploadRequest withIntelligentIngestion(String apiKey, String uri, String region,
+                                                               String uploadId, String filename, long size,
+                                                               String mimeType, String storeLocation,
+                                                               String storeRegion, String storeContainer,
+                                                               String storePath, String storeAccess) {
+    return new CompleteUploadRequest(apiKey, uri, region, uploadId, filename, size, mimeType, storeLocation,
+        storeRegion, storeContainer, storePath, storeAccess, true, null);
   }
 
-  public static CompleteUploadRequest withIntelligentIngestion(String apiKey, String uri, String region, String uploadId, long size, StorageOptions storageOptions) {
-    return withIntelligentIngestion(apiKey, uri, region, uploadId, storageOptions.getFilename(), size, storageOptions.getMimeType(), storageOptions.getLocation(), storageOptions.getRegion(), storageOptions.getContainer(), storageOptions.getPath(), storageOptions.getAccess());
+  public static CompleteUploadRequest withIntelligentIngestion(String apiKey, String uri, String region,
+                                                               String uploadId, long size,
+                                                               StorageOptions storageOptions) {
+    return withIntelligentIngestion(apiKey, uri, region, uploadId, storageOptions.getFilename(), size,
+        storageOptions.getMimeType(), storageOptions.getLocation(), storageOptions.getRegion(),
+        storageOptions.getContainer(), storageOptions.getPath(), storageOptions.getAccess());
   }
 
-  public static CompleteUploadRequest regular(String apiKey, String uri, String region, String uploadId, String filename, long size, String mimeType, String storeLocation, String storeRegion, String storeContainer, String storePath, String storeAccess, String parts) {
-    return new CompleteUploadRequest(apiKey, uri, region, uploadId, filename, size, mimeType, storeLocation, storeRegion, storeContainer, storePath, storeAccess, false, parts);
+  public static CompleteUploadRequest regular(String apiKey, String uri, String region, String uploadId,
+                                              String filename, long size, String mimeType, String storeLocation,
+                                              String storeRegion, String storeContainer, String storePath,
+                                              String storeAccess, String parts) {
+    return new CompleteUploadRequest(apiKey, uri, region, uploadId, filename, size, mimeType, storeLocation,
+        storeRegion, storeContainer, storePath, storeAccess, false, parts);
   }
 
-  public static CompleteUploadRequest regular(String apiKey, String uri, String region, String uploadId, long size, String parts, StorageOptions storageOptions) {
-    return regular(apiKey, uri, region, uploadId, storageOptions.getFilename(), size, storageOptions.getMimeType(), storageOptions.getLocation(), storageOptions.getRegion(), storageOptions.getContainer(), storageOptions.getPath(), storageOptions.getAccess(), parts);
+  public static CompleteUploadRequest regular(String apiKey, String uri, String region, String uploadId, long size,
+                                              String parts, StorageOptions storageOptions) {
+    return regular(apiKey, uri, region, uploadId, storageOptions.getFilename(), size, storageOptions.getMimeType(),
+        storageOptions.getLocation(), storageOptions.getRegion(), storageOptions.getContainer(),
+        storageOptions.getPath(), storageOptions.getAccess(), parts);
   }
 
   private final String apiKey;
@@ -35,7 +51,9 @@ public class CompleteUploadRequest {
   private final boolean intelligentIngestion;
   private final String parts;
 
-  private CompleteUploadRequest(String apiKey, String uri, String region, String uploadId, String filename, long size, String mimeType, String storeLocation, String storeRegion, String storeContainer, String storePath, String storeAccess, boolean intelligentIngestion, String parts) {
+  private CompleteUploadRequest(String apiKey, String uri, String region, String uploadId, String filename, long size,
+                                String mimeType, String storeLocation, String storeRegion, String storeContainer,
+                                String storePath, String storeAccess, boolean intelligentIngestion, String parts) {
     this.apiKey = apiKey;
     this.uri = uri;
     this.region = region;

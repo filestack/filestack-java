@@ -1,28 +1,28 @@
 package com.filestack.internal;
 
+import com.filestack.Config;
+import com.filestack.StorageOptions;
 import com.filestack.internal.request.StartUploadRequest;
 import com.filestack.internal.responses.StartResponse;
-import io.reactivex.Flowable;
 
 import java.util.concurrent.Callable;
 
-/**
- * Function to be passed to {@link Flowable#fromCallable(Callable)}.
- * Handles initiating a multipart upload.
- */
 public class UploadStartFunc implements Callable<StartResponse> {
   private final UploadService uploadService;
-  private final Upload upload;
-  
+  private final boolean intelligentIngestion;
+  private final StorageOptions storageOptions;
+  private final int inputSize;
+  private final Config config;
+
   @Override
   public StartResponse call() throws Exception {
     final StartUploadRequest startUploadRequest = new StartUploadRequest(
-        upload.clientConf.getApiKey(),
-        upload.inputSize,
-        upload.intel,
-        upload.clientConf.getPolicy(),
-        upload.clientConf.getSignature(),
-        upload.storageOptions
+        config.getApiKey(),
+        inputSize,
+        intelligentIngestion,
+        config.getPolicy(),
+        config.getSignature(),
+        storageOptions
     );
 
     RetryNetworkFunc<StartResponse> func;
@@ -35,9 +35,13 @@ public class UploadStartFunc implements Callable<StartResponse> {
     return func.call();
   }
 
-  UploadStartFunc(UploadService uploadService, Upload upload) {
+  UploadStartFunc(UploadService uploadService, boolean intelligentIngestion,
+                  StorageOptions storageOptions, int inputSize, Config config) {
     this.uploadService = uploadService;
-    this.upload = upload;
+    this.intelligentIngestion = intelligentIngestion;
+    this.storageOptions = storageOptions;
+    this.inputSize = inputSize;
+    this.config = config;
   }
 
 }
