@@ -7,7 +7,6 @@ import com.filestack.internal.responses.StartResponse;
 
 import java.io.InputStream;
 
-/** Holds upload state and request logic. */
 public class Upload {
   static final int DELAY_BASE = 2;
   private static final int INTELLIGENT_PART_SIZE = 8 * 1024 * 1024;
@@ -22,7 +21,6 @@ public class Upload {
 
   private final InputStream input;
 
-  /** Constructs new instance. */
   public Upload(Config clientConf, UploadService uploadService, InputStream input, int inputSize, boolean intel,
                 StorageOptions storeOpts) {
     this.clientConf = clientConf;
@@ -44,12 +42,14 @@ public class Upload {
       partSize = Upload.REGULAR_PART_SIZE;
     }
     int numParts = (int) Math.ceil(inputSize / (double) partSize);
+    String uri = startResponse.getUri();
+    String region = startResponse.getRegion();
+    String uploadId = startResponse.getUploadId();
     UploadTransferFunc transferFunc = new UploadTransferFunc(
         uploadService,
-        this,
-        startResponse.getUri(),
-        startResponse.getRegion(),
-        startResponse.getUploadId(),
+        uri,
+        region,
+        uploadId,
         intelligentIngestion,
         partSize,
         storageOptions,
@@ -57,9 +57,11 @@ public class Upload {
         clientConf,
         numParts,
         input);
+
     String[] etags = transferFunc.run();
+
     UploadCompleteFunc uploadCompleteFunc = new UploadCompleteFunc(
-        uploadService, startResponse.getUri(), startResponse.getRegion(), startResponse.getUploadId(),
+        uploadService, uri, region, uploadId,
         etags, intelligentIngestion, storageOptions, inputSize, clientConf
     );
     return uploadCompleteFunc.call().getFileLink();

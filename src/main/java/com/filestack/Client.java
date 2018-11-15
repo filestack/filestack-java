@@ -202,9 +202,6 @@ public class Client implements Serializable {
   }
 
 
-
-
-
   /**
    * Creates an {@link ImageTransform} object for this file. A transformation call isn't made
    * directly by this method.

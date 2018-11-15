@@ -23,9 +23,7 @@ public class UploadTransferFunc {
   private static final int MIN_CHUNK_SIZE = 32 * 1024;
 
   private final UploadService uploadService;
-  private final Upload upload;
   private PartContainer container;
-  private final int numParts;
 
   private final InputStream inputStream;
 
@@ -47,11 +45,10 @@ public class UploadTransferFunc {
 
   private int partIndex = 1;
 
-  UploadTransferFunc(UploadService uploadService, Upload upload, String uri, String region, String uploadId,
+  UploadTransferFunc(UploadService uploadService, String uri, String region, String uploadId,
                      boolean intel, int partSize, StorageOptions storageOptions, int inputSize, Config config,
                      int numParts, InputStream inputStream) {
     this.uploadService = uploadService;
-    this.upload = upload;
     this.uri = uri;
     this.region = region;
     this.uploadId = uploadId;
@@ -60,7 +57,6 @@ public class UploadTransferFunc {
     this.storageOptions = storageOptions;
     this.inputSize = inputSize;
     this.apiKey = config.getApiKey();
-    this.numParts = numParts;
     this.etags = new String[numParts];
     this.inputStream = inputStream;
   }
