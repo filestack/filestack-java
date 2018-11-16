@@ -9,8 +9,6 @@ import java.io.InputStream;
 
 public class Upload {
   static final int DELAY_BASE = 2;
-  private static final int INTELLIGENT_PART_SIZE = 8 * 1024 * 1024;
-  private static final int REGULAR_PART_SIZE = 5 * 1024 * 1024;
   static final int CONCURRENCY = 4;
 
   private final UploadService uploadService;
@@ -35,30 +33,24 @@ public class Upload {
     UploadStartFunc startFunc = new UploadStartFunc(uploadService, intel, storageOptions, inputSize, clientConf);
     StartResponse startResponse = startFunc.call();
     boolean intelligentIngestion = intel && startResponse.isIntelligent();
-    final int partSize;
-    if (intelligentIngestion) {
-      partSize = Upload.INTELLIGENT_PART_SIZE;
-    } else {
-      partSize = Upload.REGULAR_PART_SIZE;
-    }
-    int numParts = (int) Math.ceil(inputSize / (double) partSize);
+
     String uri = startResponse.getUri();
     String region = startResponse.getRegion();
     String uploadId = startResponse.getUploadId();
-    UploadTransferFunc transferFunc = new UploadTransferFunc(
+
+
+    UploadTransferOperation.Factory factory = new UploadTransferOperation.Factory(
+        clientConf,
         uploadService,
         uri,
         region,
         uploadId,
-        intelligentIngestion,
-        partSize,
         storageOptions,
-        inputSize,
-        clientConf,
-        numParts,
-        input);
-
-    String[] etags = transferFunc.run();
+        input,
+        inputSize
+    );
+    UploadTransferOperation operation = factory.create(intelligentIngestion);
+    final String[] etags = operation.transfer();
 
     UploadCompleteFunc uploadCompleteFunc = new UploadCompleteFunc(
         uploadService, uri, region, uploadId,
