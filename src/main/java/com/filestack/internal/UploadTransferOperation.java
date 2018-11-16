@@ -51,7 +51,6 @@ abstract class UploadTransferOperation {
     return func.call();
   }
 
-
   public static class Factory {
 
     private final String apiKey;

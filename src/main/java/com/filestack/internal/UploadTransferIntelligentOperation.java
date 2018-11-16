@@ -24,7 +24,6 @@ class UploadTransferIntelligentOperation extends UploadTransferOperation {
 
   private PartContainer container;
   private int chunkSize = INITIAL_CHUNK_SIZE;
-  private final int partSize = INTELLIGENT_PART_SIZE;
   private int partIndex = 1;
 
   UploadTransferIntelligentOperation(String apiKey, UploadService uploadService, String uri, String region,
@@ -35,7 +34,7 @@ class UploadTransferIntelligentOperation extends UploadTransferOperation {
 
   @Override
   String[] transfer() throws Exception {
-    container = new PartContainer(partSize);
+    container = new PartContainer(INTELLIGENT_PART_SIZE);
 
     while (readInput(container) != -1) {
       while (container.sent != container.size) {
@@ -53,11 +52,6 @@ class UploadTransferIntelligentOperation extends UploadTransferOperation {
     }
   }
 
-  /**
-   * Read from the input stream into a simple container object. Synchronized to support concurrent
-   * worker threads. The part object should be created once and reused to keep mem usage and garbage
-   * collection down.
-   */
   synchronized int readInput(PartContainer container) throws IOException {
     container.num = partIndex;
     container.size = inputStream.read(container.data);
@@ -116,9 +110,6 @@ class UploadTransferIntelligentOperation extends UploadTransferOperation {
     return new UploadRequest(apiKey, partNumber, size, encodedMd5, uri, region, uploadId, true, (long) offset);
   }
 
-  /**
-   * For intelligent ingestion mode only. Called when all chunks of a part have been uploaded.
-   */
   private void multipartCommit() throws Exception {
     final CommitUploadRequest commitRequest = new CommitUploadRequest(
         apiKey,
