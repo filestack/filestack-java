@@ -11,11 +11,6 @@ import okhttp3.ResponseBody;
 import java.io.IOException;
 import java.io.InputStream;
 
-/**
- * This class handles uploading of parts/chunks and makes calls to both S3 and Filestack endpoints.
- * An upload should be divided between multiple instances.
- * Different instances are not assigned to section of the file, instead we synchronize reads.
- */
 class UploadTransferIntelligentOperation extends UploadTransferOperation {
 
   private static final int INTELLIGENT_PART_SIZE = 8 * 1024 * 1024;
