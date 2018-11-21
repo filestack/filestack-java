@@ -8,7 +8,7 @@ import com.filestack.internal.responses.StartResponse;
 import java.io.InputStream;
 
 public class Upload {
-  static final int DELAY_BASE = 2;
+  static final int DELAY_BASE = 0;
   static final int CONCURRENCY = 4;
 
   private final UploadService uploadService;
