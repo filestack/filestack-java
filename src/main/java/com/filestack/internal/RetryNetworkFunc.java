@@ -30,7 +30,6 @@ public abstract class RetryNetworkFunc<T> {
 
   /** Start the request. */
   public T call() throws Exception {
-
     Response<T> response = run();
     return process(response);
   }
@@ -38,7 +37,7 @@ public abstract class RetryNetworkFunc<T> {
   /**
    * Orchestrates calling {@link #work()} and retrying on failure.
    */
-  private Response<T> run() throws Exception {
+  public Response<T> run() throws Exception {
     Response<T> response = null;
     Exception exception = null;
 

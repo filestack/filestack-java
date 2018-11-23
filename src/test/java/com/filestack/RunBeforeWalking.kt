@@ -3,9 +3,11 @@ package com.filestack
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.nio.file.Files
 import java.util.*
 import java.util.logging.Logger
-import kotlin.system.measureTimeMillis
+
+
 
 fun main(args: Array<String>) {
     val config = Config("AgtSuOqcERh2LnIglNJAAz")
@@ -25,14 +27,35 @@ fun main(args: Array<String>) {
             }
 
     val logger = Logger.getLogger("MyLogger")
-    val file = tempFile(sizeInBytes = 10 * 1024 * 1024 + 4096)
-    var handle = "NO_HANDLE"
-    val time = measureTimeMillis {
+    val file = tempFile(sizeInBytes = 30 * 1024 * 1024 + 4096)
+    val (time, handle) = measureTime {
         val fileLink = client.upload(file.inputStream(), file.length().toInt(), false)
-        handle = fileLink.handle
+        fileLink.handle
     }
 
-    println(time.toFloat() / 1000)
-    println(handle)
+
+    logger.info("${time.toFloat() / 1000}")
+    logger.info(handle)
+
+    val fileLink = client.fileLink(handle)
+
+    val (downloadTime, downloadedFile) = measureTime {
+        fileLink.download(file.parentFile.path)
+    }
+
+    val uploadedFileBytes = Files.readAllBytes(file.toPath())
+    val downloadedFileBytes = Files.readAllBytes(downloadedFile.toPath())
+
+    val equals = Arrays.equals(uploadedFileBytes, downloadedFileBytes)
+    logger.info("files are equals = $equals")
+}
+
+/**
+ * Executes the given [block] and returns elapsed time in milliseconds.
+ */
+inline fun <T> measureTime(block: () -> T): Pair<Long, T> {
+    val start = System.currentTimeMillis()
+    val result = block()
+    return Pair(System.currentTimeMillis() - start, result)
 }
 
