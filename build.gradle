@@ -32,7 +32,7 @@ apply plugin: 'java'
 apply plugin: 'signing'
 
 group = 'org.filestack'
-sourceCompatibility = 1.7
+sourceCompatibility = 21
 version = file(new File('VERSION')).text.trim() // Get version string from VERSION text file
 
 dependencies {
