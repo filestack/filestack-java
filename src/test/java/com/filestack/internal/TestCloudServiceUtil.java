@@ -18,10 +18,9 @@ public class TestCloudServiceUtil {
   public void testBuildBaseJson() {
     Config config = new Config("a", "b", "c", "d");
     String session = "e";
-    JsonObject json = CloudServiceUtil.buildBaseJson(config, session);
+    JsonObject json = CloudServiceUtil.buildBaseJson(config, session, null);
 
     assertEquals("a", json.get("apikey").getAsString());
-    assertEquals("b", json.get("appurl").getAsString());
     assertEquals("c", json.get("policy").getAsString());
     assertEquals("d", json.get("signature").getAsString());
     assertEquals("e", json.get("token").getAsString());
@@ -35,7 +34,7 @@ public class TestCloudServiceUtil {
     Config config = new Config("a", "b", "c", "d");
     String session = "e";
 
-    JsonObject json = CloudServiceUtil.buildBaseJson(config, session);
+    JsonObject json = CloudServiceUtil.buildBaseJson(config, session, null);
 
     CloudServiceUtil.addCloudJson(json, "f", "g", "h");
 
@@ -49,7 +48,7 @@ public class TestCloudServiceUtil {
     Config config = new Config("a", "b", "c", "d");
     String session = "e";
 
-    JsonObject json = CloudServiceUtil.buildBaseJson(config, session);
+    JsonObject json = CloudServiceUtil.buildBaseJson(config, session, null);
     CloudServiceUtil.addCloudJson(json, "f", "g", null);
 
     JsonObject cloud = json.getAsJsonObject("clouds").getAsJsonObject("f");

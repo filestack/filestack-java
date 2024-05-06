@@ -11,13 +11,13 @@ class ConfigTest {
         var config = Config("api_key")
         assertFalse(config.hasSecurity())
 
-        config = Config("api_key", "return_url", "policy", null)
+        config = Config("api_key", "policy", null)
         assertFalse(config.hasSecurity())
 
-        config = Config("api_key", "return_url", null, "policy")
+        config = Config("api_key", null, "policy")
         assertFalse(config.hasSecurity())
 
-        config = Config("api_key", "return_url", "policy", "signature")
+        config = Config("api_key", "policy", "signature")
         assertTrue(config.hasSecurity())
 
         val policy = Policy.Builder()

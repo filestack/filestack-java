@@ -9,6 +9,7 @@ import okhttp3.mockwebserver.MockWebServer
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.Matcher
 import org.hamcrest.beans.HasPropertyWithValue.hasProperty
+import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.ExpectedException
@@ -21,9 +22,6 @@ class FileLinkTest {
 
     @get:Rule
     val server = MockWebServer()
-
-    @get:Rule
-    val expectedException = ExpectedException.none()
 
     val config = Config(API_KEY, POLICY, SIGNATURE)
 
@@ -57,11 +55,12 @@ class FileLinkTest {
         server.enqueue(MockResponse().setResponseCode(403).setBody("Invalid Request"))
         val fileLink = FileLink(config, cdnService, baseService, "handle")
 
-        expectedException.expect(HttpException::class.java)
-        expectedException.expectMessage("Invalid Request")
-        expectedException.expect(hasCode(403))
+        val exception = Assert.assertThrows(HttpException::class.java) {
+            fileLink.overwrite(file.path)
+        }
 
-        fileLink.overwrite(file.path)
+        Assert.assertEquals(exception.message, "Invalid Request")
+        Assert.assertEquals(exception.code, 403)
     }
 
     @Test
@@ -81,12 +80,14 @@ class FileLinkTest {
     fun `test delete - throws on http errors`() {
         server.enqueue(MockResponse().setResponseCode(403).setBody("Invalid Request"))
 
-        expectedException.expect(HttpException::class.java)
-        expectedException.expectMessage("Invalid Request")
-        expectedException.expect(hasCode(403))
-
         val fileLink = FileLink(config, cdnService, baseService, "handle")
-        fileLink.delete()
+
+        val exception = Assert.assertThrows(HttpException::class.java) {
+            fileLink.delete()
+        }
+
+        Assert.assertEquals(exception.message, "Invalid Request")
+        Assert.assertEquals(exception.code, 403)
 
     }
 

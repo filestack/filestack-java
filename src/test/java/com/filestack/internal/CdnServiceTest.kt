@@ -26,11 +26,18 @@ class CdnServiceTest {
         verify(networkClient).call(argumentCaptor.capture())
 
         val request = argumentCaptor.value
+        val url = HttpUrl.Builder()
+            .scheme("https")
+            .host("cdn.filestackcontent.com")
+            .addPathSegments("my_handle")
+            .addQueryParameter("policy", "my_policy")
+            .addQueryParameter("signature", "my_signature")
+            .build();
         assertEquals(
-                HttpUrl.get("https://cdn.filestackcontent.com/my_handle?policy=my_policy&signature=my_signature"),
-                request.url()
+                url,
+                request.url
         )
-        assertEquals("GET", request.method())
+        assertEquals("GET", request.method)
     }
 
     @Test
@@ -41,11 +48,16 @@ class CdnServiceTest {
         verify(networkClient).call(argumentCaptor.capture())
 
         val request = argumentCaptor.value
+        val url = HttpUrl.Builder()
+            .scheme("https")
+            .host("cdn.filestackcontent.com")
+            .addPathSegments("my_tasks/my_handle")
+            .build();
         assertEquals(
-                HttpUrl.get("https://cdn.filestackcontent.com/my_tasks/my_handle"),
-                request.url()
+                url,
+                request.url
         )
-        assertEquals("GET", request.method())
+        assertEquals("GET", request.method)
     }
 
     @Test
@@ -56,11 +68,16 @@ class CdnServiceTest {
         verify(networkClient).call(argumentCaptor.capture(), eq(JsonObject::class.java))
 
         val request = argumentCaptor.value
+        val url = HttpUrl.Builder()
+            .scheme("https")
+            .host("cdn.filestackcontent.com")
+            .addPathSegments("debug/my_tasks/my_handle")
+            .build();
         assertEquals(
-                HttpUrl.get("https://cdn.filestackcontent.com/debug/my_tasks/my_handle"),
-                request.url()
+                url,
+                request.url
         )
-        assertEquals("GET", request.method())
+        assertEquals("GET", request.method)
     }
 
     @Test
@@ -71,11 +88,16 @@ class CdnServiceTest {
         verify(networkClient).call(argumentCaptor.capture(), eq(StoreResponse::class.java))
 
         val request = argumentCaptor.value
+        val url = HttpUrl.Builder()
+            .scheme("https")
+            .host("cdn.filestackcontent.com")
+            .addPathSegments("my_tasks/my_handle")
+            .build();
         assertEquals(
-                HttpUrl.get("https://cdn.filestackcontent.com/my_tasks/my_handle"),
-                request.url()
+                url,
+                request.url
         )
-        assertEquals("POST", request.method())
+        assertEquals("POST", request.method)
     }
 
     @Test
@@ -86,11 +108,16 @@ class CdnServiceTest {
         verify(networkClient).call(argumentCaptor.capture())
 
         val request = argumentCaptor.value
+        val url = HttpUrl.Builder()
+            .scheme("https")
+            .host("cdn.filestackcontent.com")
+            .addPathSegments("my_key/my_tasks/my_handle")
+            .build();
         assertEquals(
-                HttpUrl.get("https://cdn.filestackcontent.com/my_key/my_tasks/my_handle"),
-                request.url()
+                url,
+                request.url
         )
-        assertEquals("GET", request.method())
+        assertEquals("GET", request.method)
     }
 
     @Test
@@ -101,11 +128,16 @@ class CdnServiceTest {
         verify(networkClient).call(argumentCaptor.capture(), eq(JsonObject::class.java))
 
         val request = argumentCaptor.value
+        val url = HttpUrl.Builder()
+            .scheme("https")
+            .host("cdn.filestackcontent.com")
+            .addPathSegments("my_key/debug/my_tasks/my_url")
+            .build();
         assertEquals(
-                HttpUrl.get("https://cdn.filestackcontent.com/my_key/debug/my_tasks/my_url"),
-                request.url()
+                url,
+                request.url
         )
-        assertEquals("GET", request.method())
+        assertEquals("GET", request.method)
     }
 
     @Test
@@ -116,10 +148,15 @@ class CdnServiceTest {
         verify(networkClient).call(argumentCaptor.capture(), eq(StoreResponse::class.java))
 
         val request = argumentCaptor.value
+        val url = HttpUrl.Builder()
+            .scheme("https")
+            .host("cdn.filestackcontent.com")
+            .addPathSegments("my_key/my_tasks/my_url")
+            .build();
         assertEquals(
-                HttpUrl.get("https://cdn.filestackcontent.com/my_key/my_tasks/my_url"),
-                request.url()
+                url,
+                request.url
         )
-        assertEquals("POST", request.method())
+        assertEquals("POST", request.method)
     }
 }

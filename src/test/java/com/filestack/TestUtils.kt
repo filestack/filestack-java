@@ -1,7 +1,9 @@
 package org.filestack
 
-import okio.Okio
+import okio.buffer
+import okio.sink
 import java.io.File
+import java.io.IOException
 import java.io.RandomAccessFile
 
 fun tempFile(prefix: String = "filestack", postfix: String = ".tmp", sizeInBytes: Long = 0) =
@@ -14,5 +16,15 @@ fun tempFile(prefix: String = "filestack", postfix: String = ".tmp", sizeInBytes
         }
 
 fun File.write(text: String) {
-    Okio.buffer(Okio.sink(this)).writeUtf8(text).close()
+    try {
+        var sink = sink();
+        val bufferedSink = sink.buffer()
+        bufferedSink.writeUtf8(text);
+        bufferedSink.emit()
+        bufferedSink.close();
+    } catch (e: IOException){
+        e.printStackTrace()
+    }
+
+   // return sink.readUtf8();
 }
