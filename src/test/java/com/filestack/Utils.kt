@@ -3,6 +3,8 @@ package com.filestack
 import com.filestack.internal.BaseService
 import com.filestack.internal.CdnService
 import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.ResponseBody.Companion.toResponseBody
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
@@ -11,12 +13,13 @@ import org.junit.Assert
 
 @JvmOverloads
 fun mockOkHttpResponse(code: Int, message: String = "Test message"): okhttp3.Response {
-    val mediaType = MediaType.parse("text/plain")
+    val mediaType = "text/plain".toMediaTypeOrNull()
+
     return okhttp3.Response.Builder()
             .protocol(Protocol.HTTP_2)
             .code(code)
             .request(Request.Builder().url("http://localhost").build())
-            .body(ResponseBody.create(mediaType, message))
+            .body(message.toResponseBody(mediaType))
             .message("Status code: $code")
             .build()
 }

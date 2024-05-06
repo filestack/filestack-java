@@ -116,7 +116,7 @@ public class Client implements Serializable {
    * @throws IOException           on network failure
    */
   public AppInfo getAppInfo() throws IOException {
-    JsonObject params = CloudServiceUtil.buildBaseJson(config, null);
+    JsonObject params = CloudServiceUtil.buildBaseJson(config, null, null);
     Response<AppInfo> response = cloudService.prefetch(params);
     Util.checkResponseAndThrow(response);
     return response.getData();
@@ -148,7 +148,7 @@ public class Client implements Serializable {
     Util.throwIfNullOrEmpty(providerName, "Provider name is required");
     Util.throwIfNullOrEmpty(path, "Path is required");
 
-    JsonObject params = CloudServiceUtil.buildBaseJson(config, sessionToken);
+    JsonObject params = CloudServiceUtil.buildBaseJson(config, sessionToken, null);
     CloudServiceUtil.addCloudJson(params, providerName, path, next);
     Response<JsonObject> response = cloudService.list(params);
     Util.checkResponseAndThrow(response);
@@ -219,7 +219,7 @@ public class Client implements Serializable {
 
     Util.throwIfNullOrEmpty(providerName, "Provider name is required");
 
-    JsonObject params = CloudServiceUtil.buildBaseJson(config, sessionToken);
+    JsonObject params = CloudServiceUtil.buildBaseJson(config, sessionToken, null);
     CloudServiceUtil.addCloudJson(params, providerName, null, null);
     Response<ResponseBody> response = cloudService.logout(params);
     Util.checkResponseAndThrow(response);

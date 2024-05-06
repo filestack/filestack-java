@@ -111,5 +111,7 @@ public final class Networking {
     return cloudService;
   }
 
-  private Networking() {}
+  private Networking() {
+
+  }
 }

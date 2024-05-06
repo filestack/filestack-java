@@ -5,9 +5,9 @@ import com.filestack.write
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import okhttp3.HttpUrl
-import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Request
-import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import okio.Buffer
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -24,21 +24,26 @@ class BaseServiceTest {
             write("file_content")
         }
 
-        val requestBody = RequestBody.create(
-                MediaType.get("text/plain"),
-                file
-        )
+
+        val requestBody = file.asRequestBody("text/plain".toMediaType())
 
         baseService.overwrite("my_handle", "my_policy", "my_signature", requestBody)
 
         val argumentCaptor = ArgumentCaptor.forClass(Request::class.java)
         verify(networkClient).call(argumentCaptor.capture())
+        val url = HttpUrl.Builder()
+            .scheme("https")
+            .host("www.filestackapi.com")
+            .addPathSegments("api/file/my_handle")
+            .addQueryParameter("policy", "my_policy")
+            .addQueryParameter("signature", "my_signature")
+            .build();
 
         val request = argumentCaptor.value
         assertEquals(
-                HttpUrl.get("https://www.filestackapi.com/api/file/my_handle?policy=my_policy&signature=my_signature"),
-                request.url())
-        assertEquals("POST", request.method())
+            url,
+                request.url)
+        assertEquals("POST", request.method)
         val bodyBuffer = Buffer()
         requestBody.writeTo(bodyBuffer)
         assertEquals("file_content", bodyBuffer.readUtf8())
@@ -52,9 +57,17 @@ class BaseServiceTest {
         verify(networkClient).call(argumentCaptor.capture())
 
         val request = argumentCaptor.value
+        val url = HttpUrl.Builder()
+            .scheme("https")
+            .host("www.filestackapi.com")
+            .addPathSegments("api/file/my_handle")
+            .addQueryParameter("key", "api_key")
+            .addQueryParameter("policy", "my_policy")
+            .addQueryParameter("signature", "my_signature")
+            .build()
         assertEquals(
-                HttpUrl.get("https://www.filestackapi.com/api/file/my_handle?key=api_key&policy=my_policy&signature=my_signature"),
-                request.url())
-        assertEquals("DELETE", request.method())
+            url,
+                request.url)
+        assertEquals("DELETE", request.method)
     }
 }

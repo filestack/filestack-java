@@ -30,14 +30,18 @@ class CloudServiceTest {
         val argumentCaptor = ArgumentCaptor.forClass(Request::class.java)
         verify(networkClient).call(argumentCaptor.capture(), eq(AppInfo::class.java))
         val request = argumentCaptor.value
+        val url = HttpUrl.Builder()
+            .scheme("https")
+            .host("cloud.filestackapi.com")
+            .addPathSegments("prefetch").build()
 
         assertEquals(
-                HttpUrl.get("https://cloud.filestackapi.com/prefetch"),
-                request.url()
+                url,
+                request.url
         )
 
-        assertEquals("POST", request.method())
-        val body = request.body()!!
+        assertEquals("POST", request.method)
+        val body = request.body!!
         val utf8 = body.readUtf8()
         assertEquals("{\"test_value\":1,\"test_value2\":\"value\"}", utf8)
     }
@@ -53,14 +57,18 @@ class CloudServiceTest {
         val argumentCaptor = ArgumentCaptor.forClass(Request::class.java)
         verify(networkClient).call(argumentCaptor.capture(), eq(JsonObject::class.java))
         val request = argumentCaptor.value
+        val url = HttpUrl.Builder()
+            .scheme("https")
+            .host("cloud.filestackapi.com")
+            .addPathSegments("folder/list").build()
 
         assertEquals(
-                HttpUrl.get("https://cloud.filestackapi.com/folder/list"),
-                request.url()
+                url,
+                request.url
         )
 
-        assertEquals("POST", request.method())
-        val body = request.body()!!
+        assertEquals("POST", request.method)
+        val body = request.body!!
         val utf8 = body.readUtf8()
         assertEquals("{\"test_value\":1,\"test_value2\":\"value\"}", utf8)
     }
@@ -76,14 +84,18 @@ class CloudServiceTest {
         val argumentCaptor = ArgumentCaptor.forClass(Request::class.java)
         verify(networkClient).call(argumentCaptor.capture(), eq(JsonObject::class.java))
         val request = argumentCaptor.value
+        val url = HttpUrl.Builder()
+            .scheme("https")
+            .host("cloud.filestackapi.com")
+            .addPathSegments("store/").build()
 
         assertEquals(
-                HttpUrl.get("https://cloud.filestackapi.com/store/"),
-                request.url()
+                url,
+                request.url
         )
 
-        assertEquals("POST", request.method())
-        val body = request.body()!!
+        assertEquals("POST", request.method)
+        val body = request.body!!
         val utf8 = body.readUtf8()
         assertEquals("{\"test_value\":1,\"test_value2\":\"value\"}", utf8)
     }
@@ -99,14 +111,18 @@ class CloudServiceTest {
         val argumentCaptor = ArgumentCaptor.forClass(Request::class.java)
         verify(networkClient).call(argumentCaptor.capture())
         val request = argumentCaptor.value
+        val url = HttpUrl.Builder()
+            .scheme("https")
+            .host("cloud.filestackapi.com")
+            .addPathSegments("auth/logout").build()
 
         assertEquals(
-                HttpUrl.get("https://cloud.filestackapi.com/auth/logout"),
-                request.url()
+                url,
+                request.url
         )
 
-        assertEquals("POST", request.method())
-        val body = request.body()!!
+        assertEquals("POST", request.method)
+        val body = request.body!!
         val utf8 = body.readUtf8()
         assertEquals("{\"test_value\":1,\"test_value2\":\"value\"}", utf8)
     }

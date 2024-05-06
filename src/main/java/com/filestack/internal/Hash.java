@@ -10,7 +10,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public final class Hash {
-  private Hash() {}
+  private Hash() {
+
+  }
 
   /**
    * Computes MD5 hash out of provided array of bytes.

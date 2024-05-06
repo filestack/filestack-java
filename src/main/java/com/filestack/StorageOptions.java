@@ -25,7 +25,9 @@ public class StorageOptions implements Serializable {
   private String region;
 
   // Private to enforce use of the builder
-  private StorageOptions() { }
+  private StorageOptions() {
+
+  }
 
   public String getFilename() {
     return filename;
@@ -119,7 +121,9 @@ public class StorageOptions implements Serializable {
     private String path;
     private String region;
 
-    public Builder() { }
+    public Builder() {
+
+    }
 
     /** Create a new builder using an existing options config. */
     public Builder(StorageOptions existing) {

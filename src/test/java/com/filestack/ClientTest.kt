@@ -172,7 +172,7 @@ class ClientTest {
                         """)
             }
         }
-        server.setDispatcher(dispatcher)
+        server.dispatcher = dispatcher
 
         val fileLink = client.upload(file.path, false)
         assertEquals("Ekf5elTQeed8SG549RP", fileLink.handle)
