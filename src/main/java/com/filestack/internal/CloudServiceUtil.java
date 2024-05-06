@@ -29,6 +29,7 @@ public class CloudServiceUtil {
    * Create the base JSON object with properties needed for all requests.
    * @deprecated explicitly pass returnUrl with {@link #buildBaseJson(Config, String, String)} instead.
    */
+  @Deprecated
   public static JsonObject buildBaseJson(Config config, String session) {
     return buildBaseJson(config, session, config.getReturnUrl());
   }
@@ -86,6 +87,8 @@ public class CloudServiceUtil {
     base.getAsJsonObject(KEY_CLOUDS).getAsJsonObject(cloud).add(KEY_STORE, json);
   }
 
-  private CloudServiceUtil() {}
+  private CloudServiceUtil() {
+
+  }
 
 }

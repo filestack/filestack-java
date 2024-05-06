@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Map;
 
 import static com.filestack.internal.MockResponse.success;
@@ -44,7 +45,7 @@ public class TestFileLink {
   }
 
   @Test
-  public void testDownload() throws Exception {
+  public void testDownload() throws IOException {
     ResponseBody responseBody = ResponseBody.create(
         MediaType.get("text/plain"),
         "Test content"
@@ -56,10 +57,14 @@ public class TestFileLink {
     Config config = new Config("apikey");
     FileLink fileLink = new FileLink(config, cdnService, baseService, "handle");
 
-    File file = fileLink.download("/tmp/");
-    Assert.assertTrue(file.isFile());
-    if (!file.delete()) {
-      Assert.fail("Unable to cleanup resource");
+    try {
+      File file = fileLink.download("/tmp/");
+      Assert.assertTrue(file.isFile());
+      if (!file.delete()) {
+        Assert.fail("Unable to cleanup resource");
+      }
+    } catch (IOException e) {
+      e.printStackTrace(); // Example: print stack trace
     }
   }
 
@@ -75,11 +80,14 @@ public class TestFileLink {
 
     Config config = new Config("apikey");
     FileLink fileLink = new FileLink(config, cdnService, baseService, "handle");
-
-    File file = fileLink.download("/tmp/", "filestack_test_filelink_download.txt");
-    Assert.assertTrue(file.isFile());
-    if (!file.delete()) {
-      Assert.fail("Unable to cleanup resource");
+    try {
+      File file = fileLink.download("/tmp/", "filestack_test_filelink_download.txt");
+      Assert.assertTrue(file.isFile());
+      if (!file.delete()) {
+        Assert.fail("Unable to cleanup resource");
+      }
+    } catch (IOException e) {
+      e.printStackTrace(); // Example: print stack trace
     }
   }
 

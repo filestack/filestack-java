@@ -9,9 +9,10 @@ import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import okhttp3.HttpUrl
-import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Request
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import okio.Buffer
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -39,12 +40,16 @@ class UploadServiceTest {
         verify(networkClient).call(argumentCaptor.capture(), eq(StartResponse::class.java))
 
         val request = argumentCaptor.value
+        val url = HttpUrl.Builder()
+            .scheme("https")
+            .host("upload.filestackapi.com")
+            .addPathSegments("multipart/start").build()
 
         assertEquals(
-                HttpUrl.get("https://upload.filestackapi.com/multipart/start"),
-                request.url()
+                url,
+                request.url
         )
-        assertEquals("POST", request.method())
+        assertEquals("POST", request.method)
 
         val bodyParams = request.bodyParams()
         assertEquals("api_key", bodyParams["apikey"])
@@ -57,7 +62,7 @@ class UploadServiceTest {
     fun upload() {
         val fileToUpload = tempFile(postfix = ".jpg", sizeInBytes = 1024)
         val type = URLConnection.guessContentTypeFromName(fileToUpload.name)
-        val requestBody = RequestBody.create(MediaType.get(type), fileToUpload)
+        val requestBody = fileToUpload.asRequestBody(type.toMediaType())
 
         val params = mutableMapOf<String, RequestBody>()
         params["apikey"] = Util.createStringPart("api_key")
@@ -73,11 +78,16 @@ class UploadServiceTest {
 
         val request = argumentCaptor.value
 
+        val url = HttpUrl.Builder()
+            .scheme("https")
+            .host("upload.filestackapi.com")
+            .addPathSegments("multipart/upload").build()
+
         assertEquals(
-                HttpUrl.get("https://upload.filestackapi.com/multipart/upload"),
-                request.url()
+                url,
+                request.url
         )
-        assertEquals("POST", request.method())
+        assertEquals("POST", request.method)
 
         val bodyParams = request.bodyParams()
         assertEquals("api_key", bodyParams["apikey"])
@@ -92,12 +102,14 @@ class UploadServiceTest {
                 "Header1" to "HeaderValue1",
                 "Header2" to "HeaderValue2"
         )
-        val url = "https://s3.url.test.com"
+        val url = HttpUrl.Builder()
+            .scheme("https")
+            .host("s3.url.test.com").build()
         val fileToUpload = tempFile(postfix = ".jpg", sizeInBytes = 1024)
         val type = URLConnection.guessContentTypeFromName(fileToUpload.name)
-        val requestBody = RequestBody.create(MediaType.get(type), fileToUpload)
+        val requestBody = fileToUpload.asRequestBody(type.toMediaType())
 
-        uploadService.uploadS3(headers, url, requestBody)
+        uploadService.uploadS3(headers, url.toString(), requestBody)
 
         val argumentCaptor = ArgumentCaptor.forClass(okhttp3.Request::class.java)
         verify(networkClient).call(argumentCaptor.capture())
@@ -105,17 +117,17 @@ class UploadServiceTest {
         val request = argumentCaptor.value
 
         assertEquals(
-                HttpUrl.get(url),
-                request.url()
+                url,
+                request.url
         )
-        assertEquals("PUT", request.method())
+        assertEquals("PUT", request.method)
 
-        val requestHeaders = request.headers()
+        val requestHeaders = request.headers
         assertEquals("HeaderValue1", requestHeaders.get("Header1"))
         assertEquals("HeaderValue2", requestHeaders.get("Header2"))
 
-        val body = request.body()!!
-        assertEquals(MediaType.get("image/jpeg"), body.contentType())
+        val body = request.body!!
+        assertEquals("image/jpeg".toMediaType(), body.contentType())
         assertEquals(fileToUpload.length(), body.contentLength())
     }
 
@@ -135,12 +147,16 @@ class UploadServiceTest {
         verify(networkClient).call(argumentCaptor.capture())
 
         val request = argumentCaptor.value
+        val url = HttpUrl.Builder()
+            .scheme("https")
+            .host("upload.filestackapi.com")
+            .addPathSegments("multipart/commit").build()
 
         assertEquals(
-                HttpUrl.get("https://upload.filestackapi.com/multipart/commit"),
-                request.url()
+                url,
+                request.url
         )
-        assertEquals("POST", request.method())
+        assertEquals("POST", request.method)
 
         val bodyParams = request.bodyParams()
         assertEquals("api_key", bodyParams["apikey"])
@@ -165,12 +181,16 @@ class UploadServiceTest {
         verify(networkClient).call(argumentCaptor.capture(), eq(CompleteResponse::class.java))
 
         val request = argumentCaptor.value
+        val url = HttpUrl.Builder()
+            .scheme("https")
+            .host("upload.filestackapi.com")
+            .addPathSegments("multipart/complete").build()
 
         assertEquals(
-                HttpUrl.get("https://upload.filestackapi.com/multipart/complete"),
-                request.url()
+                url,
+                request.url
         )
-        assertEquals("POST", request.method())
+        assertEquals("POST", request.method)
 
         val bodyParams = request.bodyParams()
         assertEquals("api_key", bodyParams["apikey"])
@@ -181,7 +201,7 @@ class UploadServiceTest {
 
     private fun Request.bodyParams(): Map<String, String> {
         val buffer = Buffer()
-        body()?.writeTo(buffer)
+        body?.writeTo(buffer)
         return buffer.bodyParams()
     }
 }
