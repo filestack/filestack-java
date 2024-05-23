@@ -8,8 +8,6 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-//        classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.8'
-
     }
 }
 
@@ -24,23 +22,20 @@ apply plugin: 'checkstyle'
 apply plugin: 'kotlin'
 apply plugin: 'jacoco'
 apply plugin: 'java-library'
-//apply plugin: 'de.fuerstenau.buildconfig'
 apply plugin: 'com.github.gmazzo.buildconfig'
-//apply plugin: 'maven'
 apply plugin: 'maven-publish'
 apply plugin: 'java'
 apply plugin: 'signing'
 
 group = 'org.filestack'
 sourceCompatibility = 21
-version = file(new File('VERSION')).text.trim() // Get version string from VERSION text file
+// Get version string from VERSION text file
+version = file(new File('VERSION')).text.trim()
 
 dependencies {
     implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.14'
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
-//    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-//    implementation 'com.filestack:filestack-java:0.9.0'
 
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 
@@ -91,7 +86,8 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
 }
 
-tasks.withType(Test) { // Put unit and integration test reports in separate directories
+// Put unit and integration test reports in separate directories
+tasks.withType(Test) {
     reports.html.destination = file("${reporting.baseDir}/${name}")
 }
 
