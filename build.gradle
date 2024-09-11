@@ -33,8 +33,7 @@ apply plugin: 'signing'
 
 group = 'org.filestack'
 sourceCompatibility = 21
-// Get version string from VERSION text file
-version = file(new File('VERSION')).text.trim()
+version = file(new File('VERSION')).text.trim() // Get version string from VERSION text file
 
 dependencies {
     implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.14'
