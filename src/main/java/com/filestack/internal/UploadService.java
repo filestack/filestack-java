@@ -1,8 +1,8 @@
-package com.filestack.internal;
+package org.filestack.internal;
 
-import com.filestack.internal.responses.CompleteResponse;
-import com.filestack.internal.responses.StartResponse;
-import com.filestack.internal.responses.UploadResponse;
+import org.filestack.internal.responses.CompleteResponse;
+import org.filestack.internal.responses.StartResponse;
+import org.filestack.internal.responses.UploadResponse;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.MultipartBody;

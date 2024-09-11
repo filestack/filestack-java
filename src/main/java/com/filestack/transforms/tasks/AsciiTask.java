@@ -1,6 +1,6 @@
-package com.filestack.transforms.tasks;
+package org.filestack.transforms.tasks;
 
-import com.filestack.transforms.ImageTransformTask;
+import org.filestack.transforms.ImageTransformTask;
 
 public class AsciiTask extends ImageTransformTask {
 

@@ -1,10 +1,10 @@
-package com.filestack
+package org.filestack
 
-import com.filestack.internal.NetworkClient
-import com.filestack.internal.TestServiceFactory.Companion.baseService
-import com.filestack.internal.TestServiceFactory.Companion.cdnService
-import com.filestack.internal.TestServiceFactory.Companion.cloudService
-import com.filestack.internal.TestServiceFactory.Companion.uploadService
+import org.filestack.internal.NetworkClient
+import org.filestack.internal.TestServiceFactory.Companion.baseService
+import org.filestack.internal.TestServiceFactory.Companion.cdnService
+import org.filestack.internal.TestServiceFactory.Companion.cloudService
+import org.filestack.internal.TestServiceFactory.Companion.uploadService
 import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse

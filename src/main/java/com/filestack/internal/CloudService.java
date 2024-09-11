@@ -1,6 +1,6 @@
-package com.filestack.internal;
+package org.filestack.internal;
 
-import com.filestack.AppInfo;
+import org.filestack.AppInfo;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.TypeAdapter;

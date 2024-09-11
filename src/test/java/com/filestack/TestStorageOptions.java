@@ -1,6 +1,6 @@
-package com.filestack;
+package org.filestack;
 
-import com.filestack.internal.Util;
+import org.filestack.internal.Util;
 import java.io.IOException;
 import java.util.Map;
 import okhttp3.RequestBody;

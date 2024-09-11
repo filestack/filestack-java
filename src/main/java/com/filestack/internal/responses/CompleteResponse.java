@@ -1,4 +1,4 @@
-package com.filestack.internal.responses;
+package org.filestack.internal.responses;
 
 /** Response from multipart complete endpoint. */
 @SuppressWarnings("unused")

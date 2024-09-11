@@ -1,15 +1,15 @@
-package com.filestack;
+package org.filestack;
 
-import com.filestack.internal.BaseService;
-import com.filestack.internal.CdnService;
-import com.filestack.internal.Networking;
-import com.filestack.internal.Response;
-import com.filestack.internal.Util;
-import com.filestack.internal.responses.ImageTagResponse;
-import com.filestack.transforms.AvTransform;
-import com.filestack.transforms.ImageTransform;
-import com.filestack.transforms.ImageTransformTask;
-import com.filestack.transforms.tasks.AvTransformOptions;
+import org.filestack.internal.BaseService;
+import org.filestack.internal.CdnService;
+import org.filestack.internal.Networking;
+import org.filestack.internal.Response;
+import org.filestack.internal.Util;
+import org.filestack.internal.responses.ImageTagResponse;
+import org.filestack.transforms.AvTransform;
+import org.filestack.transforms.ImageTransform;
+import org.filestack.transforms.ImageTransformTask;
+import org.filestack.transforms.tasks.AvTransformOptions;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.reactivex.Completable;

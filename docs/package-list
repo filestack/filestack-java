@@ -1,5 +1,6 @@
-com.filestack
-com.filestack.internal
-com.filestack.internal.responses
-com.filestack.transforms
-com.filestack.transforms.tasks
+de.fuerstenau.buildconfig
+org.filestack
+org.filestack.internal
+org.filestack.internal.responses
+org.filestack.transforms
+org.filestack.transforms.tasks

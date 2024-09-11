@@ -1,12 +1,12 @@
-package com.filestack.transforms;
+package org.filestack.transforms;
 
-import com.filestack.Config;
-import com.filestack.FileLink;
-import com.filestack.StorageOptions;
-import com.filestack.internal.BaseService;
-import com.filestack.internal.CdnService;
-import com.filestack.internal.MockResponse;
-import com.filestack.transforms.tasks.AvTransformOptions;
+import org.filestack.Config;
+import org.filestack.FileLink;
+import org.filestack.StorageOptions;
+import org.filestack.internal.BaseService;
+import org.filestack.internal.CdnService;
+import org.filestack.internal.MockResponse;
+import org.filestack.transforms.tasks.AvTransformOptions;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import org.junit.Assert;
@@ -14,7 +14,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.filestack.UtilsKt.fileLink;
+import static org.filestack.UtilsKt.fileLink;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;

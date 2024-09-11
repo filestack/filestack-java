@@ -1,7 +1,7 @@
-package com.filestack.internal
+package org.filestack.internal
 
-import com.filestack.tempFile
-import com.filestack.write
+import org.filestack.tempFile
+import org.filestack.write
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import okhttp3.HttpUrl

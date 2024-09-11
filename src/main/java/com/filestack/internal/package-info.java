@@ -1,2 +1,2 @@
 /** Internal and utility classes. */
-package com.filestack.internal;
+package org.filestack.internal;

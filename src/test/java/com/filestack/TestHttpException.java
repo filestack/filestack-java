@@ -1,4 +1,4 @@
-package com.filestack;
+package org.filestack;
 
 import org.junit.Assert;
 import org.junit.Test;

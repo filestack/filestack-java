@@ -1,4 +1,4 @@
-package com.filestack.internal;
+package org.filestack.internal;
 
 import okhttp3.*;
 import okhttp3.Response;

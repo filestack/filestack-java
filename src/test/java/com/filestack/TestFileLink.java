@@ -1,8 +1,8 @@
-package com.filestack;
+package org.filestack;
 
-import com.filestack.internal.BaseService;
-import com.filestack.internal.CdnService;
-import com.filestack.internal.MockResponse;
+import org.filestack.internal.BaseService;
+import org.filestack.internal.CdnService;
+import org.filestack.internal.MockResponse;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import org.junit.Assert;
@@ -12,7 +12,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Map;
 
-import static com.filestack.internal.MockResponse.success;
+import static org.filestack.internal.MockResponse.success;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;

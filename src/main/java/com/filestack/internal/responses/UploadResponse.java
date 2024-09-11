@@ -1,4 +1,4 @@
-package com.filestack.internal.responses;
+package org.filestack.internal.responses;
 
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;

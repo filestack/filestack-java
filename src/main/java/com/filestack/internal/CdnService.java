@@ -1,6 +1,6 @@
-package com.filestack.internal;
+package org.filestack.internal;
 
-import com.filestack.internal.responses.StoreResponse;
+import org.filestack.internal.responses.StoreResponse;
 import com.google.gson.JsonObject;
 import okhttp3.HttpUrl;
 import okhttp3.Request;

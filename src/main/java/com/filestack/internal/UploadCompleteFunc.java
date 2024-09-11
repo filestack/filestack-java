@@ -1,7 +1,7 @@
-package com.filestack.internal;
+package org.filestack.internal;
 
-import com.filestack.FileLink;
-import com.filestack.internal.responses.CompleteResponse;
+import org.filestack.FileLink;
+import org.filestack.internal.responses.CompleteResponse;
 import io.reactivex.Flowable;
 import okhttp3.RequestBody;
 

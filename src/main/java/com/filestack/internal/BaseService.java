@@ -1,4 +1,4 @@
-package com.filestack.internal;
+package org.filestack.internal;
 
 import okhttp3.HttpUrl;
 import okhttp3.Request;

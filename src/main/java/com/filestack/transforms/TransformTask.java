@@ -1,4 +1,4 @@
-package com.filestack.transforms;
+package org.filestack.transforms;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;

@@ -1,7 +1,7 @@
-package com.filestack;
+package org.filestack;
 
-import com.filestack.internal.Util;
-import com.filestack.transforms.Transform;
+import org.filestack.internal.Util;
+import org.filestack.transforms.Transform;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
@@ -35,9 +35,9 @@ public class Config implements Serializable {
   /**
    * Constructs basic configuration for {@link Client} class without any security policy.
    * @param apiKey - an API key obtained from the Developer Portal
-   * @param returnUrl - returnUrl used for building JSON bodies with {@link com.filestack.internal.CloudServiceUtil}
+   * @param returnUrl - returnUrl used for building JSON bodies with {@link org.filestack.internal.CloudServiceUtil}
    * @deprecated use {@link #Config(String)} instead and manually pass returnUrl to
-   *     {@link com.filestack.internal.CloudServiceUtil#buildBaseJson(Config, String, String)} if necessary
+   *     {@link org.filestack.internal.CloudServiceUtil#buildBaseJson(Config, String, String)} if necessary
    */
   @Deprecated
   public Config(String apiKey, @Nullable String returnUrl) {
@@ -59,9 +59,9 @@ public class Config implements Serializable {
    * @param apiKey - an API key obtained from the Developer Portal
    * @param encodedPolicy - encoded policy, obtain one using {@link Policy#getEncodedPolicy()}
    * @param signature - policy signature, obtain one using {@link Policy#getSignature()}
-   * @param returnUrl - returnUrl used for building JSON bodies with {@link com.filestack.internal.CloudServiceUtil}
+   * @param returnUrl - returnUrl used for building JSON bodies with {@link org.filestack.internal.CloudServiceUtil}
    * @deprecated use {@link #Config(String, String, String)} instead and manually pass returnUrl to
-   *     {@link com.filestack.internal.CloudServiceUtil#buildBaseJson(Config, String, String)} if necessary
+   *     {@link org.filestack.internal.CloudServiceUtil#buildBaseJson(Config, String, String)} if necessary
    */
   @Deprecated
   public Config(String apiKey, @Nullable String returnUrl, @Nullable String encodedPolicy,

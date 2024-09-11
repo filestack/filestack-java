@@ -1,6 +1,6 @@
-package com.filestack.internal.responses;
+package org.filestack.internal.responses;
 
-import com.filestack.internal.Util;
+import org.filestack.internal.Util;
 import com.google.gson.annotations.SerializedName;
 import java.util.HashMap;
 import java.util.Map;

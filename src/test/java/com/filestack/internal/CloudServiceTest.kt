@@ -1,7 +1,7 @@
-package com.filestack.internal
+package org.filestack.internal
 
-import com.filestack.AppInfo
-import com.filestack.readUtf8
+import org.filestack.AppInfo
+import org.filestack.readUtf8
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.eq

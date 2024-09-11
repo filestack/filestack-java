@@ -1,6 +1,6 @@
-package com.filestack.internal;
+package org.filestack.internal;
 
-import com.filestack.internal.responses.UploadResponse;
+import org.filestack.internal.responses.UploadResponse;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;

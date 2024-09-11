@@ -1,4 +1,4 @@
-package com.filestack
+package org.filestack
 
 import okio.Okio
 import java.io.File

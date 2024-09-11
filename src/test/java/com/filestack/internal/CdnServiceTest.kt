@@ -1,6 +1,6 @@
-package com.filestack.internal
+package org.filestack.internal
 
-import com.filestack.internal.responses.StoreResponse
+import org.filestack.internal.responses.StoreResponse
 import com.google.gson.JsonObject
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock

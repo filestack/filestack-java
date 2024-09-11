@@ -1,4 +1,4 @@
-package com.filestack.internal;
+package org.filestack.internal;
 
 /**
  * Abstract class to generalize retry logic of a network call.

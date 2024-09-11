@@ -7,7 +7,7 @@ Add the following dependencies to your build.gradle:
 ```Groovy
 compile 'io.reactivex.rxjava2:rxjava:2.y.z'
 compile 'io.reactivex.rxjava2:rxandroid:2.y.z'
-compile 'com.filestack:filestack-java:x.y.z'
+compile 'org.filestack:filestack-java:x.y.z'
 ```
 
 And add the following permissions to your AndroidManifest.xml:

@@ -1,14 +1,14 @@
-package com.filestack.transforms;
+package org.filestack.transforms;
 
-import com.filestack.Config;
-import com.filestack.internal.CdnService;
+import org.filestack.Config;
+import org.filestack.internal.CdnService;
 import com.google.gson.JsonObject;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static com.filestack.internal.MockResponse.success;
+import static org.filestack.internal.MockResponse.success;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

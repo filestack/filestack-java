@@ -1,4 +1,4 @@
-package com.filestack.internal;
+package org.filestack.internal;
 
 import okio.ByteString;
 

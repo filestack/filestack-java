@@ -1,6 +1,6 @@
-package com.filestack.internal;
+package org.filestack.internal;
 
-import com.filestack.HttpException;
+import org.filestack.HttpException;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -8,7 +8,7 @@ import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
 
-import static com.filestack.UtilsKt.mockOkHttpResponse;
+import static org.filestack.UtilsKt.mockOkHttpResponse;
 
 public class TestRetryNetworkFunc {
 

@@ -1,7 +1,7 @@
-package com.filestack.internal;
+package org.filestack.internal;
 
-import com.filestack.FileLink;
-import com.filestack.Progress;
+import org.filestack.FileLink;
+import org.filestack.Progress;
 import io.reactivex.Flowable;
 import io.reactivex.functions.Function;
 import org.reactivestreams.Publisher;

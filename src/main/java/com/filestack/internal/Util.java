@@ -1,6 +1,6 @@
-package com.filestack.internal;
+package org.filestack.internal;
 
-import com.filestack.HttpException;
+import org.filestack.HttpException;
 import com.google.gson.JsonObject;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;

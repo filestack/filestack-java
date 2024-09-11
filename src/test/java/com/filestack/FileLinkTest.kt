@@ -1,7 +1,7 @@
-package com.filestack
+package org.filestack
 
-import com.filestack.internal.NetworkClient
-import com.filestack.internal.TestServiceFactory
+import org.filestack.internal.NetworkClient
+import org.filestack.internal.TestServiceFactory
 import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse

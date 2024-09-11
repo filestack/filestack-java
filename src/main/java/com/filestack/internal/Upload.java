@@ -1,9 +1,9 @@
-package com.filestack.internal;
+package org.filestack.internal;
 
-import com.filestack.Config;
-import com.filestack.FileLink;
-import com.filestack.Progress;
-import com.filestack.StorageOptions;
+import org.filestack.Config;
+import org.filestack.FileLink;
+import org.filestack.Progress;
+import org.filestack.StorageOptions;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.schedulers.Schedulers;

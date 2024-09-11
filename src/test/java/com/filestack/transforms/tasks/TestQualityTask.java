@@ -1,8 +1,8 @@
-package com.filestack.transforms.tasks;
+package org.filestack.transforms.tasks;
 
 import static org.junit.Assert.assertTrue;
 
-import com.filestack.transforms.TransformTask;
+import org.filestack.transforms.TransformTask;
 import org.junit.Test;
 
 public class TestQualityTask {

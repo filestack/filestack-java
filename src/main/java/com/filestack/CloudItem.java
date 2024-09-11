@@ -1,4 +1,4 @@
-package com.filestack;
+package org.filestack;
 
 import java.io.Serializable;
 

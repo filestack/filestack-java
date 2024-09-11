@@ -1,4 +1,4 @@
-package com.filestack.transforms.tasks;
+package org.filestack.transforms.tasks;
 
 import org.junit.Assert;
 import org.junit.Test;

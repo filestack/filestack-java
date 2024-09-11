@@ -1,4 +1,4 @@
-package com.filestack;
+package org.filestack;
 
 import com.google.gson.annotations.SerializedName;
 

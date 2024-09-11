@@ -1,9 +1,9 @@
-package com.filestack.transforms;
+package org.filestack.transforms;
 
-import com.filestack.Config;
-import com.filestack.internal.CdnService;
-import com.filestack.internal.MockResponse;
-import com.filestack.internal.responses.StoreResponse;
+import org.filestack.Config;
+import org.filestack.internal.CdnService;
+import org.filestack.internal.MockResponse;
+import org.filestack.internal.responses.StoreResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.junit.Assert;

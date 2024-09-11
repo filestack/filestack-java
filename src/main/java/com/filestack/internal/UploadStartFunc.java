@@ -1,6 +1,6 @@
-package com.filestack.internal;
+package org.filestack.internal;
 
-import com.filestack.internal.responses.StartResponse;
+import org.filestack.internal.responses.StartResponse;
 import io.reactivex.Flowable;
 
 import java.util.concurrent.Callable;

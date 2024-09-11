@@ -1,4 +1,4 @@
-package com.filestack.internal.responses;
+package org.filestack.internal.responses;
 
 @SuppressWarnings("unused")
 public class CloudStoreResponse {

@@ -1,6 +1,6 @@
-package com.filestack.internal;
+package org.filestack.internal;
 
-import static com.filestack.UtilsKt.mockOkHttpResponse;
+import static org.filestack.UtilsKt.mockOkHttpResponse;
 
 public class MockResponse {
 

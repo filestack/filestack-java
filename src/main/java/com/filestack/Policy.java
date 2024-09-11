@@ -1,7 +1,7 @@
-package com.filestack;
+package org.filestack;
 
-import com.filestack.internal.Hash;
-import com.filestack.internal.Util;
+import org.filestack.internal.Hash;
+import org.filestack.internal.Util;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 

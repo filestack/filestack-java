@@ -1,4 +1,4 @@
-package com.filestack;
+package org.filestack;
 
 public class Progress<T> {
   private static final double SMOOTHING_FACTOR = 0.005;

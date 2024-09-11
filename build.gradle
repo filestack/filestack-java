@@ -2,6 +2,9 @@ buildscript {
     ext.kotlin_version = '1.2.71'
     repositories {
         mavenCentral()
+         maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
@@ -9,9 +12,12 @@ buildscript {
 
     }
 }
+
 plugins {
     id 'com.github.kt3k.coveralls' version '2.6.3'
-    id 'com.jfrog.bintray' version '1.8.4'
+    id 'java'
+    id 'maven-publish'
+    id 'signing'
 }
 
 apply plugin: 'checkstyle'
@@ -21,8 +27,10 @@ apply plugin: 'java-library'
 apply plugin: 'de.fuerstenau.buildconfig'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
+apply plugin: 'java'
+apply plugin: 'signing'
 
-group = 'com.filestack'
+group = 'org.filestack'
 sourceCompatibility = 1.7
 version = file(new File('VERSION')).text.trim() // Get version string from VERSION text file
 
@@ -59,17 +67,6 @@ javadoc {
     options.optionFiles(new File('./config/javadoc/javadoc.txt'))
 }
 
-// Publications define artifacts to upload to Bintray
-publishing {
-    publications {
-        Maven(MavenPublication) {
-            from components.java
-            artifact sourcesJar
-            artifact javadocJar
-        }
-    }
-}
-
 repositories {
     jcenter()
 }
@@ -91,39 +88,6 @@ tasks.withType(Test) { // Put unit and integration test reports in separate dire
     reports.html.destination = file("${reporting.baseDir}/${name}")
 }
 
-// *************************************** Plugin Config ******************************************
-
-bintray {
-    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser')
-            : System.getenv('BINTRAY_USER')
-    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey')
-            : System.getenv('BINTRAY_API_KEY')
-    publications = ['Maven']
-    publish = true
-    pkg {
-        repo = 'maven'
-        userOrg = 'filestack'
-        name = 'filestack-java'
-        desc = 'Official Java SDK for Filestack.'
-
-        publicDownloadNumbers = true
-        licenses = ['Apache-2.0']
-
-        websiteUrl = 'https://filestack.com'
-        vcsUrl = 'https://github.com/filestack/filestack-java.git'
-        issueTrackerUrl = 'https://github.com/filestack/filestack-java/issues'
-
-        githubRepo = 'filestack/filestack-java'
-        githubReleaseNotesFile = 'CHANGELOG.md'
-
-        version {
-            name = project.version
-            vcsTag = project.version
-            released = new Date()
-        }
-    }
-}
-
 checkstyle {
     toolVersion '8.1'
 }
@@ -139,4 +103,52 @@ compileTestKotlin {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+}
+
+publishing {
+    publications {
+        filestackJava(MavenPublication) {
+            groupId = 'org.filestack'
+            artifactId = 'filestack-java'
+            version = file(new File('VERSION')).text.trim()
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom {
+                name = 'filestack-java'
+                description = 'filestack-java'
+                url = 'https://github.com/filestack/filestack-java'
+                inceptionYear = '2017'
+                licenses {
+                    license {
+                        name = 'Apache-2.0'
+                        url = 'https://opensource.org/license/apache-2-0'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'filestack'
+                        name = 'Filestack'
+                        email = 'dev@filestack.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git:github.com/filestack/filestack-java.git'
+                    developerConnection = 'scm:git:ssh://github.com/filestack/filestack-java.git'
+                    url = 'https://github.com/filestack/filestack-java'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url = layout.projectDirectory.dir('releases')
+        }
+    }
+}
+
+signing {
+    useGpgCmd()
+    sign publishing.publications.filestackJava
 }

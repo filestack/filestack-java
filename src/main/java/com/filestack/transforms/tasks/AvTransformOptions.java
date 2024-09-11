@@ -1,7 +1,7 @@
-package com.filestack.transforms.tasks;
+package org.filestack.transforms.tasks;
 
-import com.filestack.transforms.AvTransform;
-import com.filestack.transforms.TransformTask;
+import org.filestack.transforms.AvTransform;
+import org.filestack.transforms.TransformTask;
 
 /**
  * Configures conversion settings for {@link AvTransform}.

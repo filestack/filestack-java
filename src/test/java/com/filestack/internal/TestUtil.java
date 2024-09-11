@@ -1,6 +1,6 @@
-package com.filestack.internal;
+package org.filestack.internal;
 
-import com.filestack.HttpException;
+import org.filestack.HttpException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -9,7 +9,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import static com.filestack.UtilsKt.mockOkHttpResponse;
+import static org.filestack.UtilsKt.mockOkHttpResponse;
 import static org.junit.Assert.*;
 
 public class TestUtil extends Util {

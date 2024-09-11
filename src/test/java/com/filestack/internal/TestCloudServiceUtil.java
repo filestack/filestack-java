@@ -1,7 +1,7 @@
-package com.filestack.internal;
+package org.filestack.internal;
 
-import com.filestack.Config;
-import com.filestack.StorageOptions;
+import org.filestack.Config;
+import org.filestack.StorageOptions;
 import com.google.gson.JsonObject;
 import org.junit.Test;
 

@@ -1,6 +1,6 @@
-package com.filestack.internal;
+package org.filestack.internal;
 
-import com.filestack.FileLink;
+import org.filestack.FileLink;
 
 /** Simple internal events for the upload process. */
 class Prog {

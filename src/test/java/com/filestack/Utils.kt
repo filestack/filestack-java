@@ -1,7 +1,7 @@
-package com.filestack
+package org.filestack
 
-import com.filestack.internal.BaseService
-import com.filestack.internal.CdnService
+import org.filestack.internal.BaseService
+import org.filestack.internal.CdnService
 import okhttp3.*
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse

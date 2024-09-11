@@ -1,6 +1,6 @@
-package com.filestack.transforms.tasks;
+package org.filestack.transforms.tasks;
 
-import com.filestack.transforms.TransformTask;
+import org.filestack.transforms.TransformTask;
 import org.junit.Assert;
 import org.junit.Test;
 

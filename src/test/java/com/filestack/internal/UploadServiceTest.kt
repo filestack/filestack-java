@@ -1,10 +1,10 @@
-package com.filestack.internal
+package org.filestack.internal
 
-import com.filestack.bodyParams
-import com.filestack.internal.responses.CompleteResponse
-import com.filestack.internal.responses.StartResponse
-import com.filestack.internal.responses.UploadResponse
-import com.filestack.tempFile
+import org.filestack.bodyParams
+import org.filestack.internal.responses.CompleteResponse
+import org.filestack.internal.responses.StartResponse
+import org.filestack.internal.responses.UploadResponse
+import org.filestack.tempFile
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify

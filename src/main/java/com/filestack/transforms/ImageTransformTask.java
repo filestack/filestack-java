@@ -1,4 +1,4 @@
-package com.filestack.transforms;
+package org.filestack.transforms;
 
 /**
  * Base class for image transformation tasks.

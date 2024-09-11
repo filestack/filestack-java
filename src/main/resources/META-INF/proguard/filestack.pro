@@ -1,20 +1,20 @@
 # filestack-java-specific rules
--keep public class com.filestack.internal.responses.** {
+-keep public class org.filestack.internal.responses.** {
     private *;
     <init>(...);
 }
 
--keep public class com.filestack.CloudResponse {
+-keep public class org.filestack.CloudResponse {
     private *;
     <init>(...);
 }
 
--keep public class com.filestack.CloudItem {
+-keep public class org.filestack.CloudItem {
     private *;
     <init>(...);
 }
 
--keep public class com.filestack.AppInfo {
+-keep public class org.filestack.AppInfo {
     private *;
     <init>(...);
 }

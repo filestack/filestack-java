@@ -1,4 +1,4 @@
-package com.filestack.internal
+package org.filestack.internal
 
 import com.google.gson.Gson
 import okhttp3.HttpUrl

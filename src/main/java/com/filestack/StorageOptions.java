@@ -1,7 +1,7 @@
-package com.filestack;
+package org.filestack;
 
-import com.filestack.internal.Util;
-import com.filestack.transforms.TransformTask;
+import org.filestack.internal.Util;
+import org.filestack.transforms.TransformTask;
 import com.google.gson.JsonObject;
 import okhttp3.RequestBody;
 
