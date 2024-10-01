@@ -8,11 +8,14 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "com.github.gmazzo:gradle-buildconfig-plugin:3.0.3"
     }
 }
 
 plugins {
-    id 'com.github.kt3k.coveralls' version '2.6.3'
+    id 'com.github.kt3k.coveralls' version '2.12.2'
+    id 'com.github.gmazzo.buildconfig' version '3.0.3'
+    id 'maven-publish'
     id 'java'
     id 'maven-publish'
     id 'signing'
@@ -59,14 +62,29 @@ sourceSets {
 }
 
 buildConfig {
-    buildConfigField(String, 'VERSION', project.version)
-    className("FilestackBuildConfig")
+    className = "FilestackBuildConfig"
     packageName = project.group
+    buildConfigField 'String', 'VERSION', "\"${project.version}\""
 }
 
+task validateDirAndFileForBuild {
+    doLast {
+        def dir = file("$projectDir/docs")
+        if (!dir.exists()) {
+            throw new GradleException("Required directory is missing: ${dir.absolutePath}")
+        }
+        def customFile = file("$projectDir/config/javadoc/javadoc.txt")
+        if (!customFile.exists() || !customFile.isFile()) {
+            throw new GradleException("Invalid file path: ${customFile.absolutePath}")
+        }
+    }
+}
+
+build.dependsOn validateDirAndFileForBuild
+
 javadoc {
-    destinationDir new File("./docs")
-    options.optionFiles(new File('./config/javadoc/javadoc.txt'))
+    destinationDir new File(projectDir, '/docs')
+    options.optionFiles(new File(projectDir, '/config/javadoc/javadoc.txt'))
 }
 
 repositories {
