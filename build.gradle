@@ -5,16 +5,15 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "com.github.gmazzo:gradle-buildconfig-plugin:3.0.3"
     }
 }
 plugins {
     id 'com.github.kt3k.coveralls' version '2.12.2'
-    id 'com.github.gmazzo.buildconfig' version '5.3.4'
+    id 'com.github.gmazzo.buildconfig' version '3.0.3'
     id 'maven-publish'
-    /*TODO: Future Publish Approach Required plugins
     id 'java'
     id 'signing'
-    id 'cl.franciscosolis.sonatype-central-upload' version '1.0.3'*/
 }
 
 apply plugin: 'checkstyle'
@@ -23,6 +22,8 @@ apply plugin: 'jacoco'
 apply plugin: 'java-library'
 apply plugin: 'com.github.gmazzo.buildconfig'
 apply plugin: 'maven-publish'
+apply plugin: 'java'
+apply plugin: 'signing'
 
 group = 'com.filestack'
 sourceCompatibility = 21
@@ -56,14 +57,29 @@ sourceSets {
 }
 
 buildConfig {
-    buildConfigField(String, 'VERSION', project.version)
-    className("FilestackBuildConfig")
+    className = "FilestackBuildConfig"
     packageName = project.group
+    buildConfigField 'String', 'VERSION', "\"${project.version}\""
 }
 
+task validateDirAndFileForBuild {
+    doLast {
+        def dir = file("$projectDir/docs")
+        if (!dir.exists()) {
+            throw new GradleException("Required directory is missing: ${dir.absolutePath}")
+        }
+        def customFile = file("$projectDir/config/javadoc/javadoc.txt")
+        if (!customFile.exists() || !customFile.isFile()) {
+            throw new GradleException("Invalid file path: ${customFile.absolutePath}")
+        }
+    }
+}
+
+build.dependsOn validateDirAndFileForBuild
+
 javadoc {
-    destinationDir new File("./docs")
-    options.optionFiles(new File('./config/javadoc/javadoc.txt'))
+    destinationDir new File(projectDir, '/docs')
+    options.optionFiles(new File(projectDir, '/config/javadoc/javadoc.txt'))
 }
 
 repositories {
@@ -88,92 +104,6 @@ tasks.withType(Test) {
     reports.html.destination = file("${reporting.baseDir}/${name}")
 }
 
-// *************************************** Plugin Config ******************************************
-//TODO: FS-11617: Final Maven Cental Publishing changes once account configured
-//Current Approach: Publishing artefacto JCenter
-/*bintray {
-    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser')
-            : System.getenv('BINTRAY_USER')
-    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey')
-            : System.getenv('BINTRAY_API_KEY')
-    publications = ['Maven']
-    publish = true
-    pkg {
-        repo = 'maven'
-        userOrg = 'filestack'
-        name = 'filestack-java'
-        desc = 'Official Java SDK for Filestack.'
-
-        publicDownloadNumbers = true
-        licenses = ['Apache-2.0']
-
-        websiteUrl = 'https://filestack.com'
-        vcsUrl = 'https://github.com/filestack/filestack-java.git'
-        issueTrackerUrl = 'https://github.com/filestack/filestack-java/issues'
-
-        githubRepo = 'filestack/filestack-java'
-        githubReleaseNotesFile = 'CHANGELOG.md'
-
-        version {
-            name = project.version
-            vcsTag = project.version
-            released = new Date()
-        }
-    }
-}*/
-
-//TODO: Future Approach: Publishing artefacto Any new Repository
-/*publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            groupId = 'com.filestack'
-            artifactId = 'filestack-java'
-            version = '0.9.0'
-            from components.java
-
-            pom {
-                name = 'filestack-java'
-                description = 'filestack-java'
-                url = 'https://github.com/CelestialSystem/filestack-java'
-                inceptionYear = '2022'
-
-                licenses {
-                    license {
-                        name = 'MIT License'
-                        url = 'https://opensource.org/licenses/MIT'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'SidramB'
-                        name = 'SidramBS'
-                        email = 'sidram.bs@celestialsys.com'
-                    }
-                }
-                scm {
-                    connection = 'scm:git:git:github.com/CelestialSystem/filestack-java.git'
-                    developerConnection = 'scm:git:ssh://github.com/CelestialSystem/filestack-java.git'
-                    url = 'https://github.com/CelestialSystem/filestack-java'
-                }
-            }
-        }
-    }
-    repositories {
-        maven {
-            name = "OSSRH"
-            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-            credentials {
-                username = project.properties["username"]
-                password = project.properties["password"]
-            }
-        }
-    }
-}
-
-signing {
-    sign publishing.publications.mavenJava
-}*/
-
 checkstyle {
     toolVersion = "10.12.4"
 }
@@ -193,9 +123,48 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        filestackJava(MavenPublication) {
+            groupId = 'com.filestack'
+            artifactId = 'filestack-java'
+            version = file(new File('VERSION')).text.trim()
             from components.java
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom {
+                name = 'filestack-java'
+                description = 'filestack-java'
+                url = 'https://github.com/filestack/filestack-java'
+                inceptionYear = '2017'
+                licenses {
+                    license {
+                        name = 'Apache-2.0'
+                        url = 'https://opensource.org/license/apache-2-0'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'filestack'
+                        name = 'Filestack'
+                        email = 'dev@filestack.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git:github.com/filestack/filestack-java.git'
+                    developerConnection = 'scm:git:ssh://github.com/filestack/filestack-java.git'
+                    url = 'https://github.com/filestack/filestack-java'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url = layout.projectDirectory.dir('releases')
         }
     }
 }
 
+//signing {
+//    useGpgCmd()
+//    sign publishing.publications.filestackJava
+//}
