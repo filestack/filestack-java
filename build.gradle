@@ -19,6 +19,7 @@ plugins {
     id 'java'
     id 'maven-publish'
     id 'signing'
+    id 'checkstyle'
 }
 
 apply plugin: 'checkstyle'
@@ -67,6 +68,7 @@ buildConfig {
     buildConfigField 'String', 'VERSION', "\"${project.version}\""
 }
 
+// Added task to validate required Doc directory and files path
 task validateDirAndFileForBuild {
     doLast {
         def dir = file("$projectDir/docs")
@@ -79,7 +81,7 @@ task validateDirAndFileForBuild {
         }
     }
 }
-
+// Build fails, if required javadoc validation fails
 build.dependsOn validateDirAndFileForBuild
 
 javadoc {
@@ -109,8 +111,15 @@ tasks.withType(Test) {
     reports.html.destination = file("${reporting.baseDir}/${name}")
 }
 
+// Updated latest version to be compatible with JDK21
 checkstyle {
-    toolVersion = "10.12.4"
+    toolVersion = "10.18.2"
+}
+
+// Due to induced vulnerabilities, added code to exclude unused "org.codehaus.plexus" package.
+// Downloaded as Transitive(child) dependencies from Checkstyle plugin but not used in application.
+configurations.all {
+    exclude group: 'org.codehaus.plexus'
 }
 
 jacocoTestReport {
