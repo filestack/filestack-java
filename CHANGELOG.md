@@ -1,5 +1,14 @@
 Change Log
 ==========
+Version 1.0.1 *(2024-10-11)*
+----------------------------
+  * Added support JDK 21
+  * Updated build.gradle dependencies as per the latest Java changes.
+  * Added mavencentral and replaced with JCenter(Deprecated) in build.gradle.
+  * Updated existing JUnit test cases to be compatible with the latest JDK.
+  * Updated existing kotlin test cases to be compatible with the latest changes.
+  * Added new plugins and dependencies in build.gradle file.
+
 Version 0.9.0 *(2018-09-27)*
 ----------------------------
   * New: Use `Client#fileLink(String)` to obtain `FileLink` instances from handle.

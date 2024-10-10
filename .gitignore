@@ -14,3 +14,5 @@ local.properties
 *.iml
 .idea/
 releases
+gradle.properties
+.vscode
