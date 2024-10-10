@@ -145,7 +145,7 @@ publishing {
 
             pom {
                 name = 'filestack-java'
-                description = 'filestack-java'
+                description = 'Official Java SDK for Filestack - API and content management system that makes it easy to add powerful file uploading and transformation capabilities to any web or mobile application.'
                 url = 'https://github.com/filestack/filestack-java'
                 inceptionYear = '2017'
                 licenses {
